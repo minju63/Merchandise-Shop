@@ -71,8 +71,8 @@ flowchart LR
 - **웹앱 화면 크기:** 디자인 기준 폭 390px, 최대 폭 480px (`max-width: 480px; margin: 0 auto`)
 - **PC에서 볼 때:** 화면 가운데에 폰 크기로 표시
 - **하단 탭바:** `position: fixed`로 화면 아래 고정
-- **아이폰 하단 여백:** `env(safe-area-inset-bottom)`만큼 여백 추가 (홈 바에 탭이 가려지지 않게)
-- **viewport 설정:** `index.html`에 `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">` 추가
+- **아이폰 하단 여백:** 안드로이드 자동 0,`env(safe-area-inset-bottom)`만큼 여백 추가 (홈 바에 탭이 가려지지 않게)
+- **viewport 설정:** 모바일 화면크기 자동 맞춤.`index.html`에 `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">` 추가
 
 ### 2-5. 주기 작업 (배치)
 - **인기 굿즈 점수:** 홈 "지금 뜨는 굿즈 > 인기" 순위에 쓰는 점수(`products.popularity_score`)
