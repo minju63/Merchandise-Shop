@@ -64,15 +64,15 @@ flowchart LR
 ### 2-3. 백엔드 계층
 - **Router:** 주소(`/api/v1/home`)와 Controller를 연결
 - **Controller:** 요청 받기·응답 보내기만 담당
-- **Service:** 실제 로직 (예: 재고 임박 상품 고르기, 추천 상품 고르기)
+- **Service:** 실제 로직 (예: 재고 임박 상품 고르기, 관심 카테고리로 추천 상품 고르기)
 - **Repository:** supabase-js로 DB 조회·저장
 
 ### 2-4. 웹앱 화면 기준
 - **웹앱 화면 크기:** 디자인 기준 폭 390px, 최대 폭 480px (`max-width: 480px; margin: 0 auto`)
 - **PC에서 볼 때:** 화면 가운데에 폰 크기로 표시
 - **하단 탭바:** `position: fixed`로 화면 아래 고정
-- **아이폰 하단 여백:** 안드로이드 자동 0,`env(safe-area-inset-bottom)`만큼 여백 추가 (홈 바에 탭이 가려지지 않게)
-- **viewport 설정:** 모바일 화면크기 자동 맞춤.`index.html`에 `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">` 추가
+- **아이폰 하단 여백:** `env(safe-area-inset-bottom)`만큼 여백 추가 (홈 바에 탭이 가려지지 않게)
+- **viewport 설정:** `index.html`에 `<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">` 추가
 
 ### 2-5. 주기 작업 (배치)
 - **인기 굿즈 점수:** 홈 "지금 뜨는 굿즈 > 인기" 순위에 쓰는 점수(`products.popularity_score`)
@@ -296,7 +296,7 @@ VITE_SUPABASE_ANON_KEY=        # 로그인용 공개 키
 main        배포용 (직접 push 금지)
  └ develop  개발 통합 브랜치
     └ feature/{탭}-{기능}   예) feature/home-banner, feature/home-search
-    └ fix/{탭}-{내용}       예) fix/home-low-stock-sort
+    └ fix/{탭}-{내용}       예) fix/home-banner-slide
 ```
 
 1. 작업 전 Issue 생성 → 이슈 번호로 브랜치 생성
@@ -361,7 +361,7 @@ feat: 홈 인기 굿즈 섹션 추가 (#12)
 
 | 탭 | 담당 | 주요 범위 |
 |---|---|---|
-| 홈 | 팀원 1 | 배너, 카테고리 바로가기, 인기/신상품/신규 입점/재고 임박/추천 섹션, 통합 검색 |
+| 홈 | 팀원 1 | 상단 배너(프로모션·광고), 카테고리 바로가기, 인기/신상품/추천/재고 임박 섹션, 통합 검색 |
 | 굿즈샵 | 팀원 2 | 굿즈샵 목록·필터·정렬, 굿즈샵 상세 |
 | 카테고리 | 팀원 3 | 카테고리 화면, 카테고리 상품 목록 |
 | 찜 | 팀원 4 | 찜한 상품/굿즈샵, 재입고 알림 |

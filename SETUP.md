@@ -487,6 +487,10 @@ create table categories (
 create table banners (
   id bigint generated always as identity primary key,
   title varchar(100) not null,
+  banner_type text not null default 'PROMOTION'
+    check (banner_type in ('PROMOTION', 'AD')),       -- 프로모션 / 광고
+  advertiser_name varchar(100),                      -- 광고일 때 광고주 이름
+  subtitle varchar(200),
   image_url varchar(500) not null,
   link_type text not null check (link_type in ('EVENT','PRODUCT','SHOP','CATEGORY','URL')),
   link_value varchar(500) not null,
@@ -494,7 +498,10 @@ create table banners (
   start_at timestamptz not null,
   end_at timestamptz not null,
   is_active boolean default true,
-  created_at timestamptz default now()
+  view_count int default 0,                          -- 노출 수
+  click_count int default 0,                         -- 클릭 수
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
 );
 
 -- ... 나머지 테이블도 같은 방식으로 작성
@@ -518,16 +525,17 @@ RLS를 켜고 정책을 따로 만들지 않으면, 프론트의 `anon` 키로�
 개발·발표용 가짜 데이터입니다. `backend/supabase/seed.sql`에 작성하고 SQL Editor에서 실행합니다.
 
 ```sql
+-- is_home_shortcut = true 인 4개만 홈 바로가기에 노출 (나머지는 카테고리 탭에서)
 insert into categories (name, type, sort_order, is_home_shortcut) values
   ('애니메이션', 'CONTENT', 1, true),
-  ('게임',       'CONTENT', 2, true),
+  ('게임',       'CONTENT', 2, false),
   ('아이돌',     'CONTENT', 3, true),
-  ('캐릭터',     'CONTENT', 4, true),
-  ('피규어',     'GOODS',   5, true),
+  ('캐릭터',     'CONTENT', 4, false),
+  ('피규어',     'GOODS',   5, false),
   ('포토카드',   'GOODS',   6, true),
   ('키링',       'GOODS',   7, true),
-  ('아크릴 스탠드','GOODS', 8, true),
-  ('인형',       'GOODS',   9, true),
+  ('아크릴 스탠드','GOODS', 8, false),
+  ('인형',       'GOODS',   9, false),
   ('문구',       'GOODS',  10, false);
 
 -- 굿즈샵, 상품, 재고도 탭 담당자가 나눠서 작성
