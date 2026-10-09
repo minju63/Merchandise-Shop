@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { storeApi } from '../../../api/store.api.js';
 import Icon from './Icon.jsx';
@@ -94,16 +95,12 @@ export default function StoreProductSection({ storeId, searchContext }) {
           </button>
         )}
       </div>
-      {/* TODO(search): 공용 결과 경로 확정 후 searchContext의 storeId, storeName을 전달하고 빈 검색어로 전체 판매상품 표시 */}
-      <button
+      <Link
         className="product-view-all"
-        disabled
-        data-store-id={searchContext.storeId}
-        data-store-name={searchContext.storeName}
-        title="상품 전체보기 화면 준비 중"
+        to={`/search/results?storeId=${encodeURIComponent(searchContext.storeId)}`}
       >
         상품 전체보기
-      </button>
+      </Link>
     </section>
   );
 }

@@ -13,7 +13,10 @@ export default function StoreCard({ store }) {
         <ImageWithFallback src={store.images[0]} alt={store.name} className="store-card-image" />
         <div className="store-card-content">
           <h2>{store.name}</h2>
-          <p className="muted small">{store.region || '지역 정보 없음'}</p>
+          <p className="muted small store-region">
+            <Icon name="pin" size={13} />
+            {store.region || '지역 정보 없음'}
+          </p>
           <p className="category-line">
             {store.categoryNames.length ? store.categoryNames.join(' · ') : '굿즈샵'}
           </p>

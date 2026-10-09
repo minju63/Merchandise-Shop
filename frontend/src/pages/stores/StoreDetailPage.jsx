@@ -20,7 +20,7 @@ export default function StoreDetailPage() {
   const searchContext = store ? { storeId: store.id, storeName: store.name } : null;
   return (
     <div className="app-shell">
-      <StoreHeader back />
+      <StoreHeader back searchContext={searchContext} />
       <main className="store-main detail-main">
         {isPending ? (
           <div className="detail-skeleton" aria-label="굿즈샵 정보 불러오는 중" />

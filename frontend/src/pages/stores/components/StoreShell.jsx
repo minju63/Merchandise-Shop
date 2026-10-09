@@ -15,18 +15,14 @@ export function StoreHeader({ back = false, searchContext = null }) {
         )}
       </div>
       <div className="store-header-actions">
-        {/* TODO(search): 공용 검색 경로 확정 후 searchContext의 storeId, storeName을 전달 */}
-        {!back && (
-          <button
+        {(!back || searchContext?.storeId) && (
+          <Link
             className="icon-button"
-            disabled
-            data-store-id={searchContext?.storeId}
-            data-store-name={searchContext?.storeName}
-            title="검색 화면 준비 중"
-            aria-label="검색 준비 중"
+            to={searchContext?.storeId ? `/search?storeId=${encodeURIComponent(searchContext.storeId)}` : '/search'}
+            aria-label={searchContext?.storeId ? `${searchContext.storeName} 상품 검색` : '검색'}
           >
             <Icon name="search" />
-          </button>
+          </Link>
         )}
         <button
           className="icon-button"
@@ -60,8 +56,8 @@ export function TabBar() {
   return (
     <nav className="tab-bar" aria-label="하단 메뉴">
       {tabs.map(([icon, label]) =>
-        label === '굿즈샵' ? (
-          <Link className="tab-item active" to="/stores" key={label}>
+        label === '굿즈샵' || label === '홈' ? (
+          <Link className={`tab-item${label === '굿즈샵' ? ' active' : ''}`} to={label === '홈' ? '/' : '/stores'} key={label}>
             <Icon name={icon} size={22} />
             <span>{label}</span>
           </Link>

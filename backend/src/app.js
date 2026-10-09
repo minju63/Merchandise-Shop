@@ -4,6 +4,9 @@ import dotenv from 'dotenv';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import apiRoutes from './routes/index.js';
+import upcomingRoutes from './routes/upcoming.routes.js';
+import searchRoutes from './routes/search.routes.js';
+import { startUpcomingProductsJob } from './jobs/upcoming-products.job.js';
 
 dotenv.config();
 
@@ -18,6 +21,12 @@ app.get('/api/v1/health', (req, res) => {
 });
 
 app.use('/api/v1', apiRoutes);
+app.use('/api/v1', upcomingRoutes);
+app.use('/api/v1', searchRoutes);
+
+if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
+  startUpcomingProductsJob();
+}
 
 // 404 — Express 5에서는 app.get('*') 대신 app.use() 사용
 app.use((req, res) => {

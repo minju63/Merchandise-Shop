@@ -183,6 +183,14 @@
 .small {
   font-size: 12px;
 }
+.store-region {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.store-region svg {
+  flex: none;
+}
 .category-line {
   color: #737b87;
   font-size: 12px;
