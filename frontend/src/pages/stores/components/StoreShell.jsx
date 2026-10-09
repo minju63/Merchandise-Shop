@@ -2,6 +2,8 @@ import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import Icon from './Icon.jsx';
 
+export { default as TabBar } from '../../../components/BottomNavigation.jsx';
+
 export function StoreHeader({ back = false, searchContext = null }) {
   return (
     <header className="store-header">
@@ -42,33 +44,6 @@ export function StoreHeader({ back = false, searchContext = null }) {
         </button>
       </div>
     </header>
-  );
-}
-
-export function TabBar() {
-  const tabs = [
-    ['home', '홈'],
-    ['store', '굿즈샵'],
-    ['grid', '카테고리'],
-    ['heart', '찜'],
-    ['user', '마이'],
-  ];
-  return (
-    <nav className="tab-bar" aria-label="하단 메뉴">
-      {tabs.map(([icon, label]) =>
-        label === '굿즈샵' || label === '홈' ? (
-          <Link className={`tab-item${label === '굿즈샵' ? ' active' : ''}`} to={label === '홈' ? '/' : '/stores'} key={label}>
-            <Icon name={icon} size={22} />
-            <span>{label}</span>
-          </Link>
-        ) : (
-          <button className="tab-item" disabled title={`${label} 화면 준비 중`} key={label}>
-            <Icon name={icon} size={22} />
-            <span>{label}</span>
-          </button>
-        )
-      )}
-    </nav>
   );
 }
 

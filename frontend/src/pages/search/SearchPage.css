@@ -3,7 +3,7 @@
   max-width: 480px;
   min-height: 100vh;
   margin: 0 auto;
-  padding-bottom: calc(68px + env(safe-area-inset-bottom));
+  padding-bottom: calc(74px + env(safe-area-inset-bottom));
   color: #211d2b;
   background: #fff;
   box-shadow: 0 0 40px rgb(47 36 78 / 8%);
@@ -18,14 +18,14 @@
 }
 
 .search-header__back {
+  display: grid;
   width: 29px;
   height: 40px;
-  padding: 0 0 3px;
+  padding: 0;
+  place-items: center;
   border: 0;
   color: #332d3a;
   background: transparent;
-  font-size: 30px;
-  line-height: 1;
 }
 
 .search-input {
@@ -328,43 +328,6 @@
   color: #aaa4af;
   font-size: 11px;
   text-align: center;
-}
-
-.search-tabbar {
-  position: fixed;
-  z-index: 20;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  display: flex;
-  width: min(100%, 480px);
-  min-height: calc(62px + env(safe-area-inset-bottom));
-  margin: 0 auto;
-  padding: 7px 8px max(7px, env(safe-area-inset-bottom));
-  align-items: center;
-  justify-content: space-around;
-  border-top: 1px solid #eae7ee;
-  background: rgb(255 255 255 / 96%);
-}
-
-.search-tabbar button {
-  display: flex;
-  min-width: 52px;
-  padding: 2px;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  border: 0;
-  color: #8c8693;
-  background: transparent;
-}
-
-.search-tabbar button > span { font-size: 19px; line-height: 1; }
-.search-tabbar small { font-size: 8px; }
-
-.search-tabbar button.home-enabled {
-  color: #6846d8;
-  font-weight: 800;
 }
 
 .search-results > h1 {

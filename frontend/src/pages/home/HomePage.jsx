@@ -1,27 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import ProductCard from '../../components/ProductCard.jsx';
 import UpcomingProductCard from '../../components/UpcomingProductCard.jsx';
+import Icon from '../../components/Icon.jsx';
+import BottomNavigation from '../../components/BottomNavigation.jsx';
 import './HomePage.css';
-
-const iconPaths = {
-  search: <><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4 4" /></>,
-  bell: <><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" /><path d="M10 21h4" /></>,
-  cart: <><path d="M3 4h2l2.2 11h9.9l2-8H6" /><circle cx="9" cy="20" r="1" /><circle cx="17" cy="20" r="1" /></>,
-  mic: <><rect x="8" y="3" width="8" height="12" rx="4" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></>,
-  play: <><rect x="3" y="5" width="18" height="14" rx="3" /><path d="m10 9 5 3-5 3Z" /></>,
-  card: <><rect x="5" y="3" width="14" height="18" rx="2" /><path d="M8 7h8M8 11h5M8 15h8" /></>,
-  link: <><path d="m9.5 14.5 5-5M7.3 17.7l-1 1a3.5 3.5 0 0 1-5-5l3-3a3.5 3.5 0 0 1 5 0M16.7 6.3l1-1a3.5 3.5 0 0 1 5 5l-3 3a3.5 3.5 0 0 1-5 0" /></>,
-  grid: <><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /></>,
-  home: <><path d="m3 11 9-8 9 8" /><path d="M5 10v10h14V10M9 20v-6h6v6" /></>,
-  shop: <><path d="M4 9h16l-1-5H5L4 9Z" /><path d="M5 9v11h14V9M9 20v-6h6v6M4 9c0 2 3 3 4 0 0 2 3 3 4 0 0 2 3 3 4 0 0 2 3 3 4 0" /></>,
-  category: <><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /></>,
-  heart: <path d="M20.8 4.6a5.4 5.4 0 0 0-7.7 0L12 5.7l-1.1-1.1a5.4 5.4 0 0 0-7.7 7.7L12 21l8.8-8.7a5.4 5.4 0 0 0 0-7.7Z" />,
-  user: <><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></>,
-};
-
-function Icon({ name, size = 24 }) {
-  return <svg className="ui-icon" viewBox="0 0 24 24" width={size} height={size} aria-hidden="true">{iconPaths[name]}</svg>;
-}
 
 function HorizontalRail({ children, className, ariaLabel }) {
   const rail = useRef(null);
@@ -120,7 +102,6 @@ export default function HomePage({
   onBannerClick,
   onNavigate,
   onSearch,
-  onStores,
   onRequestLogin,
   onLogin,
   onOpenInterestSettings,
@@ -462,22 +443,7 @@ export default function HomePage({
         </footer>
       </main>
 
-      <nav className="bottom-tabbar" aria-label="하단 메뉴">
-        {[
-          ['home', '홈'], ['shop', '굿즈샵'], ['category', '카테고리'], ['heart', '찜'], ['user', '마이'],
-        ].map(([icon, label], index) => (
-          <button
-            className={index === 0 ? 'active' : ''}
-            type="button"
-            key={label}
-            disabled={label !== '굿즈샵'}
-            onClick={label === '굿즈샵' ? onStores : undefined}
-            aria-current={index === 0 ? 'page' : undefined}
-          >
-            <Icon name={icon} size={22} /><span>{label}</span>
-          </button>
-        ))}
-      </nav>
+      <BottomNavigation />
     </div>
   );
 }

@@ -63,7 +63,6 @@ function HomeRoute() {
       data={homeMockData}
       {...homeMockUserState}
       onSearch={() => navigate('/search')}
-      onStores={() => navigate('/stores')}
     />
   );
 }
@@ -90,8 +89,6 @@ function SearchRoute() {
       onClearStore={() => navigate('/search')}
       onBack={() => navigate(storeId ? `/stores/${storeId}` : '/')}
       onSearch={(query) => navigate(searchUrl('/search/results', { query, storeId }))}
-      onHome={() => navigate('/')}
-      onStores={() => navigate('/stores')}
     />
   );
 }
@@ -158,8 +155,6 @@ function SearchResultsRoute() {
       onBack={() => navigate(searchUrl('/search', { storeId }))}
       onSearch={(nextQuery) => navigate(searchUrl('/search/results', { query: nextQuery, storeId, sort }))}
       onLogSearch={logSearch}
-      onHome={() => navigate('/')}
-      onStores={() => navigate('/stores')}
     />
   );
 }

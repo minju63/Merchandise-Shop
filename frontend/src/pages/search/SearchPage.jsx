@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { parseRegionalQuery } from './searchQuery.js';
 import { searchApi } from '../../api/search.api.js';
+import Icon from '../../components/Icon.jsx';
+import BottomNavigation from '../../components/BottomNavigation.jsx';
 import './SearchPage.css';
 
 const RECENT_SEARCH_KEY = 'goodzpick.recentSearches';
@@ -97,18 +99,13 @@ function saveRecentSearches(searches) {
 }
 
 function SearchIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="11" cy="11" r="6.5" />
-      <path d="m16 16 4 4" />
-    </svg>
-  );
+  return <Icon name="search" size={18} />;
 }
 
 function SearchHeader({ query, setQuery, onBack, onSubmit, autoFocus = false, storeId, storeName, onClearStore }) {
   return (
     <header className="search-header">
-      <button className="search-header__back" type="button" aria-label="뒤로가기" onClick={onBack}>‹</button>
+      <button className="search-header__back" type="button" aria-label="뒤로가기" onClick={onBack}><Icon name="back" size={22} /></button>
       <form className="search-input" onSubmit={onSubmit}>
         {storeId ? (
           <button className="search-input__store" type="button" onClick={() => onClearStore(query)} aria-label={`${storeName || '굿즈샵'} 필터 해제`}>
@@ -129,28 +126,6 @@ function SearchHeader({ query, setQuery, onBack, onSubmit, autoFocus = false, st
         {storeId ? <button className="search-input__submit" type="submit" aria-label="검색 실행"><SearchIcon /></button> : null}
       </form>
     </header>
-  );
-}
-
-function SearchTabBar({ onHome, onStores }) {
-  const tabs = [
-    ['⌂', '홈'], ['▣', '굿즈샵'], ['▦', '카테고리'], ['♡', '찜'], ['♙', '마이'],
-  ];
-
-  return (
-    <nav className="search-tabbar" aria-label="하단 메뉴">
-      {tabs.map(([icon, label]) => (
-        <button
-          className={label === '홈' ? 'home-enabled' : ''}
-          type="button"
-          key={label}
-          disabled={label !== '홈' && label !== '굿즈샵'}
-          onClick={label === '홈' ? onHome : label === '굿즈샵' ? onStores : undefined}
-        >
-          <span aria-hidden="true">{icon}</span><small>{label}</small>
-        </button>
-      ))}
-    </nav>
   );
 }
 
@@ -199,8 +174,6 @@ export default function SearchPage({
   onClearRecentSearches,
   onBack,
   onSearch,
-  onHome,
-  onStores,
   storeId,
   storeName,
   storeError,
@@ -335,7 +308,7 @@ export default function SearchPage({
         </section>
         </>}
       </main>
-      <SearchTabBar onHome={onHome} onStores={onStores} />
+      <BottomNavigation />
     </div>
   );
 }
@@ -425,8 +398,6 @@ export function SearchResultsPage({
   onBack,
   onSearch,
   onLogSearch,
-  onHome,
-  onStores,
   storeId,
   storeName,
   storeError,
@@ -630,7 +601,7 @@ export function SearchResultsPage({
           {!matchedShops.length ? <p className="result-empty">일치하는 굿즈샵이 없습니다.</p> : null}
         </section> : null}
       </main>}
-      <SearchTabBar onHome={onHome} onStores={onStores} />
+      <BottomNavigation />
     </div>
   );
 }
