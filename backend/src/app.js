@@ -1,6 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import upcomingRoutes from './routes/upcoming.routes.js';
+import searchRoutes from './routes/search.routes.js';
+import { startUpcomingProductsJob } from './jobs/upcoming-products.job.js';
 
 dotenv.config();
 
@@ -13,7 +16,10 @@ app.get('/api/v1/health', (req, res) => {
   res.json({ ok: true });
 });
 
-// 라우터는 이 아래에 추가 (예: app.use('/api/v1/wishlist', wishlistRoutes))
+app.use('/api/v1', upcomingRoutes);
+app.use('/api/v1', searchRoutes);
+
+startUpcomingProductsJob();
 
 // 404 — Express 5에서는 app.get('*') 대신 app.use() 사용
 app.use((req, res) => {

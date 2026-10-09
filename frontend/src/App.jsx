@@ -1,101 +1,89 @@
-import { useState } from 'react';
-import heroImg from './assets/hero.png';
-import reactLogo from './assets/react.svg';
-import viteLogo from './assets/vite.svg';
-import './App.css';
+import {
+  Navigate,
+  Route,
+  Routes,
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom';
+import HomePage from './pages/home/HomePage.jsx';
+import { homeMockData, homeMockUserState } from './pages/home/homeMockData.js';
+import SearchPage, { SearchResultsPage } from './pages/search/SearchPage.jsx';
+import { searchMockData } from './pages/search/searchMockData.js';
 
-function App() {
-  const [count, setCount] = useState(0);
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:4000/api/v1';
+
+function logSearch(payload) {
+  fetch(`${API_BASE_URL}/search/logs`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  }).catch(() => {
+    // 검색 API가 아직 실행되지 않은 로컬 환경에서도 화면은 정상 동작해야 합니다.
+  });
+}
+
+const searchProducts = [
+  ...searchMockData.searchProducts,
+  ...homeMockData.popularProducts,
+  ...homeMockData.newProducts,
+  ...homeMockData.upcomingProducts,
+  ...homeMockData.lowStockProducts,
+].filter((product, index, products) => (
+  products.findIndex((candidate) => candidate.id === product.id) === index
+));
+
+function HomeRoute() {
+  const navigate = useNavigate();
+  return (
+    <HomePage
+      data={homeMockData}
+      {...homeMockUserState}
+      onSearch={() => navigate('/search')}
+    />
+  );
+}
+
+function SearchRoute() {
+  const navigate = useNavigate();
+  return (
+    <SearchPage
+      data={searchMockData}
+      onBack={() => navigate(-1)}
+      onSearch={(query) => navigate(`/search/results?q=${encodeURIComponent(query)}`)}
+      onHome={() => navigate('/')}
+    />
+  );
+}
+
+function SearchResultsRoute() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const query = searchParams.get('q')?.trim();
+
+  if (!query) return <Navigate to="/search" replace />;
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button type="button" className="counter" onClick={() => setCount((count) => count + 1)}>
-          Count is {count}
-        </button>
-      </section>
+    <SearchResultsPage
+      key={query}
+      initialQuery={query}
+      data={searchMockData}
+      products={searchProducts}
+      onBack={() => navigate('/search')}
+      onSearch={(nextQuery) => navigate(`/search/results?q=${encodeURIComponent(nextQuery)}`)}
+      onLogSearch={logSearch}
+      onHome={() => navigate('/')}
+    />
+  );
+}
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg className="button-icon" role="presentation" aria-hidden="true">
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg className="button-icon" role="presentation" aria-hidden="true">
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg className="button-icon" role="presentation" aria-hidden="true">
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg className="button-icon" role="presentation" aria-hidden="true">
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<HomeRoute />} />
+      <Route path="/search" element={<SearchRoute />} />
+      <Route path="/search/results" element={<SearchResultsRoute />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 
