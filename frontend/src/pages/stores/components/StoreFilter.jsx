@@ -8,6 +8,7 @@ export default function StoreFilter({ filters, onChange }) {
       ].map(([key, label]) => (
         <button
           key={key}
+          type="button"
           className={`filter-chip ${filters[key] ? 'selected' : ''}`}
           aria-pressed={filters[key]}
           onClick={() => onChange(key)}

@@ -5,6 +5,29 @@ import Icon from './Icon.jsx';
 export { default as TabBar } from '../../../components/BottomNavigation.jsx';
 
 export function StoreHeader({ back = false, searchContext = null }) {
+  if (!back) {
+    return (
+      <header className="store-list-header">
+        <div className="store-list-header__row">
+          <Link className="store-brand" to="/" aria-label="굿즈픽 홈으로">
+            굿즈<span>픽</span>
+          </Link>
+          <div className="store-list-header__actions">
+            <Link className="store-list-header__action" to="/search" aria-label="검색">
+              <Icon name="search" size={21} />
+            </Link>
+            <button className="store-list-header__action" type="button" disabled title="알림 화면 준비 중" aria-label="알림 준비 중">
+              <Icon name="bell" size={21} />
+            </button>
+            <button className="store-list-header__action" type="button" disabled title="장바구니 화면 준비 중" aria-label="장바구니 준비 중">
+              <Icon name="cart" size={22} />
+            </button>
+          </div>
+        </div>
+      </header>
+    );
+  }
+
   return (
     <header className="store-header">
       <div className="store-header-main">

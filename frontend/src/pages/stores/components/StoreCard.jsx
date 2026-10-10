@@ -10,7 +10,7 @@ export default function StoreCard({ store }) {
         to={`/stores/${store.id}`}
         aria-label={`${store.name} 상세 보기`}
       >
-        <ImageWithFallback src={store.images[0]} alt={store.name} className="store-card-image" />
+        <ImageWithFallback src={store.images?.[0]} alt={store.name} className="store-card-image" />
         <div className="store-card-content">
           <h2>{store.name}</h2>
           <p className="muted small store-region">

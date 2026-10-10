@@ -285,6 +285,235 @@
   gap: 10px;
   margin: 18px 0;
 }
+
+/* 굿즈샵 목록: 홈의 브랜드 색상과 카드 리듬을 공유한다. */
+.store-list-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: max(18px, env(safe-area-inset-top)) 18px 8px;
+  background: rgb(255 255 255 / 96%);
+  backdrop-filter: blur(12px);
+}
+
+.store-list-header__row,
+.store-list-header__actions {
+  display: flex;
+  align-items: center;
+}
+
+.store-list-header__row {
+  min-height: 36px;
+  justify-content: space-between;
+}
+
+.store-brand {
+  color: #17141d;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -1.5px;
+  line-height: 1;
+}
+
+.store-brand span {
+  color: #6c4adf;
+}
+
+.store-list-header__actions {
+  gap: 5px;
+}
+
+.store-list-header__action {
+  display: grid;
+  width: 33px;
+  height: 33px;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  color: #26222c;
+  background: transparent;
+}
+
+.store-list-header a:focus-visible,
+.list-main a:focus-visible,
+.list-main button:focus-visible {
+  outline: 2px solid #6c4adf;
+  outline-offset: 2px;
+}
+
+.list-main {
+  padding: 18px 18px 30px;
+}
+
+.list-main .filter-row {
+  gap: 7px;
+  padding-bottom: 20px;
+}
+
+.list-main .filter-chip {
+  min-height: 37px;
+  padding: 8px 5px;
+  border: 1px solid #e8e4ed;
+  border-radius: 99px;
+  color: #65606b;
+  background: #fff;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.list-main .filter-chip.selected {
+  border-color: #d9cdff;
+  color: #5c3ccc;
+  background: #f3efff;
+  font-weight: 800;
+}
+
+.list-main .store-list-heading {
+  min-height: 42px;
+  margin: 0 0 11px;
+  align-items: end;
+}
+
+.store-list-heading h1 {
+  margin: 0;
+  color: #211d2b;
+  font-size: 17px;
+  line-height: 1.25;
+  letter-spacing: -0.65px;
+}
+
+.store-list-heading p {
+  margin: 4px 0 0;
+  color: #817b8a;
+  font-size: 11px;
+}
+
+.list-main .sort-trigger {
+  min-height: 32px;
+  padding: 5px 9px;
+  border-color: #e8e4ed;
+  border-radius: 9px;
+  color: #5f5968;
+  font-size: 11px;
+}
+
+.list-main .sort-menu {
+  border-color: #eeeaf4;
+  box-shadow: 0 10px 28px rgb(47 36 78 / 13%);
+}
+
+.list-main .sort-menu button[aria-selected='true'],
+.list-main .sort-menu button:hover {
+  color: #5c3ccc;
+  background: #f5f2ff;
+}
+
+.list-main .store-list {
+  display: grid;
+  gap: 10px;
+}
+
+.list-main .store-card {
+  padding: 12px;
+  border: 1px solid #eeeaf4;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #fbfaff, #fff 65%);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.list-main .store-card:hover,
+.list-main .store-card:focus-within {
+  border-color: #d9cdff;
+  box-shadow: 0 6px 20px rgb(47 36 78 / 7%);
+}
+
+.list-main .store-card-link {
+  min-height: 110px;
+  gap: 12px;
+  padding-right: 20px;
+}
+
+.list-main .store-card-image {
+  width: 106px;
+  height: 110px;
+  border-radius: 11px;
+  background: #f2edff;
+}
+
+.list-main .image-fallback {
+  color: #907cdb;
+  background: #f2edff;
+}
+
+.list-main .store-card-content h2 {
+  margin-bottom: 6px;
+  color: #211d2b;
+  font-size: 15px;
+  letter-spacing: -0.35px;
+}
+
+.list-main .store-region,
+.list-main .category-line {
+  color: #817b8a;
+  font-size: 11px;
+}
+
+.list-main .store-meta {
+  margin-top: 8px !important;
+  color: #625c6a;
+  font-size: 11px;
+}
+
+.list-main .availability-badges span {
+  padding: 3px 6px;
+  border: 0;
+  border-radius: 5px;
+  color: #5c3ccc;
+  background: #f3efff;
+  font-size: 9px;
+}
+
+.list-main .card-heart {
+  top: 12px;
+  right: 12px;
+  color: #716a79;
+}
+
+.list-main .secondary-button {
+  border-color: #e8e4ed;
+  border-radius: 10px;
+  color: #5c3ccc;
+  font-weight: 700;
+}
+
+.list-main .state-illustration {
+  color: #6c4adf;
+  background: #f3efff;
+}
+
+.list-main .skeleton-row {
+  padding: 12px;
+  border: 1px solid #eeeaf4;
+  border-radius: 14px;
+}
+
+.list-main .skeleton-row div {
+  width: 106px;
+  height: 110px;
+  background: #f2edff;
+  border-radius: 11px;
+}
+
+@media (max-width: 350px) {
+  .list-main .store-card-image,
+  .list-main .skeleton-row div {
+    width: 88px;
+  }
+
+  .list-main .store-card-link {
+    gap: 9px;
+  }
+}
 .list-skeleton {
   display: grid;
   gap: 10px;
