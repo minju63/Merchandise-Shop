@@ -41,7 +41,7 @@ export async function getProductInquiries(req, res, next) {
 }
 
 // Authentication middleware must populate req.user from a verified access token.
-// Service contract: createProductInquiry({ storeProductId, userId, content, title? }).
+// Service contract: createProductInquiry({ storeProductId, userId, content, title }).
 export async function createProductInquiry(req, res, next) {
   const userId = req.user?.id;
   if (!validId(userId)) return reject(res, '로그인이 필요합니다.', 401, 'UNAUTHORIZED');
@@ -50,16 +50,24 @@ export async function createProductInquiry(req, res, next) {
   if (!validId(storeProductId)) return reject(res, 'storeProductId는 UUID여야 합니다.');
 
   const body = req.body;
-  if (!body || typeof body !== 'object' || Array.isArray(body)
-    || typeof body.content !== 'string' || !body.content.trim()) {
+  if (
+    !body ||
+    typeof body !== 'object' ||
+    Array.isArray(body) ||
+    typeof body.content !== 'string' ||
+    !body.content.trim()
+  ) {
     return reject(res, '문의 내용을 입력해 주세요.');
   }
-  if (body.title !== undefined && (typeof body.title !== 'string' || !body.title.trim())) {
-    return reject(res, '문의 제목은 비어 있지 않은 문자열이어야 합니다.');
+  if (
+    typeof body.title !== 'string' ||
+    !body.title.trim() ||
+    Array.from(body.title.trim()).length > 100
+  ) {
+    return reject(res, '문의 제목은 1~100자로 입력해 주세요.');
   }
 
-  const input = { storeProductId, userId, content: body.content.trim() };
-  if (body.title !== undefined) input.title = body.title.trim();
+  const input = { storeProductId, userId, content: body.content.trim(), title: body.title.trim() };
 
   try {
     const data = await productInquiryService.createProductInquiry(input);

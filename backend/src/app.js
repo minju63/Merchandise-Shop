@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import categoryRouter from './routes/category.routes.js';
+import productRouter from './routes/product.routes.js';
 
 dotenv.config();
 
@@ -14,6 +16,17 @@ app.get('/api/v1/health', (req, res) => {
 });
 
 // 라우터는 이 아래에 추가 (예: app.use('/api/v1/wishlist', wishlistRoutes))
+app.use('/api/v1/categories', categoryRouter);
+
+app.get('/api/v1/health', (req, res) => {
+  res.json({ ok: true });
+});
+
+// 카테고리 API
+app.use('/api/v1/categories', categoryRouter);
+
+// 상품 목록·상세·문의 API
+app.use('/api/v1/products', productRouter);
 
 // 404 — Express 5에서는 app.get('*') 대신 app.use() 사용
 app.use((req, res) => {

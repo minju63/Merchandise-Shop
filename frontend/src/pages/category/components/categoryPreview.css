@@ -1,0 +1,114 @@
+.category-preview-app {
+  --accent: #7957ff;
+  --accent-bg: #efebff;
+  --border: #eeedf4;
+  --bg: #fff;
+  --text: #838398;
+  --text-h: #20202b;
+  width: min(430px, 100%);
+  margin: 24px auto;
+  background: white;
+  color: #20202b;
+  color-scheme: light;
+  border: 1px solid #e9e7f1;
+  border-radius: 24px;
+  overflow: clip;
+  box-shadow: 0 12px 50px #34256812;
+  text-align: left;
+}
+.category-preview-controls {
+  font-size: 12px;
+}
+.category-preview-header {
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  border-bottom: 1px solid #f2f1f6;
+}
+.category-preview-brand {
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: -1.5px;
+  text-decoration: none;
+  color: #111;
+}
+.category-preview-brand span {
+  color: #7957ff;
+}
+.category-preview-header-icons {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+.category-preview-header-icons a,
+.category-preview-header-icons button {
+  position: relative;
+  color: #252537;
+  background: none;
+  border: 0;
+  padding: 0;
+  display: flex;
+}
+.category-preview-header-icons button:disabled {
+  opacity: 0.65;
+}
+.category-preview-badge {
+  position: absolute;
+  right: -7px;
+  top: -7px;
+  border-radius: 20px;
+  background: #7957ff;
+  color: white;
+  width: 15px;
+  height: 15px;
+  text-align: center;
+  font: 10px/15px sans-serif;
+}
+.category-preview-tabs {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  border-top: 1px solid #eeedf4;
+  padding: 12px 4px max(12px, env(safe-area-inset-bottom));
+}
+.category-preview-tabs a,
+.category-preview-tabs button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  color: #848498;
+  text-decoration: none;
+  font: 11px/1.4 sans-serif;
+  background: none;
+  border: 0;
+}
+.category-preview-tabs .is-selected {
+  color: #7957ff;
+  font-weight: 700;
+}
+.category-preview-app .category-page:not(.category-main-page) {
+  padding: 18px 14px;
+}
+.category-preview-app .category-product-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.category-preview-app .category-detail-top {
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (max-width: 480px) {
+  .category-preview-app {
+    margin: 0 auto;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+.category-preview-app:has(.category-detail) .category-page.category-detail {
+  padding-bottom: 110px;
+}
