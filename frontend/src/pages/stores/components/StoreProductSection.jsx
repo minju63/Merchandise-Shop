@@ -46,6 +46,9 @@ export default function StoreProductSection({ storeId, searchContext }) {
                 >
                   <div className="product-picture">
                     <ImageWithFallback src={product.image} alt={product.name} />
+                    <span className="product-heart" aria-hidden="true">
+                      <Icon name="heart" size={19} />
+                    </span>
                   </div>
                   <h3>{product.name}</h3>
                   <strong className="product-price">
@@ -61,15 +64,6 @@ export default function StoreProductSection({ storeId, searchContext }) {
                     delivery={product.deliveryAvailable}
                   />
                 </Link>
-                {/* TODO: 공통 상품 찜 API는 storeProductId로 연결 */}
-                <button
-                  className="product-heart"
-                  disabled
-                  title="찜 기능 준비 중"
-                  aria-label={`${product.name} 찜 기능 준비 중`}
-                >
-                  <Icon name="heart" size={19} />
-                </button>
               </article>
             ))}
           </div>

@@ -735,6 +735,8 @@
   place-items: center;
   width: 25px;
   height: 25px;
+  opacity: 0.75;
+  pointer-events: none;
 }
 .product-card h3 {
   font-size: 12px;
