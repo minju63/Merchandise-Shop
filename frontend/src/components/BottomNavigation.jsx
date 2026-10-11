@@ -5,7 +5,7 @@ import './BottomNavigation.css';
 const tabs = [
   { icon: 'home', label: '홈', to: '/' },
   { icon: 'store', label: '굿즈샵', to: '/stores' },
-  { icon: 'grid', label: '카테고리' },
+  { icon: 'grid', label: '카테고리', to: '/category' },
   { icon: 'heart', label: '찜' },
   { icon: 'user', label: '마이' },
 ];

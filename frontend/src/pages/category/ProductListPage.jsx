@@ -1,3 +1,4 @@
+import CategoryLayout from './components/CategoryLayout.jsx';
 import CategoryProductCard from './components/CategoryProductCard.jsx';
 import sharedClient from '../../api/client.js';
 import { useCallback, useState } from 'react';
@@ -15,7 +16,7 @@ const FILTER_KEYS = ['minPrice', 'maxPrice', 'regionId', 'inStock', 'pickup', 'd
 const QUERY_KEYS = ['contentCategoryId', 'goodsCategoryId', 'sort', 'page', 'size', ...FILTER_KEYS];
 
 // ProductCard must be the shared component. regions are supplied by the shared region API.
-export default function ProductListPage({
+function ProductListPageContent({
   client = sharedClient,
   ProductCard = CategoryProductCard,
   user,
@@ -28,7 +29,7 @@ export default function ProductListPage({
   const queryKey = params.toString();
   const resultType = ['all', 'goods', 'stores'].includes(params.get('resultType'))
     ? params.get('resultType')
-    : 'goods';
+    : 'all';
   const contentCategoryId = params.get('contentCategoryId');
   const categoryReturnTo = contentCategoryId
     ? `/category?${new URLSearchParams({ contentCategoryId })}`
@@ -51,7 +52,11 @@ export default function ProductListPage({
   const filters = Object.fromEntries(FILTER_KEYS.map((key) => [key, params.get(key) || '']));
   const selectedNames = ['contentCategoryId', 'goodsCategoryId']
     .map((key) =>
-      key === 'goodsCategoryId' && params.get('goodsType')
+      key === 'contentCategoryId' && params.get('contentName')
+        ? params.get('contentName')
+        : key === 'goodsCategoryId' && params.get('allGoods') === 'true'
+        ? '모두 보기'
+        : key === 'goodsCategoryId' && params.get('goodsType')
         ? params.get('goodsType')
         : categories.find((category) => category.id === params.get(key))?.name
     )
@@ -89,23 +94,28 @@ export default function ProductListPage({
           </button>
         ))}
       </nav>
+      {resultType !== 'goods' && (
+        <CategoryStoreResults queryKey={queryKey} api={api} client={client} userId={user?.id} />
+      )}
+      {resultType !== 'stores' && <>
       <div className="category-section-heading">
         <p>
-          {request.data ? `${request.data.totalCount.toLocaleString('ko-KR')}개 상품` : '상품 찾기'}
+          {request.data ? `굿즈 ${request.data.totalCount.toLocaleString('ko-KR')}` : '상품 찾기'}
         </p>
+        <ProductSort compact value={params.get('sort') || 'popular'} onChange={(sort) => update({ sort })} />
       </div>
-      <ProductFilterBar
+      <div className="category-quick-filters" aria-label="빠른 상품 필터">
+        {[['inStock', '구매 가능'], ['pickup', '픽업 가능'], ['delivery', '배송 가능']].map(([key, label]) => (
+          <button key={key} type="button" aria-pressed={filters[key] === 'true'} onClick={() => update({ [key]: filters[key] === 'true' ? '' : 'true' })}>{filters[key] === 'true' && <span aria-hidden="true">✓ </span>}{label}</button>
+        ))}
+      </div>
+      <details className="category-extra-filters"><summary>상세 필터</summary><ProductFilterBar
         filters={filters}
         regions={regions}
         onOpen={(section) => setFilterOpen(section)}
         onReset={() => update(Object.fromEntries(FILTER_KEYS.map((key) => [key, ''])))}
-      >
-        <ProductSort
-          compact
-          value={params.get('sort') || 'popular'}
-          onChange={(sort) => update({ sort })}
-        />
-      </ProductFilterBar>
+      /></details>
+      </>}
       {filterOpen && (
         <ProductFilterSheet
           filters={filters}
@@ -164,9 +174,11 @@ export default function ProductListPage({
           </button>
         </nav>
       )}
-      {resultType !== 'goods' && (
-        <CategoryStoreResults queryKey={queryKey} api={api} client={client} userId={user?.id} />
-      )}
+
     </main>
   );
+}
+
+export default function ProductListPage({ embedded = false, ...props }) {
+  return <CategoryLayout embedded={embedded}><ProductListPageContent {...props} /></CategoryLayout>;
 }

@@ -1,7 +1,9 @@
+import CategoryLayout from './components/CategoryLayout.jsx';
 import sharedClient from '../../api/client.js';
 import { useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import * as categoryApi from '../../api/category.api';
+import * as defaultProductApi from '../../api/product.api';
 import CategorySidebar from './components/CategorySidebar';
 import GoodsTypeGrid from './components/GoodsTypeGrid';
 import ProductEmptyState from './components/ProductEmptyState';
@@ -10,7 +12,7 @@ import './components/category.css';
 import { buildGoodsTypes } from './components/goodsTypes';
 
 // Route owner supplies the shared Axios client; render inside BrowserRouter.
-export default function CategoryPage({ client = sharedClient, api = categoryApi }) {
+function CategoryPageContent({ client = sharedClient, api = categoryApi, productApi = defaultProductApi }) {
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const selectedId = params.get('contentCategoryId') || '';
@@ -25,6 +27,29 @@ export default function CategoryPage({ client = sharedClient, api = categoryApi 
     [api, client]
   );
   const request = useCategoryRequest(load);
+  const goods = request.data?.goods;
+  const loadPhotos = useCallback(async (signal) => {
+    if (!goods) return [];
+    return Promise.all(goods.map(async (category) => {
+      if (!category.id) return { ...category, imageUrl: undefined };
+      try {
+        for (let page = 1; ; page++) {
+          const result = await productApi.getProducts({
+            ...(selectedId ? { contentCategoryId: selectedId } : {}),
+            goodsCategoryId: category.id, sort: 'price_asc', page, size: 20, signal,
+          }, client);
+          const photo = result.items.find((product) => product.thumbnailUrl);
+          if (photo) return { ...category, imageUrl: photo.thumbnailUrl };
+          if (!result.items.length || page * 20 >= result.totalCount) break;
+        }
+      } catch (error) {
+        if (signal.aborted) throw error;
+        // Image lookup failure must not prevent category navigation.
+      }
+      return { ...category, imageUrl: undefined };
+    }));
+  }, [goods, selectedId, productApi, client]);
+  const photos = useCategoryRequest(loadPhotos, selectedId);
   function selectContent(id) {
     setParams((current) => {
       const next = new URLSearchParams(current);
@@ -35,9 +60,12 @@ export default function CategoryPage({ client = sharedClient, api = categoryApi 
   }
   function selectGoods(id, name) {
     const query = new URLSearchParams();
+    query.set('resultType', 'goods');
     if (selectedId) query.set('contentCategoryId', selectedId);
+    query.set('contentName', request.data?.content.find((category) => category.id === selectedId)?.name || '전체');
     if (id) query.set('goodsCategoryId', id);
     if (name) query.set('goodsType', name);
+    if (!id && !name) query.set('allGoods', 'true');
     navigate(`/category/products${query.size ? `?${query}` : ''}`);
   }
   return (
@@ -62,7 +90,7 @@ export default function CategoryPage({ client = sharedClient, api = categoryApi 
               굿즈
             </h2>
             {request.data.goods.length ? (
-              <GoodsTypeGrid categories={request.data.goods} onSelect={selectGoods} />
+              <GoodsTypeGrid categories={photos.data || request.data.goods.map((category) => ({ ...category, imageUrl: undefined }))} onSelect={selectGoods} onSelectAll={() => selectGoods()} />
             ) : (
               <ProductEmptyState message="등록된 굿즈 유형이 없습니다." />
             )}
@@ -71,4 +99,8 @@ export default function CategoryPage({ client = sharedClient, api = categoryApi 
       )}
     </main>
   );
+}
+
+export default function CategoryPage({ embedded = false, ...props }) {
+  return <CategoryLayout embedded={embedded}><CategoryPageContent {...props} /></CategoryLayout>;
 }

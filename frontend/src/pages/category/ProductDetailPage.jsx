@@ -1,6 +1,7 @@
+import CategoryLayout from './components/CategoryLayout.jsx';
 import CategoryProductCard from './components/CategoryProductCard.jsx';
 import sharedClient from '../../api/client.js';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { Link, useParams, useLocation } from 'react-router-dom';
 import * as productApi from '../../api/product.api';
 import ProductImageGallery from './components/ProductImageGallery';
@@ -15,7 +16,7 @@ import useCategoryRequest from './components/useCategoryRequest';
 import './components/category.css';
 
 // Mount as /products/:storeProductId; shared actions and auth are injected by the route owner.
-export default function ProductDetailPage({
+function ProductDetailPageContent({
   client = sharedClient,
   ProductCard = CategoryProductCard,
   user,
@@ -24,6 +25,7 @@ export default function ProductDetailPage({
   api = productApi,
   inquiryApi,
 }) {
+  const [feedbackTab, setFeedbackTab] = useState('reviews');
   const { storeProductId } = useParams();
   const location = useLocation();
   const listReturnTo = location.state?.listReturnTo?.startsWith('/category/products')
@@ -63,7 +65,7 @@ export default function ProductDetailPage({
       <Link className="category-detail-back" to={listReturnTo}>
         ← 상품 목록
       </Link>
-      <div className="category-detail-top">
+      <div id="product-basic" className="category-detail-top">
         <ProductImageGallery
           key={storeProductId}
           images={product.images}
@@ -77,16 +79,24 @@ export default function ProductDetailPage({
         />
         <ProductInfo product={product} />
       </div>
+      <div className="category-primary-seller">
+        <SellerInfoCard store={product.store} storeId={product.storeId} storeName={product.storeName} />
+      </div>
+      <div id="product-description">
       <ProductDescription
         description={product.description}
         spec={product.spec}
         images={product.images}
       />
+      </div>
+      <div id="product-sellers">
       <SellerInfoCard
         store={product.store}
         storeId={product.storeId}
         storeName={product.storeName}
       />
+      </div>
+      <div id="product-related">
       <RelatedProductSection
         products={related.data}
         ProductCard={ProductCard}
@@ -94,14 +104,21 @@ export default function ProductDetailPage({
         error={related.error}
         onRetry={related.retry}
       />
-      <ProductInquirySection
+      </div>
+      <section id="product-feedback" className="category-section">
+        <nav className="category-result-tabs" aria-label="리뷰와 상품 문의">
+          <button type="button" aria-pressed={feedbackTab === 'reviews'} onClick={() => setFeedbackTab('reviews')}>리뷰</button>
+          <button type="button" aria-pressed={feedbackTab === 'inquiries'} onClick={() => setFeedbackTab('inquiries')}>Q&A</button>
+        </nav>
+        {feedbackTab === 'reviews' ? <ProductEmptyState message="상품 리뷰는 아직 연결되지 않았습니다." /> : <ProductInquirySection
         key={storeProductId}
         storeProductId={storeProductId}
         client={client}
         user={user}
         onLogin={onLogin}
         api={inquiryApi}
-      />
+      />}
+      </section>
       <ProductActionBar
         key={`${storeProductId}:${user?.id || 'guest'}`}
         product={product}
@@ -111,4 +128,8 @@ export default function ProductDetailPage({
       />
     </main>
   );
+}
+
+export default function ProductDetailPage({ embedded = false, ...props }) {
+  return <CategoryLayout embedded={embedded}><ProductDetailPageContent {...props} /></CategoryLayout>;
 }

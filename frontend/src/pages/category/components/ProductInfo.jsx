@@ -1,3 +1,5 @@
+import Icon from '../../../components/Icon.jsx';
+
 export default function ProductInfo({ product }) {
   const status =
     product.displayStatus ||
@@ -31,8 +33,8 @@ export default function ProductInfo({ product }) {
         </span>
       </div>
       <div className="category-fulfillment">
-        <span>⌂ {product.pickupAvailable ? '매장 픽업 가능' : '매장 픽업 불가'}</span>
-        <span>▱ {product.deliveryAvailable ? '일반 배송 가능' : '배송 불가'}</span>
+        <span><Icon name="store" size={22} />{product.pickupAvailable ? '매장 픽업 가능' : '매장 픽업 불가'}</span>
+        <span><Icon name="truck" size={22} />{product.deliveryAvailable ? '일반 배송 가능' : '배송 불가'}</span>
       </div>
       {product.storeOperating === false && (
         <p role="status">현재 매장 운영이 중지되어 구매할 수 없습니다.</p>
