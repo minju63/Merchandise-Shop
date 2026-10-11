@@ -16,6 +16,12 @@ import StoreDetailPage from './pages/stores/StoreDetailPage.jsx';
 import StoreReviewPage from './pages/stores/StoreReviewPage.jsx';
 import StoreReviewWritePage from './pages/stores/StoreReviewWritePage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
+import CategoryPage from './pages/category/CategoryPage.jsx';
+import ProductListPage from './pages/category/ProductListPage.jsx';
+import ProductDetailPage from './pages/category/ProductDetailPage.jsx';
+import WishProductsPage from './pages/wish/WishProductsPage.jsx';
+import WishShopsPage from './pages/wish/WishShopsPage.jsx';
+import CartPage from './pages/cart/CartPage.jsx';
 import { storeApi } from './api/store.api.js';
 import { searchApi } from './api/search.api.js';
 import './App.css';
@@ -162,15 +168,41 @@ function SearchResultsRoute() {
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
+      {/* 공용 — 라우트는 전부 여기 미리 등록. 수정 전 단톡 공지. */}
       <Routes>
+        {/* 민주 — 홈 · 검색 */}
         <Route path="/" element={<HomeRoute />} />
         <Route path="/search" element={<SearchRoute />} />
         <Route path="/search/results" element={<SearchResultsRoute />} />
+
+        {/* 여경 — 굿즈샵 */}
         <Route path="/stores" element={<StoreListPage />} />
         <Route path="/stores/:storeId" element={<StoreDetailPage />} />
         <Route path="/stores/:storeId/reviews" element={<StoreReviewPage />} />
         <Route path="/stores/:storeId/reviews/write" element={<StoreReviewWritePage />} />
+
+        {/* 은혜 — 카테고리 · 상품 */}
+        <Route path="/category" element={<CategoryPage />} />
+        <Route path="/category/products" element={<ProductListPage />} />
+        <Route path="/products/:storeProductId" element={<ProductDetailPage />} />
+
+        {/* 동균 — 찜 · 장바구니 */}
+        <Route path="/wish" element={<WishProductsPage />} />
+        <Route path="/wish/shops" element={<WishShopsPage />} />
+        <Route path="/cart" element={<CartPage />} />
+
+        {/* 연수 — 로그인 · 결제 · 마이
+            /login 은 현재 여경의 임시 LoginPage. feat/mytab-login-checkout 머지 시 아래로 교체:
+            /login                LoginPage
+            /signup/terms         SignupTermsPage
+            /signup/info          SignupInfoPage
+            /signup/done          SignupDonePage
+            /find-password        FindPasswordPage
+            /checkout             CheckoutPage
+            /checkout/done        OrderCompletePage
+            /my                   MyPage */}
         <Route path="/login" element={<LoginPage />} />
+
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </QueryClientProvider>

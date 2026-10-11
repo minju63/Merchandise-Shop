@@ -1,4 +1,5 @@
 import { logSearch, searchProducts } from '../services/search.service.js';
+import { fail } from '../utils/response.js';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -46,4 +47,39 @@ export async function postSearchLog(req, res) {
   });
 
   res.status(201).json({ success: true, data: searchLog, message: null });
+}
+
+// ───── 아래는 미구현 스텁 ─────
+
+const notImplemented = (res) =>
+  res.status(501).json(fail('NOT_IMPLEMENTED', '아직 구현되지 않았습니다'));
+
+// GET /api/v1/search — 통합 검색
+export async function getSearch(req, res) {
+  // TODO
+  notImplemented(res);
+}
+
+// GET /api/v1/search/suggest — 자동완성
+export async function getSearchSuggest(req, res) {
+  // TODO
+  notImplemented(res);
+}
+
+// GET /api/v1/search/popular — 인기 검색어
+export async function getPopularSearches(req, res) {
+  // TODO
+  notImplemented(res);
+}
+
+// GET /api/v1/search/recent — 최근 검색어
+export async function getRecentSearches(req, res) {
+  // TODO
+  notImplemented(res);
+}
+
+// DELETE /api/v1/search/recent — 최근 검색어 삭제
+export async function deleteRecentSearches(req, res) {
+  // TODO
+  notImplemented(res);
 }

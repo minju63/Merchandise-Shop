@@ -1,11 +1,12 @@
+// 담당: 공용 — 라우터는 여기 추가하지 말고 routes/index.js에 등록
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import apiRoutes from './routes/index.js';
-import upcomingRoutes from './routes/upcoming.routes.js';
-import searchRoutes from './routes/search.routes.js';
+import routes from './routes/index.js';
+import { notFound } from './middlewares/notFound.middleware.js';
+import { errorHandler } from './middlewares/errorHandler.middleware.js';
 import { startUpcomingProductsJob } from './jobs/upcoming-products.job.js';
 
 dotenv.config();
@@ -20,42 +21,15 @@ app.get('/api/v1/health', (req, res) => {
   res.json({ success: true, data: { ok: true }, message: null });
 });
 
-app.use('/api/v1', apiRoutes);
-app.use('/api/v1', upcomingRoutes);
-app.use('/api/v1', searchRoutes);
+app.use('/api/v1', routes);
+app.use(notFound);
+app.use(errorHandler);
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
+const isMain = process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
+
+if (isMain) {
   startUpcomingProductsJob();
-}
-
-// 404 — Express 5에서는 app.get('*') 대신 app.use() 사용
-app.use((req, res) => {
-  res
-    .status(404)
-    .json({
-      success: false,
-      data: null,
-      message: '요청한 API를 찾을 수 없습니다.',
-      code: 'NOT_FOUND',
-    });
-});
-
-// 에러 핸들러 — 반드시 맨 마지막, 인자 4개 고정
-// Express 5는 async 핸들러에서 throw된 에러도 여기로 자동 전달됨
-app.use((err, req, res, next) => {
-  if (!err.status || err.status >= 500) console.error(err);
-  res
-    .status(err.status || 500)
-    .json({
-      success: false,
-      data: null,
-      message: err.status ? err.message : '서버 오류가 발생했습니다.',
-      code: err.code || 'INTERNAL_SERVER_ERROR',
-    });
-});
-
-const PORT = process.env.PORT || 4000;
-if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
+  const PORT = process.env.PORT || 4000;
   app.listen(PORT, () => console.log(`server on :${PORT}`));
 }
 
