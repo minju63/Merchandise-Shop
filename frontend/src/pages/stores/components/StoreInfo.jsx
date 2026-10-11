@@ -24,7 +24,7 @@ export default function StoreInfo({ store, onGuide }) {
           <span className="review-count">리뷰 {store.reviewCount}개</span>
           <Icon name="right" size={14} />
         </Link>
-        <span>재고 있는 상품 {store.availableProductCount}개</span>
+        <span>재고 있는 굿즈 {store.availableProductCount}개</span>
       </div>
       <div className="info-rows">
         <p>

@@ -22,7 +22,7 @@ export default function StoreCard({ store }) {
           </p>
           <p className="store-meta">
             <span className="star">★</span> {store.rating ? store.rating.toFixed(1) : '–'}{' '}
-            <span className="meta-separator">·</span> 재고 있는 상품 {store.availableProductCount}개
+            <span className="meta-separator">·</span> 재고 있는 굿즈 {store.availableProductCount}개
           </p>
           <AvailabilityBadges pickup={store.pickupAvailable} delivery={store.deliveryAvailable} />
         </div>

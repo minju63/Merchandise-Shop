@@ -3,36 +3,25 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { storeApi } from '../../../api/store.api.js';
 import Icon from './Icon.jsx';
-import StoreSort from './StoreSort.jsx';
 import { AvailabilityBadges, ImageWithFallback, PageState } from './StoreShell.jsx';
 
-const sorts = [
-  { value: 'popular', label: '인기순' },
-  { value: 'sales', label: '판매순' },
-  { value: 'newest', label: '신규순' },
-  { value: 'stock', label: '재고 많은 순' },
-];
-
 export default function StoreProductSection({ storeId, searchContext }) {
-  const [sort, setSort] = useState('popular');
   const [page, setPage] = useState(1);
   const { data, isPending, isError, error, refetch } = useQuery({
-    queryKey: ['store-products', storeId, sort, page],
-    queryFn: () => storeApi.products(storeId, { sort, page, size: 20 }),
+    queryKey: ['store-products', storeId, 'popular', page],
+    queryFn: () => storeApi.products(storeId, { sort: 'popular', page, size: 20 }),
   });
   const products = data?.data;
   return (
     <section className="product-section">
       <div className="section-heading">
         <strong>전체 {products?.totalCount ?? 0}개</strong>
-        <StoreSort
-          value={sort}
-          options={sorts}
-          onChange={(value) => {
-            setSort(value);
-            setPage(1);
-          }}
-        />
+        <Link
+          className="product-view-all"
+          to={`/search/results?storeId=${encodeURIComponent(searchContext.storeId)}`}
+        >
+          굿즈 전체보기 →
+        </Link>
       </div>
       {isPending ? (
         <div className="product-grid">
@@ -50,32 +39,31 @@ export default function StoreProductSection({ storeId, searchContext }) {
           <div className="product-grid">
             {products.items.map((product) => (
               <article className="product-card" key={product.storeProductId}>
-                <div className="product-picture">
-                  <ImageWithFallback src={product.image} alt={product.name} />
-                  {/* TODO: 공통 상품 찜 API는 storeProductId로 연결 */}
-                  <button
-                    className="product-heart"
-                    disabled
-                    title="찜 기능 준비 중"
-                    aria-label={`${product.name} 찜 기능 준비 중`}
-                  >
-                    <Icon name="heart" size={19} />
-                  </button>
-                </div>
-                {/* TODO: 공통 상품 상세 라우트가 생기면 storeProductId를 전달 */}
-                <h3>{product.name}</h3>
-                <strong className="product-price">
-                  {product.price == null
-                    ? '가격 정보 없음'
-                    : `${product.price.toLocaleString('ko-KR')}원`}
-                </strong>
-                <span className={`stock-label ${product.purchasable ? '' : 'sold-out'}`}>
-                  {product.stockLabel}
-                </span>
-                <AvailabilityBadges
-                  pickup={product.pickupAvailable}
-                  delivery={product.deliveryAvailable}
-                />
+                <Link
+                  className="product-card-link"
+                  to={`/products/${encodeURIComponent(product.storeProductId)}`}
+                  state={{ listReturnTo: `/stores/${encodeURIComponent(storeId)}` }}
+                >
+                  <div className="product-picture">
+                    <ImageWithFallback src={product.image} alt={product.name} />
+                    <span className="product-heart" aria-hidden="true">
+                      <Icon name="heart" size={19} />
+                    </span>
+                  </div>
+                  <h3>{product.name}</h3>
+                  <strong className="product-price">
+                    {product.price == null
+                      ? '가격 정보 없음'
+                      : `${product.price.toLocaleString('ko-KR')}원`}
+                  </strong>
+                  <span className={`stock-label ${product.purchasable ? '' : 'sold-out'}`}>
+                    {product.stockLabel}
+                  </span>
+                  <AvailabilityBadges
+                    pickup={product.pickupAvailable}
+                    delivery={product.deliveryAvailable}
+                  />
+                </Link>
               </article>
             ))}
           </div>
@@ -95,12 +83,6 @@ export default function StoreProductSection({ storeId, searchContext }) {
           </button>
         )}
       </div>
-      <Link
-        className="product-view-all"
-        to={`/search/results?storeId=${encodeURIComponent(searchContext.storeId)}`}
-      >
-        상품 전체보기
-      </Link>
     </section>
   );
 }

@@ -1,9 +1,20 @@
-// 담당: 은혜
-// 상품 API — client.js의 axios 인스턴스로 호출
-// TODO:
-//   GET    /products  상품 목록 · 필터 · 정렬
-//   GET    /products/:storeProductId  판매상품 상세 (공용 상품 상세)
-//   GET    /products/:storeProductId/related  관련 상품
-//   GET    /products/:storeProductId/inquiries  상품 Q&A
-//   POST   /products/:storeProductId/inquiries  상품 문의 작성 🔒
-export const productApi = {};
+// Inject the shared Axios client; authentication/interceptors remain shared responsibilities.
+async function get(path, params, signal, client) {
+  if (!client) throw new Error('상품을 불러올 수 없습니다.');
+  const result = await client.get(path, { params, signal });
+  const response = typeof result.success === 'boolean' ? result : result.data;
+  if (!response.success) throw new Error(response.message || '상품 조회에 실패했습니다.');
+  return response.data;
+}
+
+export function getProducts({ signal, ...filters } = {}, client) {
+  return get('/products', filters, signal, client);
+}
+
+export function getProductDetail(storeProductId, { signal } = {}, client) {
+  return get(`/products/${encodeURIComponent(storeProductId)}`, undefined, signal, client);
+}
+
+export function getRelatedProducts(storeProductId, { signal, size = 8 } = {}, client) {
+  return get(`/products/${encodeURIComponent(storeProductId)}/related`, { size }, signal, client);
+}
