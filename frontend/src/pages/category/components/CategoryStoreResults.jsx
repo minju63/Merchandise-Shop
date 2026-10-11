@@ -2,18 +2,7 @@ import { useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import useCategoryRequest from './useCategoryRequest';
 import ProductEmptyState from './ProductEmptyState';
-
-const KEYS = [
-  'contentCategoryId',
-  'goodsCategoryId',
-  'sort',
-  'minPrice',
-  'maxPrice',
-  'regionId',
-  'inStock',
-  'pickup',
-  'delivery',
-];
+import { categoryFilterContext, categoryProductQuery } from './categoryProductFilters.js';
 
 // Store results are derived from ALL matching listings, not just the current page.
 // This does not implement the other team's store detail page.
@@ -21,10 +10,8 @@ export default function CategoryStoreResults({ queryKey, api, client, userId }) 
   const load = useCallback(
     async (signal) => {
       const query = new URLSearchParams(queryKey);
-      if (query.has('goodsType') && !query.has('goodsCategoryId')) return [];
-      const filters = Object.fromEntries(
-        KEYS.filter((key) => query.has(key)).map((key) => [key, query.get(key)])
-      );
+      if (categoryFilterContext(query).unavailableGoodsType) return [];
+      const filters = categoryProductQuery(query, { includePage: false });
       const stores = new Map();
       let processed = 0;
       for (let page = 1; ; page++) {

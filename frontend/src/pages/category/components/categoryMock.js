@@ -87,7 +87,10 @@ export function createCategoryMock(readUser) {
       description: `${name} 샘플 상품입니다.\n이 데이터는 화면 확인용이며 실제 판매 상품이 아닙니다.`,
       spec: { 소재: '샘플 소재', 구성: '본품 1개' },
       popularity: 100 - index,
+      salesCount: [18, 7, 32, 25, 11, 4, 9, 21, 5][index],
       releasedAt: index,
+      ratingAverage: [4.7, 3.8, null, 4.3, 3.2, null, 4.9, 4.0, 3.5][index],
+      wishlistCount: [57, 14, 2, 105, 8, 1, 501, 33, 12][index],
     })
   );
   const inquiries = [
@@ -152,15 +155,22 @@ export function createCategoryMock(readUser) {
             (!filters.contentCategoryId || row.contentCategoryId === filters.contentCategoryId) &&
             (!filters.goodsCategoryId || row.goodsCategoryId === filters.goodsCategoryId) &&
             (!filters.regionId || row.store.region.id === filters.regionId) &&
+            (!filters.regionIds || filters.regionIds.split(',').includes(row.store.region.id)) &&
             (filters.minPrice === undefined || row.price >= Number(filters.minPrice)) &&
             (filters.maxPrice === undefined || row.price <= Number(filters.maxPrice)) &&
+            (filters.discountOnly !== 'true' || row.discountRate > 0) &&
+            (filters.includeUpcoming !== 'false' || row.status !== 'UPCOMING') &&
+            (filters.ratingMin === undefined || row.ratingAverage >= Number(filters.ratingMin)) &&
+            (filters.wishlistMin === undefined || row.wishlistCount >= Number(filters.wishlistMin)) &&
             boolFilter(filters.inStock, row.canPurchase) &&
             boolFilter(filters.pickup, row.pickupAvailable) &&
             boolFilter(filters.delivery, row.deliveryAvailable)
         );
       const comparators = {
         popular: (a, b) => b.popularity - a.popularity,
+        sales: (a, b) => b.salesCount - a.salesCount,
         newest: (a, b) => b.releasedAt - a.releasedAt,
+        stock: (a, b) => b.stock - a.stock,
         price_asc: (a, b) => a.price - b.price,
         price_desc: (a, b) => b.price - a.price,
       };

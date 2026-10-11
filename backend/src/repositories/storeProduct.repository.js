@@ -38,11 +38,15 @@ export function createStoreProductRepository(client) {
       relatedProductIds,
       excludeStoreProductId,
       regionId,
+      regionIds,
+      regionNames,
       minPrice,
       maxPrice,
       inStock,
       pickup,
       delivery,
+      discountOnly,
+      includeUpcoming,
     } = {}) {
       const offset = (page - 1) * size;
       if (
@@ -56,12 +60,14 @@ export function createStoreProductRepository(client) {
         invalid('페이지 범위를 확인해 주세요.');
       const sortFields = {
         popular: 'product(popularity_score)',
+        sales: 'sales_count',
         newest: 'product(released_at)',
+        stock: 'stock',
         price_asc: 'price',
         price_desc: 'price',
       };
       if (!Object.hasOwn(sortFields, sort)) invalid('지원하지 않는 정렬 방식입니다.');
-      for (const value of [inStock, pickup, delivery]) {
+      for (const value of [inStock, pickup, delivery, discountOnly, includeUpcoming]) {
         if (value !== undefined && typeof value !== 'boolean')
           invalid('필터는 boolean이어야 합니다.');
       }
@@ -84,8 +90,20 @@ export function createStoreProductRepository(client) {
       }
       if (excludeStoreProductId !== undefined) query = query.neq('id', excludeStoreProductId);
       if (regionId !== undefined) query = query.eq('store.region_id', regionId);
+      if (regionIds !== undefined) {
+        if (!Array.isArray(regionIds) || regionIds.length === 0 || regionIds.some((id) => !UUID.test(id)))
+          invalid('지역 ID 조건을 확인해 주세요.');
+        query = query.in('store.region_id', regionIds);
+      }
+      if (regionNames !== undefined) {
+        const ids = await stores.findIdsByRegionNames(regionNames);
+        if (!ids.length) return { items: [], totalCount: 0 };
+        query = query.in('store_id', ids);
+      }
       if (minPrice !== undefined) query = query.gte('price', minPrice);
       if (maxPrice !== undefined) query = query.lte('price', maxPrice);
+      if (discountOnly === true) query = query.gt('discount_rate', 0);
+      if (includeUpcoming === false) query = query.neq('status', 'UPCOMING');
       if (inStock === true) query = query.eq('status', 'ON_SALE').gt('stock', 0);
       if (inStock === false) query = query.or('status.neq.ON_SALE,stock.lte.0');
       for (const [value, field] of [

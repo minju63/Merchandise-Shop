@@ -52,6 +52,7 @@
 .category-develop-shell .category-sort-options { position: absolute; z-index: 25; top: 100%; right: 0; width: 170px; padding: 6px; border: 1px solid #eeeaf2; border-radius: 12px; background: white; box-shadow: 0 8px 28px #30204124; }
 .category-develop-shell .category-sort-options button { display: flex; justify-content: space-between; width: 100%; padding: 12px; border: 0; background: transparent; text-align: left; font-size: 13px; }
 .category-develop-shell .category-sort-options button[aria-pressed='true'] { color: #7656ed; background: #f4f0fb; }
+.category-develop-shell .category-sort-options button:disabled { color: #aaa4af; cursor: default; }
 .category-develop-shell .category-extra-filters { margin: 0 0 12px; font-size: 12px; color: #827a8e; }
 .category-develop-shell .category-extra-filters > summary { cursor: pointer; padding: 4px 0; }
 .category-develop-shell .category-page.category-detail { padding: 0 14px 155px; }

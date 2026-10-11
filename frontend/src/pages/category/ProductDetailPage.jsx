@@ -2,7 +2,7 @@ import CategoryLayout from './components/CategoryLayout.jsx';
 import CategoryProductCard from './components/CategoryProductCard.jsx';
 import sharedClient from '../../api/client.js';
 import { useCallback, useState } from 'react';
-import { Link, useParams, useLocation } from 'react-router-dom';
+import { Link, useParams, useLocation, useNavigate } from 'react-router-dom';
 import * as productApi from '../../api/product.api';
 import ProductImageGallery from './components/ProductImageGallery';
 import ProductInfo from './components/ProductInfo';
@@ -28,9 +28,20 @@ function ProductDetailPageContent({
   const [feedbackTab, setFeedbackTab] = useState('reviews');
   const { storeProductId } = useParams();
   const location = useLocation();
-  const listReturnTo = location.state?.listReturnTo?.startsWith('/category/products')
+  const navigate = useNavigate();
+  const listReturnTo = /^\/(?:category\/products|search\/results|stores\/[^/?#]+)(?:\?|$)/.test(location.state?.listReturnTo ?? '')
     ? location.state.listReturnTo
     : '/category/products';
+  const backLabel = listReturnTo.startsWith('/search/results')
+    ? '검색 결과로 돌아가기'
+    : listReturnTo.startsWith('/stores/') ? '굿즈샵으로 돌아가기' : '상품 목록';
+  const returnToList = (event) => {
+    if (listReturnTo.startsWith('/stores/') && !event.metaKey && !event.ctrlKey
+      && !event.shiftKey && !event.altKey && window.history.state?.idx > 0) {
+      event.preventDefault();
+      navigate(-1);
+    }
+  };
   const load = useCallback(
     (signal) => api.getProductDetail(storeProductId, { signal }, client),
     [api, client, storeProductId]
@@ -51,7 +62,7 @@ function ProductDetailPageContent({
     const notFound = request.error?.response?.status === 404 || !request.error;
     return (
       <main className="category-page">
-        <Link to="/category">카테고리로 돌아가기</Link>
+        <Link to={listReturnTo} onClick={returnToList}>{backLabel}</Link>
         <ProductEmptyState
           message={notFound ? '상품을 찾을 수 없습니다.' : '상품을 불러오지 못했습니다.'}
           onRetry={notFound ? undefined : request.retry}
@@ -62,8 +73,8 @@ function ProductDetailPageContent({
   const product = request.data;
   return (
     <main className="category-page category-detail">
-      <Link className="category-detail-back" to={listReturnTo}>
-        ← 상품 목록
+      <Link className="category-detail-back" to={listReturnTo} onClick={returnToList}>
+        ← {backLabel}
       </Link>
       <div id="product-basic" className="category-detail-top">
         <ProductImageGallery

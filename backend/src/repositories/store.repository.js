@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase.js';
+import { matchesRegionName } from '../utils/regionNames.js';
 export const STORE_FIELDS =
   'id,name,status,temporary_closed,region_id,pickup_available,delivery_available,address,thumbnail_url';
 
@@ -17,6 +18,19 @@ function check(error) {
 
 export function createStoreRepository(client) {
   return {
+    async findIdsByRegionNames(regionNames) {
+      const ids = [];
+      for (let offset = 0; ; offset += 1000) {
+        const { data, error } = await client.from('stores')
+          .select('id,address')
+          .eq('status', 'ACTIVE')
+          .order('id')
+          .range(offset, offset + 999);
+        check(error);
+        ids.push(...(data ?? []).filter((row) => matchesRegionName(row.address, regionNames)).map((row) => row.id));
+        if (!data || data.length < 1000) return ids;
+      }
+    },
     async findById(id) {
       const { data, error } = await client
         .from('stores')

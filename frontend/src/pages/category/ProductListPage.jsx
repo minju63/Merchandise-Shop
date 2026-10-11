@@ -4,29 +4,50 @@ import sharedClient from '../../api/client.js';
 import { useCallback, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import * as productApi from '../../api/product.api';
+import * as categoryApi from '../../api/category.api';
+import * as regionApi from '../../api/region.api.js';
 import ProductFilterBar from './components/ProductFilterBar';
 import ProductFilterSheet from './components/ProductFilterSheet';
 import ProductSort from './components/ProductSort';
 import ProductEmptyState from './components/ProductEmptyState';
 import useCategoryRequest from './components/useCategoryRequest';
 import './components/category.css';
+import './components/CategoryResultFilters.css';
 import CategoryStoreResults from './components/CategoryStoreResults';
+import {
+  PRODUCT_FILTER_KEYS,
+  categoryFilterContext,
+  categoryProductQuery,
+} from './components/categoryProductFilters.js';
 
-const FILTER_KEYS = ['minPrice', 'maxPrice', 'regionId', 'inStock', 'pickup', 'delivery'];
-const QUERY_KEYS = ['contentCategoryId', 'goodsCategoryId', 'sort', 'page', 'size', ...FILTER_KEYS];
+const FILTER_KEYS = PRODUCT_FILTER_KEYS;
+const EMPTY_CATEGORIES = [];
+const EMPTY_REGIONS = [];
 
 // ProductCard must be the shared component. regions are supplied by the shared region API.
 function ProductListPageContent({
   client = sharedClient,
   ProductCard = CategoryProductCard,
   user,
-  regions = [],
-  categories = [],
+  regions = EMPTY_REGIONS,
+  categories = EMPTY_CATEGORIES,
   api = productApi,
 }) {
   const [params, setParams] = useSearchParams();
   const [filterOpen, setFilterOpen] = useState(false);
   const queryKey = params.toString();
+  const loadCategories = useCallback(
+    (signal) => categories.length ? categories : categoryApi.getCategories({ signal }, client),
+    [categories, client]
+  );
+  const categoryRequest = useCategoryRequest(loadCategories);
+  const availableCategories = categoryRequest.data ?? categories;
+  const loadRegions = useCallback(
+    (signal) => regions.length ? regions : regionApi.getRegions(client, signal),
+    [regions, client]
+  );
+  const regionRequest = useCategoryRequest(loadRegions);
+  const availableRegions = regionRequest.data ?? regions;
   const resultType = ['all', 'goods', 'stores'].includes(params.get('resultType'))
     ? params.get('resultType')
     : 'all';
@@ -38,18 +59,20 @@ function ProductListPageContent({
     (signal) => {
       const query = new URLSearchParams(queryKey);
       // A planned type absent from the DB must not fall back to all products.
-      if (query.has('goodsType') && !query.has('goodsCategoryId')) {
+      if (categoryFilterContext(query).unavailableGoodsType) {
         return Promise.resolve({ items: [], page: 1, size: 20, totalCount: 0 });
       }
-      const filters = Object.fromEntries(
-        QUERY_KEYS.filter((key) => query.has(key)).map((key) => [key, query.get(key)])
-      );
+      const filters = categoryProductQuery(query);
       return api.getProducts({ ...filters, signal }, client);
     },
     [api, client, queryKey]
   );
   const request = useCategoryRequest(load, user?.id);
   const filters = Object.fromEntries(FILTER_KEYS.map((key) => [key, params.get(key) || '']));
+  if (!filters.regionIds && filters.regionId) {
+    filters.regionIds = filters.regionId;
+    filters.regionId = '';
+  }
   const selectedNames = ['contentCategoryId', 'goodsCategoryId']
     .map((key) =>
       key === 'contentCategoryId' && params.get('contentName')
@@ -58,12 +81,14 @@ function ProductListPageContent({
         ? '모두 보기'
         : key === 'goodsCategoryId' && params.get('goodsType')
         ? params.get('goodsType')
-        : categories.find((category) => category.id === params.get(key))?.name
+        : availableCategories.find((category) => category.id === params.get(key))?.name
     )
     .filter(Boolean);
   function update(values) {
     setParams((current) => {
       const next = new URLSearchParams(current);
+      next.delete('filterContentCategoryId');
+      next.delete('filterGoodsCategoryId');
       for (const [key, value] of Object.entries(values)) {
         if (value === '' || value === undefined) next.delete(key);
         else next.set(key, String(value));
@@ -104,22 +129,24 @@ function ProductListPageContent({
         </p>
         <ProductSort compact value={params.get('sort') || 'popular'} onChange={(sort) => update({ sort })} />
       </div>
-      <div className="category-quick-filters" aria-label="빠른 상품 필터">
-        {[['inStock', '구매 가능'], ['pickup', '픽업 가능'], ['delivery', '배송 가능']].map(([key, label]) => (
-          <button key={key} type="button" aria-pressed={filters[key] === 'true'} onClick={() => update({ [key]: filters[key] === 'true' ? '' : 'true' })}>{filters[key] === 'true' && <span aria-hidden="true">✓ </span>}{label}</button>
-        ))}
-      </div>
-      <details className="category-extra-filters"><summary>상세 필터</summary><ProductFilterBar
+      <ProductFilterBar
         filters={filters}
-        regions={regions}
-        onOpen={(section) => setFilterOpen(section)}
+        regions={availableRegions}
+        onChange={update}
+        onOpen={() => setFilterOpen('price')}
         onReset={() => update(Object.fromEntries(FILTER_KEYS.map((key) => [key, ''])))}
-      /></details>
+      />
       </>}
       {filterOpen && (
         <ProductFilterSheet
           filters={filters}
-          regions={regions}
+          regions={availableRegions}
+          regionsLoading={regionRequest.loading}
+          regionsError={regionRequest.error}
+          onRetryRegions={regionRequest.retry}
+          queryKey={queryKey}
+          api={api}
+          client={client}
           initialSection={filterOpen}
           onClose={() => setFilterOpen(false)}
           onApply={(draft) => {

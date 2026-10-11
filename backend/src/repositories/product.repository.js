@@ -32,7 +32,15 @@ export const findById = repository.findById;
 
 export async function getProducts(productIds) {
   if (!productIds.length) return [];
-  const { data, error } = await supabase.from('products').select('*').in('id', productIds);
-  if (error) throw error;
-  return data || [];
+  const rows = [];
+  for (let start = 0; start < productIds.length; start += 100) {
+    const ids = productIds.slice(start, start + 100);
+    for (let offset = 0; ; offset += 1000) {
+      const { data, error } = await supabase.from('products').select('*').in('id', ids).range(offset, offset + 999);
+      if (error) throw error;
+      rows.push(...(data || []));
+      if (!data || data.length < 1000) break;
+    }
+  }
+  return rows;
 }

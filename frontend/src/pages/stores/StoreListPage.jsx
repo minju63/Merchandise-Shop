@@ -30,7 +30,6 @@ export default function StoreListPage() {
     <div className="app-shell">
       <StoreHeader />
       <main className="store-main list-main">
-        <StoreFilter filters={filters} onChange={changeFilter} />
         <div className="section-heading store-list-heading">
           <div>
             <h1>굿즈샵 둘러보기</h1>
@@ -48,6 +47,7 @@ export default function StoreListPage() {
             }}
           />
         </div>
+        <StoreFilter filters={filters} onChange={changeFilter} />
         {isPending ? (
           <div className="list-skeleton" aria-label="굿즈샵 목록 불러오는 중">
             {[0, 1, 2, 3].map((n) => (

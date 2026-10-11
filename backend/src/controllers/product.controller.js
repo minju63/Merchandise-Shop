@@ -1,7 +1,8 @@
 import * as productService from '../services/product.service.js';
+import { REGION_NAMES } from '../utils/regionNames.js';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const SORTS = ['popular', 'newest', 'price_asc', 'price_desc'];
+const SORTS = ['popular', 'sales', 'newest', 'stock', 'price_asc', 'price_desc'];
 
 function invalid(message) {
   const error = new Error(message);
@@ -65,10 +66,33 @@ export async function getProducts(req, res, next) {
     for (const name of ['contentCategoryId', 'goodsCategoryId', 'regionId']) {
       if (query[name] !== undefined) result[name] = uuid(query[name], name);
     }
+    if (query.regionIds !== undefined) {
+      if (typeof query.regionIds !== 'string' || query.regionIds.length > 1200) invalid('regionIds 조건이 올바르지 않습니다.');
+      const ids = [...new Set(query.regionIds.split(',').filter(Boolean))];
+      if (ids.length === 0 || ids.length > 30) invalid('regionIds 조건이 올바르지 않습니다.');
+      result.regionIds = ids.map((id) => uuid(id, 'regionIds'));
+    }
+    if (query.regionNames !== undefined) {
+      if (typeof query.regionNames !== 'string' || query.regionNames.length > 150) invalid('지역 조건이 올바르지 않습니다.');
+      const names = [...new Set(query.regionNames.split(',').filter(Boolean))];
+      if (!names.length || names.some((name) => !Object.hasOwn(REGION_NAMES, name))) invalid('지역 조건이 올바르지 않습니다.');
+      result.regionNames = names;
+    }
     for (const name of ['minPrice', 'maxPrice']) {
       if (query[name] !== undefined) result[name] = integer(query[name], name, 0);
     }
-    for (const name of ['inStock', 'pickup', 'delivery']) {
+    for (const [name, choices] of [
+      ['ratingMin', ['3', '3.5', '4', '4.5']],
+      ['wishlistMin', ['10', '50', '100', '500']],
+    ]) {
+      if (query[name] !== undefined) {
+        if (typeof query[name] !== 'string' || !choices.includes(query[name])) {
+          invalid(`${name} 조건이 올바르지 않습니다.`);
+        }
+        result[name] = Number(query[name]);
+      }
+    }
+    for (const name of ['inStock', 'pickup', 'delivery', 'discountOnly', 'includeUpcoming']) {
       if (query[name] !== undefined) result[name] = boolean(query[name], name);
     }
     if (result.minPrice !== undefined && result.maxPrice !== undefined

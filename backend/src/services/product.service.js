@@ -1,5 +1,6 @@
 import * as productCategoryRepository from '../repositories/productCategory.repository.js';
 import * as productImageRepository from '../repositories/productImage.repository.js';
+import * as productEngagementRepository from '../repositories/productEngagement.repository.js';
 
 function failure(message, status, code) {
   return Object.assign(new Error(message), { status, code });
@@ -60,7 +61,7 @@ export function validateProductAvailability(storeProduct, store) {
  * productImage.findByProductId(productId) -> ordered image rows.
  */
 export function createProductService(repositories) {
-  const { storeProduct, product, store, productCategory, productImage, wishlist } = repositories;
+  const { storeProduct, product, store, productCategory, productImage, wishlist, engagement } = repositories;
 
   async function wishlistedIds(userId, items) {
     if (!userId || items.length === 0) return new Set();
@@ -113,6 +114,40 @@ export function createProductService(repositories) {
     };
   }
 
+  async function engagementPageResult(filters, userId) {
+    requireMethod(storeProduct, 'findPage');
+    if (filters.ratingMin !== undefined) requireMethod(engagement, 'findRatingAverages');
+    if (filters.wishlistMin !== undefined) requireMethod(engagement, 'findWishlistCounts');
+
+    const candidates = [];
+    for (let page = 1; ; page += 1) {
+      const { items, totalCount } = await storeProduct.findPage({ ...filters, page, size: 100 });
+      candidates.push(...items);
+      if (candidates.length >= totalCount || items.length === 0) break;
+    }
+    const [ratings, wishlistCounts] = await Promise.all([
+      filters.ratingMin !== undefined
+        ? engagement.findRatingAverages(candidates.map((item) => item.product_id))
+        : new Map(),
+      filters.wishlistMin !== undefined
+        ? engagement.findWishlistCounts(candidates.map((item) => item.id))
+        : new Map(),
+    ]);
+    const matched = candidates.filter((item) =>
+      (filters.ratingMin === undefined || (ratings.get(item.product_id) ?? -1) >= filters.ratingMin)
+      && (filters.wishlistMin === undefined || (wishlistCounts.get(item.id) ?? 0) >= filters.wishlistMin)
+    );
+    const start = (filters.page - 1) * filters.size;
+    const items = matched.slice(start, start + filters.size);
+    const wished = await wishlistedIds(userId, items);
+    return {
+      items: items.map((item) => card(item, wished)),
+      page: filters.page,
+      size: filters.size,
+      totalCount: matched.length,
+    };
+  }
+
   async function getProducts({ userId, ...filters } = {}) {
     const query = { sort: 'popular', page: 1, size: 20, ...filters };
     if (query.contentCategoryId !== undefined || query.goodsCategoryId !== undefined) {
@@ -125,7 +160,9 @@ export function createProductService(repositories) {
         return { items: [], page: query.page, size: query.size, totalCount: 0 };
       }
     }
-    return pageResult(query, userId);
+    return query.ratingMin !== undefined || query.wishlistMin !== undefined
+      ? engagementPageResult(query, userId)
+      : pageResult(query, userId);
   }
 
   async function getProductDetail(storeProductId, { userId } = {}) {
@@ -205,6 +242,7 @@ async function loadService(userId) {
       wishlist,
       productCategory: productCategoryRepository,
       productImage: productImageRepository,
+      engagement: productEngagementRepository,
     });
   } catch (error) {
     if (error.code !== 'ERR_MODULE_NOT_FOUND') throw error;

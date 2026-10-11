@@ -700,16 +700,12 @@
   margin: 0 0 9px;
 }
 .product-view-all {
-  display: block;
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #dfe3e8;
-  border-radius: 8px;
-  text-align: center;
+  flex-shrink: 0;
+  padding: 8px 0 8px 8px;
   color: #7b828d;
-  background: #f8f9fa;
   font-size: 13px;
   font-weight: 700;
+  white-space: nowrap;
 }
 .product-grid {
   display: grid;
@@ -717,7 +713,11 @@
   gap: 17px 11px;
 }
 .product-card {
+  position: relative;
   min-width: 0;
+}
+.product-card-link {
+  display: block;
 }
 .product-picture {
   position: relative;

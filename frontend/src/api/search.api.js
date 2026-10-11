@@ -2,6 +2,7 @@ import client from './client.js';
 
 export const searchApi = {
   products: (params) => client.get('/search/products', { params }),
+  categories: (type) => client.get('/categories', { params: { type } }).then((response) => response.data),
   stores: async () => {
     const stores = [];
     for (let page = 1; ; page += 1) {
