@@ -1,3 +1,5 @@
+import CategoryProductCard from './components/CategoryProductCard.jsx';
+import sharedClient from '../../api/client.js';
 import { useCallback } from 'react';
 import { Link, useParams, useLocation } from 'react-router-dom';
 import * as productApi from '../../api/product.api';
@@ -14,8 +16,8 @@ import './components/category.css';
 
 // Mount as /products/:storeProductId; shared actions and auth are injected by the route owner.
 export default function ProductDetailPage({
-  client,
-  ProductCard,
+  client = sharedClient,
+  ProductCard = CategoryProductCard,
   user,
   actions,
   onLogin,

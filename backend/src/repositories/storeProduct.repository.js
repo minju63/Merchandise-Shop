@@ -1,3 +1,4 @@
+import { supabase } from '../lib/supabase.js';
 import { createStoreRepository, normalizeStore, STORE_FIELDS } from './store.repository.js';
 
 const SELECT = `*,product:products!inner(*),store:stores!inner(${STORE_FIELDS},region:regions(id,name))`;
@@ -119,4 +120,20 @@ export async function findById(id) {
 }
 export async function findPage(filters) {
   return (await repository()).findPage(filters);
+}
+
+
+export async function getStoreProducts(storeIds) {
+  if (!storeIds.length) return [];
+  const rows = [];
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await supabase
+      .from('store_products')
+      .select('*')
+      .in('store_id', storeIds)
+      .range(from, from + 999);
+    if (error) throw error;
+    rows.push(...(data || []));
+    if ((data || []).length < 1000) return rows;
+  }
 }

@@ -1,3 +1,5 @@
+import CategoryProductCard from './components/CategoryProductCard.jsx';
+import sharedClient from '../../api/client.js';
 import { useCallback, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import * as productApi from '../../api/product.api';
@@ -14,8 +16,8 @@ const QUERY_KEYS = ['contentCategoryId', 'goodsCategoryId', 'sort', 'page', 'siz
 
 // ProductCard must be the shared component. regions are supplied by the shared region API.
 export default function ProductListPage({
-  client,
-  ProductCard,
+  client = sharedClient,
+  ProductCard = CategoryProductCard,
   user,
   regions = [],
   categories = [],

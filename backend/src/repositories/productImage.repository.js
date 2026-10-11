@@ -1,3 +1,4 @@
+import { supabase } from '../lib/supabase.js';
 // Confirm additional image ordering/URL fields against the integrated schema before adding them.
 export function createProductImageRepository(client) {
   return {
@@ -25,4 +26,15 @@ export function createProductImageRepository(client) {
 export async function findByProductId(productId) {
   const { supabase } = await import('../lib/supabase.js');
   return createProductImageRepository(supabase).findByProductId(productId);
+}
+
+
+export async function getProductImages(productIds) {
+  if (!productIds.length) return [];
+  const { data, error } = await supabase
+    .from('product_images')
+    .select('*')
+    .in('product_id', productIds);
+  if (error) throw error;
+  return data || [];
 }

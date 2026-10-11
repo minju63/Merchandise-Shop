@@ -1,3 +1,4 @@
+import sharedClient from '../../api/client.js';
 import { useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import * as categoryApi from '../../api/category.api';
@@ -9,7 +10,7 @@ import './components/category.css';
 import { buildGoodsTypes } from './components/goodsTypes';
 
 // Route owner supplies the shared Axios client; render inside BrowserRouter.
-export default function CategoryPage({ client, api = categoryApi }) {
+export default function CategoryPage({ client = sharedClient, api = categoryApi }) {
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const selectedId = params.get('contentCategoryId') || '';

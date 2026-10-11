@@ -1,3 +1,4 @@
+import { requireAuth, optionalAuth } from '../middlewares/auth.middleware.js';
 import { Router } from 'express';
 import {
   getProducts,
@@ -32,4 +33,4 @@ export function createProductRouter({ requireAuth = authUnavailable, optionalAut
   return router;
 }
 
-export default createProductRouter();
+export default createProductRouter({ requireAuth, optionalAuth });

@@ -4,26 +4,28 @@ export async function getProductInquiries(
   client
 ) {
   if (!client) throw new Error('문의를 불러올 수 없습니다.');
-  const { data: response } = await client.get(
+  const result = await client.get(
     `/products/${encodeURIComponent(storeProductId)}/inquiries`,
     {
       params: { page, size },
       signal,
     }
   );
+  const response = typeof result.success === 'boolean' ? result : result.data;
   if (!response.success) throw new Error(response.message || '문의 조회에 실패했습니다.');
   return response.data;
 }
 
 export async function createProductInquiry(storeProductId, { content, title }, client) {
   if (!client) throw new Error('문의를 등록할 수 없습니다.');
-  const { data: response } = await client.post(
+  const result = await client.post(
     `/products/${encodeURIComponent(storeProductId)}/inquiries`,
     {
       content,
       ...(title ? { title } : {}),
     }
   );
+  const response = typeof result.success === 'boolean' ? result : result.data;
   if (!response.success) throw new Error(response.message || '문의 등록에 실패했습니다.');
   return response.data;
 }

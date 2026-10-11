@@ -196,7 +196,7 @@ async function loadService(userId) {
       import('../repositories/storeProduct.repository.js'),
       import('../repositories/product.repository.js'),
       import('../repositories/store.repository.js'),
-      userId ? import('../repositories/wishlist.repository.js') : undefined,
+      userId ? import('../repositories/wishlistProduct.repository.js') : undefined,
     ]);
     return createProductService({
       storeProduct,
