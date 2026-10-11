@@ -22,7 +22,7 @@ export default function ProductCard({ product, rank, compact = false, onClick })
 
   return (
     <article
-      className={`product-card${compact ? ' product-card--compact' : ''}${onClick ? ' product-card--clickable' : ''}`}
+      className={`home-product-card${compact ? ' product-card--compact' : ''}${onClick ? ' product-card--clickable' : ''}`}
       role={onClick ? 'link' : undefined}
       tabIndex={onClick ? 0 : undefined}
       onClick={onClick}
