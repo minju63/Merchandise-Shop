@@ -1,0 +1,67 @@
+.ord-page--fab { padding-bottom: 96px; }
+.ord-header__right { margin-left: auto; color: var(--my-faint); font-size: 13px; }
+.ord-tabs--two { grid-template-columns: repeat(2, 1fr); }
+.ord-btn--small { padding: 8px 14px; font-size: 13px; }
+.ord-footer .ord-btn--block { width: 100%; }
+.adr-count { color: var(--my-faint); }
+.adr-card { padding: 16px; border: 1px solid var(--my-line); border-radius: 16px; }
+.adr-card.is-default { border-color: var(--my-btn); }
+.adr-card__label { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-weight: 700; }
+.adr-card__who, .adr-card__line { margin: 0 0 4px; font-size: 14px; }
+.adr-card__req { margin: 0 0 12px; color: var(--my-sub); font-size: 13px; }
+.adr-card__line { margin-bottom: 6px; }
+.adr-card .ord-actions { align-items: center; margin-top: 12px; }
+.adr-card__link { color: var(--my-sub); font-size: 13px; }
+.frm { display: flex; flex-direction: column; gap: 14px; margin: 12px 0; }
+.frm--page { margin-top: 4px; gap: 18px; }
+.frm__field { display: flex; flex-direction: column; gap: 8px; }
+.frm__field > span { font-size: 13px; font-weight: 700; }
+.frm input:not([type='checkbox']):not([type='radio']) { width: 100%; box-sizing: border-box; padding: 14px; border: 1px solid var(--my-line); border-radius: 12px; background: #fff; font: inherit; color: var(--my-text); outline: 0; }
+.frm input:focus { border-color: var(--my-btn); }
+.frm input.is-ro { background: var(--my-soft); }
+.frm__row { display: flex; gap: 8px; }
+.frm__search { flex: none; padding: 0 16px; border-radius: 12px; background: var(--my-primary-soft); color: var(--my-primary); font-weight: 700; }
+.frm__check { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.frm__check input { width: 20px; height: 20px; accent-color: var(--my-primary); }
+.cpn-register { display: flex; gap: 8px; margin-top: 4px; }
+.cpn-register input { flex: 1; min-width: 0; padding: 14px; border: 1px solid var(--my-line); border-radius: 12px; font: inherit; outline: 0; }
+.cpn-register button { flex: none; padding: 0 20px; border-radius: 12px; background: var(--my-primary-soft); color: var(--my-primary); font-weight: 700; }
+.cpn-register button:disabled { color: var(--my-faint); }
+.cpn-msg { margin: 8px 0 0; color: #d23b3b; font-size: 13px; }
+.cpn-msg.is-ok { color: var(--my-primary); }
+.cpn-list { margin-top: 16px; }
+.cpn-card { display: flex; border: 1px solid var(--my-line); border-radius: 16px; overflow: hidden; }
+.cpn-card.is-off { opacity: 0.55; }
+.cpn-card__main { flex: 1; min-width: 0; padding: 18px 16px; }
+.cpn-card__amount { display: block; font-size: 24px; }
+.cpn-card__name { margin: 8px 0 6px; font-weight: 700; }
+.cpn-card__cond { margin: 0 0 10px; color: var(--my-sub); font-size: 13px; }
+.cpn-card__date { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--my-sub); font-size: 13px; }
+.cpn-dday { padding: 2px 8px; border-radius: 6px; background: var(--my-soft); font-weight: 600; font-size: 12px; }
+.cpn-card__use { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; width: 84px; border-left: 1px dashed var(--my-line); color: var(--my-primary); font-size: 13px; font-weight: 700; text-align: center; }
+.pay-banner { display: flex; align-items: center; gap: 8px; margin: 4px 0 16px; padding: 14px; border-radius: 12px; background: var(--my-primary-soft); color: var(--my-primary); font-size: 13px; font-weight: 600; }
+.pay-card { display: flex; align-items: center; gap: 12px; padding: 16px; border: 1px solid var(--my-line); border-radius: 16px; }
+.pay-card.is-default { border-color: var(--my-btn); }
+.pay-card__icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; background: var(--my-soft); color: var(--my-sub); }
+.pay-card__text { display: flex; flex: 1; flex-direction: column; gap: 3px; min-width: 0; }
+.pay-card__text strong { display: flex; align-items: center; gap: 8px; }
+.pay-card__text > span { color: var(--my-sub); font-size: 12px; }
+.pay-card__actions { display: flex; gap: 12px; color: var(--my-sub); font-size: 13px; }
+.mbr-hero { margin: 8px 0 24px; padding: 24px 20px; border-radius: 20px; background: var(--my-primary-soft); }
+.mbr-hero__eyebrow { margin: 0 0 12px; color: var(--my-primary); font-size: 13px; font-weight: 700; }
+.mbr-hero__title { margin: 0 0 18px; font-size: 22px; line-height: 1.4; }
+.mbr-hero__list { display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 0; list-style: none; font-size: 14px; }
+.mbr-hero__list li { display: flex; align-items: center; gap: 10px; }
+.mbr-hero__list svg { color: var(--my-primary); flex: none; }
+.mbr-section { margin: 0 0 12px; font-size: 16px; font-weight: 700; }
+.mbr-plan { display: flex; align-items: center; gap: 12px; padding: 18px 16px; border: 1px solid var(--my-line); border-radius: 16px; cursor: pointer; }
+.mbr-plan input { position: absolute; opacity: 0; }
+.mbr-plan.is-on { border-color: var(--my-btn); background: var(--my-primary-soft); }
+.mbr-plan input:checked + .ord-reason__dot { border: 6px solid #5b45d6; }
+.mbr-plan__text { display: flex; flex: 1; flex-direction: column; gap: 4px; }
+.mbr-plan__text span { color: var(--my-sub); font-size: 13px; }
+.mbr-plan__price { flex: none; }
+.mbr-note { margin: 14px 0 0; color: var(--my-sub); font-size: 13px; }
+.mbr-agree { margin-top: 16px; }
+.my-pill { padding: 2px 8px; border-radius: 10px; background: var(--my-primary-soft); color: var(--my-primary); font-size: 12px; font-weight: 600; }
+.ord-btn--primary:disabled { border-color: var(--my-btn); background: var(--my-btn); color: var(--my-btn-text); opacity: 0.5; }

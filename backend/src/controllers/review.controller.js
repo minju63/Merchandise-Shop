@@ -1,5 +1,67 @@
-import { supabase } from '../lib/supabase.js';
-import * as reviewService from '../services/review.service.js';
+import { supabase } from '../lib/supabase.js'; // 여경 함수용
+import * as reviewService from '../services/review.service.js'; // 여경 함수용
+import * as service from "../services/review.service.js";
+import { ok } from "../utils/response.js";
+export async function listMyReviewItems(req, res, next) {
+  try {
+    res
+      .status(200)
+      .json(
+        ok(await service.listMyReviewItems(res.locals.authUser.id, req.query)),
+      );
+  } catch (error) {
+    next(error);
+  }
+}
+export async function createReview(req, res, next) {
+  try {
+    res
+      .status(201)
+      .json(ok(await service.createReview(res.locals.authUser.id, req.body)));
+  } catch (error) {
+    next(error);
+  }
+}
+export async function updateReview(req, res, next) {
+  try {
+    res
+      .status(200)
+      .json(
+        ok(
+          await service.updateReview(
+            res.locals.authUser.id,
+            req.params.reviewId,
+            req.body,
+          ),
+        ),
+      );
+  } catch (error) {
+    next(error);
+  }
+}
+export async function deleteReview(req, res, next) {
+  try {
+    res
+      .status(200)
+      .json(
+        ok(
+          await service.deleteReview(
+            res.locals.authUser.id,
+            req.params.reviewId,
+            req.body,
+          ),
+        ),
+      );
+  } catch (error) {
+    next(error);
+  }
+}
+
+// ───── 여경 — 굿즈샵 리뷰 (develop 901aa29 에서 원문 그대로 가져옴) ─────
+
+// 여경 — 굿즈샵 상세에서 사용 (store.service.js / store.routes.js)
+// 연수님 리뷰 작성 로직과는 독립. 읽기 전용.
+// (아래 내부 헬퍼는 위 함수들 전용)
 
 const UUID = /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
 
@@ -20,6 +82,8 @@ function options(req) {
   return { sort, page: Number(page), size: Number(size) };
 }
 
+// 여경 — 굿즈샵 상세에서 사용 (store.service.js / store.routes.js)
+// 연수님 리뷰 작성 로직과는 독립. 읽기 전용.
 export async function requireUser(req, res, next) {
   const match = /^Bearer\s+(.+)$/i.exec(req.headers.authorization || '');
   if (!match) throw reviewService.reviewError(401, 'UNAUTHORIZED', '로그인이 필요합니다.');
@@ -34,6 +98,8 @@ export async function requireUser(req, res, next) {
   next();
 }
 
+// 여경 — 굿즈샵 상세에서 사용 (store.service.js / store.routes.js)
+// 연수님 리뷰 작성 로직과는 독립. 읽기 전용.
 export async function list(req, res) {
   const result = await reviewService.listStoreReviews(storeId(req), options(req));
   if (!result)
@@ -41,14 +107,14 @@ export async function list(req, res) {
   res.json({ success: true, data: result, message: null });
 }
 
+// 여경 — 굿즈샵 상세에서 사용 (store.service.js / store.routes.js)
+// 연수님 리뷰 작성 로직과는 독립. 읽기 전용.
+// TODO: 연수님 GET /api/v1/reviews/me?tab=WRITABLE 와 기능이 겹친다.
+//       리뷰 작성 진입점을 마이탭으로 통일하기로 하면 이 함수와
+//       GET /stores/:storeId/reviewable-items 라우트를 제거한다. (팀 확인 중)
 export async function eligible(req, res) {
   const result = await reviewService.eligibleItems(req.userId, storeId(req));
   if (!result)
     throw reviewService.reviewError(404, 'STORE_NOT_FOUND', '굿즈샵을 찾을 수 없습니다.');
   res.json({ success: true, data: result, message: null });
-}
-
-export async function create(req, res) {
-  const result = await reviewService.createReview(req.userId, req.body);
-  res.status(201).json({ success: true, data: result, message: '리뷰가 등록되었습니다.' });
 }

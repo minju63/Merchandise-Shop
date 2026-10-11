@@ -1,19 +1,19 @@
 // 공용 — 라우터 등록은 전부 여기. 수정 전 단톡 공지.
 import { Router } from 'express';
 
-// 연수 — feat/mytab-login-checkout 머지 시 아래 import와 router.use 주석 해제
-// import authRoutes from './auth.routes.js';
-// import userRoutes from './user.routes.js';
-// import addressRoutes from './address.routes.js';
-// import paymentMethodRoutes from './paymentMethod.routes.js';
-// import notificationSettingRoutes from './notificationSetting.routes.js';
-// import checkoutRoutes from './checkout.routes.js';
-// import orderRoutes from './order.routes.js';
-// import couponRoutes from './coupon.routes.js';
-// import membershipRoutes from './membership.routes.js';
-// import reportRoutes from './report.routes.js';
-// import sellerApplicationRoutes from './sellerApplication.routes.js';
-// import supportRoutes from './support.routes.js';
+// 연수
+import authRoutes from './auth.routes.js';
+import userRoutes from './user.routes.js';
+import addressRoutes from './address.routes.js';
+import paymentMethodRoutes from './paymentMethod.routes.js';
+import notificationSettingRoutes from './notificationSetting.routes.js';
+import checkoutRoutes from './checkout.routes.js';
+import orderRoutes from './order.routes.js';
+import couponRoutes from './coupon.routes.js';
+import membershipRoutes from './membership.routes.js';
+import reportRoutes from './report.routes.js';
+import sellerApplicationRoutes from './sellerApplication.routes.js';
+import supportRoutes from './support.routes.js';
 import reviewRoutes from './review.routes.js';
 
 // 민주
@@ -43,19 +43,18 @@ import notificationRoutes from './notification.routes.js';
 const router = Router();
 
 // 연수 — 로그인 · 결제 · 마이
-// router.use('/auth', authRoutes);
-// router.use('/users', userRoutes);
-// router.use('/addresses', addressRoutes);
-// router.use('/payment-methods', paymentMethodRoutes);
-// router.use('/notification-settings', notificationSettingRoutes);
-// router.use('/checkout', checkoutRoutes);
-// router.use('/orders', orderRoutes);
-// router.use('/coupons', couponRoutes);
-// router.use('/memberships', membershipRoutes);
-// router.use('/reports', reportRoutes);
-// router.use('/seller-applications', sellerApplicationRoutes);
-router.use('/reviews', reviewRoutes); // 현재는 여경의 POST /reviews — 연수 머지 시 합칠 것
-// router.use('/', supportRoutes); // /notices · /faqs · /inquiries
+router.use('/auth', authRoutes);
+router.use('/users', userRoutes);
+router.use('/addresses', addressRoutes);
+router.use('/payment-methods', paymentMethodRoutes);
+router.use('/notification-settings', notificationSettingRoutes);
+router.use('/checkout', checkoutRoutes);
+router.use('/orders', orderRoutes);
+router.use('/coupons', couponRoutes);
+router.use('/memberships', membershipRoutes);
+router.use('/reports', reportRoutes);
+router.use('/seller-applications', sellerApplicationRoutes);
+router.use('/reviews', reviewRoutes); // 연수 버전 (평점 집계 포함)
 
 // 민주 — 홈 · 검색
 // upcoming.routes.js는 /home/sections/upcoming · /products/:id/open-alert 를 직접 가지고 있어서
@@ -83,5 +82,9 @@ router.use('/cart', cartRoutes);
 // 미정
 router.use('/notifications', notificationRoutes);
 router.use('/header', notificationRoutes); // GET /header/badges
+
+// 연수 — 고객센터 /notices · /faqs · /inquiries
+// 루트('/')에 붙고 안에 Cache-Control: no-store 미들웨어가 있어서 반드시 맨 마지막에 둔다.
+router.use('/', supportRoutes);
 
 export default router;
