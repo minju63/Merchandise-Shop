@@ -35,9 +35,10 @@ app.use('/api/v1/payment-methods', paymentMethodRoutes);
 app.use('/api/v1/notification-settings', notificationSettingRoutes);
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/checkout', checkoutRoutes);
-app.use('/api/v1/support', supportRoutes);
 app.use('/api/v1/reviews', reviewRoutes);
 app.use('/api/v1/seller-applications', sellerApplicationRoutes);
+// /notices · /faqs · /inquiries — 문서 기준으로 루트에 붙이므로 다른 라우터 뒤에 둔다.
+app.use('/api/v1', supportRoutes);
 
 // 404 — Express 5에서는 app.get('*') 대신 app.use() 사용
 app.use((req, res) => {

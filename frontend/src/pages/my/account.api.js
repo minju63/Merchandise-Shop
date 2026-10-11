@@ -40,10 +40,10 @@ export const getMyAgreements = () => http.get('/users/me/agreements').then(data)
 export const withdrawAccount = () => http.delete('/users/me').then(data);
 
 // 고객센터
-export const listFaqs = (params) => http.get('/support/faqs', { params }).then(data);
-export const listNotices = (params) => http.get('/support/notices', { params }).then(data);
-export const listInquiries = () => http.get('/support/inquiries').then(data);
-export const createInquiry = (body) => http.post('/support/inquiries', body).then(data);
+export const listFaqs = (params) => http.get('/faqs', { params }).then(data);
+export const listNotices = (params) => http.get('/notices', { params }).then(data);
+export const listInquiries = () => http.get('/inquiries').then(data);
+export const createInquiry = (body) => http.post('/inquiries', body).then(data);
 
 // 리뷰
 export const createReview = (body) => http.post('/reviews', body).then(data);

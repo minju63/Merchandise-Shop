@@ -9,7 +9,7 @@ import OrderCompletePage from '../../common/OrderCompletePage.jsx';
 import SignupDonePage from '../../common/SignupDonePage.jsx';
 import SignupFormPage from '../../common/SignupFormPage.jsx';
 import SignupTermsPage from '../../common/SignupTermsPage.jsx';
-import { DevLogin, Stub } from './DevTools.jsx';
+import { Stub } from './DevTools.jsx';
 import MyPage from '../MyPage.jsx';
 import AddressFormPage from '../AddressFormPage.jsx';
 import AddressesPage from '../AddressesPage.jsx';
@@ -37,7 +37,6 @@ const initialEntry =
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <DevLogin />
     <MemoryRouter initialEntries={[initialEntry]}>
       <Routes>
         <Route path="/" element={<MyPage />} />
