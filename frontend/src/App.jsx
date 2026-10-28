@@ -2,15 +2,18 @@ import {
   Navigate,
   Route,
   Routes,
+  useLocation,
   useNavigate,
   useSearchParams,
 } from 'react-router-dom';
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 import HomePage from './pages/home/HomePage.jsx';
 import { homeMockData, homeMockUserState } from './pages/home/homeMockData.js';
 import SearchPage, { SearchResultsPage } from './pages/search/SearchPage.jsx';
 import { parseRegionalQuery } from './pages/search/searchQuery.js';
 import { searchMockData } from './pages/search/searchMockData.js';
+import { EMPTY_FILTERS, filterParams } from './pages/search/searchFilters.js';
 import StoreListPage from './pages/stores/StoreListPage.jsx';
 import StoreDetailPage from './pages/stores/StoreDetailPage.jsx';
 import StoreReviewPage from './pages/stores/StoreReviewPage.jsx';
@@ -75,8 +78,11 @@ function HomeRoute() {
 
 function SearchRoute() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const storeId = searchParams.get('storeId');
+  const query = searchParams.get('q') ?? '';
+  const originStoreId = storeId || location.state?.originStoreId;
   const storeQuery = useStoreFilter(storeId);
   const shopsQuery = useQuery({
     queryKey: ['search-stores'],
@@ -87,41 +93,58 @@ function SearchRoute() {
   });
   return (
     <SearchPage
+      initialQuery={query}
       data={searchMockData}
       shops={shopsQuery.data ?? EMPTY_STORES}
       storeId={storeId}
       storeName={storeQuery.data?.data.name}
       storeError={storeQuery.error?.message}
-      onClearStore={() => navigate('/search')}
-      onBack={() => navigate(storeId ? `/stores/${storeId}` : '/')}
-      onSearch={(query) => navigate(searchUrl('/search/results', { query, storeId }))}
+      onClearStore={(currentQuery) => navigate(searchUrl('/search', { query: currentQuery }), { state: { originStoreId } })}
+      onBack={() => navigate(originStoreId ? `/stores/${encodeURIComponent(originStoreId)}` : '/')}
+      onSearch={(nextQuery) => navigate(searchUrl('/search/results', { query: nextQuery, storeId }), { state: { originStoreId } })}
     />
   );
 }
 
 function SearchResultsRoute() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q')?.trim() ?? '';
   const storeId = searchParams.get('storeId');
+  const originStoreId = storeId || location.state?.originStoreId;
+  const searchState = originStoreId ? { originStoreId } : undefined;
   const sort = searchParams.get('sort') ?? 'popular';
   const page = Number(searchParams.get('page') ?? 1);
   const regionAll = searchParams.get('region') === 'all';
   const parsedQuery = parseRegionalQuery(query, searchMockData);
   const region = !storeId && !regionAll ? parsedQuery.region?.label : undefined;
   const keyword = storeId ? query : parsedQuery.keyword;
+  const filterKey = `${storeId ?? ''}:${query}`;
+  const [savedFilters, setSavedFilters] = useState({ key: filterKey, value: { ...EMPTY_FILTERS } });
+  const appliedFilters = savedFilters.key === filterKey ? savedFilters.value : EMPTY_FILTERS;
+  const activeParams = filterParams(appliedFilters);
+  const hasActiveFilters = Object.values(activeParams).some((value) => value !== undefined);
+  const regionalBaselineQuery = useQuery({
+    queryKey: ['search-region-baseline', keyword, region],
+    queryFn: () => searchApi.products({ q: keyword, region, size: 1 }),
+    enabled: Boolean(!storeId && hasActiveFilters && region && keyword),
+    retry: false,
+  });
+  const filteredNationwideFallback = Boolean(hasActiveFilters && region && regionalBaselineQuery.data?.data.totalCount === 0);
+  const productRegion = filteredNationwideFallback ? undefined : region;
   const storeQuery = useStoreFilter(storeId);
   const productsQuery = useQuery({
-    queryKey: ['search-products', storeId, keyword, region, sort, page],
-    queryFn: () => searchApi.products({ storeId: storeId || undefined, q: keyword, region, sort, page, size: 20 }),
+    queryKey: ['search-products', storeId, keyword, productRegion, sort, page, activeParams],
+    queryFn: () => searchApi.products({ storeId: storeId || undefined, q: keyword, region: productRegion, sort, page, size: 20, ...activeParams }),
     enabled: Boolean(query || storeId),
     retry: false,
   });
-  const needsNationwideFallback = Boolean(!storeId && region && keyword && productsQuery.data?.data.totalCount === 0);
+  const needsNationwideFallback = filteredNationwideFallback || Boolean(!storeId && !hasActiveFilters && region && keyword && productsQuery.data?.data.totalCount === 0);
   const nationwideQuery = useQuery({
     queryKey: ['search-products', null, keyword, null, sort, page],
     queryFn: () => searchApi.products({ q: keyword, sort, page, size: 20 }),
-    enabled: needsNationwideFallback,
+    enabled: needsNationwideFallback && !hasActiveFilters,
     retry: false,
   });
   const shopsQuery = useQuery({
@@ -139,27 +162,36 @@ function SearchResultsRoute() {
       key={`${query}:${storeId ?? ''}`}
       initialQuery={query}
       data={searchMockData}
-      products={(needsNationwideFallback ? nationwideQuery.data : productsQuery.data)?.data.items ?? []}
-      productTotalCount={(needsNationwideFallback ? nationwideQuery.data : productsQuery.data)?.data.totalCount ?? 0}
+      products={(needsNationwideFallback && !hasActiveFilters ? nationwideQuery.data : productsQuery.data)?.data.items ?? []}
+      productTotalCount={(needsNationwideFallback && !hasActiveFilters ? nationwideQuery.data : productsQuery.data)?.data.totalCount ?? 0}
       shops={shopsQuery.data ?? EMPTY_STORES}
       storeId={storeId}
       storeName={storeQuery.data?.data.name}
       storeError={storeQuery.error?.message || productsQuery.error?.message}
       scopedLoading={Boolean(storeId && (storeQuery.isPending || productsQuery.isPending))}
       scopedTotalCount={productsQuery.data?.data.totalCount ?? 0}
-      globalLoading={Boolean(!storeId && (productsQuery.isPending || shopsQuery.isPending || (needsNationwideFallback && nationwideQuery.isPending)))}
-      globalError={!storeId ? productsQuery.error?.message || nationwideQuery.error?.message || shopsQuery.error?.message : null}
+      globalLoading={Boolean(!storeId && (productsQuery.isPending || shopsQuery.isPending || (hasActiveFilters && region && regionalBaselineQuery.isPending) || (needsNationwideFallback && !hasActiveFilters && nationwideQuery.isPending)))}
+      globalError={!storeId ? productsQuery.error?.message || (hasActiveFilters && region && regionalBaselineQuery.error?.message) || (needsNationwideFallback && !hasActiveFilters && nationwideQuery.error?.message) || shopsQuery.error?.message : null}
+      showTabsWhenEmpty={Boolean(!storeId && originStoreId)}
+      hasActiveFilters={hasActiveFilters}
       regionEnabled={!regionAll}
       useNationwideFallback={needsNationwideFallback}
       sort={sort}
       page={page}
-      onRetry={() => { if (storeId) storeQuery.refetch(); productsQuery.refetch(); if (needsNationwideFallback) nationwideQuery.refetch(); if (!storeId) shopsQuery.refetch(); }}
-      onClearStore={(currentQuery) => navigate(searchUrl(currentQuery.trim() ? '/search/results' : '/search', { query: currentQuery.trim(), sort, regionAll }))}
-      onSortChange={(nextSort) => navigate(searchUrl('/search/results', { query, storeId, sort: nextSort, regionAll }))}
-      onPageChange={(nextPage) => navigate(searchUrl('/search/results', { query, storeId, sort, page: nextPage, regionAll }))}
-      onDisableRegion={() => navigate(searchUrl('/search/results', { query, storeId, sort, regionAll: true }))}
-      onBack={() => navigate(searchUrl('/search', { storeId }))}
-      onSearch={(nextQuery) => navigate(searchUrl('/search/results', { query: nextQuery, storeId, sort }))}
+      onRetry={() => { if (storeId) storeQuery.refetch(); productsQuery.refetch(); if (hasActiveFilters && region) regionalBaselineQuery.refetch(); if (needsNationwideFallback && !hasActiveFilters) nationwideQuery.refetch(); if (!storeId) shopsQuery.refetch(); }}
+      onClearStore={(currentQuery) => navigate(searchUrl(currentQuery.trim() ? '/search/results' : '/search', { query: currentQuery.trim(), sort, regionAll }), { state: searchState })}
+      onSortChange={(nextSort) => navigate(searchUrl('/search/results', { query, storeId, sort: nextSort, regionAll }), { state: searchState })}
+      onPageChange={(nextPage) => navigate(searchUrl('/search/results', { query, storeId, sort, page: nextPage, regionAll }), { state: searchState })}
+      onDisableRegion={() => navigate(searchUrl('/search/results', { query, storeId, sort, regionAll: true }), { state: searchState })}
+      filterState={appliedFilters}
+      filterQuery={keyword}
+      filterRegion={needsNationwideFallback ? undefined : region}
+      onFilterChange={(nextFilters) => {
+        setSavedFilters({ key: filterKey, value: nextFilters });
+        if (page > 1) navigate(searchUrl('/search/results', { query, storeId, sort, regionAll }), { state: searchState });
+      }}
+      onBack={() => navigate(searchUrl('/search', { query, storeId }), { state: searchState })}
+      onSearch={(nextQuery) => navigate(searchUrl('/search/results', { query: nextQuery, storeId, sort }), { state: searchState })}
       onLogSearch={logSearch}
     />
   );

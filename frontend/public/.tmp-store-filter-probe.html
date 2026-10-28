@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; width: 100%; height: 100%; }
+  iframe { display: block; width: 100%; height: 100%; border: 0; }
+</style>
+<iframe src="/search/results?storeId=00000000-0000-4000-8000-000000000050&q=card"></iframe>
+<script>
+  const frame = document.querySelector('iframe');
+  const probe = setInterval(() => {
+    const doc = frame.contentDocument;
+    const open = doc?.querySelector('.search-quick-filters button');
+    if (!open) return;
+    clearInterval(probe);
+    open.click();
+    setTimeout(() => {
+      const buttons = [...doc.querySelectorAll('.search-filter-grid button')];
+      buttons.find((button) => button.textContent.includes('게임'))?.click();
+    }, 300);
+  }, 100);
+</script>

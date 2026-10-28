@@ -1,12 +1,22 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { parseRegionalQuery } from './searchQuery.js';
 import { searchApi } from '../../api/search.api.js';
 import Icon from '../../components/Icon.jsx';
 import BottomNavigation from '../../components/BottomNavigation.jsx';
+import IntegratedSearchFilters from './IntegratedSearchFilters.jsx';
 import './SearchPage.css';
 
 const RECENT_SEARCH_KEY = 'goodzpick.recentSearches';
+const PRODUCT_SORT_OPTIONS = [
+  ['popular', '인기순'],
+  ['sales', '판매순'],
+  ['newest', '최신순'],
+  ['wishlist', '찜 많은 순'],
+  ['stock', '재고 많은 순'],
+  ['priceLow', '낮은 가격 순'],
+  ['priceHigh', '높은 가격 순'],
+];
 
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -166,6 +176,7 @@ function AutocompleteList({ query, suggestions, isLoading, onSelect }) {
 
 export default function SearchPage({
   data,
+  initialQuery = '',
   shops = [],
   isAuthenticated = false,
   serverRecentSearches = [],
@@ -179,7 +190,7 @@ export default function SearchPage({
   storeError,
   onClearStore,
 }) {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(initialQuery);
   const [suggestions, setSuggestions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [recentSearches, setRecentSearches] = useState(() => (
@@ -326,64 +337,83 @@ function matchesRegion(location, region) {
     && (!region.area || location.area === region.area);
 }
 
-function ResultProductCard({ product }) {
-  return (
-    <article className="result-product">
+function ResultProductCard({ product, scoped = false }) {
+  const location = useLocation();
+  const content = <>
       <span className="result-product__image result-product__image--live">
-        {product.image ? <img src={product.image} alt="" /> : <SearchIcon />}
+        {product.image ? <img src={product.image} alt="" /> : scoped ? <SearchIcon /> : <span className="result-product__placeholder"><Icon name="image" size={23} /><span>굿즈</span></span>}
+        {!scoped && <span className="result-product__heart" aria-hidden="true"><Icon name="heart" size={15} /></span>}
       </span>
       <span className="result-product__content">
         <small>{product.storeName}</small>
         <strong>{product.name}</strong>
         <b>{product.price == null ? '가격 정보 없음' : `${product.price.toLocaleString('ko-KR')}원`}</b>
-        <small>{product.status === 'SOLD_OUT' || product.stock === 0 ? '품절' : product.status === 'UPCOMING' ? '판매 예정' : product.stock == null ? '재고 확인 불가' : `재고 ${product.stock}개`}</small>
-        <small>{[product.pickupAvailable && '픽업 가능', product.deliveryAvailable && '배달 가능'].filter(Boolean).join(' · ')}</small>
-        <Link className="result-product__store-link" to={`/stores/${product.storeId}`}>판매 매장 보기</Link>
+        {scoped ? <><small>{product.status === 'SOLD_OUT' || product.stock === 0 ? '품절' : product.status === 'UPCOMING' ? '판매 예정' : product.stock == null ? '재고 확인 불가' : `재고 ${product.stock}개`}</small><small>{[product.pickupAvailable && '픽업 가능', product.deliveryAvailable && '배달 가능'].filter(Boolean).join(' · ')}</small></> : <span className="result-product__meta"><small className={product.status === 'SOLD_OUT' || product.stock === 0 ? 'result-product__stock result-product__stock--sold' : 'result-product__stock'}>{product.status === 'SOLD_OUT' || product.stock === 0 ? '재고 없음' : product.status === 'UPCOMING' ? '입고 예정' : product.stock == null ? '재고 확인' : '재고 있음'}</small><small>{[product.pickupAvailable && '픽업', product.deliveryAvailable && '배달'].filter(Boolean).join('·')}</small></span>}
       </span>
-    </article>
+    </>;
+  const productLink = <Link className="result-product" to={`/products/${encodeURIComponent(product.storeProductId)}`} state={{ listReturnTo: `${location.pathname}${location.search}`, storeId: product.storeId, storeName: product.storeName }}>{content}</Link>;
+  return scoped ? productLink : <article className="result-product-card">{productLink}<Link className="result-product__store-link" to={`/stores/${product.storeId}`}>판매 매장 보기</Link></article>;
+}
+
+function ProductSortMenu({ sort, onSortChange }) {
+  const [open, setOpen] = useState(false);
+  const menu = useRef(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const closeOnOutside = (event) => {
+      if (!menu.current?.contains(event.target)) setOpen(false);
+    };
+    document.addEventListener('pointerdown', closeOnOutside);
+    return () => document.removeEventListener('pointerdown', closeOnOutside);
+  }, [open]);
+
+  return (
+    <div className="result-sort" ref={menu}>
+      <button type="button" aria-label="굿즈 정렬" aria-expanded={open} aria-haspopup="menu" onClick={() => setOpen((current) => !current)}>{PRODUCT_SORT_OPTIONS.find(([value]) => value === sort)?.[1] || '인기순'} <span aria-hidden="true">⌄</span></button>
+      {open && <div className="result-sort__menu" role="menu">{PRODUCT_SORT_OPTIONS.map(([value, label]) => <button type="button" role="menuitemradio" aria-checked={sort === value} key={value} disabled={value === 'wishlist'} onClick={() => { onSortChange(value); setOpen(false); }}>{label}{sort === value && <span aria-hidden="true">✓</span>}</button>)}</div>}
+    </div>
   );
 }
 
 function ScopedResults({
-  query, storeName, products, totalCount, loading, error, sort, page,
-  onSortChange, onPageChange, onRetry,
+  query, storeName, storeId, products, totalCount, loading, error, sort, page,
+  onSortChange, onPageChange, onRetry, filterState, onFilterChange,
 }) {
   return (
     <main className="search-results">
-      <h1>{query ? <><span>‘{query}’</span> 검색 결과</> : `${storeName || '굿즈샵'} 판매상품 전체보기`}</h1>
+      <h1>{query ? <>{storeName || '굿즈샵'} 내 <span>'{query}'</span> 검색 결과</> : `${storeName || '굿즈샵'} 판매 상품 전체보기`}</h1>
       {loading ? <p className="search-result-status">상품을 불러오는 중입니다.</p> : error ? (
         <div className="search-result-status" role="alert">
           <p>{error}</p>
           <button type="button" onClick={onRetry}>다시 시도</button>
         </div>
       ) : <>
-        <div className="scoped-result-controls">
-          <strong>상품 {totalCount}개</strong>
-          <select aria-label="상품 정렬" value={sort} onChange={(event) => onSortChange(event.target.value)}>
-            <option value="popular">인기순</option>
-            <option value="sales">판매순</option>
-            <option value="newest">신규순</option>
-            <option value="stock">재고 많은 순</option>
-          </select>
-        </div>
-        {totalCount === 0 ? (
-          <section className="no-search-results">
-            <div className="no-search-results__icon" aria-hidden="true"><SearchIcon /></div>
-            <h2>{query ? `‘${query}’에 대한 매장 상품이 없어요` : '판매상품이 없습니다.'}</h2>
-            {query ? <p>다른 검색어로 다시 찾아보세요.</p> : null}
-          </section>
-        ) : (
-          <section className="result-list" aria-label="굿즈샵 상품 검색 결과">
-            {products.map((product) => (
-              <ResultProductCard product={product} key={product.storeProductId} />
-            ))}
-          </section>
-        )}
-        {totalCount > 20 ? <nav className="search-pagination" aria-label="상품 페이지">
-          <button type="button" disabled={page <= 1} onClick={() => onPageChange(page - 1)}>이전</button>
-          <span>{page} / {Math.ceil(totalCount / 20)}</span>
-          <button type="button" disabled={page * 20 >= totalCount} onClick={() => onPageChange(page + 1)}>다음</button>
-        </nav> : null}
+        <section className="integrated-products">
+          <div className="result-heading">
+            <h2>굿즈 <span>{totalCount}</span></h2>
+            <ProductSortMenu sort={sort} onSortChange={onSortChange} />
+          </div>
+          <IntegratedSearchFilters filters={filterState} onChange={onFilterChange} query={query} storeId={storeId} sort={sort} />
+          {totalCount === 0 ? (
+            <section className="no-search-results">
+              <div className="no-search-results__icon" aria-hidden="true"><SearchIcon /></div>
+              <h2>{query ? `‘${query}’에 대한 매장 상품이 없어요` : '판매상품이 없습니다.'}</h2>
+              {query ? <p>다른 검색어나 필터 조건으로 다시 찾아보세요.</p> : null}
+            </section>
+          ) : (
+            <section className="result-list" aria-label="굿즈샵 상품 검색 결과">
+              {products.map((product) => (
+                <ResultProductCard product={product} scoped key={product.storeProductId} />
+              ))}
+            </section>
+          )}
+          {totalCount > 20 ? <nav className="search-pagination" aria-label="상품 페이지">
+            <button type="button" disabled={page <= 1} onClick={() => onPageChange(page - 1)}>이전</button>
+            <span>{page} / {Math.ceil(totalCount / 20)}</span>
+            <button type="button" disabled={page * 20 >= totalCount} onClick={() => onPageChange(page + 1)}>다음</button>
+          </nav> : null}
+        </section>
       </>}
     </main>
   );
@@ -405,6 +435,8 @@ export function SearchResultsPage({
   scopedTotalCount,
   globalLoading,
   globalError,
+  showTabsWhenEmpty = false,
+  hasActiveFilters = false,
   regionEnabled,
   useNationwideFallback,
   sort,
@@ -414,6 +446,10 @@ export function SearchResultsPage({
   onSortChange,
   onPageChange,
   onDisableRegion,
+  filterState,
+  onFilterChange,
+  filterQuery,
+  filterRegion,
 }) {
   const [query, setQuery] = useState(initialQuery);
   const [suggestions, setSuggestions] = useState([]);
@@ -437,7 +473,6 @@ export function SearchResultsPage({
     : nationwideShops;
   const totalResultCount = storeId ? scopedTotalCount : productTotalCount + matchedShops.length;
   const hasNoResults = totalResultCount === 0;
-
   useEffect(() => {
     if (!initialQuery || scopedLoading || globalLoading || storeError || globalError) return;
     const logKey = `${storeId ?? ''}:${initialQuery}:${totalResultCount}:${parsedQuery.region?.id ?? ''}`;
@@ -493,6 +528,7 @@ export function SearchResultsPage({
         <ScopedResults
           query={initialQuery}
           storeName={storeName}
+          storeId={storeId}
           products={products}
           totalCount={scopedTotalCount}
           loading={scopedLoading}
@@ -502,6 +538,8 @@ export function SearchResultsPage({
           onSortChange={onSortChange}
           onPageChange={onPageChange}
           onRetry={onRetry}
+          filterState={filterState}
+          onFilterChange={onFilterChange}
         />
       ) : isEditing ? (
         <main className="search-main">
@@ -519,12 +557,10 @@ export function SearchResultsPage({
       ) : globalError ? (
         <main className="search-results"><div className="search-result-status" role="alert"><p>{globalError}</p><button type="button" onClick={onRetry}>다시 시도</button></div></main>
       ) : <main className="search-results">
-        <h1><span>‘{initialQuery}’</span> 검색 결과</h1>
-
-        {!hasNoResults ? <div className="result-type-tabs" role="tablist" aria-label="검색 결과 종류">
-          <button className={resultType === 'all' ? 'active' : ''} type="button" onClick={() => setResultType('all')}>전체</button>
-          <button className={resultType === 'products' ? 'active' : ''} type="button" onClick={() => setResultType('products')}>굿즈 {productTotalCount}</button>
-          <button className={resultType === 'shops' ? 'active' : ''} type="button" onClick={() => setResultType('shops')}>굿즈샵 {matchedShops.length}</button>
+        {(!hasNoResults || showTabsWhenEmpty || hasActiveFilters) ? <div className="result-type-tabs" role="tablist" aria-label="검색 결과 종류">
+          <button className={resultType === 'all' ? 'active' : ''} role="tab" aria-selected={resultType === 'all'} type="button" onClick={() => setResultType('all')}>전체</button>
+          <button className={resultType === 'products' ? 'active' : ''} role="tab" aria-selected={resultType === 'products'} type="button" onClick={() => setResultType('products')}>굿즈 {productTotalCount}</button>
+          <button className={resultType === 'shops' ? 'active' : ''} role="tab" aria-selected={resultType === 'shops'} type="button" onClick={() => setResultType('shops')}>굿즈샵 {matchedShops.length}</button>
         </div> : null}
 
         {parsedQuery.region && regionEnabled ? (
@@ -548,11 +584,11 @@ export function SearchResultsPage({
           </div>
         ) : null}
 
-        {hasNoResults ? (
+        {hasNoResults && !hasActiveFilters ? (
           <section className="no-search-results">
             <div className="no-search-results__icon" aria-hidden="true"><SearchIcon /></div>
-            <h2>‘{initialQuery}’에 대한 검색 결과가 없어요</h2>
-            <p>검색어의 띄어쓰기와 철자를 확인하거나<br />더 짧은 단어로 다시 검색해 보세요.</p>
+            <h2>‘{initialQuery}’에 대한<br />검색 결과가 없어요</h2>
+            <p>띄어쓰기나 철자를 확인해 보세요<br />더 짧은 단어로 검색해 보세요</p>
             <div className="no-search-results__popular">
               <h3>인기 검색어로 다시 찾아보세요</h3>
               <div>
@@ -566,17 +602,25 @@ export function SearchResultsPage({
           </section>
         ) : null}
 
-        {!hasNoResults && resultType !== 'shops' ? <section>
-          <div className="result-heading"><h2>상품</h2><span>{productTotalCount}</span></div>
-          <div className="scoped-result-controls">
-            <span>판매상품 검색 결과</span>
-            <select aria-label="상품 정렬" value={sort} onChange={(event) => onSortChange(event.target.value)}>
-              <option value="popular">인기순</option>
-              <option value="sales">판매순</option>
-              <option value="newest">신규순</option>
-              <option value="stock">재고 많은 순</option>
-            </select>
+        {!hasNoResults && resultType !== 'products' ? <section className="integrated-shops">
+          <div className="result-heading"><h2>굿즈샵 <span>{matchedShops.length}</span></h2>{resultType === 'all' && <button type="button" onClick={() => setResultType('shops')}>굿즈샵 더보기 ›</button>}</div>
+          <div className="integrated-shops__list">
+            {(resultType === 'all' ? matchedShops.slice(0, 2) : matchedShops).map((shop) => (
+              <Link className="result-shop" to={`/stores/${shop.id}`} key={shop.id}>
+                <span className="result-shop__icon"><Icon name="store" size={19} /></span>
+                <span className="result-shop__copy"><strong>{shop.name}</strong><small>{shop.region || shop.address}</small></span>
+              </Link>
+            ))}
           </div>
+          {!matchedShops.length ? <p className="result-empty">일치하는 굿즈샵이 없습니다.</p> : null}
+        </section> : null}
+
+        {(!hasNoResults || hasActiveFilters) && resultType !== 'shops' ? <section className="integrated-products">
+          <div className="result-heading">
+            <h2>굿즈 <span>{productTotalCount}</span></h2>
+            <ProductSortMenu sort={sort} onSortChange={onSortChange} />
+          </div>
+          {filterState && <IntegratedSearchFilters filters={filterState} onChange={onFilterChange} query={filterQuery} region={filterRegion} sort={sort} />}
           {products.length ? (
             <div className="result-list">
               {products.map((product) => (
@@ -591,15 +635,6 @@ export function SearchResultsPage({
           </nav> : null}
         </section> : null}
 
-        {!hasNoResults && resultType !== 'products' ? <section>
-          <div className="result-heading"><h2>굿즈샵</h2><span>{matchedShops.length}</span></div>
-          {matchedShops.map((shop) => (
-            <Link className="result-shop" to={`/stores/${shop.id}`} key={shop.id}>
-              <span>G</span><strong>{shop.name}</strong><small>{shop.region}</small>
-            </Link>
-          ))}
-          {!matchedShops.length ? <p className="result-empty">일치하는 굿즈샵이 없습니다.</p> : null}
-        </section> : null}
       </main>}
       <BottomNavigation />
     </div>

@@ -1,10 +1,16 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import Icon from './Icon.jsx';
 
 export { default as TabBar } from '../../../components/BottomNavigation.jsx';
 
 export function StoreHeader({ back = false, searchContext = null }) {
+  const navigate = useNavigate();
+  const goBack = () => {
+    if (window.history.state?.idx > 0) navigate(-1);
+    else navigate('/stores', { replace: true });
+  };
+
   if (!back) {
     return (
       <header className="store-list-header">
@@ -32,9 +38,9 @@ export function StoreHeader({ back = false, searchContext = null }) {
     <header className="store-header">
       <div className="store-header-main">
         {back ? (
-          <Link className="icon-button" to="/stores" aria-label="굿즈샵 목록으로">
+          <button className="icon-button" type="button" onClick={goBack} aria-label="뒤로가기">
             <Icon name="back" />
-          </Link>
+          </button>
         ) : (
           <h1>굿즈샵</h1>
         )}
