@@ -48,6 +48,12 @@ export default function ProductCard({ product, rank, compact = false, onClick })
       <div className="product-card__body">
         <p className="product-card__shop">{product.shop}</p>
         <h3>{product.name}</h3>
+        {product.discountRate ? (
+          <p className="product-card__discount">
+            <b>{product.discountRate}%</b>
+            <s>{product.originalPrice}</s>
+          </p>
+        ) : null}
         <strong>{product.price}</strong>
         {product.stockText ? (
           <div className="product-card__meta">

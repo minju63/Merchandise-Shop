@@ -954,3 +954,9 @@
 .login-main h2 { font-size: 20px; }
 .login-main p { color: #69717d; font-size: 13px; margin-bottom: 24px; }
 .login-main .secondary-button { width: 100%; margin-top: 10px; }
+
+.home-status {
+  padding: 80px 16px;
+  text-align: center;
+  color: #6b6b7b;
+}

@@ -132,8 +132,8 @@
 .promo-banner {
   position: relative;
   width: 100%;
-  min-height: 126px;
-  padding: 18px;
+  height: 131px; /* 배너 종류와 상관없이 팬 응원 전광판 높이로 통일 */
+  padding: 16px 18px;
   overflow: hidden;
   border-radius: 16px;
   color: #fff;
@@ -152,10 +152,6 @@
   from { opacity: 0.55; transform: translateX(8px); }
   to { opacity: 1; transform: translateX(0); }
 }
-
-.promo-banner--purple { background: linear-gradient(135deg, #2c195e, #443184); }
-.promo-banner--peach { color: #4c3517; background: linear-gradient(135deg, #fff0d4, #ffdca4); }
-.promo-banner--mint { color: #18473f; background: linear-gradient(135deg, #daf4eb, #b9e8dc); }
 
 .promo-banner__eyebrow {
   display: flex;
@@ -176,9 +172,14 @@
   font-weight: 900;
 }
 
+.promo-banner__body {
+  position: relative;
+  z-index: 1;
+}
+
 .promo-banner h2 {
   max-width: 210px;
-  margin: 0 0 10px;
+  margin: 0 0 8px;
   white-space: pre-line;
   font-size: 18px;
   line-height: 1.25;
@@ -198,46 +199,165 @@
   border: 0;
 }
 
-.promo-banner__art {
-  position: absolute;
-  right: 26px;
-  bottom: 13px;
-  width: 77px;
-  height: 87px;
+.promo-banner__cta:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
-
-.promo-banner__art i {
-  position: absolute;
-  display: block;
-  width: 48px;
-  height: 72px;
-  border-radius: 8px;
-  background: #f7afc4;
-  box-shadow: 0 10px 25px rgb(0 0 0 / 10%);
-  transform: rotate(-10deg);
-}
-
-.promo-banner__art i:last-child {
-  right: 0;
-  background: #c8bdff;
-  transform: rotate(7deg);
-}
-
-.promo-banner--peach .promo-banner__art i { background: #f5c876; }
-.promo-banner--peach .promo-banner__art i:last-child { background: #ffdfa5; }
-.promo-banner--mint .promo-banner__art i { background: #78cfbc; }
-.promo-banner--mint .promo-banner__art i:last-child { background: #eafbf6; }
 
 .promo-banner__count {
   position: absolute;
   right: 10px;
   bottom: 9px;
+  z-index: 2;
   padding: 3px 7px;
   border-radius: 99px;
   color: #fff;
-  background: rgb(20 16 29 / 65%);
+  background: rgb(20 16 29 / 55%);
   font-size: 9px;
 }
+
+/* 1/4 서비스 소개 */
+.promo-banner--service-intro {
+  background: linear-gradient(135deg, #2c1f5e, #43327e);
+}
+
+/* 2/4 광고 */
+.promo-banner--ad {
+  color: #4a3512;
+  background: linear-gradient(135deg, #f8ebd2, #f3ddb1);
+}
+
+.promo-banner--ad .promo-banner__cta {
+  color: #fff;
+  background: #4a3512;
+}
+
+.promo-banner--ad .promo-banner__eyebrow {
+  opacity: 1;
+}
+
+.promo-banner--ad .ad-label {
+  color: #fff;
+  background: #4a3512;
+}
+
+/* 3/4 기획전 */
+.promo-banner--exhibition {
+  color: #1e3d31;
+  background: linear-gradient(135deg, #dff1e9, #c9e7db);
+}
+
+.promo-banner--exhibition .promo-banner__cta {
+  color: #fff;
+  background: #1e3d31;
+}
+
+/* 4/4 팬 응원 전광판 */
+.promo-banner--fan {
+  display: flex;
+  padding: 0;
+  cursor: default;
+  background: linear-gradient(115deg, #0b1230, #16245c 55%, #3d7be0);
+}
+
+.promo-banner__fan-image {
+  position: relative;
+  flex: 0 0 37%;
+  height: 100%;
+}
+
+.promo-banner__fan-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 30%;
+  pointer-events: none;
+}
+
+.promo-banner__fan-image::after {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 60%;
+  background: linear-gradient(90deg, transparent, #14215a);
+  content: '';
+}
+
+.promo-banner__fan-text {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  padding: 10px 10px 10px 4px;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.promo-banner__fan-text p,
+.promo-banner__fan-text time {
+  margin: 0;
+}
+
+.promo-banner__fan-badge {
+  align-self: flex-start;
+  margin-bottom: 3px;
+  padding: 1px 6px;
+  border: 1px solid rgb(159 194 255 / 55%);
+  border-radius: 99px;
+  color: #cfe0ff;
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.promo-banner__fan-date {
+  color: #9fc2ff;
+  font-size: 8px;
+  letter-spacing: 1.5px;
+}
+
+.promo-banner__fan-title {
+  margin-top: 1px;
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.6px;
+}
+
+.promo-banner__fan-name {
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+}
+
+.promo-banner__fan-message {
+  margin-top: 1px;
+  font-size: 9px;
+}
+
+.promo-banner__fan-from {
+  margin-top: 3px;
+  overflow: hidden;
+  color: #b7c7ec;
+  font-size: 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.promo-banner__star {
+  position: absolute;
+  z-index: 1;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 8px 2px rgb(159 194 255 / 70%);
+}
+
+.promo-banner__star--1 { top: 14px; right: 60px; }
+.promo-banner__star--2 { top: 36px; right: 20px; width: 3px; height: 3px; }
+.promo-banner__star--3 { top: 84px; right: 40px; width: 4px; height: 4px; }
 
 .banner-dots {
   display: flex;
@@ -259,7 +379,7 @@
 
 .banner-dots button.active {
   width: 18px;
-  background: var(--purple);
+  background: #a596f3;
 }
 
 .category-shortcuts {
@@ -330,6 +450,7 @@
 .upcoming-rail {
   gap: 10px;
   padding: 0 18px 3px;
+  scroll-padding-inline: 18px;
   cursor: grab;
   touch-action: pan-x pan-y;
   user-select: none;
@@ -701,6 +822,14 @@
   font-size: 10px;
 }
 
+.upcoming-card__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .upcoming-card__media > svg {
   width: 25px;
   fill: none;
@@ -847,4 +976,25 @@
   .category-shortcuts__icon { width: 39px; height: 39px; }
   .category-shortcuts button { font-size: 9px; }
   .promo-banner { flex-basis: calc(100% - 10px); }
+}
+
+.upcoming-card--clickable {
+  cursor: pointer;
+}
+
+.product-card__discount {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 4px 0 0;
+  font-size: 11px;
+}
+
+.product-card__discount b {
+  color: #e5484d;
+  font-size: 13px;
+}
+
+.product-card__discount s {
+  color: #9c97a4;
 }

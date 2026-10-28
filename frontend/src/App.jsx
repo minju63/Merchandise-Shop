@@ -4,6 +4,7 @@ import {
   Routes,
   useLocation,
   useNavigate,
+  useParams,
   useSearchParams,
 } from 'react-router-dom';
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
@@ -19,6 +20,8 @@ import StoreDetailPage from './pages/stores/StoreDetailPage.jsx';
 import StoreReviewPage from './pages/stores/StoreReviewPage.jsx';
 import StoreReviewWritePage from './pages/stores/StoreReviewWritePage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
+import MyPage from './pages/my/MyPage.jsx';
+import BottomNavigation from './components/BottomNavigation.jsx';
 import CategoryPage from './pages/category/CategoryPage.jsx';
 import ProductListPage from './pages/category/ProductListPage.jsx';
 import ProductDetailPage from './pages/category/ProductDetailPage.jsx';
@@ -27,6 +30,10 @@ import WishShopsPage from './pages/wish/WishShopsPage.jsx';
 import CartPage from './pages/cart/CartPage.jsx';
 import { storeApi } from './api/store.api.js';
 import { searchApi } from './api/search.api.js';
+import { bannerApi, homeApi } from './api/home.api.js';
+import ServiceIntroPage from './pages/home/ServiceIntroPage.jsx';
+import AdDetailPage from './pages/home/AdDetailPage.jsx';
+import ExhibitionPage from './pages/home/ExhibitionPage.jsx';
 import './App.css';
 
 const queryClient = new QueryClient({
@@ -65,14 +72,164 @@ function useStoreFilter(storeId) {
   });
 }
 
+// 배너 종류별 상세 화면. 팬 응원 전광판(FAN)은 상세 화면이 없어 이동하지 않는다.
+const BANNER_DETAIL_PATHS = {
+  SERVICE_INTRO: '/intro',
+  AD: '/ads',
+  EXHIBITION: '/exhibitions',
+};
+
+function bannerPath({ bannerId, bannerType }) {
+  const base = BANNER_DETAIL_PATHS[bannerType];
+  return base ? `${base}/${bannerId}` : null;
+}
+
+// 홈 카테고리 바로가기는 카테고리 탭과 같은 방식으로 이동한다.
+// 작품(CONTENT)은 카테고리 탭에서 해당 작품을 고른 상태로, 굿즈 종류(GOODS)는 상품 목록으로 간다.
+function categoryPath({ type, categoryId, name }) {
+  if (type === 'ALL') return '/category';
+  if (type === 'CONTENT') return `/category?${new URLSearchParams({ contentCategoryId: categoryId })}`;
+  return `/category/products?${new URLSearchParams({ contentName: '전체', goodsCategoryId: categoryId, goodsType: name })}`;
+}
+
 function HomeRoute() {
   const navigate = useNavigate();
+  const openCategory = (category) => navigate(categoryPath(category));
+  const homeQuery = useQuery({
+    queryKey: ['home'],
+    queryFn: homeApi.get,
+    staleTime: 30000,
+    retry: false,
+  });
+
+  if (homeQuery.isPending) return <p className="home-status">불러오는 중...</p>;
+  if (homeQuery.isError) {
+    return (
+      <div className="home-status">
+        <p>{homeQuery.error.message}</p>
+        <button type="button" onClick={() => homeQuery.refetch()}>다시 시도</button>
+      </div>
+    );
+  }
+
   return (
     <HomePage
-      data={homeMockData}
+      data={{ ...homeMockData, ...homeQuery.data.data }}
       {...homeMockUserState}
       onSearch={() => navigate('/search')}
+      onOpenProduct={(product) => navigate(`/products/${product.storeProductId}`)}
+      onOpenCategory={openCategory}
+      onBannerClick={(bannerId) => {
+        bannerApi.click(bannerId).catch(() => {
+          // 클릭 기록 실패가 화면 이동을 막지 않는다.
+        });
+      }}
+      onNavigate={(link) => {
+        const path = bannerPath(link);
+        if (path) navigate(path);
+      }}
     />
+  );
+}
+
+// 배너 상세 화면 공통: 주소의 bannerId 로 데이터를 불러오고, 뒤로가기는 홈으로 돌아간다.
+function useBannerDetailRoute(queryFn) {
+  const navigate = useNavigate();
+  const { bannerId } = useParams();
+  const query = useQuery({
+    queryKey: ['home-banner-detail', bannerId, queryFn.name],
+    queryFn: () => queryFn(bannerId),
+    retry: false,
+  });
+
+  return {
+    banner: query.data?.data,
+    error: query.error?.message,
+    onRetry: () => query.refetch(),
+    onBack: () => (window.history.length > 1 ? navigate(-1) : navigate('/')),
+    onOpenProduct: (product) => navigate(`/products/${product.storeProductId}`),
+    onOpenStore: (storeId) => navigate(`/stores/${storeId}`),
+    onHome: () => navigate('/'),
+    navigate,
+  };
+}
+
+function ServiceIntroRoute() {
+  const route = useBannerDetailRoute(homeApi.serviceIntro);
+  return (
+    <ServiceIntroPage
+      intro={route.banner}
+      error={route.error}
+      onBack={route.onBack}
+      onRetry={route.onRetry}
+      onOpenStore={route.onOpenStore}
+      onFindStores={() => route.navigate('/stores')}
+    />
+  );
+}
+
+function AdDetailRoute() {
+  const route = useBannerDetailRoute(homeApi.ad);
+  return (
+    <AdDetailPage
+      ad={route.banner}
+      error={route.error}
+      onBack={route.onBack}
+      onRetry={route.onRetry}
+      onOpenProduct={route.onOpenProduct}
+      onOpenStore={route.onOpenStore}
+      onShowStoreProducts={(storeId) => route.navigate(`/search/results?storeId=${storeId}`)}
+    />
+  );
+}
+
+function ExhibitionRoute() {
+  const navigate = useNavigate();
+  const { bannerId } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const character = searchParams.get('character') ?? '';
+  const type = searchParams.get('type') ?? '';
+  const inStock = searchParams.get('inStock') === 'true';
+  // 캐릭터·종류·재고 조건이 바뀌면 그 기준으로 굿즈를 다시 불러온다.
+  const query = useQuery({
+    queryKey: ['home-exhibition', bannerId, character, type, inStock],
+    queryFn: () => homeApi.exhibition(bannerId, { character, type, inStock: inStock || undefined }),
+    placeholderData: (previous) => previous,
+    retry: false,
+  });
+  const setFilter = (values) => setSearchParams((current) => {
+    const next = new URLSearchParams(current);
+    Object.entries(values).forEach(([key, value]) => {
+      if (value) next.set(key, value);
+      else next.delete(key);
+    });
+    return next;
+  }, { replace: true });
+
+  return (
+    <ExhibitionPage
+      exhibition={query.data?.data}
+      loading={query.isFetching}
+      error={query.error?.message}
+      filters={{ type, inStock }}
+      onBack={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))}
+      onRetry={() => query.refetch()}
+      onSelectCharacter={(name) => setFilter({ character: name, type: '' })}
+      onChangeType={(nextType) => setFilter({ type: nextType })}
+      onToggleInStock={() => setFilter({ inStock: inStock ? '' : 'true' })}
+      onOpenProduct={(product) => navigate(`/products/${product.storeProductId}`)}
+      onShowAll={(name) => navigate(`/search/results?q=${encodeURIComponent(name)}`)}
+    />
+  );
+}
+
+// 마이 화면에는 하단 탭이 없어서 라우트에서 붙인다. 탭에 가려지지 않도록 아래 여백을 둔다.
+function MyRoute() {
+  return (
+    <div style={{ paddingBottom: 'calc(65px + env(safe-area-inset-bottom))' }}>
+      <MyPage />
+      <BottomNavigation />
+    </div>
   );
 }
 
@@ -206,6 +363,9 @@ export default function App() {
         <Route path="/" element={<HomeRoute />} />
         <Route path="/search" element={<SearchRoute />} />
         <Route path="/search/results" element={<SearchResultsRoute />} />
+        <Route path="/intro/:bannerId" element={<ServiceIntroRoute />} />
+        <Route path="/ads/:bannerId" element={<AdDetailRoute />} />
+        <Route path="/exhibitions/:bannerId" element={<ExhibitionRoute />} />
 
         {/* 여경 — 굿즈샵 */}
         <Route path="/stores" element={<StoreListPage />} />
@@ -233,6 +393,7 @@ export default function App() {
             /checkout             CheckoutPage
             /checkout/done        OrderCompletePage
             /my                   MyPage */}
+        <Route path="/my" element={<MyRoute />} />
         <Route path="/login" element={<LoginPage />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />

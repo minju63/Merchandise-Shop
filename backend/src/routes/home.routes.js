@@ -7,6 +7,9 @@ import * as homeController from '../controllers/home.controller.js';
 const router = Router();
 
 router.get('/', homeController.getHome); // 홈 화면 전체 섹션
+router.get('/banners/:bannerId', homeController.getAdDetail); // 광고 배너 상세
+router.get('/service-intro/:bannerId', homeController.getServiceIntro); // 서비스 소개 배너 상세
+router.get('/exhibitions/:bannerId', homeController.getExhibition); // 기획전 배너 상세
 router.get('/sections/:type', homeController.getHomeSection); // 섹션 더보기 (popular · new · recommend · low-stock · upcoming)
 
 export default router;
