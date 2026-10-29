@@ -50,6 +50,14 @@ import TermsPage from './pages/my/TermsPage.jsx';
 import TermsBodyPage from './pages/my/TermsBodyPage.jsx';
 import SellerApplyPage from './pages/my/SellerApplyPage.jsx';
 import SellerCenterPage from './pages/my/SellerCenterPage.jsx';
+import PointsPage from './pages/my/PointsPage.jsx';
+import ClaimsPage from './pages/my/ClaimsPage.jsx';
+import ClaimFormPage from './pages/my/ClaimFormPage.jsx';
+import RecentProductsPage from './pages/my/RecentProductsPage.jsx';
+import RefundAccountsPage from './pages/my/RefundAccountsPage.jsx';
+import FanBannerPage from './pages/my/FanBannerPage.jsx';
+import AlertsPage from './pages/my/AlertsPage.jsx';
+import { recordProductView } from './pages/my/account.api.js';
 import CategoryPage from './pages/category/CategoryPage.jsx';
 import ProductListPage from './pages/category/ProductListPage.jsx';
 import ProductDetailPage from './pages/category/ProductDetailPage.jsx';
@@ -384,6 +392,11 @@ function ProductDetailRoute() {
     const { data } = supabase.auth.onAuthStateChange((_event, session) => setUser(session?.user ?? null));
     return () => data.subscription.unsubscribe();
   }, []);
+  // 최근 본 상품: 로그인한 사용자가 상세를 열면 조회 기록을 남긴다(실패해도 화면에는 영향 없음).
+  const viewerId = user?.id;
+  useEffect(() => {
+    if (viewerId) recordProductView(storeProductId).catch(() => {});
+  }, [viewerId, storeProductId]);
   const addToCart = (fulfillmentType) =>
     cartApi.addItem({ storeProductId, quantity: 1, fulfillmentType });
   return (
@@ -655,6 +668,13 @@ export default function App() {
         <Route path="/my/terms/:type" element={<TermsBodyPage />} />
         <Route path="/my/seller-apply" element={<SellerApplyPage />} />
         <Route path="/my/seller-center" element={<SellerCenterPage />} />
+        <Route path="/my/points" element={<PointsPage />} />
+        <Route path="/my/claims" element={<ClaimsPage />} />
+        <Route path="/my/orders/:orderId/claim" element={<ClaimFormPage />} />
+        <Route path="/my/recent" element={<RecentProductsPage />} />
+        <Route path="/my/refund-accounts" element={<RefundAccountsPage />} />
+        <Route path="/my/events/fan-banner" element={<FanBannerPage />} />
+        <Route path="/my/alerts" element={<AlertsPage />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

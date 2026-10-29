@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import {
   BagIcon,
   BellIcon,
+  BankIcon,
   BoxIcon,
   CardIcon,
   CartIcon,
   ChevronIcon,
+  ClockIcon,
   DocIcon,
   GiftIcon,
   HeadsetIcon,
@@ -19,6 +21,7 @@ import {
   TicketIcon,
   TruckIcon,
   UserIcon,
+  WalletIcon,
 } from './icons.jsx';
 import {
   formatBadgeCount,
@@ -26,9 +29,12 @@ import {
   membershipShortName,
   providerLabel,
 } from './format.js';
-import { useMySummary, useSession } from './hooks.js';
+import { getMyPoints } from './account.api.js';
+import { useMySummary, useRequest, useSession } from './hooks.js';
+import { formatWon } from './orderFormat.js';
 import { MY_ROUTES } from './routes.js';
 import './my.css';
+import './mytab.css';
 
 const ORDER_STEPS = [
   ['PAID', '주문 완료'],
@@ -37,6 +43,8 @@ const ORDER_STEPS = [
   ['SHIPPING', '배달 중'],
   ['COMPLETED', '수령 완료'],
 ];
+
+const ClockRowIcon = (props) => <ClockIcon width={22} height={22} {...props} />;
 
 function Badge({ count }) {
   const text = formatBadgeCount(count);
@@ -103,6 +111,7 @@ function MemberView({ data, provider, onNavigate }) {
   const plan = membership?.membership_plans?.name;
   const planShort = plan ? membershipShortName(plan) : null;
   const counts = orderSummary?.counts ?? {};
+  const points = useRequest(true, 'my-points-card', getMyPoints);
 
   return (
     <>
@@ -146,6 +155,25 @@ function MemberView({ data, provider, onNavigate }) {
           </button>
         </div>
       ) : null}
+
+      <section className="my-card">
+        <button
+          type="button"
+          className="mt-points-card"
+          onClick={() => onNavigate(MY_ROUTES.points)}
+        >
+          <WalletIcon width={22} height={22} />
+          <span className="mt-points-card__text">
+            <strong>적립금 {points.data ? formatWon(points.data.balance) : '-'}</strong>
+            <span>
+              {points.data?.pendingAmount
+                ? `적립 예정 ${formatWon(points.data.pendingAmount)} · 결제 금액의 1% 적립`
+                : '결제 금액의 1%가 구매 확정 후 적립돼요'}
+            </span>
+          </span>
+          <ChevronIcon />
+        </button>
+      </section>
 
       <section className="my-card">
         <div className="my-card__head">
@@ -215,6 +243,21 @@ function MemberView({ data, provider, onNavigate }) {
           label="배달 주문"
           onClick={() => onNavigate(MY_ROUTES.deliveryOrders)}
         />
+        <Row
+          icon={BoxIcon}
+          label="취소·반품·교환 내역"
+          onClick={() => onNavigate(MY_ROUTES.claims)}
+        />
+        <Row
+          icon={ClockRowIcon}
+          label="최근 본 상품"
+          onClick={() => onNavigate(MY_ROUTES.recentProducts)}
+        />
+        <Row
+          icon={BellIcon}
+          label="사전예약·재입고·알림 신청"
+          onClick={() => onNavigate(MY_ROUTES.alerts)}
+        />
       </Section>
 
       <Section title="혜택">
@@ -231,6 +274,11 @@ function MemberView({ data, provider, onNavigate }) {
           accent
           onClick={() => onNavigate(MY_ROUTES.coupons)}
         />
+        <Row
+          icon={MegaphoneIcon}
+          label="이벤트 · 이번주 최애 배너"
+          onClick={() => onNavigate(MY_ROUTES.fanBanner)}
+        />
       </Section>
 
       <Section title="정보">
@@ -239,6 +287,11 @@ function MemberView({ data, provider, onNavigate }) {
           icon={CardIcon}
           label="결제수단 관리"
           onClick={() => onNavigate(MY_ROUTES.paymentMethods)}
+        />
+        <Row
+          icon={BankIcon}
+          label="환불계좌 관리"
+          onClick={() => onNavigate(MY_ROUTES.refundAccounts)}
         />
       </Section>
 

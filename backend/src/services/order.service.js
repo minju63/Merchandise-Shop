@@ -1,4 +1,5 @@
-import { threeMonthsAgo } from "./user.service.js";
+import { threeMonthsAgo, restoreOrderPoints } from "./user.service.js";
+import { listMyPaymentMethods } from "./paymentMethod.service.js";
 import * as repository from "../repositories/order.repository.js";
 import * as payments from "../repositories/payment.repository.js";
 import * as coupons from "../repositories/coupon.repository.js";
@@ -425,6 +426,7 @@ export async function cancelMyOrder(userId, orderId, input) {
       }
     }
     await payments.cancelMockOrderPayments(userId, row.id);
+    await restoreOrderPoints(userId, row.id);
   } catch {
     throw failure(
       503,
@@ -436,4 +438,108 @@ export async function cancelMyOrder(userId, orderId, input) {
     ...(await getMyOrderDetail(userId, row.id)),
     alreadyCanceled: false,
   };
+}
+
+// ---- 반품/교환 요청 ----
+const CLAIM_REASONS = [
+  "DEFECT",
+  "WRONG_ITEM",
+  "NOT_AS_DESCRIBED",
+  "CHANGE_OF_MIND",
+  "ETC",
+];
+export function validateClaimInput(input) {
+  object(input, [
+    "orderItemId",
+    "claimType",
+    "reason",
+    "detail",
+    "refundPaymentMethodId",
+  ]);
+  if (!["RETURN", "EXCHANGE"].includes(input.claimType))
+    throw failure(400, "INVALID_CLAIM_TYPE", "반품 또는 교환을 선택해 주세요.");
+  if (!CLAIM_REASONS.includes(input.reason))
+    throw failure(400, "INVALID_CLAIM_REASON", "사유를 선택해 주세요.");
+  return {
+    orderItemId: uuid(input.orderItemId),
+    claimType: input.claimType,
+    reason: input.reason,
+    detail:
+      input.detail === undefined && input.reason !== "ETC"
+        ? null
+        : text(input.detail, 500, input.reason === "ETC" ? 1 : 0) || null,
+    refundPaymentMethodId:
+      input.refundPaymentMethodId == null
+        ? null
+        : uuid(input.refundPaymentMethodId),
+  };
+}
+function serializeClaim(row) {
+  return {
+    id: row.id,
+    orderId: row.order_id,
+    orderNo: row.order?.order_no ?? null,
+    storeName: row.order?.store?.name ?? null,
+    claimType: row.claim_type,
+    status: row.status,
+    reason: row.reason,
+    detail: row.detail,
+    item: row.item
+      ? {
+          productName: row.item.product_name,
+          imageUrl: row.item.product_image_url,
+          quantity: row.item.quantity,
+          unitPrice: row.item.unit_price,
+        }
+      : null,
+    createdAt: row.created_at,
+  };
+}
+export async function listMyClaims(userId, input = {}) {
+  object(input, [], true);
+  await active(userId);
+  return {
+    items: (await repository.listOwnedClaims(userId)).map(serializeClaim),
+  };
+}
+export async function createMyClaim(userId, orderId, input) {
+  const claim = validateClaimInput(input);
+  const order = await owned(userId, orderId);
+  if (order.status !== "COMPLETED")
+    throw failure(
+      409,
+      "CLAIM_NOT_ALLOWED",
+      "수령을 완료한 주문만 반품·교환을 요청할 수 있어요.",
+    );
+  const item = await repository.findOwnedItem(userId, claim.orderItemId);
+  if (!item || item.order_id !== order.id)
+    throw failure(404, "ORDER_ITEM_NOT_FOUND", "주문 상품을 찾지 못했어요.");
+  const previous = await repository.listClaimsForItem(userId, item.id);
+  if (previous.some((row) => row.status !== "REJECTED"))
+    throw failure(
+      409,
+      "CLAIM_ALREADY_EXISTS",
+      "이미 접수된 반품·교환 요청이 있어요.",
+    );
+  if (claim.refundPaymentMethodId) {
+    const accounts = (await listMyPaymentMethods(userId)).items;
+    if (
+      !accounts.some(
+        (row) =>
+          row.id === claim.refundPaymentMethodId &&
+          row.method_type === "BANK_ACCOUNT",
+      )
+    )
+      throw failure(404, "REFUND_ACCOUNT_NOT_FOUND", "환불계좌를 찾지 못했어요.");
+  }
+  const saved = await repository.createClaim({
+    order_id: order.id,
+    order_item_id: item.id,
+    user_id: userId,
+    claim_type: claim.claimType,
+    reason: claim.reason,
+    detail: claim.detail,
+    refund_payment_method_id: claim.refundPaymentMethodId,
+  });
+  return { claim: serializeClaim(saved) };
 }

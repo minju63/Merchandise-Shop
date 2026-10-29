@@ -21,6 +21,13 @@ async function requireAuthentication(req, res, next) {
 }
 
 router.get('/me/agreements', requireAuthentication, controller.getMyAgreements);
+router.get('/me/points', requireAuthentication, controller.getMyPoints);
+router.post('/me/recent-products', requireAuthentication, controller.recordProductView);
+router.get('/me/recent-products', requireAuthentication, controller.getRecentProducts);
+router.get('/me/open-alerts', requireAuthentication, controller.listMyOpenAlerts);
+router.get('/me/fan-banners/board', requireAuthentication, controller.getFanBannerBoard);
+router.get('/me/fan-banners', requireAuthentication, controller.listMyFanBannerEntries);
+router.post('/me/fan-banners', requireAuthentication, controller.createFanBannerEntry);
 router.get('/me', requireAuthentication, controller.getMySummary);
 router.patch('/me', requireAuthentication, controller.updateMyProfile);
 router.delete('/me', requireAuthentication, controller.withdrawAccount);

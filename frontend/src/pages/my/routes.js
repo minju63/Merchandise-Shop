@@ -34,4 +34,12 @@ export const MY_ROUTES = {
   termsBody: (type) => `/my/terms/${type}`,
   sellerApply: '/my/seller-apply',
   sellerCenter: '/my/seller-center',
+  points: '/my/points',
+  claims: '/my/claims',
+  claimNew: (orderId) => `/my/orders/${orderId}/claim`,
+  recentProducts: '/my/recent',
+  refundAccounts: '/my/refund-accounts',
+  fanBanner: '/my/events/fan-banner',
+  alerts: '/my/alerts',
+  product: (storeProductId) => `/products/${storeProductId}`,
 };

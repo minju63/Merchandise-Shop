@@ -16,6 +16,12 @@ async function requireAuthentication(req, res, next) {
   }
 }
 router.get("/", requireAuthentication, controller.listMyOrders);
+router.get("/claims", requireAuthentication, controller.listMyClaims);
+router.post(
+  "/:orderId/claims",
+  requireAuthentication,
+  controller.createMyClaim,
+);
 router.get(
   "/:orderId/pickup",
   requireAuthentication,
