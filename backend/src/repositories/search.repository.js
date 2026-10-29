@@ -5,8 +5,8 @@ export async function createSearchLog({ userId, query, resultCount, regionId }) 
     .from('search_logs')
     .insert({
       user_id: userId ?? null,
-      query,
-      normalized_query: query.trim().toLocaleLowerCase('ko-KR'),
+      // 실제 search_logs 테이블 컬럼은 keyword · region_id(uuid) · result_count · created_at 이다.
+      keyword: query,
       result_count: resultCount,
       region_id: regionId ?? null,
     })

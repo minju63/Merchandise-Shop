@@ -32,6 +32,8 @@ export default function ProductActionBar({ product, user, actions = {}, onLogin 
           : '요청을 완료했습니다.'
       );
     } catch (error) {
+      // 수령 방법 선택 시트를 닫은 경우는 실패 안내를 띄우지 않는다.
+      if (error.cancelled) return;
       if (error.response?.status === 401) onLogin?.();
       setMessage(
         error.response?.status === 401

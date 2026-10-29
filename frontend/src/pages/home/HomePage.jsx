@@ -118,6 +118,7 @@ export default function HomePage({
   onOpenTrending,
   onOpenUpcoming,
   onOpenLowStock,
+  onOpenCart,
   onToggleOpenAlert,
 }) {
   const [activeBannerIndex, setActiveBannerIndex] = useState(0);
@@ -276,11 +277,11 @@ export default function HomePage({
           <div className="header-actions">
             <button type="button" aria-label="알림 목록 화면 준비 중" disabled>
               <Icon name="bell" size={21} />
-              <span className="action-badge">{data.badges.notifications}</span>
+              {data.badges.notifications > 0 && <span className="action-badge">{data.badges.notifications}</span>}
             </button>
-            <button type="button" aria-label="장바구니 화면 준비 중" disabled>
+            <button type="button" aria-label="장바구니" onClick={onOpenCart} disabled={!onOpenCart}>
               <Icon name="cart" size={22} />
-              <span className="action-badge">{data.badges.cart}</span>
+              {data.badges.cart > 0 && <span className="action-badge">{data.badges.cart}</span>}
             </button>
           </div>
         </div>

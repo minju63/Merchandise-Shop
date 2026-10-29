@@ -8,7 +8,7 @@ import {
   useSearchParams,
 } from 'react-router-dom';
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import HomePage from './pages/home/HomePage.jsx';
 import { homeMockData, homeMockUserState } from './pages/home/homeMockData.js';
 import SearchPage, { SearchResultsPage } from './pages/search/SearchPage.jsx';
@@ -58,6 +58,9 @@ import CartPage from './pages/cart/CartPage.jsx';
 import { storeApi } from './api/store.api.js';
 import * as productApi from './api/product.api.js';
 import client from './api/client.js';
+import { cartApi } from './api/cart.api.js';
+import { supabase } from './lib/supabase.js';
+import FulfillmentSheet from './pages/wish/components/FulfillmentSheet.jsx';
 import { searchApi } from './api/search.api.js';
 import { bannerApi, homeApi } from './api/home.api.js';
 import ServiceIntroPage from './pages/home/ServiceIntroPage.jsx';
@@ -188,6 +191,7 @@ function HomeRoute() {
       interestBrands={loadInterestBrands()}
       onOpenInterestSettings={() => navigate('/interests')}
       onSearch={() => navigate('/search')}
+      onOpenCart={() => navigate('/cart')}
       onOpenProduct={(product) => navigate(`/products/${product.storeProductId}`)}
       onOpenCategory={openCategory}
       onOpenTrending={(tab) => navigate(trendingPath(tab))}
@@ -342,6 +346,67 @@ function InterestRoute() {
         navigate('/');
       }}
     />
+  );
+}
+
+// 상품 상세: 로그인 사용자를 알려 주고, 장바구니 담기를 수령 방법(픽업/배달) 선택 후 /cart/items로 연결한다.
+function ProductDetailRoute() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { storeProductId } = useParams();
+  const [user, setUser] = useState(null);
+  const [sheet, setSheet] = useState(null);
+  const detail = useQuery({
+    queryKey: ['product-detail-name', storeProductId],
+    queryFn: () => productApi.getProductDetail(storeProductId, {}, client),
+    retry: false,
+  });
+  useEffect(() => {
+    if (!supabase) return undefined;
+    supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null));
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => setUser(session?.user ?? null));
+    return () => data.subscription.unsubscribe();
+  }, []);
+  const addToCart = (fulfillmentType) =>
+    cartApi.addItem({ storeProductId, quantity: 1, fulfillmentType });
+  return (
+    <>
+      <ProductDetailPage
+        user={user}
+        onLogin={() =>
+          navigate(`/login?returnTo=${encodeURIComponent(`${location.pathname}${location.search}`)}`)
+        }
+        actions={{
+          // 담은 뒤에는 수령 방법을 바꿀 수 없어서, 자동으로 고르지 않고 시트로 먼저 묻는다.
+          cart: () =>
+            new Promise((resolve, reject) => {
+              setSheet({ resolve, reject });
+            }),
+        }}
+      />
+      {sheet && (
+        <FulfillmentSheet
+          productName={detail.data?.productName || detail.data?.name || '이 상품'}
+          isPending={sheet.pending}
+          onCancel={() => {
+            sheet.reject(Object.assign(new Error('취소'), { cancelled: true }));
+            setSheet(null);
+          }}
+          onSelect={async (fulfillmentType) => {
+            setSheet({ ...sheet, pending: true });
+            try {
+              await addToCart(fulfillmentType);
+              sheet.resolve();
+              setSheet(null);
+              navigate(`/cart?type=${fulfillmentType}`);
+            } catch (error) {
+              sheet.reject(error);
+              setSheet(null);
+            }
+          }}
+        />
+      )}
+    </>
   );
 }
 
@@ -511,7 +576,7 @@ export default function App() {
         {/* 은혜 — 카테고리 · 상품 */}
         <Route path="/category" element={<CategoryPage />} />
         <Route path="/category/products" element={<ProductListPage />} />
-        <Route path="/products/:storeProductId" element={<ProductDetailPage />} />
+        <Route path="/products/:storeProductId" element={<ProductDetailRoute />} />
 
         {/* 동균 — 찜 · 장바구니 */}
         <Route path="/wish" element={<WishProductsPage />} />
