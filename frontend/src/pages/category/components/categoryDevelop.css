@@ -47,6 +47,7 @@
 .category-develop-shell .product-card__stock--danger { color: #a0525c; background: #faedf0; }
 .category-develop-shell .category-section-heading p { margin: 0; color: #211d2b; font-weight: 800; font-size: 15px; }
 .category-develop-shell .category-section-heading p span { color: #6846d8; }
+.category-develop-shell .category-page .store-embed .result-heading h2 span { font-size: inherit; }
 .category-develop-shell .category-sort-dropdown { position: relative; font-size: 11px; }
 .category-develop-shell .category-sort-dropdown summary { display: flex; align-items: center; list-style: none; cursor: pointer; padding: 8px 0 8px 12px; color: #6846d8; font-weight: 700; }
 .category-develop-shell .category-sort-dropdown summary::-webkit-details-marker { display: none; }
@@ -54,6 +55,12 @@
 .category-develop-shell .category-sort-options button { display: flex; justify-content: space-between; width: 100%; padding: 12px; border: 0; background: transparent; text-align: left; font-size: 12px; }
 .category-develop-shell .category-sort-options button[aria-pressed='true'] { color: #6846d8; background: #f5f1ff; font-weight: 800; }
 .category-develop-shell .category-sort-options button:disabled { color: #aaa4af; cursor: default; }
+.category-develop-shell .category-page .store-embed .sort-trigger { display: flex; min-width: 0; min-height: 0; padding: 8px 0 8px 12px; align-items: center; justify-content: center; gap: 3px; border: 0; border-radius: 0; color: #6846d8; background: transparent; font-size: 11px; font-weight: 700; }
+.category-develop-shell .category-page .store-embed .sort-trigger svg { width: 12px; height: 12px; }
+.category-develop-shell .category-page .store-embed .sort-menu { top: 100%; width: 170px; padding: 6px; border-color: #eeeaf2; border-radius: 12px; box-shadow: 0 8px 28px #30204124; }
+.category-develop-shell .category-page .store-embed .sort-menu button { padding: 12px; border: 0; border-radius: 0; background: transparent; font-size: 12px; }
+.category-develop-shell .category-page .store-embed .sort-menu button[aria-selected='true'],
+.category-develop-shell .category-page .store-embed .sort-menu button:hover { color: #6846d8; background: #f5f1ff; font-weight: 800; }
 .category-develop-shell .category-extra-filters { margin: 0 0 12px; font-size: 12px; color: #827a8e; }
 .category-develop-shell .category-extra-filters > summary { cursor: pointer; padding: 4px 0; }
 .category-develop-shell .category-page.category-detail { padding: 0 14px 155px; }

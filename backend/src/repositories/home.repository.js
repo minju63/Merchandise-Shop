@@ -5,7 +5,7 @@ import { getSupabase } from '../lib/supabase.js';
 const PRODUCT_LIMIT = 200;
 
 const PRODUCT_FIELDS = `
-  id, name, brand, thumbnail_url, base_price, status, released_at, open_at,
+  id, name, work_title, brand, thumbnail_url, base_price, status, released_at, open_at,
   popularity_score, alert_count, created_at,
   store_products (
     id, store_id, price, discount_rate, stock, status, restock_expected_at,

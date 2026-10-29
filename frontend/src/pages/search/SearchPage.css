@@ -428,6 +428,12 @@
 .integrated-products .result-heading h2 { font-size: 15px; }
 .integrated-shops .result-heading h2 span,
 .integrated-products .result-heading h2 span { font-size: inherit; }
+.integrated-shops .store-embed .sort-trigger { min-width: 0; min-height: 0; padding: 8px 0 8px 12px; gap: 3px; border: 0; border-radius: 0; color: #6846d8; background: transparent; font-size: 11px; font-weight: 700; }
+.integrated-shops .store-embed .sort-trigger svg { width: 12px; height: 12px; }
+.integrated-shops .store-embed .sort-menu { top: 100%; width: 170px; padding: 6px; border-color: #eeeaf2; border-radius: 12px; box-shadow: 0 8px 28px #30204124; }
+.integrated-shops .store-embed .sort-menu button { padding: 12px; border: 0; border-radius: 0; background: transparent; font-size: 12px; }
+.integrated-shops .store-embed .sort-menu button[aria-selected='true'],
+.integrated-shops .store-embed .sort-menu button:hover { color: #6846d8; background: #f5f1ff; font-weight: 800; }
 .integrated-shops .result-heading > button {
   padding: 0;
   border: 0;

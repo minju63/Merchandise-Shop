@@ -82,6 +82,10 @@ export function createProductService(repositories) {
       productId: listing.product_id,
       productName: listing.product.name,
       name: listing.product.name,
+      workTitle: listing.product.work_title ?? null,
+      goodsCategoryName: listing.product.product_categories
+        ?.map((row) => row.category)
+        .find((category) => category?.type === 'GOODS')?.name ?? null,
       thumbnailUrl: listing.product.thumbnail_url ?? null,
       price: listing.price,
       discountRate: listing.discount_rate ?? 0,
@@ -197,6 +201,9 @@ export function createProductService(repositories) {
       spec: productRow.spec ?? null,
       brand: productRow.brand ?? null,
       workTitle: productRow.work_title ?? null,
+      goodsCategoryName: categories
+        .map((row) => row.category || row)
+        .find((category) => category.type === 'GOODS')?.name ?? null,
       characterName: productRow.character_name ?? null,
       conditionGrade: listing.condition_grade ?? null,
       images,

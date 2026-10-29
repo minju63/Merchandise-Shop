@@ -6,11 +6,12 @@ export default function ProductInfo({ product }) {
     (product.status === 'ON_SALE' && product.stock <= 0 ? 'SOLD_OUT' : product.status);
   const labels = { ON_SALE: '판매 중', SOLD_OUT: '품절', UPCOMING: '입고 예정' };
   const categories = (product.categories || []).map((row) => row.category || row);
-  const breadcrumb = [
+  const breadcrumb = [...new Set([
     categories.find((row) => row.type === 'CONTENT')?.name,
     product.workTitle,
+    categories.find((row) => row.type === 'GOODS')?.name,
     product.characterName,
-  ].filter(Boolean);
+  ].filter(Boolean))];
   return (
     <section className="category-product-info">
       {breadcrumb.length > 0 && (

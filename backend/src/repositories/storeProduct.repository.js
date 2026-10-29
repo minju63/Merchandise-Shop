@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase.js';
 import { createStoreRepository, normalizeStore, STORE_FIELDS } from './store.repository.js';
 
-const SELECT = `*,product:products!inner(*),store:stores!inner(${STORE_FIELDS},region:regions(id,name))`;
+const SELECT = `*,product:products!inner(*,product_categories(category:categories(id,name,type))),store:stores!inner(${STORE_FIELDS},region:regions(id,name))`;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function invalid(message) {

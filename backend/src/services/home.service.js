@@ -45,6 +45,7 @@ export function toCard(product, listing, index) {
     shop: listing?.stores?.name ?? '',
     storeId: listing?.store_id ?? null,
     name: product.name,
+    workTitle: product.work_title ?? null,
     imageUrl: product.thumbnail_url,
     price: formatPrice(listing ? salePrice(listing) : product.base_price),
     // 품절 임박(재고 10개 이하)일 때만 표시하고, 재고가 넉넉하면 표시하지 않는다.

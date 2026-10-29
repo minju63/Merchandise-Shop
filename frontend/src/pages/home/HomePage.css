@@ -610,6 +610,16 @@
   white-space: nowrap;
 }
 
+.product-card__work-title {
+  margin: 0 0 3px;
+  overflow: hidden;
+  color: #6e5b8b;
+  font-size: 9px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .home-product-card h3 {
   min-height: 31px;
   margin: 0 0 6px;

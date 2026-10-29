@@ -94,6 +94,11 @@ export default function ProductCard({ product, rank, compact = false, onClick })
             </button>
           ) : product.shop}
         </p>
+        {(product.goodsCategoryName || product.category || product.workTitle) ? (
+          <p className="product-card__work-title">
+            {product.goodsCategoryName || product.category || product.workTitle}
+          </p>
+        ) : null}
         <h3>{product.name}</h3>
         {product.discountRate ? (
           <>

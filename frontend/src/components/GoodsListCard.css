@@ -22,6 +22,7 @@
 .goods-grid .product-card__media > img { width: 100%; height: 100%; object-fit: cover; }
 .goods-grid .product-card__body { padding: 8px 0 0; }
 .goods-grid .product-card__shop { margin: 0 0 4px; color: #99939e; font-size: 11px; line-height: 1.4; }
+.goods-grid .product-card__work-title { margin: 0 0 3px; color: #6e5b8b; font-size: 11px; line-height: 1.35; }
 .goods-grid .product-card__body h3 {
   display: -webkit-box;
   min-height: 0;
