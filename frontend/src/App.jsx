@@ -93,6 +93,26 @@ function categoryPath({ type, categoryId, name }) {
   return `/category/products?${new URLSearchParams({ contentName: '전체', goodsCategoryId: categoryId, goodsType: name })}`;
 }
 
+// "지금 뜨는 굿즈" 전체보기: 카테고리 탭의 전체 > 모두 보기 결과를 굿즈 탭으로 열고,
+// 홈에서 고른 인기/신상품 탭을 정렬(인기순/최신순)로 넘긴다.
+function trendingPath(tab) {
+  return `/category/products?${new URLSearchParams({
+    contentName: '전체',
+    allGoods: 'true',
+    resultType: 'goods',
+    sort: tab === 'new' ? 'newest' : 'popular',
+  })}`;
+}
+
+// "입고 예정 상품" 전체보기: 전체 > 모두 보기 굿즈 결과를 열고,
+// 필터의 판매 상태 "입고 예정 상품 포함"이 체크된 상태로 보여준다.
+const UPCOMING_PATH = `/category/products?${new URLSearchParams({
+  contentName: '전체',
+  allGoods: 'true',
+  resultType: 'goods',
+  includeUpcoming: 'true',
+})}`;
+
 function HomeRoute() {
   const navigate = useNavigate();
   const openCategory = (category) => navigate(categoryPath(category));
@@ -120,6 +140,8 @@ function HomeRoute() {
       onSearch={() => navigate('/search')}
       onOpenProduct={(product) => navigate(`/products/${product.storeProductId}`)}
       onOpenCategory={openCategory}
+      onOpenTrending={(tab) => navigate(trendingPath(tab))}
+      onOpenUpcoming={() => navigate(UPCOMING_PATH)}
       onBannerClick={(bannerId) => {
         bannerApi.click(bannerId).catch(() => {
           // 클릭 기록 실패가 화면 이동을 막지 않는다.

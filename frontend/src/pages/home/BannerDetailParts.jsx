@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './HomePage.css';
 import './BannerDetail.css';
 
@@ -72,5 +72,43 @@ export function NoticeList({ items }) {
     <ul className="bd__notice">
       {items.map((item) => <li key={item}>{item}</li>)}
     </ul>
+  );
+}
+
+// 검색 결과 화면의 정렬 드롭다운(ProductSortMenu)과 같은 모양·동작
+export function SortMenu({ label, options, value, onChange }) {
+  const [open, setOpen] = useState(false);
+  const menu = useRef(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const closeOnOutside = (event) => {
+      if (!menu.current?.contains(event.target)) setOpen(false);
+    };
+    document.addEventListener('pointerdown', closeOnOutside);
+    return () => document.removeEventListener('pointerdown', closeOnOutside);
+  }, [open]);
+
+  return (
+    <div className="bd__sort" ref={menu}>
+      <button type="button" aria-label={label} aria-expanded={open} aria-haspopup="menu" onClick={() => setOpen((current) => !current)}>
+        {options.find(([optionValue]) => optionValue === value)?.[1] ?? options[0][1]} <span aria-hidden="true">⌄</span>
+      </button>
+      {open ? (
+        <div className="bd__sort-menu" role="menu">
+          {options.map(([optionValue, optionLabel]) => (
+            <button
+              type="button"
+              role="menuitemradio"
+              aria-checked={value === optionValue}
+              key={optionValue}
+              onClick={() => { onChange(optionValue); setOpen(false); }}
+            >
+              {optionLabel}{value === optionValue ? <span aria-hidden="true">✓</span> : null}
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </div>
   );
 }

@@ -113,6 +113,8 @@ export default function HomePage({
   onOpenInterestSettings,
   onOpenProduct,
   onOpenCategory,
+  onOpenTrending,
+  onOpenUpcoming,
   onToggleOpenAlert,
 }) {
   const [activeBannerIndex, setActiveBannerIndex] = useState(0);
@@ -331,7 +333,11 @@ export default function HomePage({
         <section className="home-section trending-section">
           <div className="home-section-heading">
             <div><h2>지금 뜨는 굿즈</h2><p>요즘 가장 주목받는 상품이에요</p></div>
-            <button type="button" disabled>전체보기 <span aria-hidden="true">›</span></button>
+            <button
+              type="button"
+              onClick={() => onOpenTrending?.(activeProductTab)}
+              disabled={!onOpenTrending}
+            >전체보기 <span aria-hidden="true">›</span></button>
           </div>
           <div className="product-tabs" role="tablist" aria-label="상품 정렬 기준">
             <button
@@ -410,7 +416,9 @@ export default function HomePage({
               <h2>입고 예정 상품</h2>
               <p>오픈 시각이 가까운 순 · 알림 받고 놓치지 마세요</p>
             </div>
-            <button type="button" disabled>전체보기 <span aria-hidden="true">›</span></button>
+            <button type="button" onClick={onOpenUpcoming} disabled={!onOpenUpcoming}>
+              전체보기 <span aria-hidden="true">›</span>
+            </button>
           </div>
           <HorizontalRail className="upcoming-rail" ariaLabel="입고 예정 상품 목록">
             {upcomingProducts.map((product) => (

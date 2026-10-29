@@ -1,11 +1,11 @@
 import ProductCard from '../../components/ProductCard.jsx';
-import { DetailSection, DetailShell } from './BannerDetailParts.jsx';
+import { DetailSection, DetailShell, SortMenu } from './BannerDetailParts.jsx';
 
-const SORTS = [
-  { value: 'discount', label: '할인율순' },
-  { value: 'price_asc', label: '낮은 가격순' },
-  { value: 'price_desc', label: '높은 가격순' },
-  { value: 'low_stock', label: '재고 적은 순' },
+const SORT_OPTIONS = [
+  ['discount', '할인율순'],
+  ['price_asc', '낮은 가격순'],
+  ['price_desc', '높은 가격순'],
+  ['low_stock', '재고 적은 순'],
 ];
 
 // 광고 배너의 "할인 상품 전체 보기" 화면 (/ads/:bannerId/products)
@@ -29,20 +29,11 @@ export default function AdProductsPage({ list, error, onBack, onRetry, onChangeS
       {list ? (
         <DetailSection
           title={store ? `${store.name} ${hasDiscount ? '할인 상품' : '판매 상품'}` : '상품'}
-          description={`총 ${list.totalCount}개${hasDiscount ? ` · 최대 ${list.maxDiscountRate}% 할인` : ''}`}
+          description={hasDiscount ? `최대 ${list.maxDiscountRate}% 할인 중이에요` : undefined}
         >
-          <div className="bd__chips" role="group" aria-label="정렬">
-            {SORTS.map((sort) => (
-              <button
-                className="bd__chip"
-                type="button"
-                key={sort.value}
-                aria-pressed={list.sort === sort.value}
-                onClick={() => onChangeSort(sort.value)}
-              >
-                {sort.label}
-              </button>
-            ))}
+          <div className="bd__sort-row">
+            <span>총 {list.totalCount}개</span>
+            <SortMenu label="상품 정렬" options={SORT_OPTIONS} value={list.sort} onChange={onChangeSort} />
           </div>
           {list.products.length ? (
             <div className="bd__grid">
