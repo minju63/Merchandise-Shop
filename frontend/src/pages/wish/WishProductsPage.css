@@ -1,0 +1,352 @@
+/* 찜 공통 (탭 · 상태 · 다이얼로그 · 토스트) — WishShopsPage 도 이 파일을 불러온다 */
+.wish-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: max(16px, env(safe-area-inset-top)) 18px 0;
+  background: rgb(255 255 255 / 96%);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid #f1f2f4;
+}
+.wish-header h1 {
+  margin: 0 0 10px;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.6px;
+}
+.wish-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.wish-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 11px 0 12px;
+  color: #8a8f99;
+  font-size: 15px;
+  font-weight: 600;
+  border-bottom: 2px solid transparent;
+}
+.wish-tab.is-active {
+  color: #211d2b;
+  font-weight: 800;
+  border-bottom-color: #6c4adf;
+}
+.wish-tab-count {
+  color: #6c4adf;
+  font-weight: 700;
+}
+.wish-tab:not(.is-active) .wish-tab-count {
+  color: #a5a9b1;
+}
+
+.wish-main {
+  min-height: calc(100vh - 180px);
+  padding: 16px 16px 28px;
+}
+
+.wish-state {
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: #6b717c;
+  text-align: center;
+}
+.wish-state p {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+.wish-state-icon {
+  width: 66px;
+  height: 66px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #f3f0fc;
+  color: #6c4adf;
+}
+.wish-state-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border: 1px solid #e8e4ed;
+  border-radius: 10px;
+  background: #fff;
+  color: #5c3ccc;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.wish-pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 18px;
+}
+.wish-pagination:empty {
+  display: none;
+}
+
+.wish-thumb-placeholder {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #eceef1;
+}
+
+.wish-heart {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 92%);
+  color: #ff4d6d;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 10%);
+}
+
+.wish-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgb(20 18 28 / 45%);
+}
+.wish-dialog {
+  width: min(100%, 320px);
+  padding: 24px 20px 18px;
+  border-radius: 16px;
+  background: #fff;
+  text-align: center;
+}
+.wish-dialog h2 {
+  margin: 0 0 10px;
+  font-size: 18px;
+  font-weight: 800;
+}
+.wish-dialog-name {
+  margin: 0;
+  color: #3d434d;
+  font-size: 14px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.wish-dialog-note {
+  margin: 8px 0 0;
+  color: #8a8f99;
+  font-size: 12px;
+}
+.wish-dialog-error {
+  margin: 10px 0 0;
+  color: #e5484d;
+  font-size: 12px;
+}
+.wish-dialog-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 20px;
+}
+.wish-dialog-actions button {
+  padding: 12px 0;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+}
+.wish-dialog-cancel {
+  border: 1px solid #e3e6eb;
+  background: #fff;
+  color: #414854;
+}
+.wish-dialog-confirm {
+  border: 0;
+  background: #6c4adf;
+  color: #fff;
+}
+.wish-dialog-actions button:disabled {
+  opacity: 0.55;
+}
+
+.wish-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(86px + env(safe-area-inset-bottom));
+  z-index: 50;
+  transform: translateX(-50%);
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: rgb(33 29 43 / 88%);
+  color: #fff;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+/* 찜한 상품 (J-01) */
+.wish-product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 12px;
+}
+.wish-product-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.wish-product-thumb {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #eceef1;
+}
+.wish-product-thumb > a {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.wish-product-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.wish-product-thumb .wish-heart {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+.wish-stock-badge {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  padding: 3px 7px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.wish-stock-badge.is-green {
+  background: #e3f6ea;
+  color: #1a8a47;
+}
+.wish-stock-badge.is-orange {
+  background: #fff0e0;
+  color: #d9670b;
+}
+.wish-stock-badge.is-blue {
+  background: #e5efff;
+  color: #2f6fe0;
+}
+.wish-stock-badge.is-gray {
+  background: #eceef1;
+  color: #6b717c;
+}
+.wish-product-body {
+  display: block;
+  padding-top: 9px;
+}
+.wish-product-work {
+  margin: 0 0 2px;
+  color: #8a8f99;
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wish-product-name {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+.wish-product-store {
+  margin: 3px 0 0;
+  color: #8a8f99;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wish-price {
+  margin-top: 5px;
+}
+.wish-price s {
+  color: #a5a9b1;
+  font-size: 12px;
+}
+.wish-price p {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.wish-price strong {
+  font-size: 15px;
+  font-weight: 800;
+}
+.wish-discount {
+  color: #e5484d;
+  font-size: 15px;
+  font-weight: 800;
+}
+.wish-product-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 10px;
+}
+.wish-action {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 0;
+  border: 1px solid #e3e6eb;
+  border-radius: 8px;
+  background: #fff;
+  color: #414854;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.wish-action.is-primary {
+  border-color: #6c4adf;
+  background: #6c4adf;
+  color: #fff;
+}
+.wish-action.is-done {
+  border-color: #d9d0f7;
+  background: #f3f0fc;
+  color: #6c4adf;
+}
+.wish-action:disabled {
+  border-color: #e3e6eb;
+  background: #f3f4f6;
+  color: #a5a9b1;
+}
+
+.wish-skeleton-card {
+  aspect-ratio: 0.7;
+  border-radius: 12px;
+  background: #f1f2f4;
+}
+
+.wish-header a:focus-visible,
+.wish-main a:focus-visible,
+.wish-main button:focus-visible,
+.wish-dialog button:focus-visible {
+  outline: 2px solid #6c4adf;
+  outline-offset: 2px;
+}
