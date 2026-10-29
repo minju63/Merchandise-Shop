@@ -12,9 +12,10 @@ const stockBadges = {
 
 const won = (value) => `${Number(value ?? 0).toLocaleString('ko-KR')}원`;
 
-export default function WishProductCard({ item, onRemove, onPending }) {
+export default function WishProductCard({ item, isAdding, onRemove, onAddToCart, onPending }) {
   const badge = stockBadges[item.stockLabel] ?? stockBadges.SOLD_OUT;
   const inStock = item.stockLabel === 'IN_STOCK' || item.stockLabel === 'LOW_STOCK';
+  const canAdd = item.addable && (item.pickupAvailable || item.deliveryAvailable);
   const restockButton = (
     <button
       type="button"
@@ -66,8 +67,13 @@ export default function WishProductCard({ item, onRemove, onPending }) {
       </Link>
       <div className="wish-product-actions">
         {inStock && (
-          <button type="button" className="wish-action is-primary" disabled={!item.addable} onClick={onPending}>
-            장바구니 담기
+          <button
+            type="button"
+            className="wish-action is-primary"
+            disabled={!canAdd || isAdding}
+            onClick={onAddToCart}
+          >
+            {isAdding ? '담는 중…' : '장바구니 담기'}
           </button>
         )}
         {item.stockLabel === 'SOLD_OUT' && restockButton}

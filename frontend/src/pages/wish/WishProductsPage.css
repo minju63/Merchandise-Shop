@@ -350,3 +350,56 @@
   outline: 2px solid #6c4adf;
   outline-offset: 2px;
 }
+
+/* 수령 방법 선택 시트 */
+.wish-sheet-backdrop {
+  place-items: end center;
+  padding: 0;
+}
+.wish-sheet {
+  width: min(100%, 480px);
+  padding: 22px 20px calc(18px + env(safe-area-inset-bottom));
+  border-radius: 18px 18px 0 0;
+  background: #fff;
+  text-align: center;
+}
+.wish-sheet h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 800;
+}
+.wish-sheet-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 18px;
+}
+.wish-sheet-options button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 0;
+  border: 1px solid #e3e6eb;
+  border-radius: 12px;
+  background: #fff;
+  color: #211d2b;
+  font-size: 15px;
+  font-weight: 700;
+}
+.wish-sheet-options button:not(:disabled):hover {
+  border-color: #6c4adf;
+  color: #6c4adf;
+}
+.wish-sheet-cancel {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px 0;
+  border: 0;
+  background: none;
+  color: #8a8f99;
+  font-size: 14px;
+}
+.wish-sheet button:disabled {
+  opacity: 0.55;
+}
