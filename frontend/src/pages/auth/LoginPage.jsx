@@ -9,12 +9,6 @@ import { EMAIL_PATTERN } from './authRules.js';
 import { AUTH_ROUTES, safeReturnPath } from './authRoutes.js';
 import './auth.css';
 
-const PROVIDERS = [
-  { id: 'kakao', label: '카카오로 시작하기', className: 'lg-social--kakao' },
-  { id: 'google', label: 'Google로 시작하기', className: 'lg-social--google' },
-  { id: 'apple', label: 'Apple로 시작하기', className: 'lg-social--apple' },
-];
-
 // Supabase가 돌려주는 코드를 사용자에게 보여 줄 문장으로 바꾼다.
 // 계정이 있는지 없는지는 알려 주지 않도록 잘못된 이메일·비밀번호는 같은 문장으로 묶는다.
 function loginErrorMessage(cause) {
@@ -83,15 +77,6 @@ export default function LoginPage() {
     if (cause) setError(loginErrorMessage(cause));
   };
 
-  const social = async (provider) => {
-    setError('');
-    const { error: cause } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: { redirectTo: `${window.location.origin}${AUTH_ROUTES.login}` },
-    });
-    if (cause) setError('소셜 로그인을 시작하지 못했어요. 잠시 후 다시 시도해 주세요.');
-  };
-
   return (
     <main className="lg-page lg-login">
       <section className="lg-brand">
@@ -105,20 +90,6 @@ export default function LoginPage() {
           픽업과 배달까지 한 번에
         </p>
       </section>
-
-      {PROVIDERS.map((provider) => (
-        <button
-          key={provider.id}
-          type="button"
-          className={`lg-social ${provider.className}`}
-          onClick={() => social(provider.id)}
-        >
-          {provider.id === 'google' ? <span className="lg-social__g">G</span> : null}
-          {provider.label}
-        </button>
-      ))}
-
-      <p className="lg-divider">또는 이메일로 로그인</p>
 
       <form onSubmit={submit}>
         <input

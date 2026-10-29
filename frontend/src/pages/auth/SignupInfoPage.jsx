@@ -5,7 +5,12 @@ import { supabase } from '../../lib/supabase.js';
 import { CheckIcon } from '../my/icons.jsx';
 import { useSession } from '../my/hooks.js';
 import { AuthHeader } from './AuthParts.jsx';
-import { checkEmail, checkNickname, completeSignup } from '../../api/auth.api.js';
+import {
+  checkEmail,
+  checkNickname,
+  completeSignup,
+  getRegistrationState,
+} from '../../api/auth.api.js';
 import { EMAIL_PATTERN, isValidPassword } from './authRules.js';
 import { AUTH_ROUTES } from './authRoutes.js';
 import './auth.css';
@@ -42,6 +47,25 @@ export default function SignupInfoPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [verifyMail, setVerifyMail] = useState(false);
+  // 프로필만 있고 가입이 덜 끝난 계정이면 저장된 닉네임을 이어서 쓴다.
+  const [savedNickname, setSavedNickname] = useState('');
+
+  useEffect(() => {
+    if (!hasAccount) return undefined;
+    let active = true;
+    getRegistrationState()
+      .then((state) => {
+        const saved = state?.user?.nickname;
+        if (!active || !saved) return;
+        setSavedNickname(saved);
+        setForm((prev) => (prev.nickname ? prev : { ...prev, nickname: saved }));
+        setNicknameCheck((prev) => prev ?? { value: saved, available: true });
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [hasAccount]);
 
   useEffect(() => {
     if (!agreements) navigate(AUTH_ROUTES.signupTerms, { replace: true });
@@ -65,6 +89,9 @@ export default function SignupInfoPage() {
       if (kind === 'email') {
         const result = await checkEmail(email);
         setEmailCheck({ value: email, available: result.available });
+      } else if (nickname === savedNickname) {
+        // 내 계정에 이미 저장된 닉네임은 중복이 아니다.
+        setNicknameCheck({ value: nickname, available: true });
       } else {
         const result = await checkNickname(nickname);
         setNicknameCheck({ value: nickname, available: result.available });
