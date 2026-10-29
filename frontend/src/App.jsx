@@ -128,10 +128,17 @@ function bannerPath({ bannerId, bannerType }) {
 }
 
 // 홈 카테고리 바로가기는 카테고리 탭과 같은 방식으로 이동한다.
-// 작품(CONTENT)은 카테고리 탭에서 해당 작품을 고른 상태로, 굿즈 종류(GOODS)는 상품 목록으로 간다.
+// 작품(CONTENT)은 카테고리 탭의 해당 분류 > 전체 > 모두 보기 결과로, 굿즈 종류(GOODS)는 상품 목록으로 간다.
 function categoryPath({ type, categoryId, name }) {
   if (type === 'ALL') return '/category';
-  if (type === 'CONTENT') return `/category?${new URLSearchParams({ contentCategoryId: categoryId })}`;
+  if (type === 'CONTENT') {
+    return `/category/products?${new URLSearchParams({
+      resultType: 'goods',
+      contentCategoryId: categoryId,
+      contentName: name,
+      allGoods: 'true',
+    })}`;
+  }
   return `/category/products?${new URLSearchParams({ contentName: '전체', goodsCategoryId: categoryId, goodsType: name })}`;
 }
 
