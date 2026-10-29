@@ -24,7 +24,7 @@ export default function SignupDonePage() {
         </span>
         <h1>가입을 환영해요!</h1>
         <p className="lg-done__desc">
-          {nickname}님, 이제 굿즈팡에서
+          {nickname}님, 이제 굿즈픽에서
           <br />
           동네 굿즈샵 재고를 확인하고 바로 주문할 수 있어요
         </p>
@@ -65,7 +65,7 @@ export default function SignupDonePage() {
           className="lg-main-btn"
           onClick={() => navigate(AUTH_ROUTES.home, { replace: true })}
         >
-          굿즈팡 시작하기
+          굿즈픽 시작하기
         </button>
       </div>
     </main>

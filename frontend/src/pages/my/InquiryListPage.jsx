@@ -89,7 +89,7 @@ export default function InquiryListPage() {
               ) : answer ? (
                 <div className="hlp-answer">
                   <div className="hlp-answer__head">
-                    <b>굿즈팡 고객센터</b>
+                    <b>굿즈픽 고객센터</b>
                     {answerDate(item) ? <span>{formatFullDate(answerDate(item))}</span> : null}
                   </div>
                   <p>{answer}</p>

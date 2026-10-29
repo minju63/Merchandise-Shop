@@ -46,7 +46,7 @@ export default function SignupTermsPage() {
     <main className="lg-page">
       <AuthHeader title="회원가입" step={1} />
       <h2 className="lg-heading">
-        굿즈팡 이용약관에
+        굿즈픽 이용약관에
         <br />
         동의해 주세요
       </h2>
