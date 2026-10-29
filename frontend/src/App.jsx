@@ -175,7 +175,7 @@ function HomeRoute() {
   const homeQuery = useQuery({
     queryKey: ['home'],
     queryFn: homeApi.get,
-    staleTime: 30000,
+    staleTime: 10000,
     retry: false,
   });
 
@@ -425,7 +425,24 @@ function ProductDetailRoute() {
   );
 }
 
+// 인기 검색어는 서버가 검색 기록으로 집계한다. 불러오는 동안·실패했을 때는 빈 목록을 보여준다.
+function useSearchData() {
+  const popular = useQuery({
+    queryKey: ['search-popular'],
+    queryFn: searchApi.popular,
+    staleTime: 10000,
+    refetchInterval: 20000, // 20초마다 새로 집계된 순위를 가져온다
+    retry: false,
+  });
+  return {
+    ...searchMockData,
+    popularUpdatedAt: popular.data?.updatedAt ?? '',
+    popularKeywords: popular.data?.keywords ?? [],
+  };
+}
+
 function SearchRoute() {
+  const searchData = useSearchData();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -443,7 +460,7 @@ function SearchRoute() {
   return (
     <SearchPage
       initialQuery={query}
-      data={searchMockData}
+      data={searchData}
       shops={shopsQuery.data ?? EMPTY_STORES}
       storeId={storeId}
       storeName={storeQuery.data?.data.name}
@@ -456,6 +473,7 @@ function SearchRoute() {
 }
 
 function SearchResultsRoute() {
+  const searchData = useSearchData();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -525,7 +543,7 @@ function SearchResultsRoute() {
     <SearchResultsPage
       key={`${query}:${storeId ?? ''}`}
       initialQuery={query}
-      data={searchMockData}
+      data={searchData}
       products={(needsNationwideFallback && !hasActiveFilters ? nationwideQuery.data : productsQuery.data)?.data.items ?? []}
       productTotalCount={(needsNationwideFallback && !hasActiveFilters ? nationwideQuery.data : productsQuery.data)?.data.totalCount ?? 0}
       similarBasis={similarTo && !storeId ? query : undefined}

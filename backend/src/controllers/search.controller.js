@@ -1,4 +1,4 @@
-import { logSearch, searchProducts } from '../services/search.service.js';
+import { getPopularKeywords, logSearch, searchProducts } from '../services/search.service.js';
 import { fail } from '../utils/response.js';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -117,10 +117,9 @@ export async function getSearchSuggest(req, res) {
   notImplemented(res);
 }
 
-// GET /api/v1/search/popular — 인기 검색어
+// GET /api/v1/search/popular — 인기 검색어 (최근 24시간 검색 기록 집계)
 export async function getPopularSearches(req, res) {
-  // TODO
-  notImplemented(res);
+  res.json({ success: true, data: await getPopularKeywords(), message: null });
 }
 
 // GET /api/v1/search/recent — 최근 검색어

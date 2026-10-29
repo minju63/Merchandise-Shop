@@ -204,6 +204,7 @@ function RecentAndPopular({ data, recentSearches, onSelect, onRemove, onClear })
           <h1>인기 검색어</h1>
           <time>{data.popularUpdatedAt}</time>
         </div>
+        {data.popularKeywords.length ? null : <p className="search-empty">아직 집계된 인기 검색어가 없어요.</p>}
         <ol>
           {data.popularKeywords.map((item) => (
             <li key={item.rank}>
@@ -660,7 +661,7 @@ export function SearchResultsPage({
             <div className="no-search-results__icon" aria-hidden="true"><SearchIcon /></div>
             <h2>‘{initialQuery}’에 대한<br />검색 결과가 없어요</h2>
             <p>띄어쓰기나 철자를 확인해 보세요<br />더 짧은 단어로 검색해 보세요</p>
-            <div className="no-search-results__popular">
+            {data.popularKeywords.length ? <div className="no-search-results__popular">
               <h3>인기 검색어로 다시 찾아보세요</h3>
               <div>
                 {data.popularKeywords.slice(0, 5).map((item) => (
@@ -669,7 +670,7 @@ export function SearchResultsPage({
                   </button>
                 ))}
               </div>
-            </div>
+            </div> : null}
           </section>
         ) : null}
 

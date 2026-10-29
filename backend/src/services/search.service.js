@@ -1,4 +1,4 @@
-import { createSearchLog } from '../repositories/search.repository.js';
+import { createSearchLog, findSearchLogs } from '../repositories/search.repository.js';
 import { getActiveStore, listActiveStores } from '../repositories/store.repository.js';
 import { getStoreProducts } from '../repositories/storeProduct.repository.js';
 import { getProducts } from '../repositories/product.repository.js';
@@ -196,4 +196,69 @@ export async function logSearch({ userId, query, resultCount, regionId }) {
     resultCount,
     regionId,
   });
+}
+
+// 인기 검색어: 최근 5분 검색 횟수 순위. 직전 5분 순위와 비교해 등락(trend)을 계산한다.
+// 검색이 적어 목록이 비면 집계 기간을 1시간 → 24시간 → 7일로 넓힌다.
+const POPULAR_WINDOWS = [
+  { ms: 5 * 60 * 1000, label: "최근 5분" },
+  { ms: 60 * 60 * 1000, label: "최근 1시간" },
+  { ms: 24 * 60 * 60 * 1000, label: "최근 24시간" },
+  { ms: 7 * 24 * 60 * 60 * 1000, label: "최근 7일" },
+];
+const POPULAR_SIZE = 10;
+const POPULAR_MIN_KEYWORDS = 5;
+const POPULAR_CACHE_MS = 10 * 1000;
+let popularCache = null;
+
+function rankKeywords(rows) {
+  const counts = new Map();
+  for (const row of rows) {
+    const keyword = String(row.keyword ?? "").trim();
+    if (!keyword) continue;
+    const key = keyword.toLocaleLowerCase("ko-KR");
+    // rows는 최신순이라 처음 만난 표기를 대표 표기로 쓴다.
+    const entry = counts.get(key) ?? { keyword, count: 0 };
+    entry.count += 1;
+    counts.set(key, entry);
+  }
+  return [...counts.entries()]
+    .sort((a, b) => b[1].count - a[1].count || a[1].keyword.localeCompare(b[1].keyword, "ko"))
+    .map(([key, entry], index) => ({ key, keyword: entry.keyword, rank: index + 1 }));
+}
+
+async function rankWindow(now, windowMs) {
+  const current = new Date(now.getTime() - windowMs).toISOString();
+  const previous = new Date(now.getTime() - windowMs * 2).toISOString();
+  const [currentRows, previousRows] = await Promise.all([
+    findSearchLogs({ since: current, until: now.toISOString() }),
+    findSearchLogs({ since: previous, until: current }),
+  ]);
+  const previousRanks = new Map(rankKeywords(previousRows).map((item) => [item.key, item.rank]));
+  return rankKeywords(currentRows).slice(0, POPULAR_SIZE).map(({ key, keyword, rank }) => {
+    const before = previousRanks.get(key);
+    if (before === undefined) return { rank, keyword, trend: "new" };
+    if (before === rank) return { rank, keyword, trend: "same" };
+    return { rank, keyword, trend: before > rank ? "up" : "down", change: Math.abs(before - rank) };
+  });
+}
+
+export async function getPopularKeywords(now = new Date()) {
+  if (popularCache && now.getTime() - popularCache.at < POPULAR_CACHE_MS) return popularCache.value;
+  let keywords = [];
+  let label = POPULAR_WINDOWS[0].label;
+  for (const window of POPULAR_WINDOWS) {
+    keywords = await rankWindow(now, window.ms);
+    label = window.label;
+    if (keywords.length >= POPULAR_MIN_KEYWORDS) break;
+  }
+  const parts = new Intl.DateTimeFormat("ko-KR", {
+    timeZone: "Asia/Seoul", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false,
+  }).formatToParts(now).reduce((acc, part) => ({ ...acc, [part.type]: part.value }), {});
+  const value = {
+    updatedAt: `${parts.month}.${parts.day} ${parts.hour}:${parts.minute} 기준 · ${label}`,
+    keywords,
+  };
+  popularCache = { at: now.getTime(), value };
+  return value;
 }
