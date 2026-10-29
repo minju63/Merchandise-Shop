@@ -11,16 +11,20 @@ export default function SearchShopList({ shops, currentShopId }) {
   const [sort, setSort] = useState('popular');
   const { location, locating, message, radiusKm, setRadiusKm, locate } = useStoreLocation();
   const distanceMode = sort === 'distance' && Boolean(location);
-  const { items, noCoordinateCount } = useMemo(
-    () =>
-      applyStoreControls(shops, {
-        filters,
-        sort,
-        origin: distanceMode ? location : null,
-        radiusKm,
-      }),
-    [shops, filters, sort, distanceMode, location, radiusKm]
-  );
+  const { items, noCoordinateCount } = useMemo(() => {
+    const result = applyStoreControls(shops, {
+      filters,
+      sort,
+      origin: distanceMode ? location : null,
+      radiusKm,
+    });
+    // 지금 보던 굿즈샵은 어떤 정렬에서도 맨 위에 둔다.
+    const current = result.items.filter((store) => store.id === currentShopId);
+    return {
+      ...result,
+      items: [...current, ...result.items.filter((store) => store.id !== currentShopId)],
+    };
+  }, [shops, filters, sort, distanceMode, location, radiusKm, currentShopId]);
   const changeSort = async (value) => {
     if (value === 'distance' && !(await locate())) return;
     setSort(value);

@@ -25,7 +25,13 @@ export default function SimilarStoreSection({ storeProductId, productName, store
         <ul className={stores.length > 1 ? 'slide' : ''}>
           {stores.map((store) => (
             <li key={store.id}>
-              <Link to={`/stores/${encodeURIComponent(store.id)}`}>
+              <Link
+                to={
+                  store.products[0]
+                    ? `/products/${encodeURIComponent(store.products[0].storeProductId)}`
+                    : `/stores/${encodeURIComponent(store.id)}`
+                }
+              >
                 <div className="category-seller-thumbnail" aria-hidden="true">
                   ⌂
                   {store.thumbnailUrl && (

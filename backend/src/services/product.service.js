@@ -228,35 +228,27 @@ export function createProductService(repositories) {
     return result.items;
   }
 
-  // 같은 상품이거나 같은 작품·굿즈 종류(예: 애니메이션 + 키링) 상품을 비슷한 상품으로 본다.
-  // 애니메이션은 같은 브랜드(작품)여야 하고, 브랜드 정보가 없으면 같은 상품만 본다.
-  const BRAND_REQUIRED_CONTENT = '애니메이션';
-
+  // 같은 상품이거나, 같은 작품·굿즈 종류(예: 아이돌 + 키링)이면서 같은 브랜드인 상품을 비슷한 상품으로 본다.
+  // 브랜드 정보가 없으면 비교할 수 없어 같은 상품만 본다.
   async function similarProductIds(detail) {
     requireMethod(productCategory, 'findProductIdsByCategories');
     const categoriesOf = (type) =>
       detail.categories.filter((row) => row.category?.type === type).map((row) => row.category);
     const [contents, goods] = [categoriesOf('CONTENT'), categoriesOf('GOODS')];
     const similarIds = new Set([detail.productId]);
-    // 작품이나 굿즈 종류 중 하나라도 없으면 너무 넓게 잡히므로 같은 상품만 본다.
-    if (!contents.length || !goods.length) return similarIds;
-    for (const content of contents) {
-      const needsBrand = content.name === BRAND_REQUIRED_CONTENT;
-      if (needsBrand && !detail.brand) continue;
-      for (const goodsCategory of goods) {
-        const ids = await productCategory.findProductIdsByCategories({
+    // 작품·굿즈 종류·브랜드 중 하나라도 없으면 너무 넓게 잡히므로 같은 상품만 본다.
+    if (!contents.length || !goods.length || !detail.brand) return similarIds;
+    requireMethod(product, 'getProducts');
+    const candidateIds = new Set();
+    for (const content of contents)
+      for (const goodsCategory of goods)
+        for (const id of await productCategory.findProductIdsByCategories({
           contentCategoryId: content.id,
           goodsCategoryId: goodsCategory.id,
-        });
-        if (!needsBrand) {
-          ids.forEach((id) => similarIds.add(id));
-          continue;
-        }
-        requireMethod(product, 'getProducts');
-        for (const row of await product.getProducts(ids))
-          if (row.brand === detail.brand) similarIds.add(row.id);
-      }
-    }
+        }))
+          candidateIds.add(id);
+    for (const row of await product.getProducts([...candidateIds]))
+      if (row.brand === detail.brand) similarIds.add(row.id);
     return similarIds;
   }
 
@@ -310,12 +302,15 @@ export function createProductService(repositories) {
       };
       entry.hasSameProduct ||= listing.product_id === detail.productId;
       entry.matchedCount += 1;
-      if (entry.products.length < 3)
-        entry.products.push({
-          storeProductId: listing.id,
-          name: listing.product?.name ?? '',
-          price: listing.price,
-        });
+      const item = {
+        storeProductId: listing.id,
+        name: listing.product?.name ?? '',
+        price: listing.price,
+      };
+      // 같은 상품을 맨 앞에 둬서 카드를 누르면 그 상품 상세로 가게 한다.
+      if (listing.product_id === detail.productId) entry.products.unshift(item);
+      else entry.products.push(item);
+      entry.products = entry.products.slice(0, 3);
       stores.set(owner.id, entry);
     }
     // 현재 상품이 품절이어도 지금 보는 굿즈샵은 빠지지 않게 한다.
