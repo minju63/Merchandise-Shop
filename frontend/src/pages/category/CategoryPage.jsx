@@ -4,7 +4,9 @@ import { useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import * as categoryApi from '../../api/category.api';
 import * as defaultProductApi from '../../api/product.api';
+import CategoryBrandList from './components/CategoryBrandList';
 import CategorySidebar from './components/CategorySidebar';
+import { BRAND_GROUPS } from '../../constants/brands.js';
 import GoodsTypeGrid from './components/GoodsTypeGrid';
 import ProductEmptyState from './components/ProductEmptyState';
 import useCategoryRequest from './components/useCategoryRequest';
@@ -16,6 +18,7 @@ function CategoryPageContent({ client = sharedClient, api = categoryApi, product
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const selectedId = params.get('contentCategoryId') || '';
+  const selectedBrand = params.get('brand') || '';
   const load = useCallback(
     async (signal) => {
       const [content, goods] = await Promise.all([
@@ -36,6 +39,7 @@ function CategoryPageContent({ client = sharedClient, api = categoryApi, product
         for (let page = 1; ; page++) {
           const result = await productApi.getProducts({
             ...(selectedId ? { contentCategoryId: selectedId } : {}),
+            ...(selectedBrand ? { brands: selectedBrand } : {}),
             goodsCategoryId: category.id, sort: 'price_asc', page, size: 20, signal,
           }, client);
           const photo = result.items.find((product) => product.thumbnailUrl);
@@ -48,13 +52,22 @@ function CategoryPageContent({ client = sharedClient, api = categoryApi, product
       }
       return { ...category, imageUrl: undefined };
     }));
-  }, [goods, selectedId, productApi, client]);
-  const photos = useCategoryRequest(loadPhotos, selectedId);
+  }, [goods, selectedId, selectedBrand, productApi, client]);
+  const photos = useCategoryRequest(loadPhotos, `${selectedId}|${selectedBrand}`);
   function selectContent(id) {
     setParams((current) => {
       const next = new URLSearchParams(current);
       if (id) next.set('contentCategoryId', id);
       else next.delete('contentCategoryId');
+      next.delete('brand'); // 분류를 바꾸면 고른 브랜드는 초기화한다
+      return next;
+    });
+  }
+  function selectBrand(name) {
+    setParams((current) => {
+      const next = new URLSearchParams(current);
+      if (name) next.set('brand', name);
+      else next.delete('brand');
       return next;
     });
   }
@@ -62,12 +75,15 @@ function CategoryPageContent({ client = sharedClient, api = categoryApi, product
     const query = new URLSearchParams();
     query.set('resultType', 'goods');
     if (selectedId) query.set('contentCategoryId', selectedId);
+    if (selectedBrand) query.set('brands', selectedBrand);
     query.set('contentName', request.data?.content.find((category) => category.id === selectedId)?.name || '전체');
     if (id) query.set('goodsCategoryId', id);
     if (name) query.set('goodsType', name);
     if (!id && !name) query.set('allGoods', 'true');
     navigate(`/category/products${query.size ? `?${query}` : ''}`);
   }
+  const selectedContentName = request.data?.content.find((category) => category.id === selectedId)?.name;
+  const brandGroup = selectedId ? BRAND_GROUPS.find((group) => group.label === selectedContentName) : undefined;
   return (
     <main className="category-page category-main-page">
       <h1 className="category-sr-only">카테고리</h1>
@@ -78,12 +94,21 @@ function CategoryPageContent({ client = sharedClient, api = categoryApi, product
       ) : !request.data?.content.length && !request.data?.goods.length ? (
         <ProductEmptyState message="등록된 카테고리가 없습니다." />
       ) : (
-        <div className="category-selector">
-          <CategorySidebar
-            categories={request.data.content}
-            selectedId={selectedId}
-            onSelect={selectContent}
-          />
+        <>
+          <div className={`category-selector${brandGroup ? ' category-selector--brands' : ' category-selector--single'}`}>
+            <CategorySidebar
+              categories={request.data.content}
+              selectedId={selectedId}
+              onSelect={selectContent}
+            />
+            {brandGroup && (
+              <CategoryBrandList
+                label={brandGroup.label}
+                brands={brandGroup.brands}
+                selected={selectedBrand}
+                onSelect={selectBrand}
+              />
+            )}
           <div className="category-goods-panel">
             <h2 className="category-sr-only">
               {request.data.content.find((category) => category.id === selectedId)?.name || '전체'}{' '}
@@ -95,7 +120,8 @@ function CategoryPageContent({ client = sharedClient, api = categoryApi, product
               <ProductEmptyState message="등록된 굿즈 유형이 없습니다." />
             )}
           </div>
-        </div>
+          </div>
+        </>
       )}
     </main>
   );

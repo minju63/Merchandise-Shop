@@ -1,42 +1,4 @@
-const pad = (value) => String(value).padStart(2, '0');
-
-function getTimeParts(date) {
-  const parts = new Intl.DateTimeFormat('ko-KR', {
-    timeZone: 'Asia/Seoul',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    weekday: 'short',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  }).formatToParts(date);
-
-  return Object.fromEntries(parts.map(({ type, value }) => [type, value]));
-}
-
-function formatOpenTime(openAt, currentTimestamp) {
-  const openTimestamp = new Date(openAt).getTime();
-  const remaining = openTimestamp - currentTimestamp;
-  const parts = getTimeParts(new Date(openAt));
-  const currentParts = getTimeParts(new Date(currentTimestamp));
-  const isToday = parts.year === currentParts.year
-    && parts.month === currentParts.month
-    && parts.day === currentParts.day;
-  const text = isToday
-    ? `오늘 ${parts.hour}:${parts.minute} 오픈`
-    : `${parts.month}.${parts.day} (${parts.weekday}) ${parts.hour}:${parts.minute} 오픈`;
-
-  if (isToday) {
-    const totalSeconds = Math.max(0, Math.floor(remaining / 1000));
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-    return { text, countdownText: `${pad(hours)}:${pad(minutes)}:${pad(seconds)}` };
-  }
-
-  return { text, countdownText: null };
-}
+import { formatOpenTime } from '../utils/openTime.js';
 
 export default function UpcomingProductCard({
   product,
@@ -64,6 +26,9 @@ export default function UpcomingProductCard({
         {product.imageUrl ? (
           <img className="upcoming-card__image" src={product.imageUrl} alt={product.name} draggable="false" />
         ) : null}
+        <div className="product-card__dim" aria-hidden="true">
+          <span>{product.openType === 'RESTOCK' ? 'RESTOCK SOON' : 'COMING SOON'}</span>
+        </div>
         <span className={`upcoming-card__type upcoming-card__type--${product.openType.toLowerCase()}`}>
           {product.openType === 'RESTOCK' ? '재입고 예정' : '출시 예정'}
         </span>

@@ -37,7 +37,7 @@ function shippingLabel(listing) {
 
 export function toCard(product, listing, index) {
   const stock = listing?.stock ?? 0;
-  const isScarce = stock > 0 && stock <= 5;
+  const isScarce = stock > 0 && stock <= LOW_STOCK_MAX;
   return {
     id: product.id,
     storeProductId: listing?.id ?? null,
@@ -83,6 +83,13 @@ function buildCategoryShortcuts(categories) {
     isHomeShortcut: true,
     sortOrder: shortcuts.length + 1,
   }];
+}
+
+// 관심사 설정에서 고를 수 있는 카테고리 전체. id 는 상품의 interestCategoryIds 와 같은 값이다.
+function buildInterestCategories(categories) {
+  return [...categories]
+    .sort((a, b) => (a.type === b.type ? a.name.localeCompare(b.name, 'ko') : a.type === 'CONTENT' ? -1 : 1))
+    .map((category) => ({ id: categorySlug(category.code), name: category.name, type: category.type }));
 }
 
 function buildBanners(rows) {
@@ -177,6 +184,7 @@ export async function getHome() {
     .map(({ product, listing }, index) => ({
       ...toCard(product, listing, index),
       popularityScore: Number(product.popularity_score),
+      brand: product.brand ?? null,
       interestCategoryIds: (product.product_categories ?? [])
         .map((item) => item.categories && categorySlug(item.categories.code))
         .filter(Boolean),
@@ -201,6 +209,7 @@ export async function getHome() {
   return {
     banners: buildBanners(bannerRows),
     categories: buildCategoryShortcuts(categories),
+    interestCategories: buildInterestCategories(categories),
     popularProducts,
     newProducts,
     recommendationProducts,

@@ -4,6 +4,8 @@ const QUICK_FILTERS = [
   ['delivery', '배달 가능'],
 ];
 
+import { SALE_STATUS, saleStatusLabel } from './categoryProductFilters.js';
+
 export default function ProductFilterBar({
   filters, regions = [], onChange, onOpen, onReset,
 }) {
@@ -36,11 +38,26 @@ export default function ProductFilterBar({
       clear: { regionNames: filters.regionNames.split(',').filter((item) => item !== name).join(',') },
     });
   }
+  for (const name of filters.brands.split(',').filter(Boolean)) {
+    chips.push({
+      key: `brand:${name}`,
+      label: name,
+      clear: { brands: filters.brands.split(',').filter((item) => item !== name).join(',') },
+    });
+  }
   if (filters.discountOnly === 'true') chips.push({ key: 'discountOnly', label: '할인 중인 굿즈만', clear: { discountOnly: '' } });
-  if (filters.includeUpcoming === 'false') chips.push({ key: 'includeUpcoming', label: '입고 예정 제외', clear: { includeUpcoming: '' } });
+  // 판매 상태 기본값(재고 있는 상품만)과 다를 때만 표시한다.
+  if (filters.inStock !== 'true') {
+    chips.push({
+      key: 'saleStatus',
+      label: saleStatusLabel(filters),
+      clear: SALE_STATUS.inStock,
+    });
+  }
   if (filters.ratingMin) chips.push({ key: 'ratingMin', label: `별점 ${Number(filters.ratingMin).toFixed(1)} 이상`, clear: { ratingMin: '' } });
   if (filters.wishlistMin) chips.push({ key: 'wishlistMin', label: `찜 ${filters.wishlistMin}개 이상`, clear: { wishlistMin: '' } });
-  const count = chips.length + QUICK_FILTERS.filter(([key]) => filters[key] === 'true').length;
+  // 재고 있음은 기본값이라 필터 개수에 세지 않는다.
+  const count = chips.length + QUICK_FILTERS.filter(([key]) => key !== 'inStock' && filters[key] === 'true').length;
 
   return (
     <div className="category-result-filters">
@@ -53,7 +70,9 @@ export default function ProductFilterBar({
             key={key}
             type="button"
             aria-pressed={filters[key] === 'true'}
-            onClick={() => onChange({ [key]: filters[key] === 'true' ? '' : 'true' })}
+            onClick={() => onChange(key === 'inStock'
+              ? (filters.inStock === 'true' ? SALE_STATUS.all : SALE_STATUS.inStock)
+              : { [key]: filters[key] === 'true' ? '' : 'true' })}
           >
             {filters[key] === 'true' ? '✓ ' : ''}{label}
           </button>

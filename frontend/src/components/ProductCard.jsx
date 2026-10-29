@@ -1,3 +1,6 @@
+// 이미지를 덮는 상태 표시 글자: 품절 / 출시 예정 / 재입고 예정
+const OVERLAY_LABELS = { soldout: 'SOLD OUT', coming: 'COMING SOON', restock: 'RESTOCK SOON' };
+
 function ImagePlaceholder({ label, accent = '#eee8ff' }) {
   return (
     <div className="product-card__image" style={{ '--placeholder-color': accent }} aria-hidden="true">
@@ -36,6 +39,16 @@ export default function ProductCard({ product, rank, compact = false, onClick })
         )}
         {rank ? <span className="product-card__rank">{rank}</span> : null}
         {product.isNew ? <span className="product-card__new">NEW</span> : null}
+        {product.overlay ? (
+          <div className={`product-card__dim product-card__dim--${product.overlay}`} aria-hidden="true">
+            <span>{OVERLAY_LABELS[product.overlay]}</span>
+          </div>
+        ) : null}
+        {product.upcomingBadge ? (
+          <span className={`product-card__upcoming product-card__upcoming--${product.upcomingBadge.type}`}>
+            {product.upcomingBadge.label}
+          </span>
+        ) : null}
         {product.stockLabel ? (
           <span className="product-card__remaining">{product.stockLabel}</span>
         ) : null}
@@ -46,6 +59,7 @@ export default function ProductCard({ product, rank, compact = false, onClick })
         </button>
       </div>
       <div className="product-card__body">
+        {product.openText ? <p className="product-card__open-time">{product.openText}</p> : null}
         <p className="product-card__shop">{product.shop}</p>
         <h3>{product.name}</h3>
         {product.discountRate ? (

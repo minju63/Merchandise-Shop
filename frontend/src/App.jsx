@@ -32,6 +32,13 @@ import { storeApi } from './api/store.api.js';
 import { searchApi } from './api/search.api.js';
 import { bannerApi, homeApi } from './api/home.api.js';
 import ServiceIntroPage from './pages/home/ServiceIntroPage.jsx';
+import InterestSettingsPage from './pages/home/InterestSettingsPage.jsx';
+import {
+  loadInterestBrands,
+  loadInterestIds,
+  saveInterestBrands,
+  saveInterestIds,
+} from './pages/home/interestStorage.js';
 import AdDetailPage from './pages/home/AdDetailPage.jsx';
 import AdProductsPage from './pages/home/AdProductsPage.jsx';
 import ExhibitionPage from './pages/home/ExhibitionPage.jsx';
@@ -105,12 +112,23 @@ function trendingPath(tab) {
 }
 
 // "입고 예정 상품" 전체보기: 전체 > 모두 보기 굿즈 결과를 열고,
-// 필터의 판매 상태 "입고 예정 상품 포함"이 체크된 상태로 보여준다.
+// 필터의 판매 상태는 "입고 예정 상품 포함"만 체크(품절 상품 포함은 OFF)하고, 홈과 같은 순서(오픈이 가까운 순)로 보여준다.
 const UPCOMING_PATH = `/category/products?${new URLSearchParams({
   contentName: '전체',
   allGoods: 'true',
   resultType: 'goods',
   includeUpcoming: 'true',
+  includeSoldOut: 'false',
+  sort: 'upcoming',
+})}`;
+
+// "재고 얼마 안 남은 상품" 전체보기: 전체 > 모두 보기 굿즈 결과를 재고 적은 순으로 보여준다.
+// 판매 상태 기본값(재고 있는 상품만)이 적용돼 품절 상품은 나오지 않는다.
+const LOW_STOCK_PATH = `/category/products?${new URLSearchParams({
+  contentName: '전체',
+  allGoods: 'true',
+  resultType: 'goods',
+  sort: 'stock_asc',
 })}`;
 
 function HomeRoute() {
@@ -137,11 +155,15 @@ function HomeRoute() {
     <HomePage
       data={{ ...homeMockData, ...homeQuery.data.data }}
       {...homeMockUserState}
+      interestCategoryIds={loadInterestIds() ?? homeMockUserState.interestCategoryIds}
+      interestBrands={loadInterestBrands()}
+      onOpenInterestSettings={() => navigate('/interests')}
       onSearch={() => navigate('/search')}
       onOpenProduct={(product) => navigate(`/products/${product.storeProductId}`)}
       onOpenCategory={openCategory}
       onOpenTrending={(tab) => navigate(trendingPath(tab))}
       onOpenUpcoming={() => navigate(UPCOMING_PATH)}
+      onOpenLowStock={() => navigate(LOW_STOCK_PATH)}
       onBannerClick={(bannerId) => {
         bannerApi.click(bannerId).catch(() => {
           // 클릭 기록 실패가 화면 이동을 막지 않는다.
@@ -281,6 +303,29 @@ function MyRoute() {
   );
 }
 
+function InterestRoute() {
+  const navigate = useNavigate();
+  const homeQuery = useQuery({ queryKey: ['home'], queryFn: homeApi.get, staleTime: 30000, retry: false });
+  const categories = homeQuery.data?.data.interestCategories;
+  if (!categories && !homeQuery.error) return <p className="home-status">불러오는 중...</p>;
+
+  return (
+    <InterestSettingsPage
+      categories={categories}
+      initialIds={loadInterestIds() ?? homeMockUserState.interestCategoryIds}
+      initialBrands={loadInterestBrands()}
+      error={homeQuery.error?.message}
+      onBack={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))}
+      onRetry={() => homeQuery.refetch()}
+      onSave={(ids, brands) => {
+        saveInterestIds(ids);
+        saveInterestBrands(brands);
+        navigate('/');
+      }}
+    />
+  );
+}
+
 function SearchRoute() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -409,6 +454,7 @@ export default function App() {
       <Routes>
         {/* 민주 — 홈 · 검색 */}
         <Route path="/" element={<HomeRoute />} />
+        <Route path="/interests" element={<InterestRoute />} />
         <Route path="/search" element={<SearchRoute />} />
         <Route path="/search/results" element={<SearchResultsRoute />} />
         <Route path="/intro/:bannerId" element={<ServiceIntroRoute />} />

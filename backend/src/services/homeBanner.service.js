@@ -10,7 +10,7 @@ import { formatPrice, salePrice, toCard } from './home.service.js';
 
 // 예약금 비율 — preorders.deposit_rate 기본값과 같다.
 const DEPOSIT_RATE = 20;
-const LOW_STOCK_MAX = 5;
+const LOW_STOCK_MAX = 10;
 const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
 
 // 굿즈샵 좌표가 아직 없어 목업 거리를 쓴다. 같은 매장은 항상 같은 값이 나온다.
@@ -18,13 +18,11 @@ const MOCK_DISTANCES = ['0.4km', '1.2km', '2.8km', '3.5km'];
 
 // 12월 생일 캐릭터 목록은 아직 DB 테이블이 없어 상수로 둔다. 굿즈는 products.character_name 으로 불러온다.
 const EXHIBITION_MONTH = 12;
-// 캐릭터 이미지는 Supabase Storage(goods-images 버킷)에 있어 어느 주소에서든 보인다.
-const CHARACTER_IMAGES = `${(process.env.SUPABASE_URL ?? '').replace(/\/(rest\/v1\/?|)$/, '')}/storage/v1/object/public/goods-images/characters/`;
 const DECEMBER_BIRTHDAYS = [
-  { name: '토끼', work: '토끼마을', month: 12, day: 3, imageUrl: `${CHARACTER_IMAGES}rabbit.png` },
-  { name: '고죠 사토루', work: '주술회전', month: 12, day: 7, imageUrl: `${CHARACTER_IMAGES}gojo.jpg` },
-  { name: '별빛소녀', work: '별빛 탐험대', month: 12, day: 15, imageUrl: `${CHARACTER_IMAGES}starlight.png` },
-  { name: '루나', work: '루나퀘스트', month: 12, day: 24, imageUrl: `${CHARACTER_IMAGES}luna.png` },
+  { name: '토끼', work: '토끼마을', month: 12, day: 3 },
+  { name: '고죠 사토루', work: '주술회전', month: 12, day: 7 },
+  { name: '별빛소녀', work: '별빛 탐험대', month: 12, day: 15 },
+  { name: '루나', work: '루나퀘스트', month: 12, day: 24 },
 ];
 const DEFAULT_CHARACTER = '고죠 사토루';
 const GOODS_TYPES = {

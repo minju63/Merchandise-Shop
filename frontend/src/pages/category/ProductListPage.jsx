@@ -18,6 +18,7 @@ import {
   PRODUCT_FILTER_KEYS,
   categoryFilterContext,
   categoryProductQuery,
+  withSaleStatusDefault,
 } from './components/categoryProductFilters.js';
 
 const FILTER_KEYS = PRODUCT_FILTER_KEYS;
@@ -52,8 +53,9 @@ function ProductListPageContent({
     ? params.get('resultType')
     : 'all';
   const contentCategoryId = params.get('contentCategoryId');
+  const singleBrand = params.get('brands') && !params.get('brands').includes(',') ? params.get('brands') : '';
   const categoryReturnTo = contentCategoryId
-    ? `/category?${new URLSearchParams({ contentCategoryId })}`
+    ? `/category?${new URLSearchParams({ contentCategoryId, ...(singleBrand ? { brand: singleBrand } : {}) })}`
     : '/category';
   const load = useCallback(
     (signal) => {
@@ -68,7 +70,7 @@ function ProductListPageContent({
     [api, client, queryKey]
   );
   const request = useCategoryRequest(load, user?.id);
-  const filters = Object.fromEntries(FILTER_KEYS.map((key) => [key, params.get(key) || '']));
+  const filters = withSaleStatusDefault(Object.fromEntries(FILTER_KEYS.map((key) => [key, params.get(key) || ''])));
   if (!filters.regionIds && filters.regionId) {
     filters.regionIds = filters.regionId;
     filters.regionId = '';
@@ -101,8 +103,13 @@ function ProductListPageContent({
   const size = request.data?.size || 20;
   return (
     <main className="category-page">
-      <Link to={categoryReturnTo}>← 카테고리</Link>
-      <h1 className="category-list-title">{selectedNames.join(' > ') || '상품 목록'}</h1>
+      {/* 뒤로가기는 제목 앞의 꺾쇠 아이콘으로 대신하고, 단계 구분은 / 로 표시한다 */}
+      <div className="category-list-heading">
+        <Link className="category-list-back" to={categoryReturnTo} aria-label="카테고리로 돌아가기">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7" /></svg>
+        </Link>
+        <h1 className="category-list-title">{selectedNames.join(' / ') || '상품 목록'}</h1>
+      </div>
       <nav className="category-result-tabs" aria-label="결과 유형">
         {[
           ['all', '전체'],

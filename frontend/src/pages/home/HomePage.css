@@ -998,3 +998,59 @@
 .product-card__discount s {
   color: #9c97a4;
 }
+
+/* 상품 목록에서 입고 예정 상품을 홈 입고 예정 카드처럼 보여준다 */
+.product-card__upcoming {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 1;
+  padding: 5px 7px;
+  border-radius: 6px;
+  color: #fff;
+  background: var(--purple);
+  font-size: 8px;
+  font-weight: 900;
+}
+
+.product-card__upcoming--restock {
+  border: 1px solid #9f8bea;
+  color: #5638c6;
+  background: rgb(255 255 255 / 83%);
+}
+
+.product-card__open-time {
+  margin: 0 0 5px;
+  color: #ef4e55;
+  font-size: 9px;
+  line-height: 1.35;
+  font-weight: 900;
+}
+
+/* 품절·입고 예정 상품 이미지를 반투명 회색으로 덮는다 (배지·라벨은 덮개 위에 보인다) */
+.product-card__dim {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: inherit;
+  background: rgb(110 108 120 / 45%);
+}
+
+.product-card__dim span {
+  padding: 5px 12px;
+  border: 1.5px solid rgb(255 255 255 / 90%);
+  border-radius: 4px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+}
+
+/* 홈 입고 예정 카드는 폭이 좁아 글자를 한 줄로 작게 보여준다 */
+.upcoming-card .product-card__dim span {
+  padding: 4px 8px;
+  font-size: 10px;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}

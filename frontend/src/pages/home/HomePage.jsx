@@ -3,6 +3,7 @@ import ProductCard from '../../components/ProductCard.jsx';
 import UpcomingProductCard from '../../components/UpcomingProductCard.jsx';
 import Icon from '../../components/Icon.jsx';
 import PromoBanner from './PromoBanner.jsx';
+import { brandGroupFor, hasPickedBrands, matchesInterests } from './interestMatch.js';
 import BottomNavigation from '../../components/BottomNavigation.jsx';
 import './HomePage.css';
 
@@ -110,11 +111,13 @@ export default function HomePage({
   onSearch,
   onRequestLogin,
   onLogin,
+  interestBrands = [],
   onOpenInterestSettings,
   onOpenProduct,
   onOpenCategory,
   onOpenTrending,
   onOpenUpcoming,
+  onOpenLowStock,
   onToggleOpenAlert,
 }) {
   const [activeBannerIndex, setActiveBannerIndex] = useState(0);
@@ -162,12 +165,14 @@ export default function HomePage({
   const activeProducts = activeProductTab === 'popular' ? popularProducts : newProducts;
   const activeInterestCategoryIds = isAuthenticated ? interestCategoryIds : [];
   const activeInterestCategories = activeInterestCategoryIds.map((categoryId) => (
-    data.categories.find((category) => category.id === categoryId)
+    (data.interestCategories ?? data.categories).find((category) => category.id === categoryId)
   )).filter(Boolean);
   const personalizedRecommendations = (data.recommendationProducts ?? [])
-    .filter((product) => product.interestCategoryIds?.some((categoryId) => (
-      activeInterestCategoryIds.includes(categoryId)
-    )));
+    .filter((product) => matchesInterests(product, activeInterestCategoryIds, interestBrands));
+  // 선택한 관심 카테고리 안에 속한 브랜드만 칩으로 보여준다
+  const visibleInterestBrands = interestBrands.filter((name) => activeInterestCategoryIds.some((id) => (
+    brandGroupFor(id)?.brands.some((brand) => brand.name === name)
+  )));
   const hasInterests = activeInterestCategoryIds.length > 0;
 
   useEffect(() => {
@@ -377,8 +382,12 @@ export default function HomePage({
                 >관심사 설정</button>
               </div>
               <div className="filter-chips" aria-label="선택한 관심 카테고리">
-                {activeInterestCategories.map((category) => (
+                {/* 브랜드를 고른 분류는 분류 이름 대신 고른 브랜드만 칩으로 보여준다 */}
+                {activeInterestCategories.filter((category) => !hasPickedBrands(category.id, interestBrands)).map((category) => (
                   <span className="active" key={category.id}>{category.name}</span>
+                ))}
+                {visibleInterestBrands.map((name) => (
+                  <span className="active" key={name}>{name}</span>
                 ))}
               </div>
               {personalizedRecommendations.length > 0 ? (
@@ -438,7 +447,9 @@ export default function HomePage({
         <section className="home-section">
           <div className="home-section-heading">
             <div><h2>재고 얼마 안 남은 상품</h2><p>재고가 적은 순서로 보여드려요</p></div>
-            <button type="button" disabled>전체보기 <span aria-hidden="true">›</span></button>
+            <button type="button" onClick={onOpenLowStock} disabled={!onOpenLowStock}>
+              전체보기 <span aria-hidden="true">›</span>
+            </button>
           </div>
           <ProductRail products={lowStockProducts} onProductClick={onOpenProduct} />
         </section>

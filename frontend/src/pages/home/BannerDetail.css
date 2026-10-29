@@ -705,3 +705,82 @@
   background: #f5f1ff;
   font-weight: 800;
 }
+
+/* 관심사 설정: 카테고리 칩 */
+.bd__interest-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 8px;
+}
+
+.bd__interest-chips .bd__chip {
+  padding: 10px 16px;
+  font-size: 14px;
+}
+
+.bd__btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+/* 관심사 설정: 작품 분류 아래에 열리는 브랜드 칩 */
+.bd__interest-brands {
+  margin-top: 18px;
+  padding: 16px 14px;
+  border-radius: 14px;
+  background: var(--bd-primary-light);
+}
+
+.bd__interest-brands-head {
+  display: flex;
+  width: 100%;
+  padding: 0;
+  align-items: center;
+  justify-content: space-between;
+  border: 0;
+  color: var(--bd-text);
+  background: transparent;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.bd__interest-brands-head + .bd__interest-chips,
+.bd__interest-brands-head + .bd__interest-brands-summary {
+  margin-top: 12px;
+}
+
+/* 펼침 상태는 위쪽 화살표, 접힘 상태는 아래쪽 화살표 */
+.bd__interest-brands-head i {
+  width: 8px;
+  height: 8px;
+  margin: 0 4px;
+  border-top: 2px solid var(--bd-sub);
+  border-left: 2px solid var(--bd-sub);
+  transform: rotate(45deg);
+  transition: transform 150ms;
+}
+
+.bd__interest-brands-head[aria-expanded='false'] i {
+  transform: rotate(225deg);
+}
+
+.bd__interest-brands-summary {
+  margin: 0;
+  color: var(--bd-sub);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.bd__interest-brands small {
+  margin-left: 6px;
+  color: var(--bd-primary);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.bd__interest-chips .bd__chip.bd__chip--brand {
+  padding: 8px 12px;
+  font-size: 13px;
+}

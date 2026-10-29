@@ -656,3 +656,50 @@
   font-size: 24px;
   padding: 4px;
 }
+
+/* 카테고리 탭: [작품 분류] [분류별 브랜드] [굿즈 종류] 세로 3단 */
+.category-main-page .category-selector.category-selector--single { grid-template-columns: 84px minmax(0, 1fr); }
+.category-main-page .category-selector.category-selector--brands { grid-template-columns: 84px 100px minmax(0, 1fr); min-height: 520px; }
+.category-main-page .category-brand-list { align-self: stretch; background: #fff; border-right: 1px solid #eeeaf2; }
+.category-main-page .category-brand-list button { text-align: left; font-size: 12px; line-height: 1.3; padding: 14px 12px; }
+.category-main-page .category-selector .category-goods-panel { padding: 12px 6px; }
+.category-main-page .category-selector .category-goods-grid { gap: 8px 4px; }
+.category-main-page .category-selector .category-goods-grid .category-goods-label { font-size: 10px; }
+
+/* 밑줄형 탭: 공통 버튼 스타일(border-radius 8px)에 밑줄이 둥글게 말리지 않도록 직선으로 고정 */
+.category-page .category-result-tabs button,
+.category-develop-shell .category-page .category-result-tabs button,
+.category-page .category-filter-sheet__tabs button,
+.category-develop-shell .category-page .category-filter-sheet__tabs button,
+.category-develop-shell .category-filter-sheet__tabs button {
+  border-radius: 0;
+}
+
+/* 상품 목록 제목: [뒤로가기 꺾쇠] 게임 / 모두 보기 */
+.category-page .category-list-heading {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 8px 0 6px;
+}
+.category-page .category-list-heading .category-list-title {
+  margin: 0;
+}
+.category-list-back {
+  display: grid;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  margin-left: -8px;
+  place-items: center;
+  color: #211d28;
+}
+.category-list-back svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}

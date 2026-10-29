@@ -1,9 +1,15 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { REGIONS } from '../../../constants/regions.js';
+import ProductBrandFilter from './ProductBrandFilter.jsx';
 import {
   PRODUCT_FILTER_KEYS,
   categoryFilterContext,
   categoryProductQuery,
+  SALE_STATUS,
+  saleChecks,
+  saleStatusFrom,
+  saleStatusLabel,
+  withSaleStatusDefault,
 } from './categoryProductFilters.js';
 
 const PRICE_PRESETS = [
@@ -15,9 +21,10 @@ const PRICE_PRESETS = [
   { label: '10만원 이상', min: '100000', max: '' },
 ];
 
-const RESET_FILTERS = Object.fromEntries(
-  PRODUCT_FILTER_KEYS.map((key) => [key, ''])
-);
+const RESET_FILTERS = {
+  ...Object.fromEntries(PRODUCT_FILTER_KEYS.map((key) => [key, ''])),
+  ...SALE_STATUS.inStock,
+};
 
 function RadioChoices({ options, value, onChange }) {
   return <div className="category-filter-choices">
@@ -38,12 +45,13 @@ export default function ProductFilterSheet({
   onClose,
   initialSection = 'price',
 }) {
-  const [draft, setDraft] = useState(() => ({ ...filters }));
+  const [draft, setDraft] = useState(() => withSaleStatusDefault({ ...filters }));
   const [error, setError] = useState('');
   const dialog = useRef(null);
   const titleId = useId();
   const tabs = [
     { id: 'price', label: '가격' },
+    { id: 'brand', label: '브랜드' },
     { id: 'region', label: '지역' },
     { id: 'reviews', label: '후기/찜' },
     { id: 'sale', label: '판매유형' },
@@ -164,18 +172,26 @@ export default function ProductFilterSheet({
   for (const name of draft.regionNames.split(',').filter(Boolean)) {
     summary.push({ key: `regionName:${name}`, label: name, clear: { regionNames: draft.regionNames.split(',').filter((item) => item !== name).join(',') } });
   }
+  for (const name of draft.brands.split(',').filter(Boolean)) {
+    summary.push({ key: `brand:${name}`, label: name, clear: { brands: draft.brands.split(',').filter((item) => item !== name).join(',') } });
+  }
   if (draft.discountOnly === 'true')
     summary.push({ key: 'discountOnly', label: '할인 중인 굿즈만', clear: { discountOnly: '' } });
-  if (draft.includeUpcoming === 'false')
-    summary.push({ key: 'includeUpcoming', label: '입고 예정 제외', clear: { includeUpcoming: '' } });
+  if (draft.inStock !== 'true')
+    summary.push({
+      key: 'saleStatus',
+      label: saleStatusLabel(draft),
+      clear: SALE_STATUS.inStock,
+    });
   if (draft.ratingMin)
     summary.push({ key: 'ratingMin', label: `별점 ${Number(draft.ratingMin).toFixed(1)} 이상`, clear: { ratingMin: '' } });
   if (draft.wishlistMin)
     summary.push({ key: 'wishlistMin', label: `찜 ${draft.wishlistMin}개 이상`, clear: { wishlistMin: '' } });
-  for (const [key, label] of [['inStock', '재고 있음'], ['pickup', '픽업 가능'], ['delivery', '배달 가능']]) {
+  for (const [key, label] of [['pickup', '픽업 가능'], ['delivery', '배달 가능']]) {
     if (draft[key] === 'true') summary.push({ key, label, clear: { [key]: '' } });
   }
   const isPreviewCurrent = preview.key === previewKey;
+  const sale = saleChecks(draft);
 
   function submit(event) {
     event.preventDefault();
@@ -254,6 +270,12 @@ export default function ProductFilterSheet({
             </div>
           </section>
         </>}
+        {tab === 'brand' && (
+          <ProductBrandFilter
+            selected={draft.brands.split(',').filter(Boolean)}
+            onChange={(names) => update({ brands: names.join(',') })}
+          />
+        )}
         {tab === 'region' && <section>
           <h3>지역 <small>여러 개 선택 가능</small></h3>
           <div className="category-filter-sheet__regions">
@@ -305,11 +327,11 @@ export default function ProductFilterSheet({
             <h3>판매 상태</h3>
             <div className="category-filter-choices">
               <label>
-                <input type="checkbox" checked={draft.inStock !== 'true'} onChange={(event) => update({ inStock: event.target.checked ? '' : 'true', includeUpcoming: '' })} />
+                <input type="checkbox" checked={sale.soldOut} onChange={(event) => update(saleStatusFrom(event.target.checked, sale.upcoming))} />
                 <span>품절 상품 포함</span>
               </label>
               <label>
-                <input type="checkbox" checked={draft.includeUpcoming !== 'false' && draft.inStock !== 'true'} onChange={(event) => update({ inStock: '', includeUpcoming: event.target.checked ? '' : 'false' })} />
+                <input type="checkbox" checked={sale.upcoming} onChange={(event) => update(saleStatusFrom(sale.soldOut, event.target.checked))} />
                 <span>입고 예정 상품 포함</span>
               </label>
             </div>
