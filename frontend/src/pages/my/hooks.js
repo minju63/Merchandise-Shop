@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase.js';
 import { getMySummary } from './my.api.js';
 
@@ -82,11 +82,14 @@ export function useRequest(enabled, cacheKey, fetcher) {
 }
 
 // 로그인하지 않았으면 로그인 화면으로 보내고, 로그인 여부를 돌려준다.
+// 로그인 후 원래 화면으로 돌아오도록 현재 경로를 state.from 으로 넘긴다.
 export function useRequireLogin(loginPath) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { status } = useSession();
+  const from = `${location.pathname}${location.search}`;
   useEffect(() => {
-    if (status === 'out') navigate(loginPath, { replace: true });
-  }, [status, navigate, loginPath]);
+    if (status === 'out') navigate(loginPath, { replace: true, state: { from } });
+  }, [status, navigate, loginPath, from]);
   return status === 'in';
 }

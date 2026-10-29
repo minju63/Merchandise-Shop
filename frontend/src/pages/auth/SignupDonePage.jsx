@@ -1,3 +1,4 @@
+// 담당: 연수
 import { useLocation, useNavigate } from 'react-router-dom';
 import { listCoupons } from '../my/account.api.js';
 import { couponHeadline, formatMonthDot } from '../my/accountFormat.js';

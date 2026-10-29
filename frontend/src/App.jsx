@@ -18,7 +18,36 @@ import StoreListPage from './pages/stores/StoreListPage.jsx';
 import StoreDetailPage from './pages/stores/StoreDetailPage.jsx';
 import StoreReviewPage from './pages/stores/StoreReviewPage.jsx';
 import StoreReviewWritePage from './pages/stores/StoreReviewWritePage.jsx';
-import LoginPage from './pages/LoginPage.jsx';
+import LoginPage from './pages/auth/LoginPage.jsx';
+import SignupTermsPage from './pages/auth/SignupTermsPage.jsx';
+import SignupInfoPage from './pages/auth/SignupInfoPage.jsx';
+import SignupDonePage from './pages/auth/SignupDonePage.jsx';
+import FindPasswordPage from './pages/auth/FindPasswordPage.jsx';
+import ResetPasswordPage from './pages/auth/ResetPasswordPage.jsx';
+import CheckoutPage from './pages/common/CheckoutPage.jsx';
+import OrderCompletePage from './pages/common/OrderCompletePage.jsx';
+import MyPage from './pages/my/MyPage.jsx';
+import OrdersPage from './pages/my/OrdersPage.jsx';
+import OrderDetailPage from './pages/my/OrderDetailPage.jsx';
+import ReviewWritePage from './pages/my/ReviewWritePage.jsx';
+import MembershipPage from './pages/my/MembershipPage.jsx';
+import CouponsPage from './pages/my/CouponsPage.jsx';
+import CouponDetailPage from './pages/my/CouponDetailPage.jsx';
+import AddressesPage from './pages/my/AddressesPage.jsx';
+import AddressFormPage from './pages/my/AddressFormPage.jsx';
+import PaymentMethodsPage from './pages/my/PaymentMethodsPage.jsx';
+import NotificationSettingsPage from './pages/my/NotificationSettingsPage.jsx';
+import ProfilePage from './pages/my/ProfilePage.jsx';
+import SupportPage from './pages/my/SupportPage.jsx';
+import NoticeListPage from './pages/my/NoticeListPage.jsx';
+import NoticeDetailPage from './pages/my/NoticeDetailPage.jsx';
+import InquiryListPage from './pages/my/InquiryListPage.jsx';
+import InquiryFormPage from './pages/my/InquiryFormPage.jsx';
+import ReportListPage from './pages/my/ReportListPage.jsx';
+import TermsPage from './pages/my/TermsPage.jsx';
+import TermsBodyPage from './pages/my/TermsBodyPage.jsx';
+import SellerApplyPage from './pages/my/SellerApplyPage.jsx';
+import SellerCenterPage from './pages/my/SellerCenterPage.jsx';
 import CategoryPage from './pages/category/CategoryPage.jsx';
 import ProductListPage from './pages/category/ProductListPage.jsx';
 import ProductDetailPage from './pages/category/ProductDetailPage.jsx';
@@ -223,17 +252,38 @@ export default function App() {
         <Route path="/wish/shops" element={<WishShopsPage />} />
         <Route path="/cart" element={<CartPage />} />
 
-        {/* 연수 — 로그인 · 결제 · 마이
-            /login 은 현재 여경의 임시 LoginPage. feat/mytab-login-checkout 머지 시 아래로 교체:
-            /login                LoginPage
-            /signup/terms         SignupTermsPage
-            /signup/info          SignupInfoPage
-            /signup/done          SignupDonePage
-            /find-password        FindPasswordPage
-            /checkout             CheckoutPage
-            /checkout/done        OrderCompletePage
-            /my                   MyPage */}
+        {/* 연수 — 로그인 · 결제 · 마이 */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup/terms" element={<SignupTermsPage />} />
+        <Route path="/signup/info" element={<SignupInfoPage />} />
+        <Route path="/signup/done" element={<SignupDonePage />} />
+        <Route path="/find-password" element={<FindPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/checkout/complete/:groupId" element={<OrderCompletePage />} />
+        <Route path="/my" element={<MyPage />} />
+        <Route path="/my/orders" element={<OrdersPage />} />
+        <Route path="/my/orders/:orderId" element={<OrderDetailPage />} />
+        <Route path="/my/orders/:orderId/review" element={<ReviewWritePage />} />
+        <Route path="/my/membership" element={<MembershipPage />} />
+        <Route path="/my/coupons" element={<CouponsPage />} />
+        <Route path="/my/coupons/:couponId" element={<CouponDetailPage />} />
+        <Route path="/my/addresses" element={<AddressesPage />} />
+        <Route path="/my/addresses/new" element={<AddressFormPage />} />
+        <Route path="/my/addresses/:addressId/edit" element={<AddressFormPage />} />
+        <Route path="/my/payment-methods" element={<PaymentMethodsPage />} />
+        <Route path="/my/settings/notifications" element={<NotificationSettingsPage />} />
+        <Route path="/my/profile" element={<ProfilePage />} />
+        <Route path="/my/support" element={<SupportPage />} />
+        <Route path="/my/support/notices" element={<NoticeListPage />} />
+        <Route path="/my/support/notices/:noticeId" element={<NoticeDetailPage />} />
+        <Route path="/my/support/inquiries" element={<InquiryListPage />} />
+        <Route path="/my/support/inquiries/new" element={<InquiryFormPage />} />
+        <Route path="/my/support/reports" element={<ReportListPage />} />
+        <Route path="/my/terms" element={<TermsPage />} />
+        <Route path="/my/terms/:type" element={<TermsBodyPage />} />
+        <Route path="/my/seller-apply" element={<SellerApplyPage />} />
+        <Route path="/my/seller-center" element={<SellerCenterPage />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

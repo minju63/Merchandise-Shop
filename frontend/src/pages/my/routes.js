@@ -1,7 +1,7 @@
 // 마이 메인에서 이동하는 경로 모음. 팀 라우터가 확정되면 이 파일만 맞춘다.
 export const MY_ROUTES = {
   login: '/login',
-  signup: '/signup',
+  signup: '/signup/terms',
   cart: '/cart',
   notifications: '/notifications',
   settings: '/my/settings',
@@ -16,6 +16,7 @@ export const MY_ROUTES = {
   reviewWrite: (orderId) => `/my/orders/${orderId}/review`,
   membership: '/my/membership',
   coupons: '/my/coupons',
+  couponDetail: (id) => `/my/coupons/${id}`,
   addresses: '/my/addresses',
   addressNew: '/my/addresses/new',
   addressEdit: (id) => `/my/addresses/${id}/edit`,
@@ -24,10 +25,13 @@ export const MY_ROUTES = {
   notificationSettings: '/my/settings/notifications',
   support: '/my/support',
   notices: '/my/support/notices',
+  noticeDetail: (id) => `/my/support/notices/${id}`,
   faq: '/my/support/faq',
   inquiries: '/my/support/inquiries',
   inquiryNew: '/my/support/inquiries/new',
   reports: '/my/support/reports',
   terms: '/my/terms',
+  termsBody: (type) => `/my/terms/${type}`,
   sellerApply: '/my/seller-apply',
+  sellerCenter: '/my/seller-center',
 };

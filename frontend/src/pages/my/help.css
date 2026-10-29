@@ -1,0 +1,46 @@
+.hlp-chips { display: flex; gap: 8px; margin: 4px 0 0; overflow-x: auto; }
+.hlp-list { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
+.hlp-card { padding: 16px; border: 1px solid var(--my-line); border-radius: 16px; background: #fff; }
+.hlp-card__top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.hlp-card__meta { display: flex; align-items: center; gap: 6px; color: var(--my-sub); font-size: 12px; }
+.hlp-card__title { display: block; font-size: 15px; line-height: 1.4; }
+.hlp-card__text { margin: 6px 0 0; color: var(--my-sub); font-size: 13px; line-height: 1.5; white-space: pre-line; }
+.hlp-answer { margin-top: 14px; padding: 14px; border-radius: 12px; background: var(--my-soft); }
+.hlp-answer__head { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 12px; color: var(--my-sub); }
+.hlp-answer__head b { color: var(--my-primary); font-size: 13px; }
+.hlp-answer p { margin: 0; font-size: 13px; line-height: 1.6; white-space: pre-line; }
+.hlp-info { display: flex; align-items: center; gap: 8px; margin-top: 4px; padding: 14px; border-radius: 12px; background: var(--my-primary-soft); color: var(--my-primary); font-size: 13px; font-weight: 600; }
+.hlp-row { display: flex; align-items: center; gap: 10px; width: 100%; box-sizing: border-box; min-height: 56px; padding: 0 16px; margin: 0 -16px; width: calc(100% + 32px); border-bottom: 1px solid var(--my-line); font-size: 15px; }
+.hlp-row span { flex: 1; min-width: 0; }
+.hlp-row small { display: block; margin-top: 2px; color: var(--my-faint); font-size: 12px; }
+.hlp-pin { padding: 3px 8px; border-radius: 6px; background: var(--my-btn); color: var(--my-btn-text); font-size: 11px; font-weight: 700; }
+.hlp-article { padding: 12px 0 20px; border-bottom: 1px solid var(--my-line); }
+.hlp-article h2 { margin: 10px 0 8px; font-size: 20px; line-height: 1.4; }
+.hlp-article small { color: var(--my-sub); font-size: 13px; }
+.hlp-body { padding: 20px 0 110px; font-size: 15px; line-height: 1.75; white-space: pre-line; }
+.hlp-h { margin: 20px 0 10px; font-size: 14px; font-weight: 700; }
+.hlp-h em { color: var(--my-primary); font-style: normal; }
+.hlp-h small { color: var(--my-sub); font-weight: 400; }
+.hlp-types { display: flex; flex-wrap: wrap; gap: 8px; }
+.hlp-types .ord-chip { padding: 9px 16px; font-size: 14px; }
+.hlp-input { width: 100%; box-sizing: border-box; padding: 14px; border: 1px solid var(--my-line); border-radius: 12px; font: inherit; font-size: 15px; color: var(--my-text); outline: 0; }
+.hlp-input:focus { border-color: var(--my-btn); }
+textarea.hlp-input { min-height: 150px; resize: none; line-height: 1.6; font-size: 14px; }
+.hlp-count { margin: 6px 0 0; text-align: right; color: var(--my-faint); font-size: 12px; }
+.hlp-note { margin: 20px 0 110px; padding: 12px 14px; border-radius: 12px; background: var(--my-soft); color: var(--my-sub); font-size: 12px; line-height: 1.6; }
+.hlp-agree { display: flex; align-items: center; gap: 12px; min-height: 64px; border-bottom: 1px solid var(--my-line); }
+.hlp-agree:last-child { border-bottom: 0; }
+.hlp-agree > div { flex: 1; min-width: 0; }
+.hlp-agree b { font-size: 14px; }
+.hlp-agree small { display: block; color: var(--my-sub); font-size: 12px; }
+.hlp-box { margin-top: 8px; padding: 0 16px; border: 1px solid var(--my-line); border-radius: 16px; }
+.hlp-sub { margin: 0 0 8px; color: var(--my-sub); font-size: 13px; }
+.hlp-reason { margin-top: 12px; padding: 12px; border-radius: 10px; background: var(--my-soft); font-size: 13px; line-height: 1.5; }
+.hlp-reason span { color: var(--my-sub); margin-right: 8px; }
+.cpd-hero { margin-top: 8px; padding: 24px 20px; border-radius: 20px; background: var(--my-primary-soft); }
+.cpd-hero strong { display: block; font-size: 32px; color: var(--my-primary); }
+.cpd-hero p { margin: 6px 0 0; font-size: 15px; font-weight: 600; }
+.cpd-list { margin: 20px 0 110px; }
+.cpd-list div { display: flex; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--my-line); font-size: 14px; }
+.cpd-list dt { color: var(--my-sub); }
+.cpd-list dd { margin: 0; text-align: right; }

@@ -9,13 +9,19 @@ import { MY_ROUTES } from './routes.js';
 import './orders.css';
 import './account.css';
 
-function CouponCard({ item, usable, onUse }) {
+function CouponCard({ item, usable, onUse, onOpen }) {
   const left = daysLeft(item.effectiveExpiresAt);
   const dday = left <= 0 ? 'D-Day' : `D-${left}`;
   const stateLabel = item.effectiveStatus === 'USED' ? '사용 완료' : '기간 만료';
   return (
     <article className={usable ? 'cpn-card' : 'cpn-card is-off'}>
-      <div className="cpn-card__main">
+      <div
+        className="cpn-card__main"
+        role="link"
+        tabIndex={0}
+        onClick={onOpen}
+        onKeyDown={(event) => event.key === 'Enter' && onOpen()}
+      >
         <strong className="cpn-card__amount">{couponHeadline(item)}</strong>
         <p className="cpn-card__name">{item.coupon.name}</p>
         <p className="cpn-card__cond">{couponConditions(item)}</p>
@@ -89,6 +95,7 @@ export default function CouponsPage() {
         item={item}
         usable={tab === 'AVAILABLE'}
         onUse={() => navigate(MY_ROUTES.shop)}
+        onOpen={() => navigate(MY_ROUTES.couponDetail(item.id))}
       />
     ));
 

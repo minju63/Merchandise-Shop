@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase.js';
-import { checkNickname } from '../common/auth.api.js';
+import { checkNickname } from '../../api/auth.api.js';
 import { getMyProfile, updateMyProfile, withdrawAccount } from './account.api.js';
 import { formatPhone } from './accountFormat.js';
 import { ErrorNotice, Loading, PageHeader } from './common.jsx';
