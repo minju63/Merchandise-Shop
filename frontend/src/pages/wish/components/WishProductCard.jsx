@@ -12,15 +12,26 @@ const stockBadges = {
 
 const won = (value) => `${Number(value ?? 0).toLocaleString('ko-KR')}원`;
 
-export default function WishProductCard({ item, isAdding, onRemove, onAddToCart, onPending }) {
+export default function WishProductCard({
+  item,
+  isAdding,
+  isAlertPending,
+  onRemove,
+  onAddToCart,
+  onRestockAlert,
+  onPending,
+}) {
   const badge = stockBadges[item.stockLabel] ?? stockBadges.SOLD_OUT;
   const inStock = item.stockLabel === 'IN_STOCK' || item.stockLabel === 'LOW_STOCK';
   const canAdd = item.addable && (item.pickupAvailable || item.deliveryAvailable);
+  // 재입고 알림은 매장 단위(storeProductId)다.
+  // TODO: status='UPCOMING' 은 민주님 오픈 알림으로 분기해야 함 (팀 협의 필요)
   const restockButton = (
     <button
       type="button"
       className={`wish-action${item.restockAlertEnabled ? ' is-done' : ''}`}
-      onClick={onPending}
+      disabled={isAlertPending}
+      onClick={onRestockAlert}
     >
       {item.restockAlertEnabled ? '알림 신청됨' : '재입고 알림'}
     </button>

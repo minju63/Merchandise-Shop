@@ -23,4 +23,12 @@ export const wishlistApi = {
     client.delete(`/wishlist/products/${storeProductId}`, { headers: await authHeaders() }),
   addShop: async (storeId) => client.post('/wishlist/shops', { storeId }, { headers: await authHeaders() }),
   removeShop: async (storeId) => client.delete(`/wishlist/shops/${storeId}`, { headers: await authHeaders() }),
+  // 재입고 알림 — 매장 단위(storeProductId). 상품 단위 오픈 알림과는 다른 기능이다.
+  restockAlerts: {
+    list: async (params) => client.get('/restock-alerts', { params, headers: await authHeaders() }),
+    create: async (storeProductId) =>
+      client.post('/restock-alerts', { storeProductId }, { headers: await authHeaders() }),
+    remove: async (storeProductId) =>
+      client.delete(`/restock-alerts/${storeProductId}`, { headers: await authHeaders() }),
+  },
 };

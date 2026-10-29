@@ -10,6 +10,7 @@ import WishTabBar from './components/WishTabBar.jsx';
 import WishProductCard from './components/WishProductCard.jsx';
 import WishRemoveDialog from './components/WishRemoveDialog.jsx';
 import FulfillmentSheet from './components/FulfillmentSheet.jsx';
+import RestockAlertSheet from './components/RestockAlertSheet.jsx';
 import WishEmptyState, { WishLoginRequired } from './components/WishEmptyState.jsx';
 import './WishProductsPage.css';
 
@@ -24,13 +25,23 @@ const addFailMessages = {
   NOT_ON_SALE: '판매하지 않는 상품이에요',
 };
 
+// POST /restock-alerts 409 사유별 안내
+const alertFailMessages = {
+  ALREADY_IN_STOCK: '지금 구매할 수 있는 상품이에요',
+  STORE_CLOSED: '지금 주문할 수 없는 매장이에요',
+  NOT_ON_SALE: '판매하지 않는 상품이에요',
+};
+
 export default function WishProductsPage() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [target, setTarget] = useState(null);
   const [sheetItem, setSheetItem] = useState(null);
-  const [notice, setNotice] = useState('');
+  const [restockItem, setRestockItem] = useState(null);
+  // 토스트: { text, duration, actionLabel?, onAction? }
+  const [notice, setNotice] = useState(null);
+  const toast = (text, options = {}) => setNotice({ text, duration: 2000, ...options });
   const params = { page, size: PAGE_SIZE };
   const { data, isPending, isError, error, refetch } = useQuery({
     queryKey: ['wishlist', 'products', params],
@@ -57,7 +68,7 @@ export default function WishProductsPage() {
       setSheetItem(null);
       const goToCart = () => navigate(`/cart?type=${fulfillmentType}`);
       if (response.data.capped) {
-        setNotice(`1인 최대 ${response.data.quantity}개까지 담을 수 있어요`);
+        toast(`1인 최대 ${response.data.quantity}개까지 담을 수 있어요`);
         setTimeout(goToCart, 1500);
       } else {
         goToCart();
@@ -65,10 +76,49 @@ export default function WishProductsPage() {
     },
     onError: (addError) => {
       setSheetItem(null);
-      if (isAuthError(addError)) setNotice('로그인이 필요합니다');
-      else setNotice(addFailMessages[addError.code] ?? '장바구니에 담지 못했어요. 다시 시도해 주세요');
+      if (isAuthError(addError)) toast('로그인이 필요합니다');
+      else toast(addFailMessages[addError.code] ?? '장바구니에 담지 못했어요. 다시 시도해 주세요');
     },
   });
+
+  const refreshProducts = () => queryClient.invalidateQueries({ queryKey: ['wishlist', 'products'] });
+  const alertRemoveMutation = useMutation({
+    mutationFn: (storeProductId) => wishlistApi.restockAlerts.remove(storeProductId),
+    onSuccess: async () => {
+      await refreshProducts();
+      toast('알림을 해제했어요');
+    },
+    onError: (alertError) => toast(isAuthError(alertError) ? '로그인이 필요합니다' : '알림을 해제하지 못했어요'),
+  });
+  const alertCreateMutation = useMutation({
+    mutationFn: (storeProductId) => wishlistApi.restockAlerts.create(storeProductId),
+    onSuccess: async (response, storeProductId) => {
+      await refreshProducts();
+      setRestockItem(null);
+      toast('재입고되면 알려드릴게요', {
+        duration: 3000,
+        actionLabel: '취소',
+        onAction: () => alertRemoveMutation.mutate(storeProductId),
+      });
+    },
+    onError: (alertError) => {
+      setRestockItem(null);
+      if (isAuthError(alertError)) return toast('로그인이 필요합니다');
+      if (alertError.code === 'ALREADY_IN_STOCK') refreshProducts();
+      toast(alertFailMessages[alertError.code] ?? '알림을 신청하지 못했어요. 다시 시도해 주세요');
+    },
+  });
+  const alertPendingId = alertCreateMutation.isPending
+    ? alertCreateMutation.variables
+    : alertRemoveMutation.isPending
+      ? alertRemoveMutation.variables
+      : null;
+
+  // 신청된 알림은 시트 없이 바로 해제, 아니면 시트에서 매장을 확인하고 신청한다.
+  const toggleRestockAlert = (item) => {
+    if (item.restockAlertEnabled) alertRemoveMutation.mutate(item.storeProductId);
+    else setRestockItem(item);
+  };
 
   const addToCart = (item) => {
     if (item.pickupAvailable && item.deliveryAvailable) setSheetItem(item);
@@ -77,7 +127,7 @@ export default function WishProductsPage() {
 
   useEffect(() => {
     if (!notice) return undefined;
-    const timer = setTimeout(() => setNotice(''), 2000);
+    const timer = setTimeout(() => setNotice(null), notice.duration);
     return () => clearTimeout(timer);
   }, [notice]);
 
@@ -116,7 +166,9 @@ export default function WishProductsPage() {
                 isAdding={addMutation.isPending && addMutation.variables?.item.storeProductId === item.storeProductId}
                 onRemove={() => setTarget(item)}
                 onAddToCart={() => addToCart(item)}
-                onPending={() => setNotice('준비 중입니다')}
+                isAlertPending={alertPendingId === item.storeProductId}
+                onRestockAlert={() => toggleRestockAlert(item)}
+                onPending={() => toast('준비 중입니다')}
               />
             ))}
           </div>
@@ -154,9 +206,29 @@ export default function WishProductsPage() {
           onSelect={(fulfillmentType) => addMutation.mutate({ item: sheetItem, fulfillmentType })}
         />
       )}
+      {restockItem && (
+        <RestockAlertSheet
+          item={restockItem}
+          isPending={alertCreateMutation.isPending}
+          onCancel={() => setRestockItem(null)}
+          onConfirm={() => alertCreateMutation.mutate(restockItem.storeProductId)}
+        />
+      )}
       {notice && (
         <div className="wish-toast" role="status">
-          {notice}
+          {notice.text}
+          {notice.actionLabel && (
+            <button
+              type="button"
+              className="wish-toast-action"
+              onClick={() => {
+                setNotice(null);
+                notice.onAction();
+              }}
+            >
+              {notice.actionLabel}
+            </button>
+          )}
         </div>
       )}
       <BottomNavigation />

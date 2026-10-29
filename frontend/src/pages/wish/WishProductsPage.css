@@ -403,3 +403,69 @@
 .wish-sheet button:disabled {
   opacity: 0.55;
 }
+
+/* 재입고 알림 시트 · 토스트 액션 */
+.wish-toast {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.wish-toast-action {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #c7b8ff;
+  font-size: 13px;
+  font-weight: 800;
+}
+.wish-sheet-product {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #f7f7f9;
+  text-align: left;
+}
+.wish-sheet-thumb {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #eceef1;
+}
+.wish-sheet-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.wish-sheet-product-name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+.wish-sheet-store {
+  margin: 3px 0 0;
+  color: #6c4adf;
+  font-size: 13px;
+  font-weight: 700;
+}
+.wish-sheet-message {
+  margin: 16px 0 0;
+  color: #211d2b;
+  font-size: 15px;
+  font-weight: 700;
+}
+.wish-sheet-primary {
+  width: 100%;
+  margin-top: 18px;
+  padding: 14px 0;
+  border: 0;
+  border-radius: 12px;
+  background: #6c4adf;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+}
