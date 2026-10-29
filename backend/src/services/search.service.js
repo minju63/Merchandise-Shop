@@ -3,6 +3,7 @@ import { getActiveStore, listActiveStores } from '../repositories/store.reposito
 import { getStoreProducts } from '../repositories/storeProduct.repository.js';
 import { getProducts } from '../repositories/product.repository.js';
 import { supabase } from '../lib/supabase.js';
+import { getSimilarScope } from './product.service.js';
 import { matchesSearchCategories, matchesSearchFilters } from './searchFilters.js';
 
 const HIDDEN_STATUSES = new Set(['HIDDEN', 'INACTIVE', 'DELETED']);
@@ -53,7 +54,10 @@ async function aggregateRows(table, idColumn, ids, fields, where = (query) => qu
   return rows;
 }
 
-export async function searchProducts({ storeId, query, region = '', sort, page, size, filters = {} }) {
+export async function searchProducts({ storeId, query, region = '', sort, page, size, filters = {}, similarTo }) {
+  // similarTo: 상품 상세의 비슷한 상품 기준으로 결과를 좁힌다(검색어 대신).
+  const similar = similarTo ? await getSimilarScope(similarTo) : null;
+  const similarIds = similar ? new Set(similar.productIds) : null;
   const allStores = storeId
     ? [await getActiveStore(storeId)].filter(Boolean)
     : await listActiveStores();
@@ -86,6 +90,7 @@ export async function searchProducts({ storeId, query, region = '', sort, page, 
     const product = productMap.get(listing.product_id);
     const store = storeMap.get(listing.store_id);
     if (!product || !store || HIDDEN_PRODUCT_STATUSES.has(product.status)) return [];
+    if (similarIds && !similarIds.has(product.id)) return [];
     const searchableText = [product.name, product.work_title, product.character_name, product.brand, ...(!storeId ? [store.name] : [])]
       .filter(Boolean).join(' ').toLocaleLowerCase('ko-KR');
     if (!tokens.every((token) => searchableText.includes(token))) return [];
@@ -93,6 +98,7 @@ export async function searchProducts({ storeId, query, region = '', sort, page, 
     if (!matchesSearchCategories(product.id, filters, contentMatches, goodsMatches)) return [];
 
     return [{
+      isCurrentStore: similar ? store.id === similar.currentStoreId : undefined,
       storeProductId: listing.id,
       productId: product.id,
       storeId: store.id,

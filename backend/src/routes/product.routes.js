@@ -4,6 +4,7 @@ import {
   getProducts,
   getProductDetail,
   getRelatedProducts,
+  getSimilarStores,
 } from '../controllers/product.controller.js';
 import {
   getProductInquiries,
@@ -27,6 +28,7 @@ export function createProductRouter({ requireAuth = authUnavailable, optionalAut
   if (optionalAuth) router.use(optionalAuth);
   router.get('/', getProducts);
   router.get('/:storeProductId/related', getRelatedProducts);
+  router.get('/:storeProductId/similar-stores', getSimilarStores);
   router.get('/:storeProductId/inquiries', getProductInquiries);
   router.post('/:storeProductId/inquiries', requireAuth, createProductInquiry);
   router.get('/:storeProductId', getProductDetail);

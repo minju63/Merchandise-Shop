@@ -131,6 +131,26 @@ export async function getProductDetail(req, res, next) {
   }
 }
 
+// 비슷한 상품을 재고 있게 취급하는 다른 굿즈샵 추천
+export async function getSimilarStores(req, res, next) {
+  const input = validate(res, () => ({
+    storeProductId: uuid(req.params.storeProductId, 'storeProductId'),
+    size: req.query.size === undefined ? 10 : integer(req.query.size, 'size', 1, 30),
+    includeCurrent: req.query.includeCurrent === undefined ? false : boolean(req.query.includeCurrent, 'includeCurrent'),
+  }));
+  if (!input) return;
+
+  try {
+    const data = await productService.getSimilarStores(input.storeProductId, {
+      size: input.size,
+      includeCurrent: input.includeCurrent,
+    });
+    return res.status(200).json({ success: true, data, message: null });
+  } catch (error) {
+    return next(error);
+  }
+}
+
 // Service contract: getRelatedProducts(storeProductId, { size, userId }).
 export async function getRelatedProducts(req, res, next) {
   const input = validate(res, () => ({

@@ -338,7 +338,7 @@ function matchesRegion(location, region) {
     && (!region.area || location.area === region.area);
 }
 
-function ResultProductCard({ product, scoped = false }) {
+function ResultProductCard({ product, scoped = false, currentShopId }) {
   const location = useLocation();
   const content = <>
       <span className="result-product__image result-product__image--live">
@@ -346,7 +346,7 @@ function ResultProductCard({ product, scoped = false }) {
         {!scoped && <span className="result-product__heart" aria-hidden="true"><Icon name="heart" size={15} /></span>}
       </span>
       <span className="result-product__content">
-        <small>{product.storeName}</small>
+        <small>{product.storeName}{currentShopId && product.storeId === currentShopId ? ' · 지금 보는 굿즈샵' : ''}</small>
         <strong>{product.name}</strong>
         <b>{product.price == null ? '가격 정보 없음' : `${product.price.toLocaleString('ko-KR')}원`}</b>
         {scoped ? <><small>{product.status === 'SOLD_OUT' || product.stock === 0 ? '품절' : product.status === 'UPCOMING' ? '판매 예정' : product.stock == null ? '재고 확인 불가' : `재고 ${product.stock}개`}</small><small>{[product.pickupAvailable && '픽업 가능', product.deliveryAvailable && '배달 가능'].filter(Boolean).join(' · ')}</small></> : <span className="result-product__meta"><small className={product.status === 'SOLD_OUT' || product.stock === 0 ? 'result-product__stock result-product__stock--sold' : 'result-product__stock'}>{product.status === 'SOLD_OUT' || product.stock === 0 ? '재고 없음' : product.status === 'UPCOMING' ? '입고 예정' : product.stock == null ? '재고 확인' : '재고 있음'}</small><small>{[product.pickupAvailable && '픽업', product.deliveryAvailable && '배달'].filter(Boolean).join('·')}</small></span>}
@@ -426,6 +426,10 @@ export function SearchResultsPage({
   products,
   productTotalCount,
   shops,
+  similarShopIds,
+  similarBasis,
+  currentShopId,
+  initialResultType,
   onBack,
   onSearch,
   onLogSearch,
@@ -456,7 +460,7 @@ export function SearchResultsPage({
   const [query, setQuery] = useState(initialQuery);
   const [suggestions, setSuggestions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [resultType, setResultType] = useState('all');
+  const [resultType, setResultType] = useState(initialResultType ?? 'all');
   const loggedSearch = useRef(null);
   const isEditing = query.trim() !== initialQuery.trim();
   const parsedQuery = parseRegionalQuery(initialQuery, data);
@@ -470,9 +474,11 @@ export function SearchResultsPage({
   const regionalShops = parsedQuery.region
     ? nationwideShops.filter((shop) => matchesRegion(shop, parsedQuery.region))
     : nationwideShops;
-  const matchedShops = regionEnabled && parsedQuery.region && !useNationwideFallback
-    ? regionalShops
-    : nationwideShops;
+  const matchedShops = similarShopIds
+    ? shops.filter((shop) => similarShopIds.includes(shop.id))
+    : regionEnabled && parsedQuery.region && !useNationwideFallback
+      ? regionalShops
+      : nationwideShops;
   const totalResultCount = storeId ? scopedTotalCount : productTotalCount + matchedShops.length;
   const hasNoResults = totalResultCount === 0;
   useEffect(() => {
@@ -565,6 +571,13 @@ export function SearchResultsPage({
           <button className={resultType === 'shops' ? 'active' : ''} role="tab" aria-selected={resultType === 'shops'} type="button" onClick={() => setResultType('shops')}>굿즈샵 {matchedShops.length}</button>
         </div> : null}
 
+        {similarBasis ? (
+          <div className="region-notice">
+            <span aria-hidden="true">≈</span>
+            <p>‘{similarBasis}’와 같거나 비슷한 상품 기준이에요.</p>
+          </div>
+        ) : null}
+
         {parsedQuery.region && regionEnabled ? (
           <div className={useNationwideFallback ? 'region-notice region-notice--fallback' : 'region-notice'}>
             <span aria-hidden="true">⌖</span>
@@ -632,7 +645,7 @@ export function SearchResultsPage({
               ))}
             </div>
           ) : (
-            <SearchShopList shops={matchedShops} />
+            <SearchShopList shops={matchedShops} currentShopId={currentShopId} />
           )}
           {!matchedShops.length ? <p className="result-empty">일치하는 굿즈샵이 없습니다.</p> : null}
         </section> : null}
@@ -646,7 +659,7 @@ export function SearchResultsPage({
           {products.length ? (
             <div className="result-list">
               {products.map((product) => (
-                <ResultProductCard product={product} key={product.storeProductId} />
+                <ResultProductCard product={product} key={product.storeProductId} currentShopId={currentShopId} />
               ))}
             </div>
           ) : <p className="result-empty">일치하는 상품이 없습니다.</p>}

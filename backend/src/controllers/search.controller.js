@@ -38,9 +38,12 @@ function choice(value, allowed, label) {
 }
 
 export async function getSearchProducts(req, res) {
-  const { storeId, q = '', region = '', sort = 'popular', page = '1', size = '20', contentCategories, goodsCategories, regions, minPrice, maxPrice, inStock, pickup, delivery, discountOnly, discountBands, includeUpcoming, ratingMin, wishlistMin } = req.query;
+  const { storeId, similarTo, q = '', region = '', sort = 'popular', page = '1', size = '20', contentCategories, goodsCategories, regions, minPrice, maxPrice, inStock, pickup, delivery, discountOnly, discountBands, includeUpcoming, ratingMin, wishlistMin } = req.query;
   if (storeId !== undefined && (typeof storeId !== 'string' || !UUID.test(storeId))) {
     badRequest('올바른 굿즈샵 ID가 아닙니다.');
+  }
+  if (similarTo !== undefined && (typeof similarTo !== 'string' || !UUID.test(similarTo))) {
+    badRequest('올바른 상품 ID가 아닙니다.');
   }
   if (typeof q !== 'string' || q.trim().length > 200) badRequest('검색어는 200자 이하여야 합니다.');
   if (typeof region !== 'string' || region.trim().length > 50) badRequest('지역 조건이 올바르지 않습니다.');
@@ -73,6 +76,7 @@ export async function getSearchProducts(req, res) {
 
   const data = await searchProducts({
     storeId,
+    similarTo,
     query: q.trim(),
     region: region.trim(),
     sort,

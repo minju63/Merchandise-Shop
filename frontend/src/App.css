@@ -1102,3 +1102,21 @@
 .store-embed .result-heading h2 {
   margin: 0;
 }
+
+/* 비슷한 상품 검색에서 지금 보던 굿즈샵 표시 */
+.store-current-wrap {
+  position: relative;
+}
+
+.store-current-tag {
+  position: absolute;
+  top: -8px;
+  left: 14px;
+  z-index: 2;
+  padding: 2px 9px;
+  border-radius: 99px;
+  background: #6540cf;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+}

@@ -6,7 +6,7 @@ import StoreDistance from '../stores/components/StoreDistance.jsx';
 import { applyStoreControls, sortOptions, useStoreLocation } from '../stores/storeListTools.js';
 
 // 검색 결과의 굿즈샵 탭: 굿즈샵 탭과 같은 필터·정렬·거리 조건을 이미 받은 목록에 적용한다.
-export default function SearchShopList({ shops }) {
+export default function SearchShopList({ shops, currentShopId }) {
   const [filters, setFilters] = useState({ openNow: false, pickup: false, delivery: false });
   const [sort, setSort] = useState('popular');
   const { location, locating, message, radiusKm, setRadiusKm, locate } = useStoreLocation();
@@ -54,7 +54,10 @@ export default function SearchShopList({ shops }) {
       {items.length ? (
         <div className="store-list">
           {items.map((store) => (
-            <StoreCard key={store.id} store={store} />
+            <div className="store-current-wrap" key={store.id}>
+              {store.id === currentShopId && <span className="store-current-tag">지금 보는 굿즈샵</span>}
+              <StoreCard store={store} />
+            </div>
           ))}
         </div>
       ) : (

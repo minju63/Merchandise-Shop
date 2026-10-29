@@ -228,7 +228,124 @@ export function createProductService(repositories) {
     return result.items;
   }
 
-  return { getProducts, getProductDetail, getRelatedProducts };
+  // 같은 상품이거나 같은 작품·굿즈 종류(예: 애니메이션 + 키링) 상품을 비슷한 상품으로 본다.
+  // 애니메이션은 같은 브랜드(작품)여야 하고, 브랜드 정보가 없으면 같은 상품만 본다.
+  const BRAND_REQUIRED_CONTENT = '애니메이션';
+
+  async function similarProductIds(detail) {
+    requireMethod(productCategory, 'findProductIdsByCategories');
+    const categoriesOf = (type) =>
+      detail.categories.filter((row) => row.category?.type === type).map((row) => row.category);
+    const [contents, goods] = [categoriesOf('CONTENT'), categoriesOf('GOODS')];
+    const similarIds = new Set([detail.productId]);
+    // 작품이나 굿즈 종류 중 하나라도 없으면 너무 넓게 잡히므로 같은 상품만 본다.
+    if (!contents.length || !goods.length) return similarIds;
+    for (const content of contents) {
+      const needsBrand = content.name === BRAND_REQUIRED_CONTENT;
+      if (needsBrand && !detail.brand) continue;
+      for (const goodsCategory of goods) {
+        const ids = await productCategory.findProductIdsByCategories({
+          contentCategoryId: content.id,
+          goodsCategoryId: goodsCategory.id,
+        });
+        if (!needsBrand) {
+          ids.forEach((id) => similarIds.add(id));
+          continue;
+        }
+        requireMethod(product, 'getProducts');
+        for (const row of await product.getProducts(ids))
+          if (row.brand === detail.brand) similarIds.add(row.id);
+      }
+    }
+    return similarIds;
+  }
+
+  // 검색 결과를 "비슷한 상품"으로 좁힐 때 쓰는 범위. 지금 보는 굿즈샵의 상품도 포함하고 그 굿즈샵 id를 알려준다.
+  async function getSimilarScope(storeProductId) {
+    const detail = await getProductDetail(storeProductId);
+    return { productIds: [...(await similarProductIds(detail))], currentStoreId: detail.storeId };
+  }
+
+  async function findSimilarListings(storeProductId) {
+    const detail = await getProductDetail(storeProductId);
+    const similarIds = await similarProductIds(detail);
+    requireMethod(storeProduct, 'findPage');
+    const listings = [];
+    for (let page = 1; ; page += 1) {
+      const { items, totalCount } = await storeProduct.findPage({
+        productIds: [...similarIds],
+        inStock: true,
+        page,
+        size: 100,
+      });
+      listings.push(...items);
+      if (listings.length >= totalCount || items.length === 0) break;
+    }
+    // 영업 중이 아닌 굿즈샵의 상품은 추천에서 뺀다.
+    return {
+      detail,
+      listings: listings.filter((listing) => listing.store && listing.store.is_operating === true),
+    };
+  }
+
+  // includeCurrent가 true면 지금 보는 굿즈샵도 목록 맨 앞에 isCurrent로 표시해 넣는다.
+  async function getSimilarStores(storeProductId, { size = 10, includeCurrent = false } = {}) {
+    const { detail, listings } = await findSimilarListings(storeProductId);
+    const stores = new Map();
+    for (const listing of listings) {
+      const owner = listing.store;
+      if (!owner || (!includeCurrent && owner.id === detail.storeId)) continue;
+      const entry = stores.get(owner.id) ?? {
+        id: owner.id,
+        name: owner.name,
+        address: owner.address ?? '',
+        region: owner.region?.name ?? '',
+        thumbnailUrl: owner.thumbnail_url ?? null,
+        pickupAvailable: owner.pickup_available === true,
+        deliveryAvailable: owner.delivery_available === true,
+        isCurrent: owner.id === detail.storeId,
+        hasSameProduct: false,
+        matchedCount: 0,
+        products: [],
+      };
+      entry.hasSameProduct ||= listing.product_id === detail.productId;
+      entry.matchedCount += 1;
+      if (entry.products.length < 3)
+        entry.products.push({
+          storeProductId: listing.id,
+          name: listing.product?.name ?? '',
+          price: listing.price,
+        });
+      stores.set(owner.id, entry);
+    }
+    // 현재 상품이 품절이어도 지금 보는 굿즈샵은 빠지지 않게 한다.
+    if (includeCurrent && !stores.has(detail.storeId) && detail.store) {
+      stores.set(detail.storeId, {
+        id: detail.storeId,
+        name: detail.storeName,
+        address: detail.store.address ?? '',
+        region: detail.store.region?.name ?? '',
+        thumbnailUrl: detail.store.thumbnail_url ?? null,
+        pickupAvailable: detail.store.pickup_available === true,
+        deliveryAvailable: detail.store.delivery_available === true,
+        isCurrent: true,
+        hasSameProduct: true,
+        matchedCount: 0,
+        products: [],
+      });
+    }
+    return [...stores.values()]
+      .sort(
+        (a, b) =>
+          Number(b.isCurrent) - Number(a.isCurrent) ||
+          Number(b.hasSameProduct) - Number(a.hasSameProduct) ||
+          b.matchedCount - a.matchedCount ||
+          a.name.localeCompare(b.name, 'ko-KR')
+      )
+      .slice(0, size);
+  }
+
+  return { getProducts, getProductDetail, getRelatedProducts, getSimilarStores, getSimilarScope };
 }
 
 // Lazy imports keep Controllers loadable while the shared files are awaiting their owners.
@@ -261,6 +378,14 @@ export async function getProducts(filters = {}) {
 
 export async function getProductDetail(storeProductId, options = {}) {
   return (await loadService(options.userId)).getProductDetail(storeProductId, options);
+}
+
+export async function getSimilarScope(storeProductId) {
+  return (await loadService()).getSimilarScope(storeProductId);
+}
+
+export async function getSimilarStores(storeProductId, options = {}) {
+  return (await loadService(options.userId)).getSimilarStores(storeProductId, options);
 }
 
 export async function getRelatedProducts(storeProductId, options = {}) {

@@ -27,6 +27,8 @@ import WishProductsPage from './pages/wish/WishProductsPage.jsx';
 import WishShopsPage from './pages/wish/WishShopsPage.jsx';
 import CartPage from './pages/cart/CartPage.jsx';
 import { storeApi } from './api/store.api.js';
+import * as productApi from './api/product.api.js';
+import client from './api/client.js';
 import { searchApi } from './api/search.api.js';
 import { bannerApi, homeApi } from './api/home.api.js';
 import ServiceIntroPage from './pages/home/ServiceIntroPage.jsx';
@@ -355,12 +357,15 @@ function SearchResultsRoute() {
   const sort = searchParams.get('sort') ?? 'popular';
   const page = Number(searchParams.get('page') ?? 1);
   const regionAll = searchParams.get('region') === 'all';
+  // 상품 상세의 "비슷한 상품을 취급하는 굿즈샵 전체보기"에서 오면 그 추천 굿즈샵을 굿즈샵 탭에 보여준다.
+  const similarTo = searchParams.get('similarTo');
   const parsedQuery = parseRegionalQuery(query, searchMockData);
   // 지역명만 검색한 경우 굿즈는 지역 안의 모든 상품이 아니라 이름에 그 글자가 든 상품만 찾는다.
   const regionOnly = Boolean(!storeId && parsedQuery.region && !parsedQuery.keyword);
-  const region = !storeId && !regionAll && !regionOnly ? parsedQuery.region?.label : undefined;
+  const region = !storeId && !regionAll && !regionOnly && !similarTo ? parsedQuery.region?.label : undefined;
   // 전국에서 보기에서는 지역명도 검색어로 보고, 이름에 포함된 굿즈·굿즈샵을 찾는다.
-  const keyword = storeId || regionAll || regionOnly ? query : parsedQuery.keyword;
+  // 비슷한 상품 기준(similarTo)에서는 검색어 대신 비슷한 상품 범위로 찾는다.
+  const keyword = similarTo && !storeId ? '' : storeId || regionAll || regionOnly ? query : parsedQuery.keyword;
   const filterKey = `${storeId ?? ''}:${query}`;
   const [savedFilters, setSavedFilters] = useState({ key: filterKey, value: { ...EMPTY_FILTERS } });
   const appliedFilters = savedFilters.key === filterKey ? savedFilters.value : EMPTY_FILTERS;
@@ -376,8 +381,8 @@ function SearchResultsRoute() {
   const productRegion = filteredNationwideFallback ? undefined : region;
   const storeQuery = useStoreFilter(storeId);
   const productsQuery = useQuery({
-    queryKey: ['search-products', storeId, keyword, productRegion, sort, page, activeParams],
-    queryFn: () => searchApi.products({ storeId: storeId || undefined, q: keyword, region: productRegion, sort, page, size: 20, ...activeParams }),
+    queryKey: ['search-products', storeId, keyword, productRegion, sort, page, activeParams, similarTo],
+    queryFn: () => searchApi.products({ storeId: storeId || undefined, similarTo: (!storeId && similarTo) || undefined, q: keyword, region: productRegion, sort, page, size: 20, ...activeParams }),
     enabled: Boolean(query || storeId),
     retry: false,
   });
@@ -386,6 +391,12 @@ function SearchResultsRoute() {
     queryKey: ['search-products', null, keyword, null, sort, page],
     queryFn: () => searchApi.products({ q: keyword, sort, page, size: 20 }),
     enabled: needsNationwideFallback && !hasActiveFilters,
+    retry: false,
+  });
+  const similarStoresQuery = useQuery({
+    queryKey: ['search-similar-stores', similarTo],
+    queryFn: () => productApi.getSimilarStores(similarTo, { size: 30, includeCurrent: true }, client),
+    enabled: Boolean(similarTo && !storeId),
     retry: false,
   });
   const shopsQuery = useQuery({
@@ -405,13 +416,17 @@ function SearchResultsRoute() {
       data={searchMockData}
       products={(needsNationwideFallback && !hasActiveFilters ? nationwideQuery.data : productsQuery.data)?.data.items ?? []}
       productTotalCount={(needsNationwideFallback && !hasActiveFilters ? nationwideQuery.data : productsQuery.data)?.data.totalCount ?? 0}
+      similarBasis={similarTo && !storeId ? query : undefined}
+      currentShopId={(similarStoresQuery.data ?? []).find((store) => store.isCurrent)?.id}
       shops={shopsQuery.data ?? EMPTY_STORES}
+      similarShopIds={similarTo && !similarStoresQuery.isPending ? (similarStoresQuery.data ?? []).map((store) => store.id) : undefined}
+      initialResultType={searchParams.get('tab') === 'shops' ? 'shops' : undefined}
       storeId={storeId}
       storeName={storeQuery.data?.data.name}
       storeError={storeQuery.error?.message || productsQuery.error?.message}
       scopedLoading={Boolean(storeId && (storeQuery.isPending || productsQuery.isPending))}
       scopedTotalCount={productsQuery.data?.data.totalCount ?? 0}
-      globalLoading={Boolean(!storeId && (productsQuery.isPending || shopsQuery.isPending || (hasActiveFilters && region && regionalBaselineQuery.isPending) || (needsNationwideFallback && !hasActiveFilters && nationwideQuery.isPending)))}
+      globalLoading={Boolean(!storeId && (productsQuery.isPending || shopsQuery.isPending || (similarTo && !storeId && similarStoresQuery.isPending) || (hasActiveFilters && region && regionalBaselineQuery.isPending) || (needsNationwideFallback && !hasActiveFilters && nationwideQuery.isPending)))}
       globalError={!storeId ? productsQuery.error?.message || (hasActiveFilters && region && regionalBaselineQuery.error?.message) || (needsNationwideFallback && !hasActiveFilters && nationwideQuery.error?.message) || shopsQuery.error?.message : null}
       showTabsWhenEmpty={Boolean(!storeId && originStoreId)}
       hasActiveFilters={hasActiveFilters}

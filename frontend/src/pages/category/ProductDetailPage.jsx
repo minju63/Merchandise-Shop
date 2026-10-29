@@ -8,6 +8,7 @@ import ProductImageGallery from './components/ProductImageGallery';
 import ProductInfo from './components/ProductInfo';
 import ProductDescription from './components/ProductDescription';
 import SellerInfoCard from './components/SellerInfoCard';
+import SimilarStoreSection from './components/SimilarStoreSection';
 import RelatedProductSection from './components/RelatedProductSection';
 import ProductInquirySection from './components/ProductInquirySection';
 import ProductActionBar from './components/ProductActionBar';
@@ -50,7 +51,12 @@ function ProductDetailPageContent({
     (signal) => api.getRelatedProducts(storeProductId, { signal }, client),
     [api, client, storeProductId]
   );
+  const similarLoad = useCallback(
+    (signal) => api.getSimilarStores?.(storeProductId, { signal }, client) ?? [],
+    [api, client, storeProductId]
+  );
   const request = useCategoryRequest(load, user?.id);
+  const similar = useCategoryRequest(similarLoad, user?.id);
   const related = useCategoryRequest(relatedLoad, user?.id);
   if (request.loading)
     return (
@@ -74,7 +80,8 @@ function ProductDetailPageContent({
   return (
     <main className="category-page category-detail">
       <Link className="category-detail-back" to={listReturnTo} onClick={returnToList}>
-        ← {backLabel}
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m15 5-7 7 7 7" /></svg>
+        {backLabel}
       </Link>
       <div id="product-basic" className="category-detail-top">
         <ProductImageGallery
@@ -101,11 +108,14 @@ function ProductDetailPageContent({
       />
       </div>
       <div id="product-sellers">
-      <SellerInfoCard
-        store={product.store}
-        storeId={product.storeId}
-        storeName={product.storeName}
-      />
+        <SimilarStoreSection
+          storeProductId={storeProductId}
+          productName={product.productName || product.name}
+          stores={similar.data}
+          loading={similar.loading}
+          error={similar.error}
+          onRetry={similar.retry}
+        />
       </div>
       <div id="product-related">
       <RelatedProductSection
