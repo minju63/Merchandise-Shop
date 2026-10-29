@@ -1,9 +1,18 @@
 // 담당: 동균
-// 장바구니 API — client.js의 axios 인스턴스로 호출
-// TODO:
-//   GET    /cart  장바구니 조회 (?type=PICKUP|DELIVERY) 🔒
-//   GET    /cart/counts  장바구니 아이콘 뱃지 개수 🔒
-//   POST   /cart/items  장바구니 담기 🔒
-//   PATCH  /cart/items/:cartItemId  수량 변경 · 선택(isSelected) 🔒
-//   DELETE /cart/items  선택 삭제 🔒
-export const cartApi = {};
+// 장바구니 API — client.js의 axios 인스턴스로 호출 (전부 로그인 필요 🔒)
+import client from './client.js';
+import { supabase } from '../lib/supabase.js';
+
+async function authHeaders() {
+  const { data } = supabase ? await supabase.auth.getSession() : { data: {} };
+  if (!data.session?.access_token) throw new Error('로그인이 필요합니다.');
+  return { Authorization: `Bearer ${data.session.access_token}` };
+}
+
+export const cartApi = {
+  list: async (type) => client.get('/cart', { params: { type }, headers: await authHeaders() }),
+  counts: async () => client.get('/cart/counts', { headers: await authHeaders() }),
+  addItem: async (body) => client.post('/cart/items', body, { headers: await authHeaders() }),
+  updateItem: async (id, body) => client.patch(`/cart/items/${id}`, body, { headers: await authHeaders() }),
+  removeItems: async (ids) => client.delete('/cart/items', { data: { ids }, headers: await authHeaders() }),
+};
