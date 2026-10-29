@@ -18,9 +18,10 @@ function conflict(code, message) {
 
 const reasonMessages = {
   STORE_CLOSED: '운영하지 않는 굿즈샵의 상품입니다.',
-  OUT_OF_STOCK: '품절된 상품입니다.',
-  NOT_ON_SALE: '판매 중인 상품이 아닙니다.',
   FULFILLMENT_OFF: '선택한 수령 방법을 지원하지 않는 상품입니다.',
+  UPCOMING: '아직 입고 전인 상품입니다.',
+  NOT_ON_SALE: '판매 중인 상품이 아닙니다.',
+  OUT_OF_STOCK: '품절된 상품입니다.',
 };
 
 function supportsFulfillment(storeProduct, store, fulfillmentType) {
@@ -30,11 +31,14 @@ function supportsFulfillment(storeProduct, store, fulfillmentType) {
 }
 
 // 담기 가능 여부. 불가면 사유 코드, 가능하면 null
+// 판정 순서가 곧 우선순위다. 입고 예정 상품은 재고가 0이어도 UPCOMING 으로 안내해야
+// 프론트가 재입고 알림 대신 사전예약을 띄울 수 있다.
 export function validateAddable(storeProduct, store, fulfillmentType) {
   if (CLOSED_STORE_STATUSES.includes(store.status)) return 'STORE_CLOSED';
-  if (!(storeProduct.stock > 0)) return 'OUT_OF_STOCK';
-  if (storeProduct.status !== 'ON_SALE') return 'NOT_ON_SALE';
   if (!supportsFulfillment(storeProduct, store, fulfillmentType)) return 'FULFILLMENT_OFF';
+  if (storeProduct.status === 'UPCOMING') return 'UPCOMING';
+  if (storeProduct.status !== 'ON_SALE') return 'NOT_ON_SALE';
+  if (!(storeProduct.stock > 0)) return 'OUT_OF_STOCK';
   return null;
 }
 
@@ -77,14 +81,30 @@ function toCartItem(row, fulfillmentType) {
   };
 }
 
-// deliveryFee 는 실제로 붙는 배송비다. 선택 상품이 없거나 무료배송 기준을 넘으면 0.
+const NO_DELIVERY = {
+  baseDeliveryFee: null,
+  deliveryFee: null,
+  freeThreshold: null,
+  amountToFreeShipping: null,
+  estimatedDays: null,
+};
+
+// baseDeliveryFee 는 매장 기본 배송비, deliveryFee 는 실제로 붙는 배송비다.
+// 선택 상품이 없거나 무료배송 기준을 넘으면 deliveryFee 는 0.
 function deliveryAmounts(info, itemsTotal) {
-  if (!info) return { deliveryFee: null, freeThreshold: null, amountToFreeShipping: null };
+  if (!info) return NO_DELIVERY;
+  const baseDeliveryFee = info.delivery_fee ?? null;
   const freeThreshold = info.free_threshold ?? null;
   const amountToFreeShipping =
     freeThreshold === null ? null : Math.max(freeThreshold - itemsTotal, 0);
-  const deliveryFee = itemsTotal === 0 || amountToFreeShipping === 0 ? 0 : (info.delivery_fee ?? 0);
-  return { deliveryFee, freeThreshold, amountToFreeShipping };
+  const deliveryFee = itemsTotal === 0 || amountToFreeShipping === 0 ? 0 : (baseDeliveryFee ?? 0);
+  return {
+    baseDeliveryFee,
+    deliveryFee,
+    freeThreshold,
+    amountToFreeShipping,
+    estimatedDays: info.estimated_days ?? null,
+  };
 }
 
 export async function getCart({ userId, type }) {
@@ -121,9 +141,7 @@ export async function getCart({ userId, type }) {
       .filter((item) => item.isSelected)
       .reduce((sum, item) => sum + item.finalPrice * item.quantity, 0);
     const delivery =
-      type === 'DELIVERY'
-        ? deliveryAmounts(deliveryInfos.get(store.id), itemsTotal)
-        : { deliveryFee: null, freeThreshold: null, amountToFreeShipping: null };
+      type === 'DELIVERY' ? deliveryAmounts(deliveryInfos.get(store.id), itemsTotal) : NO_DELIVERY;
     return {
       storeId: store.id,
       storeName: store.name,
