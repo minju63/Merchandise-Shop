@@ -20,8 +20,6 @@ import StoreDetailPage from './pages/stores/StoreDetailPage.jsx';
 import StoreReviewPage from './pages/stores/StoreReviewPage.jsx';
 import StoreReviewWritePage from './pages/stores/StoreReviewWritePage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
-import MyPage from './pages/my/MyPage.jsx';
-import BottomNavigation from './components/BottomNavigation.jsx';
 import CategoryPage from './pages/category/CategoryPage.jsx';
 import ProductListPage from './pages/category/ProductListPage.jsx';
 import ProductDetailPage from './pages/category/ProductDetailPage.jsx';
@@ -293,16 +291,6 @@ function ExhibitionRoute() {
   );
 }
 
-// 마이 화면에는 하단 탭이 없어서 라우트에서 붙인다. 탭에 가려지지 않도록 아래 여백을 둔다.
-function MyRoute() {
-  return (
-    <div style={{ paddingBottom: 'calc(65px + env(safe-area-inset-bottom))' }}>
-      <MyPage />
-      <BottomNavigation />
-    </div>
-  );
-}
-
 function InterestRoute() {
   const navigate = useNavigate();
   const homeQuery = useQuery({ queryKey: ['home'], queryFn: homeApi.get, staleTime: 30000, retry: false });
@@ -488,7 +476,6 @@ export default function App() {
             /checkout             CheckoutPage
             /checkout/done        OrderCompletePage
             /my                   MyPage */}
-        <Route path="/my" element={<MyRoute />} />
         <Route path="/login" element={<LoginPage />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />

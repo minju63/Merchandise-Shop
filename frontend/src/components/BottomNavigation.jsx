@@ -7,7 +7,7 @@ const tabs = [
   { icon: 'store', label: '굿즈샵', to: '/stores' },
   { icon: 'grid', label: '카테고리', to: '/category' },
   { icon: 'heart', label: '찜' },
-  { icon: 'user', label: '마이', to: '/my' },
+  { icon: 'user', label: '마이' },
 ];
 
 export default function BottomNavigation() {
