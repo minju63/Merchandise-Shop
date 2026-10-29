@@ -16,15 +16,14 @@ const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
 // 굿즈샵 좌표가 아직 없어 목업 거리를 쓴다. 같은 매장은 항상 같은 값이 나온다.
 const MOCK_DISTANCES = ['0.4km', '1.2km', '2.8km', '3.5km'];
 
-// 12월 생일 캐릭터 목록은 아직 DB 테이블이 없어 상수로 둔다. 굿즈는 products.character_name 으로 불러온다.
-const EXHIBITION_MONTH = 12;
-const DECEMBER_BIRTHDAYS = [
-  { name: '토끼', work: '토끼마을', month: 12, day: 3 },
-  { name: '고죠 사토루', work: '주술회전', month: 12, day: 7 },
-  { name: '별빛소녀', work: '별빛 탐험대', month: 12, day: 15 },
-  { name: '루나', work: '루나퀘스트', month: 12, day: 24 },
+// 이번 달 생일 캐릭터 목록은 아직 DB 테이블이 없어 상수로 둔다. 굿즈는 products.character_name 으로 불러온다.
+const EXHIBITION_MONTH = 11;
+const BIRTHDAY_CHARACTERS = [
+  { name: '토끼', work: '토끼마을', month: 11, day: 3 },
+  { name: '별빛소녀', work: '별빛 탐험대', month: 11, day: 15 },
+  { name: '루나', work: '루나퀘스트', month: 11, day: 24 },
 ];
-const DEFAULT_CHARACTER = '고죠 사토루';
+const DEFAULT_CHARACTER = '토끼';
 const GOODS_TYPES = {
   아크릴: '아크릴 스탠드',
   키링: '키링',
@@ -80,10 +79,14 @@ async function loadAdProducts(store) {
   const products = store ? await findHomeProducts() : [];
   const cards = products
     .flatMap((product) => (product.store_products ?? [])
-      .filter((item) => item.store_id === store.id && item.status === 'ON_SALE')
+      .filter((item) => item.store_id === store.id && ['ON_SALE', 'SOLD_OUT'].includes(item.status))
       .map((listing) => ({ product, listing })))
     .map(({ product, listing }, index) => {
       const lowStock = listing.stock > 0 && listing.stock <= LOW_STOCK_MAX;
+      const soldOut = listing.status === 'SOLD_OUT' || listing.stock <= 0;
+      // 품절이어도 재입고일이 앞으로 남아 있으면 재입고 예정으로 본다.
+      const restockSoon = soldOut && Boolean(listing.restock_expected_at)
+        && new Date(listing.restock_expected_at) > new Date();
       return {
         ...toCard(product, listing, index),
         id: listing.id,
@@ -91,10 +94,12 @@ async function loadAdProducts(store) {
         originalPrice: listing.discount_rate > 0 ? formatPrice(listing.price) : null,
         price: formatPrice(salePrice(listing)),
         priceValue: salePrice(listing),
-        stockQuantity: listing.stock,
-        // 재고 임박(5개 이하)은 카드 위에 빨간 라벨로 보여준다.
-        stockLabel: listing.stock <= 0 ? '품절' : (lowStock ? `품절 임박 · ${listing.stock}개` : null),
-        stockText: null,
+        stockQuantity: soldOut ? 0 : listing.stock,
+        // 품절 임박 / 품절 / 재입고 예정은 홈 카드처럼 가격 아래 빨간 라벨로 보여주고, 품절·재입고 예정은 이미지를 회색으로 덮는다.
+        stockLabel: null,
+        stockTone: 'danger',
+        overlay: restockSoon ? 'restock' : soldOut ? 'soldout' : undefined,
+        stockText: restockSoon ? '재입고 예정' : soldOut ? '품절' : (lowStock ? `품절 임박 · ${listing.stock}개` : null),
       };
     });
 
@@ -178,13 +183,13 @@ function exhibitionGoodsState(listing) {
 
 export async function getExhibition(bannerId, { character, type, inStock } = {}) {
   const banner = await loadLiveBanner(bannerId, 'EXHIBITION');
-  // character=all 이면 12월 생일 캐릭터 전체의 굿즈를 보여준다.
+  // character=all 이면 이번 달 생일 캐릭터 전체의 굿즈를 보여준다.
   const showAll = character === 'all';
-  const selected = showAll ? null : (DECEMBER_BIRTHDAYS.find((item) => item.name === character)
-    ?? DECEMBER_BIRTHDAYS.find((item) => item.name === DEFAULT_CHARACTER));
+  const selected = showAll ? null : (BIRTHDAY_CHARACTERS.find((item) => item.name === character)
+    ?? BIRTHDAY_CHARACTERS.find((item) => item.name === DEFAULT_CHARACTER));
   const categoryName = GOODS_TYPES[type];
   const products = await findProductsByCharacters(
-    showAll ? DECEMBER_BIRTHDAYS.map((item) => item.name) : [selected.name]
+    showAll ? BIRTHDAY_CHARACTERS.map((item) => item.name) : [selected.name]
   );
 
   const goods = products
@@ -209,7 +214,7 @@ export async function getExhibition(bannerId, { character, type, inStock } = {})
     id: banner.id,
     title: banner.title,
     month: EXHIBITION_MONTH,
-    characters: DECEMBER_BIRTHDAYS,
+    characters: BIRTHDAY_CHARACTERS,
     selected,
     goodsTypes: Object.keys(GOODS_TYPES),
     goods,

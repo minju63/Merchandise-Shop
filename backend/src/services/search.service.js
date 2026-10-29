@@ -104,6 +104,7 @@ export async function searchProducts({ storeId, query, region = '', sort, page, 
       storeId: store.id,
       storeName: store.name,
       name: product.name,
+      brand: product.brand ?? null,
       workTitle: product.work_title ?? null,
       characterName: product.character_name ?? null,
       image: publicImage(product.thumbnail_url),
@@ -159,6 +160,8 @@ export async function searchProducts({ storeId, query, region = '', sort, page, 
           : sort === 'priceLow' ? (a.price == null) - (b.price == null) || Number(a.price) - Number(b.price)
             : sort === 'priceHigh' ? (a.price == null) - (b.price == null) || Number(b.price) - Number(a.price)
               : sort === 'stock' ? compareNumbers(a.stock, b.stock)
+                // 재고 적은 순: 재고가 남아 있는 상품을 적은 순으로 먼저, 품절·재고 미확인은 뒤로 보낸다.
+                : sort === 'stockAsc' ? (!(a.stock > 0)) - (!(b.stock > 0)) || Number(a.stock) - Number(b.stock)
                 : compareNumbers(a.popularityScore, b.popularityScore))
     || String(b.createdAt || '').localeCompare(String(a.createdAt || ''))
     || a.storeProductId.localeCompare(b.storeProductId)

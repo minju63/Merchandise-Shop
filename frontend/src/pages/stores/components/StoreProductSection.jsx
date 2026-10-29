@@ -23,7 +23,7 @@ export default function StoreProductSection({ storeId, searchContext }) {
           className="product-view-all"
           to={`/search/results?storeId=${encodeURIComponent(searchContext.storeId)}`}
         >
-          굿즈 전체보기 →
+          굿즈 전체보기 ›
         </Link>
       </div>
       {isPending ? (

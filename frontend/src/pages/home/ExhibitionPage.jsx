@@ -105,7 +105,7 @@ export default function ExhibitionPage({
         <section className="bd__hero bd__hero--exhibition">
           <span className="bd__pill">{month}.1 ~ {month}.31</span>
           <h2 style={{ marginTop: 14 }}>{exhibition.title}</h2>
-          <p className="bd__hero-desc">이번 달 생일인 캐릭터들의 굿즈를 매장 재고와 함께 모았어요</p>
+          <p className="bd__hero-desc">{month}월에 태어난 캐릭터들의 굿즈를 한곳에서 볼 수 있어요</p>
         </section>
       ) : null}
       footer={<button className="bd__btn" type="button" onClick={showAllCharacters}>{month}월 생일 굿즈 전체 보기</button>}

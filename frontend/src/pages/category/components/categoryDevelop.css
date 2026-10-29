@@ -47,7 +47,7 @@
 .category-develop-shell .product-card__stock--danger { color: #a0525c; background: #faedf0; }
 .category-develop-shell .category-section-heading p { font-weight: 800; font-size: 15px; }
 .category-develop-shell .category-sort-dropdown { position: relative; font-size: 12px; }
-.category-develop-shell .category-sort-dropdown summary { list-style: none; cursor: pointer; padding: 8px 0 8px 12px; }
+.category-develop-shell .category-sort-dropdown summary { display: flex; align-items: center; list-style: none; cursor: pointer; padding: 8px 0 8px 12px; }
 .category-develop-shell .category-sort-dropdown summary::-webkit-details-marker { display: none; }
 .category-develop-shell .category-sort-options { position: absolute; z-index: 25; top: 100%; right: 0; width: 170px; padding: 6px; border: 1px solid #eeeaf2; border-radius: 12px; background: white; box-shadow: 0 8px 28px #30204124; }
 .category-develop-shell .category-sort-options button { display: flex; justify-content: space-between; width: 100%; padding: 12px; border: 0; background: transparent; text-align: left; font-size: 13px; }

@@ -2,6 +2,7 @@ export const EMPTY_FILTERS = {
   contentCategories: [],
   goodsCategories: [],
   regions: [],
+  brands: [],
   minPrice: '',
   maxPrice: '',
   pricePreset: '',
@@ -33,6 +34,7 @@ export function filterParams(filters) {
     contentCategories: filters.contentCategories.join(',') || undefined,
     goodsCategories: filters.goodsCategories.join(',') || undefined,
     regions: filters.regions.join(',') || undefined,
+    brands: filters.brands.join(',') || undefined,
     minPrice: filters.minPrice || undefined,
     maxPrice: filters.maxPrice || undefined,
     inStock: filters.inStock || undefined,
@@ -66,6 +68,12 @@ export function chipsFor(filters, categories = []) {
         }),
       });
   }
+  for (const name of filters.brands)
+    chips.push({
+      key: `brand:${name}`,
+      label: name,
+      remove: (current) => ({ ...current, brands: current.brands.filter((item) => item !== name) }),
+    });
   if (filters.minPrice || filters.maxPrice) {
     const preset = PRICE_PRESETS.find((item) => item.id === filters.pricePreset);
     chips.push({

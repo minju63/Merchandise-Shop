@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { storeApi } from '../../api/store.api.js';
 import { PageState, StoreHeader, TabBar } from './components/StoreShell.jsx';
@@ -44,6 +45,16 @@ export default function StoreListPage() {
     setSort(value);
     setPage(1);
   };
+  // 홈 배너의 "내 주변 굿즈샵 보기"처럼 ?sort=distance로 들어오면 거리순을 눌린 상태로 시작한다.
+  const [searchParams] = useSearchParams();
+  const startedWithDistance = useRef(false);
+  useEffect(() => {
+    if (startedWithDistance.current || searchParams.get('sort') !== 'distance') return;
+    startedWithDistance.current = true;
+    changeSort('distance');
+    // 처음 열 때 한 번만 실행한다.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const changeFilter = (key) => {
     setFilters((current) => ({ ...current, [key]: !current[key] }));
     setPage(1);

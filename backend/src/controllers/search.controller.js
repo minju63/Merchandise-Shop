@@ -38,7 +38,7 @@ function choice(value, allowed, label) {
 }
 
 export async function getSearchProducts(req, res) {
-  const { storeId, similarTo, q = '', region = '', sort = 'popular', page = '1', size = '20', contentCategories, goodsCategories, regions, minPrice, maxPrice, inStock, pickup, delivery, discountOnly, discountBands, includeUpcoming, includeSoldOut, ratingMin, wishlistMin } = req.query;
+  const { storeId, similarTo, q = '', region = '', sort = 'popular', page = '1', size = '20', contentCategories, goodsCategories, regions, minPrice, maxPrice, inStock, pickup, delivery, discountOnly, discountBands, includeUpcoming, includeSoldOut, brands, ratingMin, wishlistMin } = req.query;
   if (storeId !== undefined && (typeof storeId !== 'string' || !UUID.test(storeId))) {
     badRequest('올바른 굿즈샵 ID가 아닙니다.');
   }
@@ -47,7 +47,7 @@ export async function getSearchProducts(req, res) {
   }
   if (typeof q !== 'string' || q.trim().length > 200) badRequest('검색어는 200자 이하여야 합니다.');
   if (typeof region !== 'string' || region.trim().length > 50) badRequest('지역 조건이 올바르지 않습니다.');
-  if (typeof sort !== 'string' || !['popular', 'sales', 'wishlist', 'newest', 'priceLow', 'priceHigh', 'stock'].includes(sort)) {
+  if (typeof sort !== 'string' || !['popular', 'sales', 'wishlist', 'newest', 'priceLow', 'priceHigh', 'stock', 'stockAsc'].includes(sort)) {
     badRequest('올바른 정렬 기준이 아닙니다.');
   }
   if (typeof page !== 'string' || !/^[1-9]\d*$/.test(page) || !Number.isSafeInteger(Number(page))) {
@@ -70,6 +70,7 @@ export async function getSearchProducts(req, res) {
     discountBands: commaList(discountBands, (value) => ['under10', '10to30', 'over30'].includes(value), '할인율'),
     includeUpcoming: flag(includeUpcoming, '입고 예정'),
     includeSoldOut: flag(includeSoldOut, '품절'),
+    brands: commaList(brands, (value) => value.trim().length > 0 && value.length <= 40, '브랜드'),
     ratingMin: choice(ratingMin, ['3', '3.5', '4', '4.5'], '후기 별점'),
     wishlistMin: choice(wishlistMin, ['10', '50', '100', '500'], '찜 개수'),
   };

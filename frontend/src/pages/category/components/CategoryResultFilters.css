@@ -29,7 +29,8 @@
 .category-filter-sheet {
   position: fixed;
   inset: 0;
-  width: min(480px, 100%);
+  width: 100%;
+  max-width: 520px; /* 검색 결과 필터 시트와 같은 가로 폭 */
   height: min(88dvh, 790px);
   max-height: none;
   margin: auto auto 0;
@@ -45,7 +46,7 @@
 .category-filter-sheet__header { display: flex; flex: none; min-height: 61px; padding: 16px 20px 10px; align-items: center; justify-content: space-between; }
 .category-filter-sheet__header h2 { margin: 0; font-size: 18px; }
 .category-filter-sheet__header button { width: 30px; height: 30px; padding: 0; border: 0; color: #342d3c; background: transparent; font-size: 27px; line-height: 1; }
-.category-filter-sheet__tabs { display: flex; flex: none; overflow-x: auto; padding: 0 12px; border-bottom: 1px solid #eeeaf2; scrollbar-width: none; }
+.category-filter-sheet__tabs { cursor: grab; user-select: none; display: flex; flex: none; overflow-x: auto; padding: 0 12px; border-bottom: 1px solid #eeeaf2; scrollbar-width: none; }
 .category-filter-sheet__tabs button { flex: none; min-width: 76px; height: 44px; padding: 0 12px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; color: #85808b; background: transparent; font-size: 12px; white-space: nowrap; }
 .category-filter-sheet__tabs button.active { border-bottom-color: #221d28; color: #211d28; font-weight: 800; }
 .category-filter-sheet__summary { display: flex; flex: none; padding: 10px 16px; align-items: flex-start; gap: 8px; background: #f7f6f9; }

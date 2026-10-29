@@ -208,7 +208,7 @@ function ServiceIntroRoute() {
       onBack={route.onBack}
       onRetry={route.onRetry}
       onOpenStore={route.onOpenStore}
-      onFindStores={() => route.navigate('/stores')}
+      onFindStores={() => route.navigate('/stores?sort=distance')}
     />
   );
 }

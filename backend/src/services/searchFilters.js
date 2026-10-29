@@ -4,7 +4,7 @@ export function matchesSearchCategories(productId, filters, contentMatches, good
 }
 
 export function matchesSearchFilters(item, filters) {
-  const { minPrice, maxPrice, inStock, pickup, delivery, discountOnly, discountBands, includeUpcoming, includeSoldOut, ratingMin, wishlistMin } = filters;
+  const { minPrice, maxPrice, inStock, pickup, delivery, discountOnly, discountBands, includeUpcoming, includeSoldOut, brands, ratingMin, wishlistMin } = filters;
   if (minPrice != null && (item.price == null || item.price < minPrice)) return false;
   if (maxPrice != null && (item.price == null || item.price > maxPrice)) return false;
   if (inStock && !(item.status === 'ON_SALE' && item.stock > 0)) return false;
@@ -13,6 +13,7 @@ export function matchesSearchFilters(item, filters) {
   const restockSoon = Boolean(item.restockExpectedAt) && new Date(item.restockExpectedAt) > new Date();
   if (includeSoldOut === false && soldOut && !restockSoon) return false;
   if (includeUpcoming === false && (item.status === 'UPCOMING' || (soldOut && restockSoon))) return false;
+  if (brands?.length && !brands.includes(item.brand)) return false;
   if (pickup && !item.pickupAvailable) return false;
   if (delivery && !item.deliveryAvailable) return false;
   if (discountOnly && !(item.discountRate > 0)) return false;

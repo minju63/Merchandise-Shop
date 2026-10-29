@@ -415,6 +415,12 @@
   width: auto;
 }
 
+/* 이름이 한 줄이면 가격이 바로 아래에 붙게 한다 (홈 카드는 두 줄 높이를 항상 비워 둔다) */
+.bd__grid .home-product-card h3 {
+  min-height: 0;
+  margin-bottom: 4px;
+}
+
 .bd__empty {
   margin: 0;
   padding: 28px 12px;

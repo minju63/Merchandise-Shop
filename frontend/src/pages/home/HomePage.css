@@ -144,6 +144,13 @@
   animation: banner-fade 320ms ease-out;
 }
 
+/* 서비스 소개·광고·기획전 배너는 글이 위에 붙지 않게 세로 가운데에 둔다 (팬 전광판은 자체 레이아웃) */
+.promo-banner:not(.promo-banner--fan) {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 .promo-banner.is-dragging {
   cursor: grabbing;
 }

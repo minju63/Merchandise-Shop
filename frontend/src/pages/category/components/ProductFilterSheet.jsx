@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { REGIONS } from '../../../constants/regions.js';
 import ProductBrandFilter from './ProductBrandFilter.jsx';
+import useDragScroll from '../../../hooks/useDragScroll.js';
 import {
   PRODUCT_FILTER_KEYS,
   categoryFilterContext,
@@ -48,6 +49,8 @@ export default function ProductFilterSheet({
   const [draft, setDraft] = useState(() => withSaleStatusDefault({ ...filters }));
   const [error, setError] = useState('');
   const dialog = useRef(null);
+  const tabsRef = useRef(null);
+  useDragScroll(tabsRef);
   const titleId = useId();
   const tabs = [
     { id: 'price', label: '가격' },
@@ -216,7 +219,7 @@ export default function ProductFilterSheet({
         <h2 id={titleId}>필터</h2>
         <button type="button" aria-label="필터 닫기" onClick={onClose}>×</button>
       </header>
-      <nav className="category-filter-sheet__tabs" role="tablist" aria-label="필터 종류">
+      <nav className="category-filter-sheet__tabs" role="tablist" aria-label="필터 종류" ref={tabsRef}>
         {tabs.map((item) => <button
           key={item.id}
           type="button"

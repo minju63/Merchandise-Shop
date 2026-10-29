@@ -15,6 +15,7 @@ const PRODUCT_SORT_OPTIONS = [
   ['newest', '최신순'],
   ['wishlist', '찜 많은 순'],
   ['stock', '재고 많은 순'],
+  ['stockAsc', '재고 적은 순'],
   ['priceLow', '낮은 가격 순'],
   ['priceHigh', '높은 가격 순'],
 ];
@@ -371,19 +372,20 @@ function ResultProductCard({ product, scoped = false, currentShopId }) {
   const stockLabel = OVERLAY_STOCK_LABELS[overlay];
   const content = <>
       <span className="result-product__image result-product__image--live">
-        {product.image ? <img src={product.image} alt="" /> : scoped ? <SearchIcon /> : <span className="result-product__placeholder"><Icon name="image" size={23} /><span>굿즈</span></span>}
+        {product.image ? <img src={product.image} alt="" /> : <span className="result-product__placeholder"><Icon name="image" size={23} /><span>굿즈</span></span>}
         {overlay && <span className="sold-out-dim" aria-hidden="true"><span>{OVERLAY_LABELS[overlay]}</span></span>}
-        {!scoped && <span className="result-product__heart" aria-hidden="true"><Icon name="heart" size={15} /></span>}
+        <span className="result-product__heart" aria-hidden="true"><Icon name="heart" size={15} /></span>
       </span>
       <span className="result-product__content">
         <small>{product.storeName}{currentShopId && product.storeId === currentShopId ? ' · 지금 보는 굿즈샵' : ''}</small>
         <strong>{product.name}</strong>
         <b>{product.price == null ? '가격 정보 없음' : `${product.price.toLocaleString('ko-KR')}원`}</b>
-        {scoped ? <>{stockLabel && <small className="result-product__stock result-product__stock--sold">{stockLabel}</small>}<small>{[product.pickupAvailable && '픽업 가능', product.deliveryAvailable && '배달 가능'].filter(Boolean).join(' · ')}</small></> : <span className="result-product__meta">{stockLabel && <small className="result-product__stock result-product__stock--sold">{stockLabel}</small>}<small>{[product.pickupAvailable && '픽업', product.deliveryAvailable && '배달'].filter(Boolean).join('·')}</small></span>}
+        <span className="result-product__meta">{stockLabel && <small className="result-product__stock result-product__stock--sold">{stockLabel}</small>}<small>{[product.pickupAvailable && '픽업', product.deliveryAvailable && '배달'].filter(Boolean).join('·')}</small></span>
       </span>
     </>;
   const productLink = <Link className="result-product" to={`/products/${encodeURIComponent(product.storeProductId)}`} state={{ listReturnTo: `${location.pathname}${location.search}`, storeId: product.storeId, storeName: product.storeName }}>{content}</Link>;
-  return scoped ? productLink : <article className="result-product-card">{productLink}<Link className="result-product__store-link" to={`/stores/${product.storeId}`}>판매 매장 보기</Link></article>;
+  // 굿즈샵 안에서 보는 목록(scoped)은 이미 그 굿즈샵이라 "판매 매장 보기" 링크만 뺀다.
+  return <article className="result-product-card">{productLink}{!scoped && <Link className="result-product__store-link" to={`/stores/${product.storeId}`}>판매 매장 보기</Link>}</article>;
 }
 
 function ProductSortMenu({ sort, onSortChange }) {
@@ -401,7 +403,7 @@ function ProductSortMenu({ sort, onSortChange }) {
 
   return (
     <div className="result-sort" ref={menu}>
-      <button type="button" aria-label="굿즈 정렬" aria-expanded={open} aria-haspopup="menu" onClick={() => setOpen((current) => !current)}>{PRODUCT_SORT_OPTIONS.find(([value]) => value === sort)?.[1] || '인기순'} <span aria-hidden="true">⌄</span></button>
+      <button type="button" aria-label="굿즈 정렬" aria-expanded={open} aria-haspopup="menu" onClick={() => setOpen((current) => !current)}>{PRODUCT_SORT_OPTIONS.find(([value]) => value === sort)?.[1] || '인기순'}<span className="sort-chevron" aria-hidden="true" /></button>
       {open && <div className="result-sort__menu" role="menu">{PRODUCT_SORT_OPTIONS.map(([value, label]) => <button type="button" role="menuitemradio" aria-checked={sort === value} key={value} disabled={value === 'wishlist'} onClick={() => { onSortChange(value); setOpen(false); }}>{label}{sort === value && <span aria-hidden="true">✓</span>}</button>)}</div>}
     </div>
   );
@@ -433,11 +435,11 @@ function ScopedResults({
               {query ? <p>다른 검색어나 필터 조건으로 다시 찾아보세요.</p> : null}
             </section>
           ) : (
-            <section className="result-list" aria-label="굿즈샵 상품 검색 결과">
+            <div className="result-list" aria-label="굿즈샵 상품 검색 결과">
               {products.map((product) => (
                 <ResultProductCard product={product} scoped key={product.storeProductId} />
               ))}
-            </section>
+            </div>
           )}
           {totalCount > 20 ? <nav className="search-pagination" aria-label="상품 페이지">
             <button type="button" disabled={page <= 1} onClick={() => onPageChange(page - 1)}>이전</button>

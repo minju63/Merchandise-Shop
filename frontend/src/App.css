@@ -407,6 +407,10 @@
   color: #5c3ccc;
   background: #f5f2ff;
 }
+.guide-line.current-day strong,
+.guide-line.current-day span {
+  color: #4a2fa8;
+}
 
 .list-main .store-list {
   display: grid;
@@ -848,10 +852,13 @@
 .guide-line strong {
   font-weight: 600;
 }
+/* 오늘 요일은 글자 크기·위치는 그대로 두고 배경색만 연하게 바꾼다 (안쪽 여백은 음수 바깥 여백으로 상쇄) */
 .guide-line.current-day {
-  background: #f2f6ff;
+  margin: 0 -8px;
+  padding-left: 8px;
+  padding-right: 8px;
   border-radius: 8px;
-  padding: 8px;
+  background: #f5f2ff;
 }
 .guide-line span {
   text-align: right;
@@ -1145,4 +1152,16 @@
 
 .product-picture .product-heart {
   z-index: 2;
+}
+
+/* 정렬 드롭다운의 ∨ 표시: 글자(⌄)는 위치가 어긋나서 선으로 그려 글자 세로 가운데에 맞춘다 */
+.sort-chevron {
+  display: inline-block;
+  flex: none;
+  width: 5px;
+  height: 5px;
+  margin: -3px 1px 0 6px;
+  border-right: 1.6px solid currentColor;
+  border-bottom: 1.6px solid currentColor;
+  transform: rotate(45deg);
 }

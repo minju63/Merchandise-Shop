@@ -15,7 +15,7 @@ export default function ProductSort({ value = 'popular', onChange, compact = fal
   return (
     <details className="category-sort category-sort-dropdown">
       {!compact && '정렬'}
-      <summary aria-label="상품 정렬">{options.find(([key]) => key === value)?.[1] || '인기순'} <span aria-hidden="true">⌄</span></summary>
+      <summary aria-label="상품 정렬">{options.find(([key]) => key === value)?.[1] || '인기순'}<span className="sort-chevron" aria-hidden="true" /></summary>
       <div className="category-sort-options" aria-label="정렬 방식">
         {options.map(([key, label]) => <button type="button" key={key} aria-pressed={value === key} disabled={key === 'wishlist'} onClick={(event) => {
           onChange(key);
