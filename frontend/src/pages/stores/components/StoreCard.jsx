@@ -16,6 +16,9 @@ export default function StoreCard({ store }) {
           <p className="muted small store-region">
             <Icon name="pin" size={13} />
             {store.region || '지역 정보 없음'}
+            {store.distanceKm != null && (
+              <span className="store-distance"> · {store.distanceKm.toFixed(1)}km</span>
+            )}
           </p>
           <p className="category-line">
             {store.categoryNames.length ? store.categoryNames.join(' · ') : '굿즈샵'}

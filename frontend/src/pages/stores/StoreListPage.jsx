@@ -5,23 +5,45 @@ import { PageState, StoreHeader, TabBar } from './components/StoreShell.jsx';
 import StoreCard from './components/StoreCard.jsx';
 import StoreFilter from './components/StoreFilter.jsx';
 import StoreSort from './components/StoreSort.jsx';
-
-const sortOptions = [
-  { value: 'popular', label: '인기순' },
-  { value: 'newest', label: '신규 입점 순' },
-  { value: 'stock', label: '재고 많은 순' },
-];
+import StoreDistance from './components/StoreDistance.jsx';
+import { sortOptions, useStoreLocation } from './storeListTools.js';
 
 export default function StoreListPage() {
   const [filters, setFilters] = useState({ openNow: false, pickup: false, delivery: false });
   const [sort, setSort] = useState('popular');
   const [page, setPage] = useState(1);
-  const params = { ...filters, sort, page, size: 20 };
+  const {
+    location,
+    locating,
+    message: locationMessage,
+    radiusKm,
+    setRadiusKm,
+    locate: requestLocation,
+  } = useStoreLocation();
+  // 거리순을 고른 동안에만 위치와 반경을 요청에 쓴다.
+  const distanceMode = sort === 'distance' && Boolean(location);
+  const params = {
+    ...filters,
+    sort,
+    page,
+    size: 20,
+    ...(distanceMode && { lat: location.lat, lng: location.lng, radiusKm }),
+  };
   const { data, isPending, isError, error, refetch } = useQuery({
     queryKey: ['stores', params],
     queryFn: () => storeApi.list(params),
     refetchInterval: 60000,
   });
+  const locate = async () => {
+    const point = await requestLocation();
+    if (point) setPage(1);
+    return point;
+  };
+  const changeSort = async (value) => {
+    if (value === 'distance' && !(await locate())) return;
+    setSort(value);
+    setPage(1);
+  };
   const changeFilter = (key) => {
     setFilters((current) => ({ ...current, [key]: !current[key] }));
     setPage(1);
@@ -35,19 +57,36 @@ export default function StoreListPage() {
             <h1>굿즈샵 둘러보기</h1>
             <p>
               전체 {data?.data.allStoresCount ?? 0}곳
-              {Object.values(filters).some(Boolean) && ` · 검색 결과 ${data?.data.totalCount ?? 0}곳`}
+              {(distanceMode || Object.values(filters).some(Boolean)) && ` · 검색 결과 ${data?.data.totalCount ?? 0}곳`}
             </p>
           </div>
           <StoreSort
             value={sort}
             options={sortOptions}
-            onChange={(value) => {
-              setSort(value);
-              setPage(1);
-            }}
+            onChange={changeSort}
           />
         </div>
         <StoreFilter filters={filters} onChange={changeFilter} />
+        {distanceMode ? (
+          <StoreDistance
+            radiusKm={radiusKm}
+            onRadiusChange={(value) => {
+              setRadiusKm(value);
+              setPage(1);
+            }}
+          />
+        ) : (
+          (locating || locationMessage) && (
+            <p className="distance-message" role="status">
+              {locating ? '현재 위치를 확인하는 중입니다…' : locationMessage}
+            </p>
+          )
+        )}
+        {distanceMode && data?.data.noCoordinateCount > 0 && (
+          <p className="distance-message">
+            위치 정보가 없는 굿즈샵 {data.data.noCoordinateCount}곳은 거리 기능에서 제외됩니다.
+          </p>
+        )}
         {isPending ? (
           <div className="list-skeleton" aria-label="굿즈샵 목록 불러오는 중">
             {[0, 1, 2, 3].map((n) => (
@@ -67,7 +106,9 @@ export default function StoreListPage() {
           </div>
         ) : (
           <PageState>
-            {Object.values(filters).some(Boolean)
+            {distanceMode
+              ? `반경 ${radiusKm}km 이내에 조건에 맞는 굿즈샵이 없습니다.`
+              : Object.values(filters).some(Boolean)
               ? '조건에 맞는 굿즈샵이 없습니다.'
               : '등록된 굿즈샵이 없습니다.'}
           </PageState>

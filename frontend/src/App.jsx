@@ -356,8 +356,11 @@ function SearchResultsRoute() {
   const page = Number(searchParams.get('page') ?? 1);
   const regionAll = searchParams.get('region') === 'all';
   const parsedQuery = parseRegionalQuery(query, searchMockData);
-  const region = !storeId && !regionAll ? parsedQuery.region?.label : undefined;
-  const keyword = storeId ? query : parsedQuery.keyword;
+  // 지역명만 검색한 경우 굿즈는 지역 안의 모든 상품이 아니라 이름에 그 글자가 든 상품만 찾는다.
+  const regionOnly = Boolean(!storeId && parsedQuery.region && !parsedQuery.keyword);
+  const region = !storeId && !regionAll && !regionOnly ? parsedQuery.region?.label : undefined;
+  // 전국에서 보기에서는 지역명도 검색어로 보고, 이름에 포함된 굿즈·굿즈샵을 찾는다.
+  const keyword = storeId || regionAll || regionOnly ? query : parsedQuery.keyword;
   const filterKey = `${storeId ?? ''}:${query}`;
   const [savedFilters, setSavedFilters] = useState({ key: filterKey, value: { ...EMPTY_FILTERS } });
   const appliedFilters = savedFilters.key === filterKey ? savedFilters.value : EMPTY_FILTERS;
@@ -421,6 +424,7 @@ function SearchResultsRoute() {
       onSortChange={(nextSort) => navigate(searchUrl('/search/results', { query, storeId, sort: nextSort, regionAll }), { state: searchState })}
       onPageChange={(nextPage) => navigate(searchUrl('/search/results', { query, storeId, sort, page: nextPage, regionAll }), { state: searchState })}
       onDisableRegion={() => navigate(searchUrl('/search/results', { query, storeId, sort, regionAll: true }), { state: searchState })}
+      onEnableRegion={() => navigate(searchUrl('/search/results', { query, storeId, sort }), { state: searchState })}
       filterState={appliedFilters}
       filterQuery={keyword}
       filterRegion={needsNationwideFallback ? undefined : region}

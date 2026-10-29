@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import SearchShopList from '../../search/SearchShopList.jsx';
+import { searchApi } from '../../../api/search.api.js';
 import useCategoryRequest from './useCategoryRequest';
 import ProductEmptyState from './ProductEmptyState';
 import { categoryFilterContext, categoryProductQuery } from './categoryProductFilters.js';
@@ -25,14 +26,15 @@ export default function CategoryStoreResults({ queryKey, api, client, userId }) 
         processed += result.items.length;
         if (processed >= result.totalCount || result.items.length === 0) break;
       }
-      return [...stores.values()];
+      // 굿즈샵 탭과 같은 카드를 쓰기 위해 매장 전체 정보를 가져와 합친다.
+      const details = new Map((await searchApi.stores()).map((store) => [store.id, store]));
+      return [...stores.values()].flatMap((store) => (details.has(store.id) ? [details.get(store.id)] : []));
     },
     [queryKey, api, client]
   );
   const request = useCategoryRequest(load, userId);
   return (
-    <section className="category-store-results" aria-label="굿즈샵 검색 결과">
-      <h2>굿즈샵{request.data ? ` · ${request.data.length}개` : ''}</h2>
+    <section className="category-store-section" aria-label="굿즈샵 검색 결과">
       {request.loading ? (
         <p role="status">굿즈샵을 불러오는 중입니다.</p>
       ) : request.error ? (
@@ -40,17 +42,7 @@ export default function CategoryStoreResults({ queryKey, api, client, userId }) 
       ) : request.data.length === 0 ? (
         <ProductEmptyState message="조건에 맞는 굿즈샵이 없습니다." />
       ) : (
-        <ul>
-          {request.data.map((store) => (
-            <li key={store.id}>
-              <Link to={`/stores/${encodeURIComponent(store.id)}`}>
-                <strong>{store.name}</strong>
-                <span>조건에 맞는 상품 {store.count}개</span>
-                <span aria-hidden="true">›</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <SearchShopList shops={request.data} />
       )}
     </section>
   );

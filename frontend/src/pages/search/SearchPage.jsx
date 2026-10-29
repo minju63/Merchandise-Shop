@@ -4,6 +4,7 @@ import { parseRegionalQuery } from './searchQuery.js';
 import { searchApi } from '../../api/search.api.js';
 import Icon from '../../components/Icon.jsx';
 import BottomNavigation from '../../components/BottomNavigation.jsx';
+import SearchShopList from './SearchShopList.jsx';
 import IntegratedSearchFilters from './IntegratedSearchFilters.jsx';
 import './SearchPage.css';
 
@@ -446,6 +447,7 @@ export function SearchResultsPage({
   onSortChange,
   onPageChange,
   onDisableRegion,
+  onEnableRegion,
   filterState,
   onFilterChange,
   filterQuery,
@@ -458,7 +460,7 @@ export function SearchResultsPage({
   const loggedSearch = useRef(null);
   const isEditing = query.trim() !== initialQuery.trim();
   const parsedQuery = parseRegionalQuery(initialQuery, data);
-  const keywordTokens = parsedQuery.keyword
+  const keywordTokens = (regionEnabled ? parsedQuery.keyword : initialQuery)
     .toLocaleLowerCase('ko-KR')
     .split(/\s+/)
     .filter(Boolean);
@@ -584,6 +586,13 @@ export function SearchResultsPage({
           </div>
         ) : null}
 
+        {parsedQuery.region && !regionEnabled && onEnableRegion ? (
+          <div className="applied-region-chip">
+            <span>{initialQuery.trim()}</span>
+            <button type="button" aria-label={`${parsedQuery.region.label} 지역 결과로 돌아가기`} onClick={onEnableRegion}>×</button>
+          </div>
+        ) : null}
+
         {hasNoResults && !hasActiveFilters ? (
           <section className="no-search-results">
             <div className="no-search-results__icon" aria-hidden="true"><SearchIcon /></div>
@@ -602,16 +611,29 @@ export function SearchResultsPage({
           </section>
         ) : null}
 
-        {!hasNoResults && resultType !== 'products' ? <section className="integrated-shops">
-          <div className="result-heading"><h2>굿즈샵 <span>{matchedShops.length}</span></h2>{resultType === 'all' && <button type="button" onClick={() => setResultType('shops')}>굿즈샵 더보기 ›</button>}</div>
-          <div className="integrated-shops__list">
-            {(resultType === 'all' ? matchedShops.slice(0, 2) : matchedShops).map((shop) => (
-              <Link className="result-shop" to={`/stores/${shop.id}`} key={shop.id}>
-                <span className="result-shop__icon"><Icon name="store" size={19} /></span>
-                <span className="result-shop__copy"><strong>{shop.name}</strong><small>{shop.region || shop.address}</small></span>
-              </Link>
-            ))}
-          </div>
+        {!hasNoResults && resultType !== 'products' ? <section className={`integrated-shops ${resultType === 'shops' ? 'integrated-shops--only' : ''}`}>
+          {resultType === 'all' && <div className="result-heading"><h2>굿즈샵 <span>{matchedShops.length}</span></h2><button type="button" onClick={() => setResultType('shops')}>굿즈샵 더보기 ›</button></div>}
+          {resultType === 'all' ? (
+            <div className="integrated-shops__list">
+              {matchedShops.map((shop) => (
+                <div className="result-shop-item" key={shop.id}>
+                  <Link className="result-shop" to={`/stores/${shop.id}`}>
+                    <span className="result-shop__icon"><Icon name="store" size={19} /></span>
+                    <span className="result-shop__copy">
+                      <strong>{shop.name}</strong>
+                      <small><Icon name="pin" size={10} />{shop.region || shop.address}</small>
+                    </span>
+                  </Link>
+                  {/* 굿즈샵 탭 카드와 같이 찜 기능 연결 전까지 비활성 */}
+                  <button type="button" className="result-shop__heart" disabled title="찜 기능 준비 중" aria-label={`${shop.name} 찜 기능 준비 중`}>
+                    <Icon name="heart" size={15} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <SearchShopList shops={matchedShops} />
+          )}
           {!matchedShops.length ? <p className="result-empty">일치하는 굿즈샵이 없습니다.</p> : null}
         </section> : null}
 

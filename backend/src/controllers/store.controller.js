@@ -41,11 +41,35 @@ function ok(res, data) {
   res.json({ success: true, data, message: null });
 }
 
+// 위치 파라미터는 저장·로그 없이 이 요청의 거리 계산에만 쓴다.
+function coordinate(value, name, limit) {
+  if (value === undefined) return null;
+  const number = typeof value === 'string' && value.trim() !== '' ? Number(value) : NaN;
+  if (!Number.isFinite(number) || Math.abs(number) > limit)
+    badRequest(`${name}은 올바른 좌표여야 합니다.`);
+  return number;
+}
+
+function radius(value) {
+  if (value === undefined) return null;
+  const number = typeof value === 'string' && value.trim() !== '' ? Number(value) : NaN;
+  if (!Number.isFinite(number) || number <= 0 || number > 1000)
+    badRequest('radiusKm는 0보다 크고 1000 이하여야 합니다.');
+  return number;
+}
+
 export async function list(req, res) {
-  const options = query(req, ['popular', 'newest', 'stock']);
+  const options = query(req, ['popular', 'newest', 'stock', 'distance']);
   options.openNow = flag(req.query.openNow, 'openNow');
   options.pickup = flag(req.query.pickup, 'pickup');
   options.delivery = flag(req.query.delivery, 'delivery');
+  const lat = coordinate(req.query.lat, 'lat', 90);
+  const lng = coordinate(req.query.lng, 'lng', 180);
+  if ((lat === null) !== (lng === null)) badRequest('lat과 lng는 함께 보내야 합니다.');
+  options.origin = lat === null ? null : { lat, lng };
+  options.radiusKm = radius(req.query.radiusKm);
+  if (options.radiusKm !== null && !options.origin) badRequest('radiusKm는 lat, lng와 함께 보내야 합니다.');
+  if (options.sort === 'distance' && !options.origin) badRequest('거리순은 현재 위치(lat, lng)가 필요합니다.');
   ok(res, await storeService.listStores(options));
 }
 

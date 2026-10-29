@@ -138,7 +138,33 @@ function paginate(items, { page, size }) {
   };
 }
 
-export async function listStores({ openNow, pickup, delivery, sort, page, size }) {
+// 하버사인 공식으로 두 좌표 사이의 거리(km)를 구한다.
+function haversineKm(from, to) {
+  const rad = (deg) => (deg * Math.PI) / 180;
+  const dLat = rad(to.lat - from.lat);
+  const dLng = rad(to.lng - from.lng);
+  const a =
+    Math.sin(dLat / 2) ** 2 + Math.cos(rad(from.lat)) * Math.cos(rad(to.lat)) * Math.sin(dLng / 2) ** 2;
+  return 6371 * 2 * Math.asin(Math.sqrt(a));
+}
+
+function storePoint(row) {
+  if (row.latitude == null || row.longitude == null) return null;
+  const lat = Number(row.latitude);
+  const lng = Number(row.longitude);
+  return Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
+}
+
+export async function listStores({
+  openNow,
+  pickup,
+  delivery,
+  sort,
+  page,
+  size,
+  origin = null,
+  radiusKm = null,
+}) {
   const stores = await listActiveStores();
   const [data, regionRows] = await Promise.all([
     related(stores.map((row) => row.id)),
@@ -150,9 +176,24 @@ export async function listStores({ openNow, pickup, delivery, sort, page, size }
   if (pickup) items = items.filter((row) => row.pickupAvailable);
   if (delivery) items = items.filter((row) => row.deliveryAvailable);
   const allStoresCount = stores.length;
+  // 위치가 있으면 좌표 없는 굿즈샵은 제외하고, 반경 이내만 남긴다.
+  let noCoordinateCount = 0;
+  if (origin) {
+    items = items.flatMap((row) => {
+      const point = storePoint(row);
+      if (!point) {
+        noCoordinateCount += 1;
+        return [];
+      }
+      const distanceKm = haversineKm(origin, point);
+      return radiusKm !== null && distanceKm > radiusKm ? [] : [{ ...row, distanceKm }];
+    });
+  }
   items.sort(
     (a, b) =>
-      (sort === 'newest'
+      (sort === 'distance'
+        ? a.distanceKm - b.distanceKm
+        : sort === 'newest'
         ? String(b.createdAt || '').localeCompare(String(a.createdAt || ''))
         : sort === 'stock'
           ? compareNumbers(a.availableProductCount, b.availableProductCount)
@@ -162,7 +203,16 @@ export async function listStores({ openNow, pickup, delivery, sort, page, size }
   );
   const result = paginate(items, { page, size });
   const summaries = await getReviewSummaries(result.items.map((item) => item.id));
-  return { ...result, items: result.items.map((item) => ({ ...item, ...summaries.get(item.id) })), allStoresCount };
+  return {
+    ...result,
+    items: result.items.map((item) => ({
+      ...item,
+      ...summaries.get(item.id),
+      ...(item.distanceKm === undefined ? {} : { distanceKm: Math.round(item.distanceKm * 10) / 10 }),
+    })),
+    allStoresCount,
+    noCoordinateCount,
+  };
 }
 
 export async function getStoreDetail(storeId) {

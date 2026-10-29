@@ -960,3 +960,145 @@
   text-align: center;
   color: #6b6b7b;
 }
+
+/* 굿즈샵 거리 슬라이더 */
+.distance-panel {
+  margin: -6px 0 14px;
+  padding: 11px 13px;
+  border: 1px solid #e8e4ed;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.distance-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: #65606b;
+}
+
+.distance-head strong {
+  color: #5c3ccc;
+  font-size: 13px;
+}
+
+.distance-locate {
+  border: 1px solid #d9cdff;
+  border-radius: 99px;
+  background: #f3efff;
+  color: #5c3ccc;
+  padding: 4px 11px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.distance-slider {
+  width: 100%;
+  height: 5px;
+  margin: 4px 0;
+  appearance: none;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #7650db var(--fill, 0%), #e6e2ee var(--fill, 0%));
+}
+
+.distance-slider:disabled {
+  opacity: 0.45;
+}
+
+.distance-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 19px;
+  height: 19px;
+  border: 3px solid #7650db;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.distance-slider::-moz-range-thumb {
+  box-sizing: border-box;
+  width: 19px;
+  height: 19px;
+  border: 3px solid #7650db;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.distance-message {
+  margin: 6px 0 0;
+  color: #7b828d;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.list-main > .distance-message {
+  margin: -6px 0 12px;
+}
+
+.store-distance {
+  color: #5c3ccc;
+  font-weight: 700;
+  white-space: pre;
+}
+
+/* 카테고리·검색 결과에서 굿즈샵 탭과 같은 카드를 쓸 때의 여백 */
+.list-main.store-embed {
+  min-height: 0;
+  padding: 0;
+}
+
+.category-store-section {
+  margin-top: 16px;
+}
+
+/* 카테고리 화면의 공통 button 스타일이 굿즈샵 카드·필터에 번지지 않게 되돌린다 */
+.store-embed .result-heading {
+  justify-content: space-between;
+}
+
+.category-page .store-embed .card-heart {
+  width: 22px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: #716a79;
+}
+
+.category-page .store-embed .filter-chip {
+  min-height: 37px;
+  padding: 8px 5px;
+  border: 1px solid #e8e4ed;
+  border-radius: 99px;
+  color: #65606b;
+  background: #fff;
+}
+
+.category-page .store-embed .filter-chip.selected {
+  border-color: #d9cdff;
+  color: #5c3ccc;
+  background: #f3efff;
+}
+
+.category-page .store-embed .sort-menu button {
+  border: 0;
+  border-radius: 7px;
+  background: #fff;
+}
+
+.category-page .store-embed .sort-menu button[aria-selected='true'],
+.category-page .store-embed .sort-menu button:hover {
+  background: #f3efff;
+}
+
+.category-page .store-embed .distance-locate {
+  border-color: #d9cdff;
+  border-radius: 99px;
+  background: #f3efff;
+}
+
+.store-embed .result-heading h2 {
+  margin: 0;
+}

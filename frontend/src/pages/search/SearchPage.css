@@ -421,6 +421,7 @@
 }
 
 .integrated-shops { margin: 0 -18px 18px; padding: 0 18px 16px; border-bottom: 7px solid #f7f6f9; }
+.integrated-shops--only { margin-bottom: 0; border-bottom: 0; }
 .integrated-shops .result-heading,
 .integrated-products .result-heading { justify-content: space-between; }
 .integrated-shops .result-heading h2,
@@ -441,9 +442,24 @@
   scrollbar-width: none;
 }
 .integrated-shops__list::-webkit-scrollbar { display: none; }
+.integrated-shops .result-shop-item { position: relative; flex: 0 0 min(66%, 232px); min-width: 0; }
+.integrated-shops .result-shop__heart {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  display: grid;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  color: #716a79;
+  background: transparent;
+  opacity: 0.75;
+}
 .integrated-shops .result-shop {
   display: flex;
-  flex: 0 0 min(66%, 232px);
+  width: 100%;
   min-width: 0;
   min-height: 62px;
   padding: 8px;
@@ -463,11 +479,12 @@
   background: #e7f3ff;
 }
 .integrated-shops .result-shop:nth-child(even) .result-shop__icon { color: #956a78; background: #fae9f0; }
-.integrated-shops .result-shop__copy { display: flex; width: auto; height: auto; min-width: 0; flex-direction: column; gap: 3px; color: inherit; background: transparent; }
+.integrated-shops .result-shop__copy { display: flex; width: auto; height: auto; min-width: 0; flex-direction: column; align-items: flex-start; justify-content: center; gap: 3px; padding-right: 22px; text-align: left; color: inherit; background: transparent; }
 .integrated-shops .result-shop__copy strong,
 .integrated-shops .result-shop__copy small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .integrated-shops .result-shop__copy strong { color: #6540cf; font-size: 11px; }
-.integrated-shops .result-shop__copy small { color: #918996; font-size: 9px; }
+.integrated-shops .result-shop__copy small { display: flex; align-items: center; gap: 2px; color: #918996; font-size: 9px; }
+.integrated-shops .result-shop__copy small svg { flex: none; }
 .integrated-products { padding-top: 1px; }
 .result-sort { position: relative; z-index: 2; }
 .result-sort > button {
