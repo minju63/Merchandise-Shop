@@ -63,30 +63,60 @@ function todayHours(hours, now) {
   return `${today.open_time.slice(0, 5)} - ${today.close_time.slice(0, 5)}`;
 }
 
-export async function getAdDetail(bannerId) {
-  const banner = await loadLiveBanner(bannerId, 'AD');
-  const store = banner.stores?.status === 'ACTIVE' ? banner.stores : null;
-  const products = store ? await findHomeProducts() : [];
+// 광고 상세에서 미리 보여주는 상품 수. 나머지는 "할인 상품 전체 보기"(getAdProducts)에서 본다.
+const AD_PREVIEW_LIMIT = 4;
+const SORTERS = {
+  discount: (a, b) => b.discountRate - a.discountRate || a.priceValue - b.priceValue,
+  price_asc: (a, b) => a.priceValue - b.priceValue,
+  price_desc: (a, b) => b.priceValue - a.priceValue,
+  low_stock: (a, b) => a.stockQuantity - b.stockQuantity,
+};
+// 어떤 정렬이든 품절 상품은 맨 뒤로 보낸다.
+const AD_SORTS = Object.fromEntries(Object.entries(SORTERS).map(([key, compare]) => [
+  key,
+  (a, b) => (a.stockQuantity <= 0) - (b.stockQuantity <= 0) || compare(a, b),
+]));
 
-  const listings = products
+// 광고 매장의 판매 중 상품을 카드로 만든다. 할인 중인 상품이 하나라도 있으면 할인 상품만 남긴다.
+async function loadAdProducts(store) {
+  const products = store ? await findHomeProducts() : [];
+  const cards = products
     .flatMap((product) => (product.store_products ?? [])
       .filter((item) => item.store_id === store.id && item.status === 'ON_SALE')
       .map((listing) => ({ product, listing })))
-    .sort((a, b) => b.listing.discount_rate - a.listing.discount_rate);
+    .map(({ product, listing }, index) => {
+      const lowStock = listing.stock > 0 && listing.stock <= LOW_STOCK_MAX;
+      return {
+        ...toCard(product, listing, index),
+        id: listing.id,
+        discountRate: listing.discount_rate,
+        originalPrice: listing.discount_rate > 0 ? formatPrice(listing.price) : null,
+        price: formatPrice(salePrice(listing)),
+        priceValue: salePrice(listing),
+        stockQuantity: listing.stock,
+        // 재고 임박(5개 이하)은 카드 위에 빨간 라벨로 보여준다.
+        stockLabel: listing.stock <= 0 ? '품절' : (lowStock ? `재고 ${listing.stock}개 남음` : null),
+        stockText: null,
+      };
+    });
 
-  const cards = listings.map(({ product, listing }, index) => {
-    const lowStock = listing.stock > 0 && listing.stock <= LOW_STOCK_MAX;
-    return {
-      ...toCard(product, listing, index),
-      id: listing.id,
-      discountRate: listing.discount_rate,
-      originalPrice: listing.discount_rate > 0 ? formatPrice(listing.price) : null,
-      price: formatPrice(salePrice(listing)),
-      // 재고 임박(5개 이하)은 카드 위에 빨간 라벨로 보여준다.
-      stockLabel: lowStock ? `재고 ${listing.stock}개 남음` : null,
-      stockText: null,
-    };
-  });
+  return cards.some((card) => card.discountRate > 0) ? cards.filter((card) => card.discountRate > 0) : cards;
+}
+
+const storeSummary = (store) => store && {
+  id: store.id,
+  name: store.name,
+  description: store.short_description,
+  imageUrl: store.thumbnail_url,
+  address: store.address,
+  pickupAvailable: store.pickup_available,
+  deliveryAvailable: store.delivery_available,
+};
+
+export async function getAdDetail(bannerId) {
+  const banner = await loadLiveBanner(bannerId, 'AD');
+  const store = banner.stores?.status === 'ACTIVE' ? banner.stores : null;
+  const cards = (await loadAdProducts(store)).sort(AD_SORTS.discount);
 
   return {
     id: banner.id,
@@ -94,20 +124,27 @@ export async function getAdDetail(bannerId) {
     startAt: banner.starts_at,
     endAt: banner.ends_at,
     clickCount: banner.click_count,
-    store: store && {
-      id: store.id,
-      name: store.name,
-      description: store.short_description,
-      imageUrl: store.thumbnail_url,
-      address: store.address,
-      pickupAvailable: store.pickup_available,
-      deliveryAvailable: store.delivery_available,
-    },
+    store: storeSummary(store),
     maxDiscountRate: Math.max(0, ...cards.map((card) => card.discountRate)),
-    // 할인 중인 상품이 있으면 할인 상품만, 없으면 매장의 판매 상품을 보여준다.
-    products: cards.some((card) => card.discountRate > 0)
-      ? cards.filter((card) => card.discountRate > 0)
-      : cards,
+    totalCount: cards.length,
+    products: cards.slice(0, AD_PREVIEW_LIMIT),
+  };
+}
+
+export async function getAdProducts(bannerId, { sort } = {}) {
+  const banner = await loadLiveBanner(bannerId, 'AD');
+  const store = banner.stores?.status === 'ACTIVE' ? banner.stores : null;
+  const sortKey = AD_SORTS[sort] ? sort : 'discount';
+  const cards = (await loadAdProducts(store)).sort(AD_SORTS[sortKey]);
+
+  return {
+    id: banner.id,
+    title: banner.title,
+    store: storeSummary(store),
+    sort: sortKey,
+    maxDiscountRate: Math.max(0, ...cards.map((card) => card.discountRate)),
+    totalCount: cards.length,
+    products: cards,
   };
 }
 

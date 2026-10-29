@@ -7,6 +7,7 @@ import client from './client.js';
 export const homeApi = {
   get: () => client.get('/home'),
   ad: (bannerId) => client.get(`/home/banners/${bannerId}`),
+  adProducts: (bannerId, params) => client.get(`/home/banners/${bannerId}/products`, { params }),
   serviceIntro: (bannerId) => client.get(`/home/service-intro/${bannerId}`),
   exhibition: (bannerId, params) => client.get(`/home/exhibitions/${bannerId}`, { params }),
 };

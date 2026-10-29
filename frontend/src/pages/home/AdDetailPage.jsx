@@ -10,7 +10,7 @@ const NOTICES = [
 ];
 
 // 광고 배너의 "자세히 보기" 화면 (/ads/:bannerId)
-export default function AdDetailPage({ ad, error, onBack, onRetry, onOpenProduct, onOpenStore, onShowStoreProducts }) {
+export default function AdDetailPage({ ad, error, onBack, onRetry, onOpenProduct, onOpenStore, onShowProducts }) {
   const [isStoreWished, setIsStoreWished] = useState(false);
   const store = ad?.store;
   const hasDiscount = (ad?.maxDiscountRate ?? 0) > 0;
@@ -37,8 +37,8 @@ export default function AdDetailPage({ ad, error, onBack, onRetry, onOpenProduct
           <button className="bd__btn bd__btn--secondary" type="button" onClick={() => onOpenStore(store.id)}>
             매장 보기
           </button>
-          <button className="bd__btn" type="button" onClick={() => onShowStoreProducts(store.id)}>
-            {hasDiscount ? '할인 상품 전체 보기' : '상품 전체 보기'}
+          <button className="bd__btn" type="button" onClick={onShowProducts}>
+            {hasDiscount ? '할인 상품 전체 보기' : '상품 전체 보기'} ({ad.totalCount})
           </button>
         </>
       ) : null}
@@ -73,7 +73,7 @@ export default function AdDetailPage({ ad, error, onBack, onRetry, onOpenProduct
 
           <DetailSection
             title={hasDiscount ? '할인 상품' : '광고 상품'}
-            description={hasDiscount ? `최대 ${ad.maxDiscountRate}% 할인 중이에요` : `${ad.products.length}개의 상품이 있어요`}
+            description={`${hasDiscount ? `최대 ${ad.maxDiscountRate}% 할인 중 · ` : ''}${ad.totalCount}개 중 ${ad.products.length}개 미리보기`}
           >
             {ad.products.length ? (
               <div className="bd__grid">

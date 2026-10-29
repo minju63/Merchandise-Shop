@@ -17,6 +17,11 @@ export async function getAdDetail(req, res) {
   res.json(ok(await homeBannerService.getAdDetail(req.params.bannerId)));
 }
 
+// GET /api/v1/home/banners/:bannerId/products?sort= — 광고 배너의 할인 상품 전체
+export async function getAdProducts(req, res) {
+  res.json(ok(await homeBannerService.getAdProducts(req.params.bannerId, { sort: req.query.sort })));
+}
+
 // GET /api/v1/home/service-intro/:bannerId — 서비스 소개 배너 상세
 export async function getServiceIntro(req, res) {
   res.json(ok(await homeBannerService.getServiceIntro(req.params.bannerId)));

@@ -33,6 +33,7 @@ import { searchApi } from './api/search.api.js';
 import { bannerApi, homeApi } from './api/home.api.js';
 import ServiceIntroPage from './pages/home/ServiceIntroPage.jsx';
 import AdDetailPage from './pages/home/AdDetailPage.jsx';
+import AdProductsPage from './pages/home/AdProductsPage.jsx';
 import ExhibitionPage from './pages/home/ExhibitionPage.jsx';
 import './App.css';
 
@@ -178,7 +179,32 @@ function AdDetailRoute() {
       onRetry={route.onRetry}
       onOpenProduct={route.onOpenProduct}
       onOpenStore={route.onOpenStore}
-      onShowStoreProducts={(storeId) => route.navigate(`/search/results?storeId=${storeId}`)}
+      onShowProducts={() => route.navigate(`/ads/${route.banner.id}/products`)}
+    />
+  );
+}
+
+function AdProductsRoute() {
+  const navigate = useNavigate();
+  const { bannerId } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const sort = searchParams.get('sort') ?? 'discount';
+  const query = useQuery({
+    queryKey: ['home-ad-products', bannerId, sort],
+    queryFn: () => homeApi.adProducts(bannerId, { sort }),
+    placeholderData: (previous) => previous,
+    retry: false,
+  });
+
+  return (
+    <AdProductsPage
+      list={query.data?.data}
+      error={query.error?.message}
+      onBack={() => (window.history.length > 1 ? navigate(-1) : navigate(`/ads/${bannerId}`))}
+      onRetry={() => query.refetch()}
+      onChangeSort={(next) => setSearchParams(next === 'discount' ? {} : { sort: next }, { replace: true })}
+      onOpenProduct={(product) => navigate(`/products/${product.storeProductId}`)}
+      onOpenStore={(storeId) => navigate(`/stores/${storeId}`)}
     />
   );
 }
@@ -365,6 +391,7 @@ export default function App() {
         <Route path="/search/results" element={<SearchResultsRoute />} />
         <Route path="/intro/:bannerId" element={<ServiceIntroRoute />} />
         <Route path="/ads/:bannerId" element={<AdDetailRoute />} />
+        <Route path="/ads/:bannerId/products" element={<AdProductsRoute />} />
         <Route path="/exhibitions/:bannerId" element={<ExhibitionRoute />} />
 
         {/* 여경 — 굿즈샵 */}
