@@ -57,12 +57,3 @@ export const getRecentProducts = handle((userId, req) =>
 export const listMyOpenAlerts = handle((userId, req) =>
   userService.listMyOpenAlerts(userId, req.query)
 );
-export const getFanBannerBoard = handle((userId, req) =>
-  userService.getFanBannerBoard(userId, req.query)
-);
-export const listMyFanBannerEntries = handle((userId, req) =>
-  userService.listMyFanBannerEntries(userId, req.query)
-);
-export const createFanBannerEntry = handle((userId, req) =>
-  userService.createFanBannerEntry(userId, req.body)
-);

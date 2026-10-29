@@ -39,7 +39,8 @@ export const MY_ROUTES = {
   claimNew: (orderId) => `/my/orders/${orderId}/claim`,
   recentProducts: '/my/recent',
   refundAccounts: '/my/refund-accounts',
-  fanBanner: '/my/events/fan-banner',
+  // 이벤트 상세는 민주 담당. 라우트가 확정되면 이 경로만 맞춘다.
+  weeklyPickEvent: '/events/weekly-pick',
   alerts: '/my/alerts',
   product: (storeProductId) => `/products/${storeProductId}`,
 };

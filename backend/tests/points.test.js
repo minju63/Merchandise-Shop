@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { quotePoints, normalizeCheckoutInput } from '../src/services/checkout.service.js';
-import { sumConfirmedPoints, validateFanBannerEntry } from '../src/services/user.service.js';
+import { sumConfirmedPoints } from '../src/services/user.service.js';
 
 const orders = [{ totalAmount: 30000 }, { totalAmount: 20000 }];
 const base = { pointsUse: 0, useExpectedPoints: false };
@@ -64,18 +64,4 @@ test('잔액은 확정된 내역만 합산한다', () => {
     ]),
     3200
   );
-});
-
-test('응원배너 신청은 1,000원 단위·오늘 이후·허용된 결제 방식만 받는다', () => {
-  const ok = {
-    title: '고죠 생일 축하',
-    requestedFrom: '2026-11-02',
-    requestedUntil: '2026-11-08',
-    amount: 5000,
-    payWith: 'POINT',
-  };
-  assert.equal(validateFanBannerEntry(ok, '2026-10-30').entry.amount, 5000);
-  assert.throws(() => validateFanBannerEntry({ ...ok, amount: 1500 }, '2026-10-30'));
-  assert.throws(() => validateFanBannerEntry({ ...ok, requestedFrom: '2026-10-01' }, '2026-10-30'));
-  assert.throws(() => validateFanBannerEntry({ ...ok, payWith: 'CARD' }, '2026-10-30'));
 });

@@ -274,10 +274,13 @@ function MemberView({ data, provider, onNavigate }) {
           accent
           onClick={() => onNavigate(MY_ROUTES.coupons)}
         />
+      </Section>
+
+      <Section title="이벤트">
         <Row
           icon={MegaphoneIcon}
-          label="이벤트 · 이번주 최애 배너"
-          onClick={() => onNavigate(MY_ROUTES.fanBanner)}
+          label="이번 주 메인은 내 최애"
+          onClick={() => onNavigate(MY_ROUTES.weeklyPickEvent)}
         />
       </Section>
 

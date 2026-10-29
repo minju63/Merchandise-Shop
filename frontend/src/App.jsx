@@ -55,7 +55,6 @@ import ClaimsPage from './pages/my/ClaimsPage.jsx';
 import ClaimFormPage from './pages/my/ClaimFormPage.jsx';
 import RecentProductsPage from './pages/my/RecentProductsPage.jsx';
 import RefundAccountsPage from './pages/my/RefundAccountsPage.jsx';
-import FanBannerPage from './pages/my/FanBannerPage.jsx';
 import AlertsPage from './pages/my/AlertsPage.jsx';
 import { recordProductView } from './pages/my/account.api.js';
 import CategoryPage from './pages/category/CategoryPage.jsx';
@@ -673,7 +672,6 @@ export default function App() {
         <Route path="/my/orders/:orderId/claim" element={<ClaimFormPage />} />
         <Route path="/my/recent" element={<RecentProductsPage />} />
         <Route path="/my/refund-accounts" element={<RefundAccountsPage />} />
-        <Route path="/my/events/fan-banner" element={<FanBannerPage />} />
         <Route path="/my/alerts" element={<AlertsPage />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />

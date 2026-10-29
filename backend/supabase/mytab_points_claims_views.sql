@@ -8,7 +8,7 @@ create table if not exists point_transactions (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references users(id) on delete cascade,
   order_id uuid references orders(id) on delete set null,
-  type text not null check (type in ('EARN', 'USE', 'USE_CANCEL', 'FAN_BANNER_USE')),
+  type text not null check (type in ('EARN', 'USE', 'USE_CANCEL')),
   status text not null default 'CONFIRMED' check (status in ('PENDING', 'CONFIRMED', 'CANCELED')),
   amount integer not null check (amount <> 0),
   memo text,
@@ -50,12 +50,3 @@ create table if not exists product_views (
 );
 create index if not exists product_views_user_idx on product_views (user_id, viewed_at desc);
 alter table product_views enable row level security;
-
--- 4) 응원배너 신청금 결제를 payments에 기록할 수 있게 한다(결제는 연수 담당 영역).
-alter table payments drop constraint if exists payments_purpose_check;
-alter table payments add constraint payments_purpose_check
-  check (purpose = any (array['ORDER', 'PREORDER_DEPOSIT', 'PREORDER_BALANCE', 'MEMBERSHIP', 'FAN_BANNER']));
-
-alter table payments drop constraint if exists payments_check;
-alter table payments add constraint payments_check
-  check (order_id is not null or preorder_id is not null or purpose in ('MEMBERSHIP', 'FAN_BANNER'));
