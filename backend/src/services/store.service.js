@@ -294,19 +294,31 @@ export async function getStoreProductsPage(storeId, { sort, page, size }) {
         deliveryAvailable: Boolean(store.delivery_available && listing.delivery_available),
         popularityScore: Number(product.popularity_score || 0),
         salesCount: Number(listing.sales_count || 0),
+        wishCount: Number(product.wish_count || 0),
         createdAt: listing.created_at,
       };
     })
     .filter(Boolean);
+  // 가격 정보가 없는 상품은 가격순에서 항상 뒤로, 재고 적은 순은 재고가 남은 상품을 먼저 보여준다.
+  const priceOrder = (a, b, direction) =>
+    (a.price == null) - (b.price == null) || direction * (Number(a.price) - Number(b.price));
   items.sort(
     (a, b) =>
       (sort === 'sales'
         ? compareNumbers(a.salesCount, b.salesCount)
-        : sort === 'newest'
-          ? String(b.createdAt || '').localeCompare(String(a.createdAt || ''))
-          : sort === 'stock'
-            ? compareNumbers(a.stock, b.stock)
-            : compareNumbers(a.popularityScore, b.popularityScore)) ||
+        : sort === 'wishlist'
+          ? compareNumbers(a.wishCount, b.wishCount)
+          : sort === 'newest'
+            ? String(b.createdAt || '').localeCompare(String(a.createdAt || ''))
+            : sort === 'stock'
+              ? compareNumbers(a.stock, b.stock)
+              : sort === 'stock_asc'
+                ? !(a.stock > 0) - !(b.stock > 0) || Number(a.stock) - Number(b.stock)
+                : sort === 'price_asc'
+                  ? priceOrder(a, b, 1)
+                  : sort === 'price_desc'
+                    ? priceOrder(a, b, -1)
+                    : compareNumbers(a.popularityScore, b.popularityScore)) ||
       String(b.createdAt || '').localeCompare(String(a.createdAt || '')) ||
       a.storeProductId.localeCompare(b.storeProductId)
   );

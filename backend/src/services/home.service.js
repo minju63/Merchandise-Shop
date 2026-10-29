@@ -43,6 +43,7 @@ export function toCard(product, listing, index) {
     storeProductId: listing?.id ?? null,
     category: goodsCategoryName(product),
     shop: listing?.stores?.name ?? '',
+    storeId: listing?.store_id ?? null,
     name: product.name,
     imageUrl: product.thumbnail_url,
     price: formatPrice(listing ? salePrice(listing) : product.base_price),

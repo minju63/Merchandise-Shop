@@ -26,7 +26,7 @@ export default function AdDetailPage({ ad, error, onBack, onRetry, onOpenProduct
         <section className="bd__hero bd__hero--ad">
           <p className="bd__eyebrow">
             <span className="bd__ad-badge">AD</span>
-            {store?.name}
+            <button className="bd__link" type="button" onClick={() => onOpenStore(store.id)}>{store?.name}</button>
           </p>
           <h2>{ad.title}</h2>
           <p className="bd__hero-desc">{formatPeriod(ad)}</p>
@@ -53,7 +53,7 @@ export default function AdDetailPage({ ad, error, onBack, onRetry, onOpenProduct
                   : <span className="bd__store-thumb" aria-hidden="true" />}
                 <div className="bd__store-body">
                   <strong>
-                    {store.name}
+                    <button className="bd__link" type="button" onClick={() => onOpenStore(store.id)}>{store.name}</button>
                     {store.pickupAvailable ? <span className="bd__badge">픽업 가능</span> : null}
                     {store.deliveryAvailable ? <span className="bd__badge">택배 가능</span> : null}
                   </strong>

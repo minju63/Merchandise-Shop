@@ -1,0 +1,39 @@
+/* 카테고리 · 검색 · 굿즈샵 상세의 상품 목록 공통 모양 */
+.goods-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 12px;
+}
+
+.goods-grid > a {
+  min-width: 0;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.goods-grid .home-product-card { width: 100%; overflow: hidden; border: 0; background: none; }
+.goods-grid .product-card__media { position: relative; width: 100%; height: auto; aspect-ratio: 1.35; overflow: hidden; border-radius: 10px; background: #eee8fa; }
+.goods-grid > a:nth-child(4n+2) .product-card__media { background: #fbf2df; }
+.goods-grid > a:nth-child(4n+3) .product-card__media { background: #f5e8ef; }
+.goods-grid > a:nth-child(4n+4) .product-card__media { background: #e8f1f8; }
+.goods-grid .product-card__media > img { width: 100%; height: 100%; object-fit: cover; }
+.goods-grid .product-card__body { padding: 8px 0 0; }
+.goods-grid .product-card__shop { margin: 0 0 4px; color: #99939e; font-size: 11px; line-height: 1.4; }
+.goods-grid .product-card__body h3 {
+  display: -webkit-box;
+  min-height: 0;
+  margin: 0 0 5px;
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 1.45;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.goods-grid .product-card__body strong { font-size: 15px; }
+.goods-grid .product-card__discount { margin: 0 0 2px; }
+.goods-grid .product-card__meta { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; color: #8b8591; font-size: 10px; }
+.goods-grid .product-card__stock { padding: 2px 4px; border-radius: 3px; color: #397454; background: #eaf5ed; }
+.goods-grid .product-card__stock--danger { color: #a0525c; background: #faedf0; }

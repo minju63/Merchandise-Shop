@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import useWishlist from '../hooks/useWishlist.js';
 // 이미지를 덮는 상태 표시 글자: 품절 / 출시 예정 / 재입고 예정
 const OVERLAY_LABELS = { soldout: 'SOLD OUT', coming: 'COMING SOON', restock: 'RESTOCK SOON' };
@@ -17,6 +18,7 @@ function ImagePlaceholder({ label, accent = '#eee8ff' }) {
 
 export default function ProductCard({ product, rank, compact = false, onClick }) {
   const wish = useWishlist();
+  const navigate = useNavigate();
   const wished = Boolean(product.storeProductId) && wish.isProductWished(product.storeProductId);
   const stockClass = product.stockTone === 'danger' ? ' product-card__stock--danger' : '';
 
@@ -76,7 +78,22 @@ export default function ProductCard({ product, rank, compact = false, onClick })
       </div>
       <div className="product-card__body">
         {product.openText ? <p className="product-card__open-time">{product.openText}</p> : null}
-        <p className="product-card__shop">{product.shop}</p>
+        <p className="product-card__shop">
+          {product.storeId && product.shop ? (
+            <button
+              type="button"
+              className="product-card__shop-link"
+              onClick={(event) => {
+                // 카드·링크 전체의 상품 상세 이동 대신 굿즈샵으로 보낸다.
+                event.preventDefault();
+                event.stopPropagation();
+                navigate(`/stores/${encodeURIComponent(product.storeId)}`);
+              }}
+            >
+              {product.shop}
+            </button>
+          ) : product.shop}
+        </p>
         <h3>{product.name}</h3>
         {product.discountRate ? (
           <>
@@ -89,10 +106,10 @@ export default function ProductCard({ product, rank, compact = false, onClick })
         ) : (
           <strong>{product.price}</strong>
         )}
-        {product.stockText ? (
+        {product.stockText || product.shipping ? (
           <div className="product-card__meta">
-            <span className={`product-card__stock${stockClass}`}>{product.stockText}</span>
-            <span>{product.shipping}</span>
+            {product.stockText ? <span className={`product-card__stock${stockClass}`}>{product.stockText}</span> : null}
+            {product.shipping ? <span>{product.shipping}</span> : null}
           </div>
         ) : null}
         {product.openAt ? <p className="product-card__open">{product.openAt}</p> : null}

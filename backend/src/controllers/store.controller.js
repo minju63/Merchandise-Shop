@@ -111,7 +111,9 @@ export async function delivery(req, res) {
 
 export async function products(req, res) {
   const id = storeId(req);
-  const options = query(req, ['popular', 'sales', 'newest', 'stock']);
+  const options = query(req, [
+    'popular', 'sales', 'newest', 'wishlist', 'stock', 'stock_asc', 'price_asc', 'price_desc',
+  ]);
   if (req.query.q !== undefined) badRequest('검색 파라미터는 지원하지 않습니다.');
   const result = await storeService.getStoreProductsPage(id, options);
   if (!result) notFound();

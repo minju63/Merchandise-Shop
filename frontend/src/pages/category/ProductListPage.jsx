@@ -9,6 +9,7 @@ import * as regionApi from '../../api/region.api.js';
 import ProductFilterBar from './components/ProductFilterBar';
 import ProductFilterSheet from './components/ProductFilterSheet';
 import ProductSort from './components/ProductSort';
+import '../../components/GoodsListCard.css';
 import ProductEmptyState from './components/ProductEmptyState';
 import useCategoryRequest from './components/useCategoryRequest';
 import './components/category.css';
@@ -132,7 +133,7 @@ function ProductListPageContent({
       {resultType !== 'stores' && <>
       <div className="category-section-heading">
         <p>
-          {request.data ? `굿즈 ${request.data.totalCount.toLocaleString('ko-KR')}` : '상품 찾기'}
+          {request.data ? <>굿즈 <span>{request.data.totalCount.toLocaleString('ko-KR')}</span></> : '상품 찾기'}
         </p>
         <ProductSort compact value={params.get('sort') || 'popular'} onChange={(sort) => update({ sort })} />
       </div>
@@ -175,7 +176,7 @@ function ProductListPageContent({
         ) : !ProductCard ? (
           <ProductEmptyState message="상품 목록을 표시할 수 없습니다." />
         ) : (
-          <div className="category-product-grid">
+          <div className="category-product-grid goods-grid">
             {request.data.items.map((product) => (
               <Link
                 key={product.storeProductId}

@@ -6,6 +6,7 @@ import Icon from '../../components/Icon.jsx';
 import BottomNavigation from '../../components/BottomNavigation.jsx';
 import SearchShopList from './SearchShopList.jsx';
 import useWishlist from '../../hooks/useWishlist.js';
+import GoodsListCard from '../../components/GoodsListCard.jsx';
 import IntegratedSearchFilters from './IntegratedSearchFilters.jsx';
 import './SearchPage.css';
 
@@ -355,51 +356,16 @@ function matchesRegion(location, region) {
     && (!region.area || location.area === region.area);
 }
 
-// 이미지를 덮는 상태: 출시 예정 / 재입고 예정 / 품절
-const OVERLAY_LABELS = { coming: 'COMING SOON', restock: 'RESTOCK SOON', soldout: 'SOLD OUT' };
-
-function overlayOf(product) {
-  if (product.status === 'UPCOMING') return 'coming';
-  if (product.status !== 'SOLD_OUT' && product.stock !== 0) return null;
-  return product.restockExpectedAt && new Date(product.restockExpectedAt) > new Date() ? 'restock' : 'soldout';
-}
-
-// 재고가 넉넉하면 라벨을 보이지 않고, 품절·재입고 예정·입고 예정일 때만 보여준다.
-const OVERLAY_STOCK_LABELS = { coming: '입고 예정', restock: '재입고 예정', soldout: '품절' };
-
-function ResultProductCard({ product, scoped = false, currentShopId }) {
+// 카테고리·굿즈샵 상세와 같은 상품 카드. 샵 이름을 누르면 매장으로 이동한다.
+function ResultProductCard({ product, currentShopId }) {
   const location = useLocation();
-  const wish = useWishlist();
-  const overlay = overlayOf(product);
-  const stockLabel = OVERLAY_STOCK_LABELS[overlay];
-  const content = <>
-      <span className="result-product__image result-product__image--live">
-        {product.image ? <img src={product.image} alt="" /> : <span className="result-product__placeholder"><Icon name="image" size={23} /><span>굿즈</span></span>}
-        {overlay && <span className="sold-out-dim" aria-hidden="true"><span>{OVERLAY_LABELS[overlay]}</span></span>}
-        <span
-          className={`result-product__heart${wish.isProductWished(product.storeProductId) ? ' is-wished' : ''}`}
-          role="button"
-          tabIndex={0}
-          aria-pressed={wish.isProductWished(product.storeProductId)}
-          aria-label={`${product.name} 찜하기`}
-          onClick={(event) => { event.preventDefault(); event.stopPropagation(); wish.toggleProduct(product.storeProductId); }}
-          onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); event.stopPropagation(); wish.toggleProduct(product.storeProductId); } }}
-        ><Icon name="heart" size={15} /></span>
-      </span>
-      <span className="result-product__content">
-        <small>{product.storeName}{currentShopId && product.storeId === currentShopId ? ' · 지금 보는 굿즈샵' : ''}</small>
-        <strong>{product.name}</strong>
-        {product.price != null && product.discountRate > 0 && <em className="result-product__discount">{product.discountRate}%</em>}
-        <b>
-          {product.price == null ? '가격 정보 없음' : `${Math.round(product.price * (100 - (product.discountRate || 0)) / 100).toLocaleString('ko-KR')}원`}
-          {product.price != null && product.discountRate > 0 && <s>{product.price.toLocaleString('ko-KR')}원</s>}
-        </b>
-        <span className="result-product__meta">{stockLabel && <small className="result-product__stock result-product__stock--sold">{stockLabel}</small>}<small>{[product.pickupAvailable && '픽업', product.deliveryAvailable && '배달'].filter(Boolean).join('·')}</small></span>
-      </span>
-    </>;
-  const productLink = <Link className="result-product" to={`/products/${encodeURIComponent(product.storeProductId)}`} state={{ listReturnTo: `${location.pathname}${location.search}`, storeId: product.storeId, storeName: product.storeName }}>{content}</Link>;
-  // 굿즈샵 안에서 보는 목록(scoped)은 이미 그 굿즈샵이라 "판매 매장 보기" 링크만 뺀다.
-  return <article className="result-product-card">{productLink}{!scoped && <Link className="result-product__store-link" to={`/stores/${product.storeId}`}>판매 매장 보기</Link>}</article>;
+  return (
+    <GoodsListCard
+      item={product}
+      shopSuffix={currentShopId && product.storeId === currentShopId ? ' · 지금 보는 굿즈샵' : ''}
+      linkState={{ listReturnTo: `${location.pathname}${location.search}`, storeId: product.storeId, storeName: product.storeName }}
+    />
+  );
 }
 
 function ProductSortMenu({ sort, onSortChange }) {
@@ -449,9 +415,9 @@ function ScopedResults({
               {query ? <p>다른 검색어나 필터 조건으로 다시 찾아보세요.</p> : null}
             </section>
           ) : (
-            <div className="result-list" aria-label="굿즈샵 상품 검색 결과">
+            <div className="goods-grid" aria-label="굿즈샵 상품 검색 결과">
               {products.map((product) => (
-                <ResultProductCard product={product} scoped key={product.storeProductId} />
+                <ResultProductCard product={product} key={product.storeProductId} />
               ))}
             </div>
           )}
@@ -739,7 +705,7 @@ export function SearchResultsPage({
           </div>
           {filterState && <IntegratedSearchFilters filters={filterState} onChange={onFilterChange} query={filterQuery} region={filterRegion} sort={sort} />}
           {products.length ? (
-            <div className="result-list">
+            <div className="goods-grid">
               {products.map((product) => (
                 <ResultProductCard product={product} key={product.storeProductId} currentShopId={currentShopId} />
               ))}

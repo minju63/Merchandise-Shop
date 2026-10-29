@@ -10,7 +10,7 @@
   --bd-danger: #e5484d;
 
   min-height: 100vh;
-  padding-bottom: 96px;
+  padding-bottom: 0;
   color: var(--bd-text);
   background: var(--bd-bg);
 }
@@ -129,8 +129,28 @@
   background: var(--bd-surface);
 }
 
+/* 굿즈샵 이름을 누르면 매장으로 이동 */
+.bd__link {
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+}
+
+.bd__link:hover {
+  text-decoration: underline;
+}
+
 .bd__hero + .bd__section {
   margin-top: 0;
+}
+
+/* 마지막 섹션(유의사항)과 고정 하단 버튼 사이에 회색 틈이 생기지 않게, 섹션 배경을 버튼 뒤까지 이어 둔다 */
+.bd main > .bd__section:last-child {
+  padding-bottom: calc(24px + 96px + env(safe-area-inset-bottom));
 }
 
 .bd__section-head {

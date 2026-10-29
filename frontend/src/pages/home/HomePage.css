@@ -575,6 +575,25 @@
   padding-top: 8px;
 }
 
+/* 카테고리 화면의 .category-page button 규칙(테두리·여백)보다 우선하도록 선택자를 더 구체적으로 쓴다 */
+.product-card__shop .product-card__shop-link,
+.category-page .product-card__shop .product-card__shop-link {
+  display: inline;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: inherit;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.product-card__shop .product-card__shop-link:hover {
+  text-decoration: underline;
+}
+
 .product-card__shop,
 .home-product-card h3,
 .home-product-card strong,
