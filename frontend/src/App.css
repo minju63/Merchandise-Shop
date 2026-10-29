@@ -1120,3 +1120,29 @@
   font-size: 10px;
   font-weight: 800;
 }
+
+/* 품절 상품 이미지를 반투명 회색으로 덮고 SOLD OUT을 보여준다 (찜 하트는 덮개 위에 보인다) */
+.sold-out-dim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  border-radius: inherit;
+  background: rgb(110 108 120 / 45%);
+  pointer-events: none;
+}
+
+.sold-out-dim span {
+  padding: 5px 12px;
+  border: 1.5px solid rgb(255 255 255 / 90%);
+  border-radius: 4px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+}
+
+.product-picture .product-heart {
+  z-index: 2;
+}

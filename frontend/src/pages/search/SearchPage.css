@@ -743,3 +743,4 @@ a.result-product { text-decoration: none; }
     display: block;
   }
 }
+.result-product__content > .result-product__stock--sold { color: #ca485d; font-weight: 700; }

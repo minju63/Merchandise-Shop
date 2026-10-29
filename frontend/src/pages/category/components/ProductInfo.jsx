@@ -22,12 +22,6 @@ export default function ProductInfo({ product }) {
         {Number(product.price).toLocaleString('ko-KR')}원
       </p>
       <div className="category-detail-tags">
-        {product.conditionGrade && (
-          <span className="category-chip">
-            {{ NEW: '새상품', A: 'A등급', B: 'B등급', C: 'C등급' }[product.conditionGrade] ||
-              product.conditionGrade}
-          </span>
-        )}
         <span className="category-chip">
           {status === 'ON_SALE' ? `재고 ${product.stock}개` : labels[status] || '이용 불가'}
         </span>

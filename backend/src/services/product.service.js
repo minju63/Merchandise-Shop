@@ -91,7 +91,7 @@ export function createProductService(repositories) {
       // 출시 예정은 오픈 시각, 품절 상품은 재입고일이 남아 있을 때만 입고 예정 시각을 내려준다.
       upcomingAt: listing.status === 'UPCOMING'
         ? (listing.product.open_at ?? null)
-        : (listing.status === 'SOLD_OUT' && listing.restock_expected_at
+        : ((availability.displayStatus === 'SOLD_OUT') && listing.restock_expected_at
           && new Date(listing.restock_expected_at) > new Date() ? listing.restock_expected_at : null),
       storeId: listing.store.id,
       storeName: listing.store.name,

@@ -251,22 +251,25 @@ export async function getStoreProductsPage(storeId, { sort, page, size }) {
         (imagesByProduct.get(product.id) || []).toSorted(
           (a, b) => Number(a.display_order) - Number(b.display_order)
         )[0]?.image_url;
+      // 재입고일이 아직 남아 있을 때만 재입고 예정으로 본다.
+      const restockSoon =
+        Boolean(listing.restock_expected_at) && new Date(listing.restock_expected_at) > new Date();
       const stockLabel = !onSale
         ? listing.status === 'UPCOMING' || product.status === 'UPCOMING'
           ? '판매 예정'
           : listing.status === 'SOLD_OUT'
-            ? listing.restock_expected_at
-              ? '품절 · 입고 예정'
+            ? restockSoon
+              ? '재입고 예정'
               : '품절'
             : '판매 중지'
         : stock === null
           ? '재고 확인 불가'
           : stock >= 4
-            ? '재고 있음'
+            ? null // 재고가 넉넉하면 라벨을 표시하지 않는다.
             : stock > 0
               ? `품절 임박 · ${stock}개`
-              : listing.restock_expected_at
-                ? '품절 · 입고 예정'
+              : restockSoon
+                ? '재입고 예정'
                 : '품절';
       return {
         storeProductId: listing.id,
@@ -276,6 +279,15 @@ export async function getStoreProductsPage(storeId, { sort, page, size }) {
         price: listing.price == null ? null : Number(listing.price),
         stock,
         stockLabel,
+        // 이미지를 덮는 상태: coming(출시 예정) / restock(재입고 예정) / soldout(품절)
+        overlay:
+          listing.status === 'UPCOMING' || product.status === 'UPCOMING'
+            ? 'coming'
+            : (onSale ? !(stock > 0) : listing.status === 'SOLD_OUT')
+              ? restockSoon
+                ? 'restock'
+                : 'soldout'
+              : null,
         purchasable: onSale && stock > 0 && listing.price != null,
         pickupAvailable: Boolean(store.pickup_available && listing.pickup_available),
         deliveryAvailable: Boolean(store.delivery_available && listing.delivery_available),

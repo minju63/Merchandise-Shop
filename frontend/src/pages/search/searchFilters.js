@@ -8,7 +8,8 @@ export const EMPTY_FILTERS = {
   inStock: false,
   pickup: false,
   delivery: false,
-  includeUpcoming: true,
+  includeSoldOut: false,
+  includeUpcoming: false,
   discountOnly: false,
   discountBands: [],
   ratingMin: '',
@@ -37,6 +38,8 @@ export function filterParams(filters) {
     inStock: filters.inStock || undefined,
     pickup: filters.pickup || undefined,
     delivery: filters.delivery || undefined,
+    // 품절·입고 예정 상품은 기본으로 제외하고, 포함을 켰을 때만 조건을 보내지 않는다.
+    includeSoldOut: filters.includeSoldOut || filters.inStock ? undefined : false,
     includeUpcoming: filters.includeUpcoming || filters.inStock ? undefined : false,
     discountOnly: filters.discountOnly || undefined,
     discountBands: filters.discountBands.join(',') || undefined,
@@ -86,15 +89,20 @@ export function chipsFor(filters, categories = []) {
         remove: (current) => ({
           ...current,
           [key]: false,
-          ...(key === 'inStock' ? { includeUpcoming: true } : {}),
         }),
       });
   }
-  if (!filters.includeUpcoming && !filters.inStock)
+  if (filters.includeSoldOut)
+    chips.push({
+      key: 'includeSoldOut',
+      label: '품절 상품 포함',
+      remove: (current) => ({ ...current, includeSoldOut: false }),
+    });
+  if (filters.includeUpcoming)
     chips.push({
       key: 'includeUpcoming',
-      label: '입고 예정 제외',
-      remove: (current) => ({ ...current, includeUpcoming: true }),
+      label: '입고 예정 상품 포함',
+      remove: (current) => ({ ...current, includeUpcoming: false }),
     });
   for (const band of filters.discountBands) {
     const label = {

@@ -446,7 +446,7 @@ export default function HomePage({
 
         <section className="home-section">
           <div className="home-section-heading">
-            <div><h2>재고 얼마 안 남은 상품</h2><p>재고가 적은 순서로 보여드려요</p></div>
+            <div><h2>품절 임박 상품</h2><p>재고가 적은 순서로 보여드려요</p></div>
             <button type="button" onClick={onOpenLowStock} disabled={!onOpenLowStock}>
               전체보기 <span aria-hidden="true">›</span>
             </button>

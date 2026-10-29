@@ -93,7 +93,7 @@ async function loadAdProducts(store) {
         priceValue: salePrice(listing),
         stockQuantity: listing.stock,
         // 재고 임박(5개 이하)은 카드 위에 빨간 라벨로 보여준다.
-        stockLabel: listing.stock <= 0 ? '품절' : (lowStock ? `재고 ${listing.stock}개 남음` : null),
+        stockLabel: listing.stock <= 0 ? '품절' : (lowStock ? `품절 임박 · ${listing.stock}개` : null),
         stockText: null,
       };
     });

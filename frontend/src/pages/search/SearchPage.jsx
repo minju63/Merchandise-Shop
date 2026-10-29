@@ -175,6 +175,48 @@ function AutocompleteList({ query, suggestions, isLoading, onSelect }) {
   );
 }
 
+// 검색어가 없을 때 보여주는 최근 검색어와 인기 검색어
+function RecentAndPopular({ data, recentSearches, onSelect, onRemove, onClear }) {
+  return (
+    <>
+      <section className="search-section">
+        <div className="search-section__heading">
+          <h1>최근 검색어</h1>
+          {recentSearches.length ? <button type="button" onClick={onClear}>전체 삭제</button> : null}
+        </div>
+        {recentSearches.length ? (
+          <div className="recent-keywords">
+            {recentSearches.map((keyword) => (
+              <div className="recent-chip" key={keyword}>
+                <button type="button" onClick={() => onSelect(keyword)}>{keyword}</button>
+                <button type="button" aria-label={`${keyword} 삭제`} onClick={() => onRemove(keyword)}>×</button>
+              </div>
+            ))}
+          </div>
+        ) : <p className="search-empty">최근 검색어가 없습니다.</p>}
+      </section>
+
+      <section className="search-section popular-searches">
+        <div className="search-section__heading">
+          <h1>인기 검색어</h1>
+          <time>{data.popularUpdatedAt}</time>
+        </div>
+        <ol>
+          {data.popularKeywords.map((item) => (
+            <li key={item.rank}>
+              <button type="button" onClick={() => onSelect(item.keyword)}>
+                <b>{item.rank}</b>
+                <span>{item.keyword}</span>
+                <Trend item={item} />
+              </button>
+            </li>
+          ))}
+        </ol>
+      </section>
+    </>
+  );
+}
+
 export default function SearchPage({
   data,
   initialQuery = '',
@@ -284,40 +326,13 @@ export default function SearchPage({
             onSelect={selectSuggestion}
           />
         ) : <>
-        <section className="search-section">
-          <div className="search-section__heading">
-            <h1>최근 검색어</h1>
-            {recentSearches.length ? <button type="button" onClick={clearRecent}>전체 삭제</button> : null}
-          </div>
-          {recentSearches.length ? (
-            <div className="recent-keywords">
-              {recentSearches.map((keyword) => (
-                <div className="recent-chip" key={keyword}>
-                  <button type="button" onClick={() => runSearch(keyword)}>{keyword}</button>
-                  <button type="button" aria-label={`${keyword} 삭제`} onClick={() => removeRecent(keyword)}>×</button>
-                </div>
-              ))}
-            </div>
-          ) : <p className="search-empty">최근 검색어가 없습니다.</p>}
-        </section>
-
-        <section className="search-section popular-searches">
-          <div className="search-section__heading">
-            <h1>인기 검색어</h1>
-            <time>{data.popularUpdatedAt}</time>
-          </div>
-          <ol>
-            {data.popularKeywords.map((item) => (
-              <li key={item.rank}>
-                <button type="button" onClick={() => runSearch(item.keyword)}>
-                  <b>{item.rank}</b>
-                  <span>{item.keyword}</span>
-                  <Trend item={item} />
-                </button>
-              </li>
-            ))}
-          </ol>
-        </section>
+        <RecentAndPopular
+          data={data}
+          recentSearches={recentSearches}
+          onSelect={runSearch}
+          onRemove={removeRecent}
+          onClear={clearRecent}
+        />
         </>}
       </main>
       <BottomNavigation />
@@ -338,18 +353,33 @@ function matchesRegion(location, region) {
     && (!region.area || location.area === region.area);
 }
 
+// 이미지를 덮는 상태: 출시 예정 / 재입고 예정 / 품절
+const OVERLAY_LABELS = { coming: 'COMING SOON', restock: 'RESTOCK SOON', soldout: 'SOLD OUT' };
+
+function overlayOf(product) {
+  if (product.status === 'UPCOMING') return 'coming';
+  if (product.status !== 'SOLD_OUT' && product.stock !== 0) return null;
+  return product.restockExpectedAt && new Date(product.restockExpectedAt) > new Date() ? 'restock' : 'soldout';
+}
+
+// 재고가 넉넉하면 라벨을 보이지 않고, 품절·재입고 예정·입고 예정일 때만 보여준다.
+const OVERLAY_STOCK_LABELS = { coming: '입고 예정', restock: '재입고 예정', soldout: '품절' };
+
 function ResultProductCard({ product, scoped = false, currentShopId }) {
   const location = useLocation();
+  const overlay = overlayOf(product);
+  const stockLabel = OVERLAY_STOCK_LABELS[overlay];
   const content = <>
       <span className="result-product__image result-product__image--live">
         {product.image ? <img src={product.image} alt="" /> : scoped ? <SearchIcon /> : <span className="result-product__placeholder"><Icon name="image" size={23} /><span>굿즈</span></span>}
+        {overlay && <span className="sold-out-dim" aria-hidden="true"><span>{OVERLAY_LABELS[overlay]}</span></span>}
         {!scoped && <span className="result-product__heart" aria-hidden="true"><Icon name="heart" size={15} /></span>}
       </span>
       <span className="result-product__content">
         <small>{product.storeName}{currentShopId && product.storeId === currentShopId ? ' · 지금 보는 굿즈샵' : ''}</small>
         <strong>{product.name}</strong>
         <b>{product.price == null ? '가격 정보 없음' : `${product.price.toLocaleString('ko-KR')}원`}</b>
-        {scoped ? <><small>{product.status === 'SOLD_OUT' || product.stock === 0 ? '품절' : product.status === 'UPCOMING' ? '판매 예정' : product.stock == null ? '재고 확인 불가' : `재고 ${product.stock}개`}</small><small>{[product.pickupAvailable && '픽업 가능', product.deliveryAvailable && '배달 가능'].filter(Boolean).join(' · ')}</small></> : <span className="result-product__meta"><small className={product.status === 'SOLD_OUT' || product.stock === 0 ? 'result-product__stock result-product__stock--sold' : 'result-product__stock'}>{product.status === 'SOLD_OUT' || product.stock === 0 ? '재고 없음' : product.status === 'UPCOMING' ? '입고 예정' : product.stock == null ? '재고 확인' : '재고 있음'}</small><small>{[product.pickupAvailable && '픽업', product.deliveryAvailable && '배달'].filter(Boolean).join('·')}</small></span>}
+        {scoped ? <>{stockLabel && <small className="result-product__stock result-product__stock--sold">{stockLabel}</small>}<small>{[product.pickupAvailable && '픽업 가능', product.deliveryAvailable && '배달 가능'].filter(Boolean).join(' · ')}</small></> : <span className="result-product__meta">{stockLabel && <small className="result-product__stock result-product__stock--sold">{stockLabel}</small>}<small>{[product.pickupAvailable && '픽업', product.deliveryAvailable && '배달'].filter(Boolean).join('·')}</small></span>}
       </span>
     </>;
   const productLink = <Link className="result-product" to={`/products/${encodeURIComponent(product.storeProductId)}`} state={{ listReturnTo: `${location.pathname}${location.search}`, storeId: product.storeId, storeName: product.storeName }}>{content}</Link>;
@@ -462,7 +492,10 @@ export function SearchResultsPage({
   const [isLoading, setIsLoading] = useState(false);
   const [resultType, setResultType] = useState(initialResultType ?? 'all');
   const loggedSearch = useRef(null);
-  const isEditing = query.trim() !== initialQuery.trim();
+  const [recentSearches, setRecentSearches] = useState(() => loadRecentSearches(data.defaultRecentSearches));
+  // 입력창을 직접 고친 뒤에는 현재 검색어와 같은 글자(예: 서 → 서면)여도 자동완성을 보여준다.
+  const [typed, setTyped] = useState(false);
+  const isEditing = typed || query.trim() !== initialQuery.trim();
   const parsedQuery = parseRegionalQuery(initialQuery, data);
   const keywordTokens = (regionEnabled ? parsedQuery.keyword : initialQuery)
     .toLocaleLowerCase('ko-KR')
@@ -518,15 +551,40 @@ export function SearchResultsPage({
 
   const updateQuery = (value) => {
     setQuery(value);
-    setIsLoading(value.trim().length > 0 && value.trim() !== initialQuery.trim());
+    setTyped(true);
+    setIsLoading(value.trim().length > 0);
   };
 
-  const selectSuggestion = (item) => onSearch(item.searchValue ?? item.label);
+  const rememberSearch = (keyword) => {
+    const next = [keyword, ...recentSearches.filter((item) => item !== keyword)].slice(0, 10);
+    setRecentSearches(next);
+    saveRecentSearches(next);
+  };
+
+  const runSearch = (keyword) => {
+    const nextKeyword = keyword.trim();
+    if (!nextKeyword && !storeId) return;
+    if (nextKeyword) rememberSearch(nextKeyword);
+    setTyped(false);
+    onSearch(nextKeyword);
+  };
+
+  const removeRecent = (keyword) => {
+    const next = recentSearches.filter((item) => item !== keyword);
+    setRecentSearches(next);
+    saveRecentSearches(next);
+  };
+
+  const clearRecent = () => {
+    setRecentSearches([]);
+    saveRecentSearches([]);
+  };
+
+  const selectSuggestion = (item) => runSearch(item.searchValue ?? item.label);
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const nextQuery = query.trim();
-    if (nextQuery || storeId) onSearch(nextQuery);
+    runSearch(query);
   };
 
   return (
@@ -558,7 +616,15 @@ export function SearchResultsPage({
               isLoading={isLoading}
               onSelect={selectSuggestion}
             />
-          ) : <p className="autocomplete-status">검색어를 입력해 주세요.</p>}
+          ) : storeId ? <p className="autocomplete-status">검색어를 입력해 주세요.</p> : (
+            <RecentAndPopular
+              data={data}
+              recentSearches={recentSearches}
+              onSelect={runSearch}
+              onRemove={removeRecent}
+              onClear={clearRecent}
+            />
+          )}
         </main>
       ) : globalLoading ? (
         <main className="search-results"><p className="search-result-status">검색 결과를 불러오는 중입니다.</p></main>

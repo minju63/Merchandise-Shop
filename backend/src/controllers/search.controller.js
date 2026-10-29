@@ -38,7 +38,7 @@ function choice(value, allowed, label) {
 }
 
 export async function getSearchProducts(req, res) {
-  const { storeId, similarTo, q = '', region = '', sort = 'popular', page = '1', size = '20', contentCategories, goodsCategories, regions, minPrice, maxPrice, inStock, pickup, delivery, discountOnly, discountBands, includeUpcoming, ratingMin, wishlistMin } = req.query;
+  const { storeId, similarTo, q = '', region = '', sort = 'popular', page = '1', size = '20', contentCategories, goodsCategories, regions, minPrice, maxPrice, inStock, pickup, delivery, discountOnly, discountBands, includeUpcoming, includeSoldOut, ratingMin, wishlistMin } = req.query;
   if (storeId !== undefined && (typeof storeId !== 'string' || !UUID.test(storeId))) {
     badRequest('올바른 굿즈샵 ID가 아닙니다.');
   }
@@ -69,6 +69,7 @@ export async function getSearchProducts(req, res) {
     discountOnly: flag(discountOnly, '할인'),
     discountBands: commaList(discountBands, (value) => ['under10', '10to30', 'over30'].includes(value), '할인율'),
     includeUpcoming: flag(includeUpcoming, '입고 예정'),
+    includeSoldOut: flag(includeSoldOut, '품절'),
     ratingMin: choice(ratingMin, ['3', '3.5', '4', '4.5'], '후기 별점'),
     wishlistMin: choice(wishlistMin, ['10', '50', '100', '500'], '찜 개수'),
   };

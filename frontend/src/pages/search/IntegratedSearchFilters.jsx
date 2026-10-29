@@ -144,7 +144,9 @@ function FilterSheet({ applied, categories, query, region, storeId, sort, onAppl
     ),
     region: draft.regions.length,
     reviews: Number(Boolean(draft.ratingMin || draft.wishlistMin)),
-    sale: Number(draft.inStock || draft.pickup || draft.delivery || !draft.includeUpcoming),
+    sale: Number(
+      draft.inStock || draft.pickup || draft.delivery || draft.includeSoldOut || draft.includeUpcoming
+    ),
   };
   return (
     <dialog
@@ -406,23 +408,17 @@ function FilterSheet({ applied, categories, query, region, storeId, sort, onAppl
                     { id: 'soldOut', name: '품절 상품 포함' },
                     { id: 'upcoming', name: '입고 예정 상품 포함' },
                   ]}
-                  values={[!draft.inStock && 'soldOut', draft.includeUpcoming && 'upcoming'].filter(
+                  values={[draft.includeSoldOut && 'soldOut', draft.includeUpcoming && 'upcoming'].filter(
                     Boolean
                   )}
-                  onChange={(values) => {
-                    if (values.includes('soldOut') !== !draft.inStock)
-                      update(
-                        values.includes('soldOut')
-                          ? { inStock: false }
-                          : { inStock: true, includeUpcoming: false }
-                      );
-                    else
-                      update(
-                        values.includes('upcoming')
-                          ? { inStock: false, includeUpcoming: true }
-                          : { includeUpcoming: false }
-                      );
-                  }}
+                  onChange={(values) =>
+                    update({
+                      includeSoldOut: values.includes('soldOut'),
+                      includeUpcoming: values.includes('upcoming'),
+                      // 품절·입고 예정을 포함하면 "재고 있음만 보기"는 자동으로 꺼진다.
+                      ...(values.length ? { inStock: false } : {}),
+                    })
+                  }
                 />
               </section>
             </>
@@ -489,7 +485,7 @@ export default function IntegratedSearchFilters({ filters, onChange, query, regi
   const setQuick = (key) =>
     onChange(
       key === 'inStock'
-        ? { ...filters, inStock: !filters.inStock, includeUpcoming: filters.inStock }
+        ? { ...filters, inStock: !filters.inStock, includeSoldOut: false, includeUpcoming: false }
         : { ...filters, [key]: !filters[key] }
     );
   return (

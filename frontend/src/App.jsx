@@ -122,7 +122,7 @@ const UPCOMING_PATH = `/category/products?${new URLSearchParams({
   sort: 'upcoming',
 })}`;
 
-// "재고 얼마 안 남은 상품" 전체보기: 전체 > 모두 보기 굿즈 결과를 재고 적은 순으로 보여준다.
+// "품절 임박 상품" 전체보기: 전체 > 모두 보기 굿즈 결과를 재고 적은 순으로 보여준다.
 // 판매 상태 기본값(재고 있는 상품만)이 적용돼 품절 상품은 나오지 않는다.
 const LOW_STOCK_PATH = `/category/products?${new URLSearchParams({
   contentName: '전체',
@@ -370,7 +370,10 @@ function SearchResultsRoute() {
   const [savedFilters, setSavedFilters] = useState({ key: filterKey, value: { ...EMPTY_FILTERS } });
   const appliedFilters = savedFilters.key === filterKey ? savedFilters.value : EMPTY_FILTERS;
   const activeParams = filterParams(appliedFilters);
-  const hasActiveFilters = Object.values(activeParams).some((value) => value !== undefined);
+  // 품절·입고 예정 제외는 기본값이라 사용자가 건 필터로 보지 않는다.
+  const hasActiveFilters = Object.entries(activeParams).some(
+    ([key, value]) => value !== undefined && !['includeSoldOut', 'includeUpcoming'].includes(key)
+  );
   const regionalBaselineQuery = useQuery({
     queryKey: ['search-region-baseline', keyword, region],
     queryFn: () => searchApi.products({ q: keyword, region, size: 1 }),
@@ -388,8 +391,8 @@ function SearchResultsRoute() {
   });
   const needsNationwideFallback = filteredNationwideFallback || Boolean(!storeId && !hasActiveFilters && region && keyword && productsQuery.data?.data.totalCount === 0);
   const nationwideQuery = useQuery({
-    queryKey: ['search-products', null, keyword, null, sort, page],
-    queryFn: () => searchApi.products({ q: keyword, sort, page, size: 20 }),
+    queryKey: ['search-products', null, keyword, null, sort, page, activeParams],
+    queryFn: () => searchApi.products({ q: keyword, sort, page, size: 20, ...activeParams }),
     enabled: needsNationwideFallback && !hasActiveFilters,
     retry: false,
   });
@@ -448,7 +451,8 @@ function SearchResultsRoute() {
         if (page > 1) navigate(searchUrl('/search/results', { query, storeId, sort, regionAll }), { state: searchState });
       }}
       onBack={() => navigate(searchUrl('/search', { query, storeId }), { state: searchState })}
-      onSearch={(nextQuery) => navigate(searchUrl('/search/results', { query: nextQuery, storeId, sort }), { state: searchState })}
+      // 결과 화면에서 다시 검색하면 이전 정렬을 이어받지 않고 처음 검색할 때처럼 시작한다.
+      onSearch={(nextQuery) => navigate(searchUrl('/search/results', { query: nextQuery, storeId }), { state: searchState })}
       onLogSearch={logSearch}
     />
   );

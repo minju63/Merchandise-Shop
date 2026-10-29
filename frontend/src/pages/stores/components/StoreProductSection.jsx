@@ -5,6 +5,9 @@ import { storeApi } from '../../../api/store.api.js';
 import Icon from './Icon.jsx';
 import { AvailabilityBadges, ImageWithFallback, PageState } from './StoreShell.jsx';
 
+// 이미지를 덮는 상태: 출시 예정 / 재입고 예정 / 품절
+const OVERLAY_LABELS = { coming: 'COMING SOON', restock: 'RESTOCK SOON', soldout: 'SOLD OUT' };
+
 export default function StoreProductSection({ storeId, searchContext }) {
   const [page, setPage] = useState(1);
   const { data, isPending, isError, error, refetch } = useQuery({
@@ -46,6 +49,11 @@ export default function StoreProductSection({ storeId, searchContext }) {
                 >
                   <div className="product-picture">
                     <ImageWithFallback src={product.image} alt={product.name} />
+                    {product.overlay && (
+                      <div className="sold-out-dim" aria-hidden="true">
+                        <span>{OVERLAY_LABELS[product.overlay]}</span>
+                      </div>
+                    )}
                     <span className="product-heart" aria-hidden="true">
                       <Icon name="heart" size={19} />
                     </span>
@@ -56,9 +64,9 @@ export default function StoreProductSection({ storeId, searchContext }) {
                       ? '가격 정보 없음'
                       : `${product.price.toLocaleString('ko-KR')}원`}
                   </strong>
-                  <span className={`stock-label ${product.purchasable ? '' : 'sold-out'}`}>
-                    {product.stockLabel}
-                  </span>
+                  {product.stockLabel && (
+                    <span className="stock-label sold-out">{product.stockLabel}</span>
+                  )}
                   <AvailabilityBadges
                     pickup={product.pickupAvailable}
                     delivery={product.deliveryAvailable}
