@@ -5,12 +5,15 @@ import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { isAuthError, wishlistApi } from '../../api/wishlist.api.js';
 import { cartApi } from '../../api/cart.api.js';
+import { preorderApi } from '../../api/preorder.api.js';
 import BottomNavigation from '../../components/BottomNavigation.jsx';
 import WishTabBar from './components/WishTabBar.jsx';
 import WishProductCard from './components/WishProductCard.jsx';
 import WishRemoveDialog from './components/WishRemoveDialog.jsx';
 import FulfillmentSheet from './components/FulfillmentSheet.jsx';
 import RestockAlertSheet from './components/RestockAlertSheet.jsx';
+import GoodsPassSheet from './components/GoodsPassSheet.jsx';
+import PreorderSheet from './components/PreorderSheet.jsx';
 import WishEmptyState, { WishLoginRequired } from './components/WishEmptyState.jsx';
 import './WishProductsPage.css';
 
@@ -32,6 +35,14 @@ const alertFailMessages = {
   NOT_ON_SALE: '판매하지 않는 상품이에요',
 };
 
+// 사전예약 견적 · 신청 오류 안내
+const preorderFailMessages = {
+  ALREADY_PREORDERED: '이미 예약한 상품이에요',
+  ALREADY_IN_STOCK: '지금 구매할 수 있는 상품이에요',
+  PREORDER_NOT_ALLOWED: '이 상품은 사전예약을 받지 않아요',
+};
+const ACTIVE_PREORDER_STATUSES = ['PENDING', 'RESERVED'];
+
 export default function WishProductsPage() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -39,6 +50,8 @@ export default function WishProductsPage() {
   const [target, setTarget] = useState(null);
   const [sheetItem, setSheetItem] = useState(null);
   const [restockItem, setRestockItem] = useState(null);
+  // 사전예약 흐름: { item, step: 'pass'(J-05) | 'preorder'(J-06) }
+  const [preorderFlow, setPreorderFlow] = useState(null);
   // 토스트: { text, duration, actionLabel?, onAction? }
   const [notice, setNotice] = useState(null);
   const toast = (text, options = {}) => setNotice({ text, duration: 2000, ...options });
@@ -114,6 +127,54 @@ export default function WishProductsPage() {
       ? alertRemoveMutation.variables
       : null;
 
+  // [예약됨] 표시는 내 사전예약 목록에서 진행 중인 예약으로 판단한다. 새로고침해도 유지된다.
+  const preordersQuery = useQuery({
+    queryKey: ['preorders', 'list'],
+    queryFn: () => preorderApi.list({ size: 100 }),
+    retry: (count, queryError) => !isAuthError(queryError) && count < 1,
+  });
+  const preorderedIds = new Set(
+    (preordersQuery.data?.data.items ?? [])
+      .filter((preorder) => ACTIVE_PREORDER_STATUSES.includes(preorder.status))
+      .map((preorder) => preorder.storeProductId),
+  );
+  const refreshPreorders = () => queryClient.invalidateQueries({ queryKey: ['preorders', 'list'] });
+
+  const handlePreorderError = (preorderError) => {
+    setPreorderFlow(null);
+    if (isAuthError(preorderError)) return toast('로그인이 필요합니다');
+    if (preorderError.code === 'ALREADY_PREORDERED') refreshPreorders();
+    if (preorderError.code === 'ALREADY_IN_STOCK') refreshProducts();
+    toast(preorderFailMessages[preorderError.code] ?? '사전예약을 진행하지 못했어요. 다시 시도해 주세요');
+  };
+
+  // 견적을 먼저 불러와 구독 여부·기존 예약을 확인한 뒤 J-05 또는 J-06 를 띄운다.
+  const quoteMutation = useMutation({
+    mutationFn: (item) => preorderApi.quote({ storeProductId: item.storeProductId, qty: 1 }),
+    onSuccess: (response, item) => {
+      const quote = response.data;
+      if (quote.alreadyPreordered) {
+        refreshPreorders();
+        return toast('이미 예약한 상품이에요');
+      }
+      setPreorderFlow({ item, step: quote.isSubscribed ? 'preorder' : 'pass' });
+    },
+    onError: handlePreorderError,
+  });
+
+  const finishPreorder = (result) => {
+    setPreorderFlow(null);
+    refreshPreorders();
+    toast(`사전예약이 완료됐어요 (${result.priority}번째)`, { duration: 3000 });
+  };
+
+  const failPreorder = (preorderError) => {
+    // 구독이 끝났거나 확인되지 않으면 J-05 로 되돌린다.
+    if (preorderError.code === 'SUBSCRIPTION_REQUIRED')
+      return setPreorderFlow((flow) => flow && { ...flow, step: 'pass' });
+    handlePreorderError(preorderError);
+  };
+
   // 신청된 알림은 시트 없이 바로 해제, 아니면 시트에서 매장을 확인하고 신청한다.
   const toggleRestockAlert = (item) => {
     if (item.restockAlertEnabled) alertRemoveMutation.mutate(item.storeProductId);
@@ -168,7 +229,9 @@ export default function WishProductsPage() {
                 onAddToCart={() => addToCart(item)}
                 isAlertPending={alertPendingId === item.storeProductId}
                 onRestockAlert={() => toggleRestockAlert(item)}
-                onPending={() => toast('준비 중입니다')}
+                isPreordered={preorderedIds.has(item.storeProductId)}
+                isPreorderLoading={quoteMutation.isPending && quoteMutation.variables?.storeProductId === item.storeProductId}
+                onPreorder={() => quoteMutation.mutate(item)}
               />
             ))}
           </div>
@@ -212,6 +275,20 @@ export default function WishProductsPage() {
           isPending={alertCreateMutation.isPending}
           onCancel={() => setRestockItem(null)}
           onConfirm={() => alertCreateMutation.mutate(restockItem.storeProductId)}
+        />
+      )}
+      {preorderFlow?.step === 'pass' && (
+        <GoodsPassSheet
+          onClose={() => setPreorderFlow(null)}
+          onSubscribed={() => setPreorderFlow({ ...preorderFlow, step: 'preorder' })}
+        />
+      )}
+      {preorderFlow?.step === 'preorder' && (
+        <PreorderSheet
+          item={preorderFlow.item}
+          onClose={() => setPreorderFlow(null)}
+          onDone={finishPreorder}
+          onFail={failPreorder}
         />
       )}
       {notice && (

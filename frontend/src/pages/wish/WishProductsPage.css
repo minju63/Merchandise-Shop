@@ -469,3 +469,167 @@
   font-size: 15px;
   font-weight: 800;
 }
+
+/* 예약됨 버튼은 비활성이어도 완료 상태 색을 유지한다 */
+.wish-action.is-done:disabled {
+  border-color: #d9d0f7;
+  background: #f3f0fc;
+  color: #6c4adf;
+}
+
+/* 굿즈 패스 구독 전환 (J-05) */
+.wish-plans {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 16px;
+  text-align: left;
+}
+.wish-plan {
+  position: relative;
+  padding: 14px 12px;
+  border: 1px solid #e3e6eb;
+  border-radius: 12px;
+}
+.wish-plan.is-recommended {
+  border: 2px solid #6c4adf;
+  background: #faf8ff;
+}
+.wish-plan-badge {
+  display: inline-block;
+  margin-bottom: 6px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #6c4adf;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+}
+.wish-plan-name {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+}
+.wish-plan-price {
+  margin: 4px 0 0;
+  color: #5b616b;
+  font-size: 13px;
+}
+.wish-plan-price strong {
+  color: #211d2b;
+  font-size: 16px;
+}
+.wish-plan-benefits {
+  margin: 8px 0 0;
+  padding-left: 16px;
+  color: #5b616b;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.wish-pass-agree {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  color: #3d434d;
+  font-size: 13px;
+  text-align: left;
+}
+.wish-pass-agree input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  flex: none;
+  accent-color: #6c4adf;
+}
+
+/* 사전예약 신청 (J-06) */
+.wish-preorder-sheet {
+  max-height: 92vh;
+  overflow-y: auto;
+}
+.wish-inline-badge {
+  position: static;
+  display: inline-block;
+  margin-bottom: 4px;
+}
+.wish-sheet-price {
+  margin: 4px 0 0;
+  font-size: 14px;
+  font-weight: 800;
+}
+.wish-preorder-priority-note {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f3f0fc;
+  color: #5c3ccc;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+}
+.wish-preorder-info,
+.wish-preorder-amounts {
+  margin: 14px 0 0;
+  text-align: left;
+}
+.wish-preorder-info div,
+.wish-preorder-amounts div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 30px;
+  font-size: 14px;
+}
+.wish-preorder-info dt,
+.wish-preorder-amounts dt {
+  color: #6b717c;
+}
+.wish-preorder-info dd,
+.wish-preorder-amounts dd {
+  margin: 0;
+  font-weight: 700;
+}
+.wish-preorder-amounts {
+  padding-top: 10px;
+  border-top: 1px dashed #e3e6eb;
+}
+.wish-preorder-amounts .is-strong dt,
+.wish-preorder-amounts .is-strong dd {
+  color: #6c4adf;
+  font-size: 16px;
+  font-weight: 800;
+}
+.wish-quantity {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #e3e6eb;
+  border-radius: 8px;
+}
+.wish-quantity button {
+  width: 30px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #3d434d;
+  font-size: 16px;
+}
+.wish-quantity button:disabled {
+  color: #c9ccd2;
+}
+.wish-quantity span {
+  min-width: 28px;
+  text-align: center;
+}
+.wish-preorder-notice {
+  margin: 16px 0 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fff4e5;
+  color: #b4540a;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  text-align: left;
+}

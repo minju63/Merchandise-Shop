@@ -19,7 +19,9 @@ export default function WishProductCard({
   onRemove,
   onAddToCart,
   onRestockAlert,
-  onPending,
+  isPreordered,
+  isPreorderLoading,
+  onPreorder,
 }) {
   const badge = stockBadges[item.stockLabel] ?? stockBadges.SOLD_OUT;
   const inStock = item.stockLabel === 'IN_STOCK' || item.stockLabel === 'LOW_STOCK';
@@ -92,8 +94,13 @@ export default function WishProductCard({
           <>
             {restockButton}
             {item.preorderAvailable && (
-              <button type="button" className="wish-action is-primary" onClick={onPending}>
-                사전예약
+              <button
+                type="button"
+                className={`wish-action${isPreordered ? ' is-done' : ' is-primary'}`}
+                disabled={isPreordered || isPreorderLoading}
+                onClick={onPreorder}
+              >
+                {isPreordered ? '예약됨' : '사전예약'}
               </button>
             )}
           </>
