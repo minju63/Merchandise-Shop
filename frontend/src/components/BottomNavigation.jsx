@@ -6,7 +6,7 @@ const tabs = [
   { icon: 'home', label: '홈', to: '/' },
   { icon: 'store', label: '굿즈샵', to: '/stores' },
   { icon: 'grid', label: '카테고리', to: '/category' },
-  { icon: 'heart', label: '찜' },
+  { icon: 'heart', label: '찜', to: '/wish' },
   { icon: 'user', label: '마이', to: '/my' },
 ];
 

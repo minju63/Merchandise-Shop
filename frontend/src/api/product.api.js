@@ -18,3 +18,12 @@ export function getProductDetail(storeProductId, { signal } = {}, client) {
 export function getRelatedProducts(storeProductId, { signal, size = 8 } = {}, client) {
   return get(`/products/${encodeURIComponent(storeProductId)}/related`, { size }, signal, client);
 }
+
+export function getSimilarStores(storeProductId, { signal, size = 10, includeCurrent } = {}, client) {
+  return get(
+    `/products/${encodeURIComponent(storeProductId)}/similar-stores`,
+    { size, includeCurrent },
+    signal,
+    client
+  );
+}

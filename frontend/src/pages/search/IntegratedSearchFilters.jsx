@@ -9,11 +9,14 @@ import {
   filterParams,
   toggleArray,
 } from './searchFilters.js';
+import useDragScroll from '../../hooks/useDragScroll.js';
+import ProductBrandFilter from '../category/components/ProductBrandFilter.jsx';
 import './IntegratedSearchFilters.css';
 
 const TABS = [
   ['category', '카테고리'],
   ['goods', '굿즈 종류'],
+  ['brand', '브랜드'],
   ['price', '가격'],
   ['region', '지역'],
   ['reviews', '후기/찜'],
@@ -76,6 +79,8 @@ function FilterSheet({ applied, categories, query, region, storeId, sort, onAppl
     discountBands: [...applied.discountBands],
   }));
   const [tab, setTab] = useState('category');
+  const tabsRef = useRef(null);
+  useDragScroll(tabsRef);
   const [error, setError] = useState('');
   const chips = chipsFor(draft, categories);
   const goodsCategories = categories
@@ -143,8 +148,11 @@ function FilterSheet({ applied, categories, query, region, storeId, sort, onAppl
       Boolean(draft.minPrice || draft.maxPrice || draft.discountOnly || draft.discountBands.length)
     ),
     region: draft.regions.length,
+    brand: draft.brands.length,
     reviews: Number(Boolean(draft.ratingMin || draft.wishlistMin)),
-    sale: Number(draft.inStock || draft.pickup || draft.delivery || !draft.includeUpcoming),
+    sale: Number(
+      draft.inStock || draft.pickup || draft.delivery || draft.includeSoldOut || draft.includeUpcoming
+    ),
   };
   return (
     <dialog
@@ -179,7 +187,7 @@ function FilterSheet({ applied, categories, query, region, storeId, sort, onAppl
             ×
           </button>
         </header>
-        <nav className="search-filter-tabs" aria-label="필터 종류">
+        <nav className="search-filter-tabs" aria-label="필터 종류" ref={tabsRef}>
           {TABS.map(([id, label]) => (
             <button
               type="button"
@@ -324,6 +332,12 @@ function FilterSheet({ applied, categories, query, region, storeId, sort, onAppl
               </section>
             </>
           )}
+          {tab === 'brand' && (
+            <ProductBrandFilter
+              selected={draft.brands}
+              onChange={(names) => update({ brands: names })}
+            />
+          )}
           {tab === 'region' && (
             <section>
               <h3>지역 <small>여러 개 선택 가능</small></h3>
@@ -406,23 +420,17 @@ function FilterSheet({ applied, categories, query, region, storeId, sort, onAppl
                     { id: 'soldOut', name: '품절 상품 포함' },
                     { id: 'upcoming', name: '입고 예정 상품 포함' },
                   ]}
-                  values={[!draft.inStock && 'soldOut', draft.includeUpcoming && 'upcoming'].filter(
+                  values={[draft.includeSoldOut && 'soldOut', draft.includeUpcoming && 'upcoming'].filter(
                     Boolean
                   )}
-                  onChange={(values) => {
-                    if (values.includes('soldOut') !== !draft.inStock)
-                      update(
-                        values.includes('soldOut')
-                          ? { inStock: false }
-                          : { inStock: true, includeUpcoming: false }
-                      );
-                    else
-                      update(
-                        values.includes('upcoming')
-                          ? { inStock: false, includeUpcoming: true }
-                          : { includeUpcoming: false }
-                      );
-                  }}
+                  onChange={(values) =>
+                    update({
+                      includeSoldOut: values.includes('soldOut'),
+                      includeUpcoming: values.includes('upcoming'),
+                      // 품절·입고 예정을 포함하면 "재고 있음만 보기"는 자동으로 꺼진다.
+                      ...(values.length ? { inStock: false } : {}),
+                    })
+                  }
                 />
               </section>
             </>
@@ -489,7 +497,7 @@ export default function IntegratedSearchFilters({ filters, onChange, query, regi
   const setQuick = (key) =>
     onChange(
       key === 'inStock'
-        ? { ...filters, inStock: !filters.inStock, includeUpcoming: filters.inStock }
+        ? { ...filters, inStock: !filters.inStock, includeSoldOut: false, includeUpcoming: false }
         : { ...filters, [key]: !filters[key] }
     );
   return (

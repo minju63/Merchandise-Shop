@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import ProductCard from '../../components/ProductCard.jsx';
 import UpcomingProductCard from '../../components/UpcomingProductCard.jsx';
 import Icon from '../../components/Icon.jsx';
+import PromoBanner from './PromoBanner.jsx';
+import { brandGroupFor, hasPickedBrands, matchesInterests } from './interestMatch.js';
 import BottomNavigation from '../../components/BottomNavigation.jsx';
 import './HomePage.css';
 
@@ -25,15 +27,20 @@ function HorizontalRail({ children, className, ariaLabel }) {
       startX: event.clientX,
       scrollLeft: event.currentTarget.scrollLeft,
     };
-    event.currentTarget.classList.add('is-dragging');
-    event.currentTarget.setPointerCapture(event.pointerId);
   };
 
   const handlePointerMove = (event) => {
     if (!dragState.current.active) return;
     const distance = event.clientX - dragState.current.startX;
-    if (Math.abs(distance) > 3) dragState.current.moved = true;
-    event.currentTarget.scrollLeft = dragState.current.scrollLeft - distance;
+    if (!dragState.current.moved && Math.abs(distance) > 3) {
+      // 포인터를 미리 붙잡으면 클릭이 카드가 아닌 목록으로 가서, 실제로 드래그할 때만 붙잡는다.
+      dragState.current.moved = true;
+      event.currentTarget.classList.add('is-dragging');
+      event.currentTarget.setPointerCapture(event.pointerId);
+    }
+    if (dragState.current.moved) {
+      event.currentTarget.scrollLeft = dragState.current.scrollLeft - distance;
+    }
   };
 
   const stopDragging = (event) => {
@@ -86,7 +93,7 @@ function ProductRail({ products, ranked = false, compact = false, onProductClick
           product={product}
           rank={ranked ? index + 1 : undefined}
           compact={compact}
-          onClick={onProductClick ? () => onProductClick(product) : undefined}
+          onClick={onProductClick && product.storeProductId ? () => onProductClick(product) : undefined}
         />
       ))}
     </HorizontalRail>
@@ -104,8 +111,14 @@ export default function HomePage({
   onSearch,
   onRequestLogin,
   onLogin,
+  interestBrands = [],
   onOpenInterestSettings,
   onOpenProduct,
+  onOpenCategory,
+  onOpenTrending,
+  onOpenUpcoming,
+  onOpenLowStock,
+  onOpenCart,
   onToggleOpenAlert,
 }) {
   const [activeBannerIndex, setActiveBannerIndex] = useState(0);
@@ -153,12 +166,14 @@ export default function HomePage({
   const activeProducts = activeProductTab === 'popular' ? popularProducts : newProducts;
   const activeInterestCategoryIds = isAuthenticated ? interestCategoryIds : [];
   const activeInterestCategories = activeInterestCategoryIds.map((categoryId) => (
-    data.categories.find((category) => category.id === categoryId)
+    (data.interestCategories ?? data.categories).find((category) => category.id === categoryId)
   )).filter(Boolean);
   const personalizedRecommendations = (data.recommendationProducts ?? [])
-    .filter((product) => product.interestCategoryIds?.some((categoryId) => (
-      activeInterestCategoryIds.includes(categoryId)
-    )));
+    .filter((product) => matchesInterests(product, activeInterestCategoryIds, interestBrands));
+  // 선택한 관심 카테고리 안에 속한 브랜드만 칩으로 보여준다
+  const visibleInterestBrands = interestBrands.filter((name) => activeInterestCategoryIds.some((id) => (
+    brandGroupFor(id)?.brands.some((brand) => brand.name === name)
+  )));
   const hasInterests = activeInterestCategoryIds.length > 0;
 
   useEffect(() => {
@@ -186,7 +201,7 @@ export default function HomePage({
   const handleBannerAction = () => {
     if (!activeBanner || !onNavigate) return;
     onBannerClick?.(activeBanner.id);
-    onNavigate({ type: activeBanner.linkType, value: activeBanner.linkValue });
+    onNavigate({ bannerId: activeBanner.id, bannerType: activeBanner.bannerType });
   };
 
   const showBanner = (index) => {
@@ -260,14 +275,13 @@ export default function HomePage({
         <div className="header-row">
           <h1>굿즈<span>픽</span></h1>
           <div className="header-actions">
-            <button type="button" aria-label="통합 검색" onClick={onSearch} disabled={!onSearch}><Icon name="search" size={21} /></button>
             <button type="button" aria-label="알림 목록 화면 준비 중" disabled>
               <Icon name="bell" size={21} />
-              <span className="action-badge">{data.badges.notifications}</span>
+              {data.badges.notifications > 0 && <span className="action-badge">{data.badges.notifications}</span>}
             </button>
-            <button type="button" aria-label="장바구니 화면 준비 중" disabled>
+            <button type="button" aria-label="장바구니" onClick={onOpenCart} disabled={!onOpenCart}>
               <Icon name="cart" size={22} />
-              <span className="action-badge">{data.badges.cart}</span>
+              {data.badges.cart > 0 && <span className="action-badge">{data.badges.cart}</span>}
             </button>
           </div>
         </div>
@@ -280,35 +294,19 @@ export default function HomePage({
       <main>
         <section className="banner-section" aria-label="이벤트, 프로모션 및 광고">
           {activeBanner ? (
-            <article
-              className={`promo-banner promo-banner--${activeBanner.tone}`}
+            <PromoBanner
               key={activeBanner.id}
-              onPointerDown={handleBannerPointerDown}
-              onPointerMove={handleBannerPointerMove}
-              onPointerUp={handleBannerPointerUp}
-              onPointerCancel={resetBannerDrag}
-              onClickCapture={handleBannerClickCapture}
-            >
-              <div>
-                <p className="promo-banner__eyebrow">
-                  {activeBanner.type === 'AD' ? <span className="ad-label">AD</span> : null}
-                  {activeBanner.eyebrow}
-                </p>
-                <h2>{activeBanner.title}</h2>
-                <button
-                  className="promo-banner__cta"
-                  type="button"
-                  onClick={handleBannerAction}
-                  disabled={!onNavigate}
-                >
-                  {activeBanner.cta} <b aria-hidden="true">›</b>
-                </button>
-              </div>
-              <div className="promo-banner__art" aria-hidden="true"><i /><i /></div>
-              <span className="promo-banner__count">
-                {normalizedBannerIndex + 1} / {visibleBanners.length}
-              </span>
-            </article>
+              banner={activeBanner}
+              position={`${normalizedBannerIndex + 1} / ${visibleBanners.length}`}
+              dragProps={{
+                onPointerDown: handleBannerPointerDown,
+                onPointerMove: handleBannerPointerMove,
+                onPointerUp: handleBannerPointerUp,
+                onPointerCancel: resetBannerDrag,
+                onClickCapture: handleBannerClickCapture,
+              }}
+              onOpen={onNavigate && activeBanner.bannerType !== 'FAN' ? handleBannerAction : undefined}
+            />
           ) : null}
           <div className="banner-dots" aria-label="배너 선택">
             {visibleBanners.map((banner, index) => (
@@ -326,7 +324,12 @@ export default function HomePage({
 
         <nav className="category-shortcuts" aria-label="카테고리 바로가기">
           {homeCategories.map((category) => (
-            <button type="button" key={category.id} disabled>
+            <button
+              type="button"
+              key={category.id}
+              onClick={() => onOpenCategory?.(category)}
+              disabled={!onOpenCategory}
+            >
               <span className="category-shortcuts__icon"><Icon name={category.icon} size={22} /></span>
               <span>{category.name}</span>
             </button>
@@ -336,7 +339,11 @@ export default function HomePage({
         <section className="home-section trending-section">
           <div className="home-section-heading">
             <div><h2>지금 뜨는 굿즈</h2><p>요즘 가장 주목받는 상품이에요</p></div>
-            <button type="button" disabled>전체보기 <span aria-hidden="true">›</span></button>
+            <button
+              type="button"
+              onClick={() => onOpenTrending?.(activeProductTab)}
+              disabled={!onOpenTrending}
+            >전체보기 <span aria-hidden="true">›</span></button>
           </div>
           <div className="product-tabs" role="tablist" aria-label="상품 정렬 기준">
             <button
@@ -354,7 +361,11 @@ export default function HomePage({
               onClick={() => setActiveProductTab('new')}
             >신상품</button>
           </div>
-          <ProductRail products={activeProducts} ranked={activeProductTab === 'popular'} />
+          <ProductRail
+            products={activeProducts}
+            ranked={activeProductTab === 'popular'}
+            onProductClick={onOpenProduct}
+          />
         </section>
 
         <section className="home-section recommendation-section">
@@ -372,8 +383,12 @@ export default function HomePage({
                 >관심사 설정</button>
               </div>
               <div className="filter-chips" aria-label="선택한 관심 카테고리">
-                {activeInterestCategories.map((category) => (
+                {/* 브랜드를 고른 분류는 분류 이름 대신 고른 브랜드만 칩으로 보여준다 */}
+                {activeInterestCategories.filter((category) => !hasPickedBrands(category.id, interestBrands)).map((category) => (
                   <span className="active" key={category.id}>{category.name}</span>
+                ))}
+                {visibleInterestBrands.map((name) => (
+                  <span className="active" key={name}>{name}</span>
                 ))}
               </div>
               {personalizedRecommendations.length > 0 ? (
@@ -388,6 +403,12 @@ export default function HomePage({
               )}
             </>
           ) : (
+            <>
+            <div className="home-section-heading">
+              <div>
+                <h2>회원님을 위한 추천</h2>
+              </div>
+            </div>
             <div className="recommendation-section__notice">
               <span className="recommendation-section__notice-icon" aria-hidden="true">♡</span>
               <h2>{isAuthenticated ? '어떤 굿즈를 좋아하세요?' : '취향에 맞는 굿즈를 만나보세요'}</h2>
@@ -402,6 +423,7 @@ export default function HomePage({
                 disabled={isAuthenticated ? !onOpenInterestSettings : !onLogin}
               >{isAuthenticated ? '관심사 설정' : '로그인하기'}</button>
             </div>
+            </>
           )}
         </section>
 
@@ -411,7 +433,9 @@ export default function HomePage({
               <h2>입고 예정 상품</h2>
               <p>오픈 시각이 가까운 순 · 알림 받고 놓치지 마세요</p>
             </div>
-            <button type="button" disabled>전체보기 <span aria-hidden="true">›</span></button>
+            <button type="button" onClick={onOpenUpcoming} disabled={!onOpenUpcoming}>
+              전체보기 <span aria-hidden="true">›</span>
+            </button>
           </div>
           <HorizontalRail className="upcoming-rail" ariaLabel="입고 예정 상품 목록">
             {upcomingProducts.map((product) => (
@@ -422,6 +446,7 @@ export default function HomePage({
                 isAlerted={alertedProductIds.includes(product.id)}
                 alertActionAvailable={alertActionAvailable}
                 onAlertClick={handleOpenAlert}
+                onClick={onOpenProduct && product.storeProductId ? () => onOpenProduct(product) : undefined}
               />
             ))}
           </HorizontalRail>
@@ -429,10 +454,12 @@ export default function HomePage({
 
         <section className="home-section">
           <div className="home-section-heading">
-            <div><h2>재고 얼마 안 남은 상품</h2><p>재고가 적은 순서로 보여드려요</p></div>
-            <button type="button" disabled>전체보기 <span aria-hidden="true">›</span></button>
+            <div><h2>품절 임박 상품</h2><p>재고가 적은 순서로 보여드려요</p></div>
+            <button type="button" onClick={onOpenLowStock} disabled={!onOpenLowStock}>
+              전체보기 <span aria-hidden="true">›</span>
+            </button>
           </div>
-          <ProductRail products={lowStockProducts} />
+          <ProductRail products={lowStockProducts} onProductClick={onOpenProduct} />
         </section>
 
         <footer className="home-footer">

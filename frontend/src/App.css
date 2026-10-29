@@ -79,6 +79,77 @@
 .section-heading strong {
   font-size: 14px;
 }
+/* 굿즈 N: 숫자는 보라색 (검색 결과 화면과 같은 모양) */
+.product-section .section-heading strong {
+  color: #211d2b;
+  font-size: 15px;
+}
+.product-section .section-heading strong span {
+  color: #6846d8;
+  font-weight: 800;
+}
+.product-section .section-heading .product-view-all {
+  padding: 0;
+  font-size: 12px;
+}
+.product-section .product-view-all {
+  display: block;
+  padding: 0 0 10px;
+  text-align: right;
+  font-size: 11px;
+}
+.product-shop {
+  margin: 8px 0 3px;
+  color: #99939e;
+  font-size: 11px;
+}
+.product-shop + h3 {
+  margin-top: 0;
+}
+/* 정렬 드롭다운: 검색 결과 화면의 .result-sort 와 같은 모양 */
+.store-sort {
+  position: relative;
+  z-index: 5;
+}
+.store-sort > button {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 0 3px 8px;
+  border: 0;
+  color: #6846d8;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 700;
+}
+.store-sort__menu {
+  position: absolute;
+  top: calc(100% + 7px);
+  right: 0;
+  width: 154px;
+  padding: 6px 0;
+  border: 1px solid #f0edf3;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 9px 25px rgb(26 18 44 / 15%);
+}
+.store-sort__menu button {
+  display: flex;
+  width: 100%;
+  min-height: 38px;
+  padding: 0 13px;
+  align-items: center;
+  justify-content: space-between;
+  border: 0;
+  color: #302b36;
+  background: #fff;
+  font-size: 11px;
+  text-align: left;
+}
+.store-sort__menu button[aria-checked='true'] {
+  color: #6846d8;
+  background: #f5f1ff;
+  font-weight: 800;
+}
 .sort-control {
   position: relative;
   z-index: 4;
@@ -397,6 +468,47 @@
   font-size: 11px;
 }
 
+.store-main.list-main .sort-trigger {
+  min-width: 0;
+  min-height: 0;
+  padding: 8px 0 8px 12px;
+  gap: 3px;
+  border: 0;
+  border-radius: 0;
+  color: #6846d8;
+  background: transparent;
+  font-weight: 700;
+}
+
+.store-main.list-main .sort-trigger svg {
+  width: 12px;
+  height: 12px;
+}
+
+.store-main.list-main .sort-menu {
+  top: 100%;
+  width: 170px;
+  padding: 6px;
+  border-color: #eeeaf2;
+  border-radius: 12px;
+  box-shadow: 0 8px 28px #30204124;
+}
+
+.store-main.list-main .sort-menu button {
+  padding: 12px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: 12px;
+}
+
+.store-main.list-main .sort-menu button[aria-selected='true'],
+.store-main.list-main .sort-menu button:hover {
+  color: #6846d8;
+  background: #f5f1ff;
+  font-weight: 800;
+}
+
 .list-main .sort-menu {
   border-color: #eeeaf4;
   box-shadow: 0 10px 28px rgb(47 36 78 / 13%);
@@ -406,6 +518,10 @@
 .list-main .sort-menu button:hover {
   color: #5c3ccc;
   background: #f5f2ff;
+}
+.guide-line.current-day strong,
+.guide-line.current-day span {
+  color: #4a2fa8;
 }
 
 .list-main .store-list {
@@ -729,14 +845,27 @@
 .product-heart {
   top: 5px;
   right: 5px;
-  background: #fff;
+  background: none;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 25%));
   border-radius: 50%;
   display: grid;
   place-items: center;
   width: 25px;
   height: 25px;
   opacity: 0.75;
-  pointer-events: none;
+  pointer-events: auto;
+}
+.product-discount {
+  display: block;
+  color: #e5484d;
+  font-size: 13px;
+  font-weight: 800;
+}
+.product-original-price {
+  margin-left: 4px;
+  color: #aaa5b0;
+  font-size: 11px;
+  font-weight: 400;
 }
 .product-card h3 {
   font-size: 12px;
@@ -848,10 +977,13 @@
 .guide-line strong {
   font-weight: 600;
 }
+/* 오늘 요일은 글자 크기·위치는 그대로 두고 배경색만 연하게 바꾼다 (안쪽 여백은 음수 바깥 여백으로 상쇄) */
 .guide-line.current-day {
-  background: #f2f6ff;
+  margin: 0 -8px;
+  padding-left: 8px;
+  padding-right: 8px;
   border-radius: 8px;
-  padding: 8px;
+  background: #f5f2ff;
 }
 .guide-line span {
   text-align: right;
@@ -954,3 +1086,217 @@
 .login-main h2 { font-size: 20px; }
 .login-main p { color: #69717d; font-size: 13px; margin-bottom: 24px; }
 .login-main .secondary-button { width: 100%; margin-top: 10px; }
+
+.home-status {
+  padding: 80px 16px;
+  text-align: center;
+  color: #6b6b7b;
+}
+
+/* 굿즈샵 거리 슬라이더 */
+.distance-panel {
+  margin: -6px 0 14px;
+  padding: 11px 13px;
+  border: 1px solid #e8e4ed;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.distance-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: #65606b;
+}
+
+.distance-head strong {
+  color: #5c3ccc;
+  font-size: 13px;
+}
+
+.distance-locate {
+  border: 1px solid #d9cdff;
+  border-radius: 99px;
+  background: #f3efff;
+  color: #5c3ccc;
+  padding: 4px 11px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.distance-slider {
+  width: 100%;
+  height: 5px;
+  margin: 4px 0;
+  appearance: none;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #7650db var(--fill, 0%), #e6e2ee var(--fill, 0%));
+}
+
+.distance-slider:disabled {
+  opacity: 0.45;
+}
+
+.distance-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 19px;
+  height: 19px;
+  border: 3px solid #7650db;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.distance-slider::-moz-range-thumb {
+  box-sizing: border-box;
+  width: 19px;
+  height: 19px;
+  border: 3px solid #7650db;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.distance-message {
+  margin: 6px 0 0;
+  color: #7b828d;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.list-main > .distance-message {
+  margin: -6px 0 12px;
+}
+
+.store-distance {
+  color: #5c3ccc;
+  font-weight: 700;
+  white-space: pre;
+}
+
+/* 카테고리·검색 결과에서 굿즈샵 탭과 같은 카드를 쓸 때의 여백 */
+.list-main.store-embed {
+  min-height: 0;
+  padding: 0;
+}
+
+.category-store-section {
+  margin-top: 16px;
+}
+
+/* 카테고리 화면의 공통 button 스타일이 굿즈샵 카드·필터에 번지지 않게 되돌린다 */
+.store-embed .result-heading {
+  justify-content: space-between;
+}
+
+.category-page .store-embed .card-heart {
+  width: 22px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: #716a79;
+}
+
+.category-page .store-embed .filter-chip {
+  min-height: 37px;
+  padding: 8px 5px;
+  border: 1px solid #e8e4ed;
+  border-radius: 99px;
+  color: #65606b;
+  background: #fff;
+}
+
+.category-page .store-embed .filter-chip.selected {
+  border-color: #d9cdff;
+  color: #5c3ccc;
+  background: #f3efff;
+}
+
+.category-page .store-embed .sort-menu button {
+  border: 0;
+  border-radius: 7px;
+  background: #fff;
+}
+
+.category-page .store-embed .sort-menu button[aria-selected='true'],
+.category-page .store-embed .sort-menu button:hover {
+  background: #f3efff;
+}
+
+.category-page .store-embed .distance-locate {
+  border-color: #d9cdff;
+  border-radius: 99px;
+  background: #f3efff;
+}
+
+.store-embed .result-heading h2 {
+  margin: 0;
+}
+
+/* 비슷한 상품 검색에서 지금 보던 굿즈샵 표시 */
+.store-current-wrap {
+  position: relative;
+}
+
+.store-current-tag {
+  position: absolute;
+  top: -8px;
+  left: 14px;
+  z-index: 2;
+  padding: 2px 9px;
+  border-radius: 99px;
+  background: #6540cf;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+/* 품절 상품 이미지를 반투명 회색으로 덮고 SOLD OUT을 보여준다 (찜 하트는 덮개 위에 보인다) */
+.sold-out-dim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  border-radius: inherit;
+  background: rgb(110 108 120 / 45%);
+  pointer-events: none;
+}
+
+.sold-out-dim span {
+  padding: 5px 12px;
+  border: 1.5px solid rgb(255 255 255 / 90%);
+  border-radius: 4px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+}
+
+.product-picture .product-heart {
+  z-index: 2;
+}
+
+/* 정렬 드롭다운의 ∨ 표시: 글자(⌄)는 위치가 어긋나서 선으로 그려 글자 세로 가운데에 맞춘다 */
+.sort-chevron {
+  display: inline-block;
+  flex: none;
+  width: 5px;
+  height: 5px;
+  margin: -3px 1px 0 6px;
+  border-right: 1.6px solid currentColor;
+  border-bottom: 1.6px solid currentColor;
+  transform: rotate(45deg);
+}
+
+/* 찜한 하트는 빨갛게 채운다 */
+.is-wished svg,
+.is-wished svg path {
+  fill: #e5484d;
+  stroke: #e5484d;
+}
+.is-wished {
+  color: #e5484d;
+}

@@ -491,11 +491,18 @@
   padding-bottom: 100px;
 }
 .category-detail-back {
-  display: inline-block;
-  font-size: 13px;
-  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0 0 14px -4px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-h, #25252b);
   text-decoration: none;
-  margin-bottom: 14px;
+}
+.category-detail-back:hover,
+.category-detail-back:focus-visible {
+  color: var(--accent);
 }
 .category-detail .category-detail-top {
   margin-top: 0;
@@ -655,4 +662,179 @@
   width: 44px;
   font-size: 24px;
   padding: 4px;
+}
+
+/* 카테고리 탭: [작품 분류] [분류별 브랜드] [굿즈 종류] 세로 3단 */
+.category-main-page .category-selector.category-selector--single { grid-template-columns: 84px minmax(0, 1fr); }
+.category-main-page .category-selector.category-selector--brands { grid-template-columns: 84px 100px minmax(0, 1fr); min-height: 520px; }
+.category-main-page .category-brand-list { align-self: stretch; background: #fff; border-right: 1px solid #eeeaf2; }
+.category-main-page .category-brand-list button { text-align: left; font-size: 12px; line-height: 1.3; padding: 14px 12px; }
+.category-main-page .category-selector .category-goods-panel { padding: 12px 6px; }
+.category-main-page .category-selector .category-goods-grid { gap: 8px 4px; }
+.category-main-page .category-selector .category-goods-grid .category-goods-label { font-size: 10px; }
+
+/* 밑줄형 탭: 공통 버튼 스타일(border-radius 8px)에 밑줄이 둥글게 말리지 않도록 직선으로 고정 */
+.category-page .category-result-tabs button,
+.category-develop-shell .category-page .category-result-tabs button,
+.category-page .category-filter-sheet__tabs button,
+.category-develop-shell .category-page .category-filter-sheet__tabs button,
+.category-develop-shell .category-filter-sheet__tabs button {
+  border-radius: 0;
+}
+
+/* 상품 목록 제목: [뒤로가기 꺾쇠] 게임 / 모두 보기 */
+.category-page .category-list-heading {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 8px 0 6px;
+}
+.category-page .category-list-heading .category-list-title {
+  margin: 0;
+}
+.category-list-back {
+  display: grid;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  margin-left: -8px;
+  place-items: center;
+  color: #211d28;
+}
+.category-list-back svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.category-similar-stores ul {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.category-similar-stores li a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  text-decoration: none;
+}
+.category-similar-stores li a > span {
+  margin-left: auto;
+  color: var(--accent);
+}
+.category-similar-body {
+  min-width: 0;
+}
+.category-similar-body h3 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 4px;
+  font-size: 15px;
+}
+.category-similar-body h3 span {
+  padding: 2px 7px;
+  border-radius: 99px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
+}
+.category-similar-body h3 span.same {
+  background: #e8f6ee;
+  color: #1f7a4d;
+}
+.category-similar-body p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text);
+}
+.category-similar-products {
+  margin-top: 4px !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.category-similar-stores {
+  padding-bottom: 12px;
+}
+.category-similar-stores .category-empty {
+  margin: 12px 0 0;
+  padding: 28px 16px;
+}
+#product-sellers + #product-related .category-section {
+  margin-top: 4px;
+}
+
+.category-similar-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.category-similar-heading a {
+  flex: none;
+  font-size: 12px;
+  color: var(--text);
+  text-decoration: none;
+}
+.category-similar-stores ul.slide {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.category-similar-stores ul.slide::-webkit-scrollbar {
+  display: none;
+}
+.category-similar-stores ul.slide li {
+  flex: 0 0 78%;
+  min-width: 0;
+  scroll-snap-align: start;
+}
+.category-similar-stores ul.slide li a {
+  height: 100%;
+}
+
+.category-similar-stores li {
+  position: relative;
+}
+.category-similar-stores li a {
+  padding-right: 40px;
+}
+.category-similar-stores li a > span {
+  display: none;
+}
+.category-similar-region {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.category-similar-region svg {
+  flex: none;
+}
+.category-similar-stores .category-similar-heart {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: grid;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: #716a79;
+  opacity: 0.75;
 }

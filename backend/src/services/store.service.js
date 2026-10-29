@@ -138,7 +138,33 @@ function paginate(items, { page, size }) {
   };
 }
 
-export async function listStores({ openNow, pickup, delivery, sort, page, size }) {
+// 하버사인 공식으로 두 좌표 사이의 거리(km)를 구한다.
+function haversineKm(from, to) {
+  const rad = (deg) => (deg * Math.PI) / 180;
+  const dLat = rad(to.lat - from.lat);
+  const dLng = rad(to.lng - from.lng);
+  const a =
+    Math.sin(dLat / 2) ** 2 + Math.cos(rad(from.lat)) * Math.cos(rad(to.lat)) * Math.sin(dLng / 2) ** 2;
+  return 6371 * 2 * Math.asin(Math.sqrt(a));
+}
+
+function storePoint(row) {
+  if (row.latitude == null || row.longitude == null) return null;
+  const lat = Number(row.latitude);
+  const lng = Number(row.longitude);
+  return Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
+}
+
+export async function listStores({
+  openNow,
+  pickup,
+  delivery,
+  sort,
+  page,
+  size,
+  origin = null,
+  radiusKm = null,
+}) {
   const stores = await listActiveStores();
   const [data, regionRows] = await Promise.all([
     related(stores.map((row) => row.id)),
@@ -150,9 +176,24 @@ export async function listStores({ openNow, pickup, delivery, sort, page, size }
   if (pickup) items = items.filter((row) => row.pickupAvailable);
   if (delivery) items = items.filter((row) => row.deliveryAvailable);
   const allStoresCount = stores.length;
+  // 위치가 있으면 좌표 없는 굿즈샵은 제외하고, 반경 이내만 남긴다.
+  let noCoordinateCount = 0;
+  if (origin) {
+    items = items.flatMap((row) => {
+      const point = storePoint(row);
+      if (!point) {
+        noCoordinateCount += 1;
+        return [];
+      }
+      const distanceKm = haversineKm(origin, point);
+      return radiusKm !== null && distanceKm > radiusKm ? [] : [{ ...row, distanceKm }];
+    });
+  }
   items.sort(
     (a, b) =>
-      (sort === 'newest'
+      (sort === 'distance'
+        ? a.distanceKm - b.distanceKm
+        : sort === 'newest'
         ? String(b.createdAt || '').localeCompare(String(a.createdAt || ''))
         : sort === 'stock'
           ? compareNumbers(a.availableProductCount, b.availableProductCount)
@@ -162,7 +203,16 @@ export async function listStores({ openNow, pickup, delivery, sort, page, size }
   );
   const result = paginate(items, { page, size });
   const summaries = await getReviewSummaries(result.items.map((item) => item.id));
-  return { ...result, items: result.items.map((item) => ({ ...item, ...summaries.get(item.id) })), allStoresCount };
+  return {
+    ...result,
+    items: result.items.map((item) => ({
+      ...item,
+      ...summaries.get(item.id),
+      ...(item.distanceKm === undefined ? {} : { distanceKm: Math.round(item.distanceKm * 10) / 10 }),
+    })),
+    allStoresCount,
+    noCoordinateCount,
+  };
 }
 
 export async function getStoreDetail(storeId) {
@@ -201,22 +251,25 @@ export async function getStoreProductsPage(storeId, { sort, page, size }) {
         (imagesByProduct.get(product.id) || []).toSorted(
           (a, b) => Number(a.display_order) - Number(b.display_order)
         )[0]?.image_url;
+      // 재입고일이 아직 남아 있을 때만 재입고 예정으로 본다.
+      const restockSoon =
+        Boolean(listing.restock_expected_at) && new Date(listing.restock_expected_at) > new Date();
       const stockLabel = !onSale
         ? listing.status === 'UPCOMING' || product.status === 'UPCOMING'
           ? '판매 예정'
           : listing.status === 'SOLD_OUT'
-            ? listing.restock_expected_at
-              ? '품절 · 입고 예정'
+            ? restockSoon
+              ? '재입고 예정'
               : '품절'
             : '판매 중지'
         : stock === null
           ? '재고 확인 불가'
           : stock >= 4
-            ? '재고 있음'
+            ? null // 재고가 넉넉하면 라벨을 표시하지 않는다.
             : stock > 0
               ? `품절 임박 · ${stock}개`
-              : listing.restock_expected_at
-                ? '품절 · 입고 예정'
+              : restockSoon
+                ? '재입고 예정'
                 : '품절';
       return {
         storeProductId: listing.id,
@@ -224,26 +277,48 @@ export async function getStoreProductsPage(storeId, { sort, page, size }) {
         name: product.name,
         image: publicImage(image, 'goods-images'),
         price: listing.price == null ? null : Number(listing.price),
+        discountRate: Number(listing.discount_rate || 0),
         stock,
         stockLabel,
+        // 이미지를 덮는 상태: coming(출시 예정) / restock(재입고 예정) / soldout(품절)
+        overlay:
+          listing.status === 'UPCOMING' || product.status === 'UPCOMING'
+            ? 'coming'
+            : (onSale ? !(stock > 0) : listing.status === 'SOLD_OUT')
+              ? restockSoon
+                ? 'restock'
+                : 'soldout'
+              : null,
         purchasable: onSale && stock > 0 && listing.price != null,
         pickupAvailable: Boolean(store.pickup_available && listing.pickup_available),
         deliveryAvailable: Boolean(store.delivery_available && listing.delivery_available),
         popularityScore: Number(product.popularity_score || 0),
         salesCount: Number(listing.sales_count || 0),
+        wishCount: Number(product.wish_count || 0),
         createdAt: listing.created_at,
       };
     })
     .filter(Boolean);
+  // 가격 정보가 없는 상품은 가격순에서 항상 뒤로, 재고 적은 순은 재고가 남은 상품을 먼저 보여준다.
+  const priceOrder = (a, b, direction) =>
+    (a.price == null) - (b.price == null) || direction * (Number(a.price) - Number(b.price));
   items.sort(
     (a, b) =>
       (sort === 'sales'
         ? compareNumbers(a.salesCount, b.salesCount)
-        : sort === 'newest'
-          ? String(b.createdAt || '').localeCompare(String(a.createdAt || ''))
-          : sort === 'stock'
-            ? compareNumbers(a.stock, b.stock)
-            : compareNumbers(a.popularityScore, b.popularityScore)) ||
+        : sort === 'wishlist'
+          ? compareNumbers(a.wishCount, b.wishCount)
+          : sort === 'newest'
+            ? String(b.createdAt || '').localeCompare(String(a.createdAt || ''))
+            : sort === 'stock'
+              ? compareNumbers(a.stock, b.stock)
+              : sort === 'stock_asc'
+                ? !(a.stock > 0) - !(b.stock > 0) || Number(a.stock) - Number(b.stock)
+                : sort === 'price_asc'
+                  ? priceOrder(a, b, 1)
+                  : sort === 'price_desc'
+                    ? priceOrder(a, b, -1)
+                    : compareNumbers(a.popularityScore, b.popularityScore)) ||
       String(b.createdAt || '').localeCompare(String(a.createdAt || '')) ||
       a.storeProductId.localeCompare(b.storeProductId)
   );

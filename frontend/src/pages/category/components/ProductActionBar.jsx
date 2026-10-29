@@ -2,11 +2,11 @@ import { useState } from 'react';
 
 // actions: wishlist(id, wished), buy(id, quantity), cart(id, quantity), restock(id), preorder(id).
 // Shared handlers own persistence, inventory rechecks and checkout navigation.
-export default function ProductActionBar({ product, user, actions = {}, onLogin }) {
+export default function ProductActionBar({ product, user, actions = {}, wished: wishedProp, onLogin }) {
   const [pending, setPending] = useState('');
   const [message, setMessage] = useState('');
   const [wishedOverride, setWishedOverride] = useState(null);
-  const wished = wishedOverride ?? product.isWishlisted;
+  const wished = wishedOverride ?? wishedProp ?? product.isWishlisted;
   const status =
     product.displayStatus ||
     (product.status === 'ON_SALE' && product.stock <= 0 ? 'SOLD_OUT' : product.status);
@@ -32,6 +32,8 @@ export default function ProductActionBar({ product, user, actions = {}, onLogin 
           : '요청을 완료했습니다.'
       );
     } catch (error) {
+      // 수령 방법 선택 시트를 닫은 경우는 실패 안내를 띄우지 않는다.
+      if (error.cancelled) return;
       if (error.response?.status === 401) onLogin?.();
       setMessage(
         error.response?.status === 401

@@ -1,8 +1,17 @@
 // 담당: 동균
-// 사전예약 API — client.js의 axios 인스턴스로 호출
-// TODO:
-//   GET    /preorders/quote  입고 예정일 · 예약금 · 잔액 · 예상 순번 (?storeProductId=&qty=) 🔒
-//   POST   /preorders  사전예약 신청 (J-06) 🔒
-//   GET    /preorders  내 사전예약 목록 🔒
-//   DELETE /preorders/:preorderId  사전예약 취소 🔒
-export const preorderApi = {};
+// 사전예약 API — client.js의 axios 인스턴스로 호출 (전부 로그인 필요 🔒)
+import client from './client.js';
+import { supabase } from '../lib/supabase.js';
+
+async function authHeaders() {
+  const { data } = supabase ? await supabase.auth.getSession() : { data: {} };
+  if (!data.session?.access_token) throw new Error('로그인이 필요합니다.');
+  return { Authorization: `Bearer ${data.session.access_token}` };
+}
+
+export const preorderApi = {
+  quote: async (params) => client.get('/preorders/quote', { params, headers: await authHeaders() }),
+  create: async (body) => client.post('/preorders', body, { headers: await authHeaders() }),
+  list: async (params) => client.get('/preorders', { params, headers: await authHeaders() }),
+  remove: async (id) => client.delete(`/preorders/${id}`, { headers: await authHeaders() }),
+};

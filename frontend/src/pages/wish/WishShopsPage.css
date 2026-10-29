@@ -1,0 +1,105 @@
+/* 찜한 굿즈샵 (J-02) — 공통 스타일은 WishProductsPage.css */
+.wish-shop-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.wish-shop-card {
+  position: relative;
+  border: 1px solid #f0f1f3;
+  border-radius: 14px;
+  background: #fff;
+}
+.wish-shop-link {
+  display: flex;
+  gap: 13px;
+  padding: 13px 52px 13px 13px;
+}
+.wish-shop-thumb {
+  flex: none;
+  width: 84px;
+  height: 84px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #eceef1;
+}
+.wish-shop-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.wish-shop-body {
+  min-width: 0;
+  flex: 1;
+}
+.wish-shop-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.wish-shop-title h2 {
+  margin: 0;
+  overflow: hidden;
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.wish-closed-badge {
+  flex: none;
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: #fdecec;
+  color: #d93a3f;
+  font-size: 11px;
+  font-weight: 700;
+}
+.wish-shop-address {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin: 4px 0 0;
+  overflow: hidden;
+  color: #8a8f99;
+  font-size: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.wish-shop-address svg {
+  flex: none;
+}
+.wish-shop-stock {
+  margin: 6px 0 0;
+  color: #414854;
+  font-size: 13px;
+}
+.wish-shop-stock strong {
+  color: #6c4adf;
+}
+.wish-chips {
+  display: flex;
+  gap: 5px;
+  margin-top: 7px;
+}
+.wish-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  color: #5b616b;
+  font-size: 11px;
+  font-weight: 600;
+}
+.wish-shop-card .wish-heart {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  box-shadow: none;
+}
+.wish-skeleton-row {
+  height: 112px;
+  border-radius: 14px;
+  background: #f1f2f4;
+}

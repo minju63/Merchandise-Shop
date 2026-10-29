@@ -1,10 +1,13 @@
 // 담당: 동균
 // 장바구니 — /api/v1/cart (prefix는 routes/index.js에서 등록)
-// 🔒 표시는 로그인 필요 — 구현 시 middlewares/auth.middleware.js의 requireAuth 적용
+// 🔒 모든 경로 로그인 필요 — requireAuth
 import { Router } from 'express';
 import * as cartController from '../controllers/cart.controller.js';
+import { requireAuth } from '../middlewares/auth.middleware.js';
 
 const router = Router();
+
+router.use(requireAuth);
 
 router.get('/', cartController.getCart); // 장바구니 조회 (?type=PICKUP|DELIVERY) 🔒
 router.get('/counts', cartController.getCartCounts); // 장바구니 아이콘 뱃지 개수 🔒

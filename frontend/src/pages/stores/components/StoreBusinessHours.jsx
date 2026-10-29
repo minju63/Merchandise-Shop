@@ -22,7 +22,7 @@ export default function StoreBusinessHours({ data }) {
             key={hour.id ?? hour.day_of_week}
           >
             <strong>
-              {DAYS[hour.day_of_week]}요일{hour.day_of_week === data.todayDay ? ' · 오늘' : ''}
+              {DAYS[hour.day_of_week]}요일
             </strong>
             <span>
               {hour.is_closed

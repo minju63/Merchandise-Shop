@@ -83,7 +83,7 @@ export default function LoginPage() {
         <span className="lg-brand__logo">
           <BagIcon width={36} height={36} />
         </span>
-        <h1 className="lg-brand__name">굿즈팡</h1>
+        <h1 className="lg-brand__name">굿즈픽</h1>
         <p className="lg-brand__tag">
           우리 동네 굿즈샵 재고를 한눈에,
           <br />

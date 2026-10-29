@@ -25,9 +25,9 @@ export function StoreHeader({ back = false, searchContext = null }) {
             <button className="store-list-header__action" type="button" disabled title="알림 화면 준비 중" aria-label="알림 준비 중">
               <Icon name="bell" size={21} />
             </button>
-            <button className="store-list-header__action" type="button" disabled title="장바구니 화면 준비 중" aria-label="장바구니 준비 중">
+            <Link className="store-list-header__action" to="/cart" aria-label="장바구니">
               <Icon name="cart" size={22} />
-            </button>
+            </Link>
           </div>
         </div>
       </header>
@@ -63,14 +63,9 @@ export function StoreHeader({ back = false, searchContext = null }) {
         >
           <Icon name="bell" />
         </button>
-        <button
-          className="icon-button"
-          disabled
-          title="장바구니 화면 준비 중"
-          aria-label="장바구니 준비 중"
-        >
+        <Link className="icon-button" to="/cart" aria-label="장바구니">
           <Icon name="cart" />
-        </button>
+        </Link>
       </div>
     </header>
   );

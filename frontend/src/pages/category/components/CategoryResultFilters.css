@@ -29,7 +29,8 @@
 .category-filter-sheet {
   position: fixed;
   inset: 0;
-  width: min(480px, 100%);
+  width: 100%;
+  max-width: 520px; /* 검색 결과 필터 시트와 같은 가로 폭 */
   height: min(88dvh, 790px);
   max-height: none;
   margin: auto auto 0;
@@ -45,7 +46,7 @@
 .category-filter-sheet__header { display: flex; flex: none; min-height: 61px; padding: 16px 20px 10px; align-items: center; justify-content: space-between; }
 .category-filter-sheet__header h2 { margin: 0; font-size: 18px; }
 .category-filter-sheet__header button { width: 30px; height: 30px; padding: 0; border: 0; color: #342d3c; background: transparent; font-size: 27px; line-height: 1; }
-.category-filter-sheet__tabs { display: flex; flex: none; overflow-x: auto; padding: 0 12px; border-bottom: 1px solid #eeeaf2; scrollbar-width: none; }
+.category-filter-sheet__tabs { cursor: grab; user-select: none; display: flex; flex: none; overflow-x: auto; padding: 0 12px; border-bottom: 1px solid #eeeaf2; scrollbar-width: none; }
 .category-filter-sheet__tabs button { flex: none; min-width: 76px; height: 44px; padding: 0 12px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; color: #85808b; background: transparent; font-size: 12px; white-space: nowrap; }
 .category-filter-sheet__tabs button.active { border-bottom-color: #221d28; color: #211d28; font-weight: 800; }
 .category-filter-sheet__summary { display: flex; flex: none; padding: 10px 16px; align-items: flex-start; gap: 8px; background: #f7f6f9; }
@@ -87,3 +88,19 @@
 @media (max-width: 360px) {
   .category-filter-sheet__regions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
+
+/* 브랜드 필터 (시트의 기본 label 스타일보다 우선하도록 .category-filter-sheet 를 붙인다) */
+.category-filter-sheet .category-brand-filter__groups { display: flex; gap: 18px; margin: 0 0 14px; overflow-x: auto; scrollbar-width: none; }
+.category-filter-sheet .category-brand-filter__groups button { flex: none; min-width: 0; height: auto; padding: 4px 0 6px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; color: #85808b; background: transparent; font-size: 13px; white-space: nowrap; }
+.category-filter-sheet .category-brand-filter__groups button[aria-selected='true'] { border-bottom-color: #221d28; color: #211d28; font-weight: 800; }
+.category-brand-filter__groups b { margin-left: 4px; color: #6f5be7; font-size: 11px; }
+.category-filter-sheet .category-brand-filter__search { display: block; }
+.category-filter-sheet .category-brand-filter__search input { width: 100%; height: 44px; padding: 0 14px; border: 1px solid #dcd7e1; border-radius: 8px; font-size: 13px; box-sizing: border-box; }
+.category-filter-sheet .category-brand-filter__search input:focus { border-color: #6f5be7; outline: 0; }
+.category-filter-sheet .category-brand-filter__all { display: flex; flex-direction: row; align-items: center; gap: 10px; margin: 16px 0 0; padding-bottom: 16px; border-bottom: 1px solid #f0edf3; font-size: 13px; }
+.category-brand-filter__list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 14px; margin-top: 16px; }
+.category-filter-sheet .category-brand-filter__list label { display: flex; flex-direction: row; align-items: flex-start; gap: 10px; }
+.category-brand-filter__list span { display: grid; min-width: 0; gap: 2px; }
+.category-brand-filter__list strong { font-size: 13px; font-weight: 600; }
+.category-brand-filter__list small { overflow: hidden; color: #8b8591; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.category-filter-sheet .category-brand-filter input[type='checkbox'] { flex: none; width: 18px; height: 18px; margin-top: 1px; accent-color: #6f5be7; }

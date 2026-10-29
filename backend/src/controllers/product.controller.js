@@ -2,7 +2,8 @@ import * as productService from '../services/product.service.js';
 import { REGION_NAMES } from '../utils/regionNames.js';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const SORTS = ['popular', 'sales', 'newest', 'stock', 'price_asc', 'price_desc'];
+// upcoming: 오픈·입고 예정 시각이 가까운 순 → 나머지는 인기순. 홈의 입고 예정 전체보기에서만 쓴다.
+const SORTS = ['popular', 'sales', 'newest', 'stock', 'price_asc', 'price_desc', 'upcoming', 'stock_asc', 'wishlist'];
 
 function invalid(message) {
   const error = new Error(message);
@@ -78,6 +79,12 @@ export async function getProducts(req, res, next) {
       if (!names.length || names.some((name) => !Object.hasOwn(REGION_NAMES, name))) invalid('지역 조건이 올바르지 않습니다.');
       result.regionNames = names;
     }
+    if (query.brands !== undefined) {
+      if (typeof query.brands !== 'string' || query.brands.length > 1500) invalid('브랜드 조건이 올바르지 않습니다.');
+      const brands = [...new Set(query.brands.split(',').map((name) => name.trim()).filter(Boolean))];
+      if (!brands.length || brands.length > 75 || brands.some((name) => name.length > 40)) invalid('브랜드 조건이 올바르지 않습니다.');
+      result.brands = brands;
+    }
     for (const name of ['minPrice', 'maxPrice']) {
       if (query[name] !== undefined) result[name] = integer(query[name], name, 0);
     }
@@ -92,7 +99,7 @@ export async function getProducts(req, res, next) {
         result[name] = Number(query[name]);
       }
     }
-    for (const name of ['inStock', 'pickup', 'delivery', 'discountOnly', 'includeUpcoming']) {
+    for (const name of ['inStock', 'pickup', 'delivery', 'discountOnly', 'includeUpcoming', 'includeSoldOut']) {
       if (query[name] !== undefined) result[name] = boolean(query[name], name);
     }
     if (result.minPrice !== undefined && result.maxPrice !== undefined
@@ -118,6 +125,26 @@ export async function getProductDetail(req, res, next) {
 
   try {
     const data = await productService.getProductDetail(storeProductId, { userId: req.user?.id });
+    return res.status(200).json({ success: true, data, message: null });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+// 비슷한 상품을 재고 있게 취급하는 다른 굿즈샵 추천
+export async function getSimilarStores(req, res, next) {
+  const input = validate(res, () => ({
+    storeProductId: uuid(req.params.storeProductId, 'storeProductId'),
+    size: req.query.size === undefined ? 10 : integer(req.query.size, 'size', 1, 30),
+    includeCurrent: req.query.includeCurrent === undefined ? false : boolean(req.query.includeCurrent, 'includeCurrent'),
+  }));
+  if (!input) return;
+
+  try {
+    const data = await productService.getSimilarStores(input.storeProductId, {
+      size: input.size,
+      includeCurrent: input.includeCurrent,
+    });
     return res.status(200).json({ success: true, data, message: null });
   } catch (error) {
     return next(error);
