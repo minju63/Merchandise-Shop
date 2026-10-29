@@ -1,14 +1,15 @@
+// 담당: 연수
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase.js';
 import { CheckIcon } from '../my/icons.jsx';
 import { useSession } from '../my/hooks.js';
 import { AuthHeader } from './AuthParts.jsx';
-import { checkEmail, checkNickname, completeSignup } from './auth.api.js';
+import { checkEmail, checkNickname, completeSignup } from '../../api/auth.api.js';
+import { EMAIL_PATTERN, isValidPassword } from './authRules.js';
 import { AUTH_ROUTES } from './authRoutes.js';
 import './auth.css';
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const NICKNAME_PATTERN = /^[가-힣a-zA-Z0-9]{2,12}$/;
 
 function Msg({ tone, children }) {
@@ -20,7 +21,7 @@ function Msg({ tone, children }) {
   );
 }
 
-export default function SignupFormPage() {
+export default function SignupInfoPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const agreements = location.state?.agreements ?? null;
@@ -54,8 +55,7 @@ export default function SignupFormPage() {
 
   const emailOk = emailCheck?.value === email && emailCheck.available;
   const nicknameOk = nicknameCheck?.value === nickname && nicknameCheck.available;
-  const passwordOk =
-    /[A-Za-z]/.test(form.password) && /\d/.test(form.password) && form.password.length >= 8;
+  const passwordOk = isValidPassword(form.password);
   const confirmOk = form.confirm.length > 0 && form.confirm === form.password;
   const phoneOk = phoneDigits === '' || /^0\d{9,10}$/.test(phoneDigits);
 

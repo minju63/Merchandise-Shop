@@ -4,11 +4,11 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import CheckoutPage from '../../common/CheckoutPage.jsx';
-import LoginPage from '../../common/LoginPage.jsx';
+import LoginPage from '../../auth/LoginPage.jsx';
 import OrderCompletePage from '../../common/OrderCompletePage.jsx';
-import SignupDonePage from '../../common/SignupDonePage.jsx';
-import SignupFormPage from '../../common/SignupFormPage.jsx';
-import SignupTermsPage from '../../common/SignupTermsPage.jsx';
+import SignupDonePage from '../../auth/SignupDonePage.jsx';
+import SignupInfoPage from '../../auth/SignupInfoPage.jsx';
+import SignupTermsPage from '../../auth/SignupTermsPage.jsx';
 import { Stub } from './DevTools.jsx';
 import MyPage from '../MyPage.jsx';
 import AddressFormPage from '../AddressFormPage.jsx';
@@ -23,6 +23,15 @@ import SellerApplyPage from '../SellerApplyPage.jsx';
 import SupportPage from '../SupportPage.jsx';
 import ProfilePage from '../ProfilePage.jsx';
 import PaymentMethodsPage from '../PaymentMethodsPage.jsx';
+import NoticeListPage from '../NoticeListPage.jsx';
+import NoticeDetailPage from '../NoticeDetailPage.jsx';
+import InquiryListPage from '../InquiryListPage.jsx';
+import InquiryFormPage from '../InquiryFormPage.jsx';
+import ReportListPage from '../ReportListPage.jsx';
+import TermsPage from '../TermsPage.jsx';
+import TermsBodyPage from '../TermsBodyPage.jsx';
+import CouponDetailPage from '../CouponDetailPage.jsx';
+import SellerCenterPage from '../SellerCenterPage.jsx';
 
 // ?p=/login 처럼 시작 경로를 고를 수 있다. ?demo=checkout 은 테스트 상품 2개로 결제 화면을 연다.
 const query = new URLSearchParams(window.location.search);
@@ -53,9 +62,18 @@ createRoot(document.getElementById('root')).render(
         <Route path="/my/orders/:orderId/review" element={<ReviewWritePage />} />
         <Route path="/my/support" element={<SupportPage />} />
         <Route path="/my/seller-apply" element={<SellerApplyPage />} />
+        <Route path="/my/seller-center" element={<SellerCenterPage />} />
+        <Route path="/my/coupons/:couponId" element={<CouponDetailPage />} />
+        <Route path="/my/support/notices" element={<NoticeListPage />} />
+        <Route path="/my/support/notices/:noticeId" element={<NoticeDetailPage />} />
+        <Route path="/my/support/inquiries" element={<InquiryListPage />} />
+        <Route path="/my/support/inquiries/new" element={<InquiryFormPage />} />
+        <Route path="/my/support/reports" element={<ReportListPage />} />
+        <Route path="/my/terms" element={<TermsPage />} />
+        <Route path="/my/terms/:type" element={<TermsBodyPage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupTermsPage />} />
-        <Route path="/signup/info" element={<SignupFormPage />} />
+        <Route path="/signup/terms" element={<SignupTermsPage />} />
+        <Route path="/signup/info" element={<SignupInfoPage />} />
         <Route path="/signup/done" element={<SignupDonePage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/checkout/complete/:groupId" element={<OrderCompletePage />} />

@@ -1,3 +1,4 @@
+// 담당: 연수
 import { useNavigate } from 'react-router-dom';
 import { BackIcon } from '../my/common.jsx';
 import { CheckIcon } from '../my/icons.jsx';

@@ -132,3 +132,7 @@
 .co-done-total > div { display: flex; justify-content: space-between; padding: 5px 0; color: var(--co-sub); font-size: 13px; }
 .co-done-total__main { color: var(--co-text) !important; font-size: 15px !important; }
 .co-footer--two { display: grid; grid-template-columns: 1fr 1.2fr; gap: 8px; }
+
+/* 홈과 같은 폭(최대 480px, 가운데 정렬) */
+.co-page { width: min(100%, 480px); margin: 0 auto; box-shadow: 0 0 24px #dce0e526; }
+.co-footer { max-width: 480px; }

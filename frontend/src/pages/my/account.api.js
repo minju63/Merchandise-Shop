@@ -10,6 +10,7 @@ export const cancelMembership = () => http.post('/memberships/me/cancel', {}).th
 
 // 쿠폰
 export const listCoupons = () => http.get('/coupons').then(data);
+export const getCoupon = (id) => http.get(`/coupons/${id}`).then(data);
 export const registerCoupon = (code) => http.post('/coupons/register', { code }).then(data);
 
 // 배송지
@@ -36,14 +37,19 @@ export const updateNotificationSettings = (body) =>
 // 개인정보
 export const getMyProfile = () => http.get('/users/me').then(data);
 export const updateMyProfile = (body) => http.patch('/users/me', body).then(data);
-export const getMyAgreements = () => http.get('/users/me/agreements').then(data);
+export const getMyAgreements = (params) =>
+  http.get('/users/me/agreements', { params }).then(data);
 export const withdrawAccount = () => http.delete('/users/me').then(data);
 
 // 고객센터
 export const listFaqs = (params) => http.get('/faqs', { params }).then(data);
 export const listNotices = (params) => http.get('/notices', { params }).then(data);
+export const getNotice = (id) => http.get(`/notices/${id}`).then(data);
 export const listInquiries = () => http.get('/inquiries').then(data);
 export const createInquiry = (body) => http.post('/inquiries', body).then(data);
+export const updateInquiry = (id, body) => http.patch(`/inquiries/${id}`, body).then(data);
+export const deleteInquiry = (id) => http.delete(`/inquiries/${id}`).then(data);
+export const listReports = () => http.get('/reports').then(data);
 
 // 리뷰
 export const createReview = (body) => http.post('/reviews', body).then(data);

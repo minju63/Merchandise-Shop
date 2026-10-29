@@ -84,3 +84,6 @@
 .my-loading { width: 28px; height: 28px; margin: 80px auto; border: 3px solid var(--my-line); border-top-color: var(--my-primary); border-radius: 50%; animation: my-spin 0.8s linear infinite; }
 @keyframes my-spin { to { transform: rotate(360deg); } }
 .my-version { margin: 32px 0 0; color: var(--my-faint); font-size: 12px; text-align: center; }
+
+/* 홈과 같은 폭(최대 480px, 가운데 정렬) */
+.my-page { width: min(100%, 480px); margin: 0 auto; box-shadow: 0 0 24px #dce0e526; padding-bottom: calc(74px + env(safe-area-inset-bottom)); }

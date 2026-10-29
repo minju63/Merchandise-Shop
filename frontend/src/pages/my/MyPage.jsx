@@ -1,3 +1,4 @@
+import BottomNavigation from '../../components/BottomNavigation.jsx';
 import { useNavigate } from 'react-router-dom';
 import {
   BagIcon,
@@ -366,6 +367,7 @@ export default function MyPage() {
       <Header header={summary.data?.header} guest={status === 'out'} onNavigate={navigate} />
       {body}
       <p className="my-version">앱 버전 1.0.0</p>
+      <BottomNavigation />
     </main>
   );
 }

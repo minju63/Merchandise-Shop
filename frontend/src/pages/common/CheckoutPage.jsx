@@ -15,7 +15,7 @@ import {
 } from '../my/icons.jsx';
 import { formatWon } from '../my/orderFormat.js';
 import { MY_ROUTES } from '../my/routes.js';
-import { Box } from './AuthParts.jsx';
+import { Box } from '../auth/AuthParts.jsx';
 import { CouponSheet, Radio, Sheet, StockSheet } from './CheckoutParts.jsx';
 import { previewCheckout, submitCheckout } from './checkout.api.js';
 import {
@@ -26,7 +26,7 @@ import {
   shortAddress,
   stockIssueText,
 } from './checkoutFormat.js';
-import { AUTH_ROUTES } from './authRoutes.js';
+import { AUTH_ROUTES } from '../auth/authRoutes.js';
 import '../my/my.css';
 import '../my/orders.css';
 import './checkout.css';

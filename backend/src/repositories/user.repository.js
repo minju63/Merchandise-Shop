@@ -1,3 +1,4 @@
+// 담당: 연수
 // 1단계 가입 처리 · 2단계 마이 요약/프로필/탈퇴. 기존 공용 클라이언트를 사용한다.
 const PROFILE_COLUMNS =
   'id,email,nickname,phone,profile_image_url,role,status,created_at,updated_at,withdrawn_at';

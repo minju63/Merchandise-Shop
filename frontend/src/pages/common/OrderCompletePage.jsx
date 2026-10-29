@@ -5,7 +5,7 @@ import { useRequest, useRequireLogin } from '../my/hooks.js';
 import { formatClock, formatDateTime, formatMonthDay, formatWon } from '../my/orderFormat.js';
 import { MY_ROUTES } from '../my/routes.js';
 import { getCheckoutResult } from './checkout.api.js';
-import { AUTH_ROUTES } from './authRoutes.js';
+import { AUTH_ROUTES } from '../auth/authRoutes.js';
 import '../my/orders.css';
 import './checkout.css';
 
