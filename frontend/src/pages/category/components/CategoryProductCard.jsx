@@ -27,7 +27,9 @@ export default function CategoryProductCard({ product }) {
     : (product.displayStatus === 'SOLD_OUT' ? 'soldout' : undefined);
   return <ProductCard product={{ ...product, name: product.productName || product.name,
     imageUrl: product.thumbnailUrl, shop: product.storeName,
-    price: Number(product.price).toLocaleString('ko-KR') + '원',
+    // 할인 중이면 할인가를 보여주고 할인 전 가격은 옆에 취소선으로 보여준다.
+    price: Math.round(Number(product.price) * (100 - (product.discountRate || 0)) / 100).toLocaleString('ko-KR') + '원',
+    originalPrice: Number(product.price).toLocaleString('ko-KR') + '원',
     stockText: stock.text,
     stockTone: stock.tone,
     overlay,

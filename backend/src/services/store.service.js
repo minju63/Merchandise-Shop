@@ -277,6 +277,7 @@ export async function getStoreProductsPage(storeId, { sort, page, size }) {
         name: product.name,
         image: publicImage(image, 'goods-images'),
         price: listing.price == null ? null : Number(listing.price),
+        discountRate: Number(listing.discount_rate || 0),
         stock,
         stockLabel,
         // 이미지를 덮는 상태: coming(출시 예정) / restock(재입고 예정) / soldout(품절)

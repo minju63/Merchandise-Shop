@@ -7,10 +7,11 @@ import {
   useParams,
   useSearchParams,
 } from 'react-router-dom';
-import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import HomePage from './pages/home/HomePage.jsx';
-import { homeMockData, homeMockUserState } from './pages/home/homeMockData.js';
+import { homeMockData } from './pages/home/homeMockData.js';
+import { useSession } from './pages/my/hooks.js';
 import SearchPage, { SearchResultsPage } from './pages/search/SearchPage.jsx';
 import { parseRegionalQuery } from './pages/search/searchQuery.js';
 import { searchMockData } from './pages/search/searchMockData.js';
@@ -59,6 +60,8 @@ import { storeApi } from './api/store.api.js';
 import * as productApi from './api/product.api.js';
 import client from './api/client.js';
 import { cartApi } from './api/cart.api.js';
+import { wishlistApi } from './api/wishlist.api.js';
+import useWishlist from './hooks/useWishlist.js';
 import { supabase } from './lib/supabase.js';
 import FulfillmentSheet from './pages/wish/components/FulfillmentSheet.jsx';
 import { searchApi } from './api/search.api.js';
@@ -165,6 +168,9 @@ const LOW_STOCK_PATH = `/category/products?${new URLSearchParams({
 
 function HomeRoute() {
   const navigate = useNavigate();
+  // 로그인한 경우에만 관심사를 적용한다. 비회원은 관심사가 비어 있는 처음 상태로 둘러본다.
+  const { status: sessionStatus } = useSession();
+  const goLogin = () => navigate('/login?returnTo=%2F');
   const openCategory = (category) => navigate(categoryPath(category));
   const homeQuery = useQuery({
     queryKey: ['home'],
@@ -186,8 +192,10 @@ function HomeRoute() {
   return (
     <HomePage
       data={{ ...homeMockData, ...homeQuery.data.data }}
-      {...homeMockUserState}
-      interestCategoryIds={loadInterestIds() ?? homeMockUserState.interestCategoryIds}
+      isAuthenticated={sessionStatus === 'in'}
+      onLogin={goLogin}
+      onRequestLogin={goLogin}
+      interestCategoryIds={loadInterestIds() ?? []}
       interestBrands={loadInterestBrands()}
       onOpenInterestSettings={() => navigate('/interests')}
       onSearch={() => navigate('/search')}
@@ -335,7 +343,7 @@ function InterestRoute() {
   return (
     <InterestSettingsPage
       categories={categories}
-      initialIds={loadInterestIds() ?? homeMockUserState.interestCategoryIds}
+      initialIds={loadInterestIds() ?? []}
       initialBrands={loadInterestBrands()}
       error={homeQuery.error?.message}
       onBack={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))}
@@ -356,6 +364,8 @@ function ProductDetailRoute() {
   const { storeProductId } = useParams();
   const [user, setUser] = useState(null);
   const [sheet, setSheet] = useState(null);
+  const queryClient = useQueryClient();
+  const wish = useWishlist();
   const detail = useQuery({
     queryKey: ['product-detail-name', storeProductId],
     queryFn: () => productApi.getProductDetail(storeProductId, {}, client),
@@ -377,6 +387,11 @@ function ProductDetailRoute() {
           navigate(`/login?returnTo=${encodeURIComponent(`${location.pathname}${location.search}`)}`)
         }
         actions={{
+          isWished: (id) => (wish.loggedIn ? wish.isProductWished(id) : undefined),
+          wishlist: async (id, wished) => {
+            await (wished ? wishlistApi.addProduct(id) : wishlistApi.removeProduct(id));
+            queryClient.invalidateQueries({ queryKey: ['wishlist'] });
+          },
           // 담은 뒤에는 수령 방법을 바꿀 수 없어서, 자동으로 고르지 않고 시트로 먼저 묻는다.
           cart: () =>
             new Promise((resolve, reject) => {

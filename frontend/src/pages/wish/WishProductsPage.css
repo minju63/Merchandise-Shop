@@ -109,9 +109,9 @@
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: rgb(255 255 255 / 92%);
+  background: none;
   color: #ff4d6d;
-  box-shadow: 0 1px 4px rgb(0 0 0 / 10%);
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 25%));
 }
 
 .wish-dialog-backdrop {
@@ -250,6 +250,36 @@
   background: #eceef1;
   color: #6b717c;
 }
+/* 카테고리 상품목록의 품절 임박·품절·입고 예정 글자와 같은 모양 */
+.wish-stock-text {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 2px 4px;
+  border-radius: 3px;
+  color: #c54c48;
+  background: #ffe8e6;
+  font-size: 10px;
+  font-weight: 700;
+}
+/* 품절·입고 예정 상품 이미지를 반투명 회색으로 덮고 상태 글자를 보여준다 (찜 하트는 덮개 위에 보인다) */
+.wish-dim {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgb(110 108 120 / 45%);
+  pointer-events: none;
+}
+.wish-dim span {
+  padding: 5px 12px;
+  border: 1.5px solid rgb(255 255 255 / 90%);
+  border-radius: 4px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  white-space: nowrap;
+}
 .wish-product-body {
   display: block;
   padding-top: 9px;
@@ -299,6 +329,7 @@
   font-weight: 800;
 }
 .wish-discount {
+  display: block;
   color: #e5484d;
   font-size: 15px;
   font-weight: 800;

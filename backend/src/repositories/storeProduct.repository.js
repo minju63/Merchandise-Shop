@@ -91,6 +91,7 @@ export function createStoreProductRepository(client) {
       const sortFields = {
         popular: 'product(popularity_score)',
         sales: 'sales_count',
+        wishlist: 'product(wish_count)', // 찜 많은 순
         newest: 'product(released_at)',
         stock: 'stock',
         stock_asc: 'stock', // 재고 적은 순

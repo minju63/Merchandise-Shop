@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
 import Icon from '../../stores/components/Icon.jsx';
 import ProductEmptyState from './ProductEmptyState';
+import useWishlist from '../../../hooks/useWishlist.js';
 
 // 지금 보는 상품과 같거나 비슷한 상품을 재고 있게 파는 다른 굿즈샵 추천
 export default function SimilarStoreSection({ storeProductId, productName, stores: storeList, loading, error, onRetry }) {
+  const wish = useWishlist();
   const stores = storeList ?? [];
   return (
     <section className="category-section category-similar-stores">
@@ -61,13 +63,12 @@ export default function SimilarStoreSection({ storeProductId, productName, store
                 </div>
                 <span aria-hidden="true">›</span>
               </Link>
-              {/* 굿즈샵 탭 카드와 같이 찜 기능 연결 전까지 비활성 */}
               <button
                 type="button"
-                className="category-similar-heart"
-                disabled
-                title="찜 기능 준비 중"
-                aria-label={`${store.name} 찜 기능 준비 중`}
+                className={`category-similar-heart${wish.isShopWished(store.id) ? ' is-wished' : ''}`}
+                aria-pressed={wish.isShopWished(store.id)}
+                aria-label={wish.isShopWished(store.id) ? `${store.name} 찜 해제` : `${store.name} 찜하기`}
+                onClick={() => wish.toggleShop(store.id)}
               >
                 <Icon name="heart" size={18} />
               </button>

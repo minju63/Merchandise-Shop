@@ -15,7 +15,6 @@ import {
   LockIcon,
   MegaphoneIcon,
   PinIcon,
-  SlidersIcon,
   StoreIcon,
   TicketIcon,
   TruckIcon,
@@ -94,11 +93,6 @@ function Header({ header, guest, onNavigate }) {
           <CartIcon />
           <Badge count={header?.cartItems} />
         </HeaderButton>
-        {guest ? null : (
-          <HeaderButton label="설정" to={MY_ROUTES.settings} onNavigate={onNavigate}>
-            <SlidersIcon />
-          </HeaderButton>
-        )}
       </div>
     </header>
   );

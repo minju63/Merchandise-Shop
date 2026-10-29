@@ -3,12 +3,25 @@
 import { Link } from 'react-router-dom';
 import Icon from '../../../components/Icon.jsx';
 
-const stockBadges = {
-  IN_STOCK: { label: '재고 있음', tone: 'green' },
-  LOW_STOCK: { label: '품절 임박', tone: 'orange' },
-  INCOMING: { label: '입고 예정', tone: 'blue' },
-  SOLD_OUT: { label: '품절', tone: 'gray' },
-};
+// 이미지를 덮는 상태: 홈·검색·카테고리 카드와 같은 표시
+const OVERLAY_LABELS = { soldout: 'SOLD OUT', coming: 'COMING SOON', restock: 'RESTOCK SOON' };
+
+// 재고 상태(stockLabel)는 서버가 계산하므로 입고·재입고·품절이 바뀌면 찜 목록에도 그대로 반영된다.
+function overlayOf(item) {
+  if (item.stockLabel === 'SOLD_OUT') return 'soldout';
+  if (item.stockLabel !== 'INCOMING') return null;
+  return item.status === 'UPCOMING' ? 'coming' : 'restock';
+}
+
+const OVERLAY_STOCK_TEXTS = { soldout: '품절', coming: '입고 예정', restock: '재입고 예정' };
+
+// 카테고리 상품목록처럼 가격 아래에 빨간 글자로 보여준다.
+// 재고가 넉넉하면 표시하지 않고, 10개 이하일 때만 "품절 임박 · N개"를 보여준다.
+function stockTextOf(item, overlay) {
+  if (overlay) return OVERLAY_STOCK_TEXTS[overlay];
+  const inStock = item.stockLabel === 'IN_STOCK' || item.stockLabel === 'LOW_STOCK';
+  return inStock && item.stock > 0 && item.stock <= 10 ? `품절 임박 · ${item.stock}개` : null;
+}
 
 const won = (value) => `${Number(value ?? 0).toLocaleString('ko-KR')}원`;
 
@@ -23,7 +36,8 @@ export default function WishProductCard({
   isPreorderLoading,
   onPreorder,
 }) {
-  const badge = stockBadges[item.stockLabel] ?? stockBadges.SOLD_OUT;
+  const overlay = overlayOf(item);
+  const stockText = stockTextOf(item, overlay);
   const inStock = item.stockLabel === 'IN_STOCK' || item.stockLabel === 'LOW_STOCK';
   const canAdd = item.addable && (item.pickupAvailable || item.deliveryAvailable);
   // 재입고 알림은 매장 단위(storeProductId)다.
@@ -48,7 +62,11 @@ export default function WishProductCard({
             <span className="wish-thumb-placeholder" />
           )}
         </Link>
-        <span className={`wish-stock-badge is-${badge.tone}`}>{badge.label}</span>
+        {overlay && (
+          <div className={`wish-dim wish-dim--${overlay}`} aria-hidden="true">
+            <span>{OVERLAY_LABELS[overlay]}</span>
+          </div>
+        )}
         <button
           type="button"
           className="wish-heart"
@@ -64,10 +82,10 @@ export default function WishProductCard({
         <p className="wish-product-store">{item.storeName}</p>
         {item.discountRate > 0 ? (
           <div className="wish-price">
-            <s>{won(item.price)}</s>
+            <span className="wish-discount">{item.discountRate}%</span>
             <p>
-              <span className="wish-discount">{item.discountRate}%</span>
               <strong>{won(item.finalPrice)}</strong>
+              <s>{won(item.price)}</s>
             </p>
           </div>
         ) : (
@@ -77,6 +95,7 @@ export default function WishProductCard({
             </p>
           </div>
         )}
+        {stockText && <span className="wish-stock-text">{stockText}</span>}
       </Link>
       <div className="wish-product-actions">
         {inStock && (

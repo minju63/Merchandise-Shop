@@ -1,3 +1,4 @@
+import useWishlist from '../hooks/useWishlist.js';
 // 이미지를 덮는 상태 표시 글자: 품절 / 출시 예정 / 재입고 예정
 const OVERLAY_LABELS = { soldout: 'SOLD OUT', coming: 'COMING SOON', restock: 'RESTOCK SOON' };
 
@@ -15,6 +16,8 @@ function ImagePlaceholder({ label, accent = '#eee8ff' }) {
 }
 
 export default function ProductCard({ product, rank, compact = false, onClick }) {
+  const wish = useWishlist();
+  const wished = Boolean(product.storeProductId) && wish.isProductWished(product.storeProductId);
   const stockClass = product.stockTone === 'danger' ? ' product-card__stock--danger' : '';
 
   const handleKeyDown = (event) => {
@@ -52,7 +55,20 @@ export default function ProductCard({ product, rank, compact = false, onClick })
         {product.stockLabel ? (
           <span className="product-card__remaining">{product.stockLabel}</span>
         ) : null}
-        <button className="product-card__wish" type="button" aria-label="찜 기능 준비 중" disabled>
+        <button
+          className={`product-card__wish${wished ? ' is-wished' : ''}`}
+          type="button"
+          aria-pressed={wished}
+          aria-label={wished ? '찜 해제' : '찜하기'}
+          disabled={!product.storeProductId}
+          onClick={(event) => {
+            // 카드 전체를 누르면 상세로 가므로 하트 클릭은 거기까지 전달하지 않는다.
+            // 카테고리 목록처럼 카드가 링크(<a>)로 감싸진 곳에서는 링크 이동도 막아야 한다.
+            event.preventDefault();
+            event.stopPropagation();
+            wish.toggleProduct(product.storeProductId);
+          }}
+        >
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M20.8 4.6a5.4 5.4 0 0 0-7.7 0L12 5.7l-1.1-1.1a5.4 5.4 0 0 0-7.7 7.7l1.1 1.1L12 21l7.7-7.6 1.1-1.1a5.4 5.4 0 0 0 0-7.7Z" />
           </svg>
@@ -63,12 +79,16 @@ export default function ProductCard({ product, rank, compact = false, onClick })
         <p className="product-card__shop">{product.shop}</p>
         <h3>{product.name}</h3>
         {product.discountRate ? (
-          <p className="product-card__discount">
-            <b>{product.discountRate}%</b>
-            <s>{product.originalPrice}</s>
-          </p>
-        ) : null}
-        <strong>{product.price}</strong>
+          <>
+            <p className="product-card__discount"><b>{product.discountRate}%</b></p>
+            <p className="product-card__price-row">
+              <strong>{product.price}</strong>
+              <s>{product.originalPrice}</s>
+            </p>
+          </>
+        ) : (
+          <strong>{product.price}</strong>
+        )}
         {product.stockText ? (
           <div className="product-card__meta">
             <span className={`product-card__stock${stockClass}`}>{product.stockText}</span>

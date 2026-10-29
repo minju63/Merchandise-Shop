@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { storeApi } from '../../../api/store.api.js';
 import Icon from './Icon.jsx';
+import useWishlist from '../../../hooks/useWishlist.js';
 import { AvailabilityBadges, ImageWithFallback, PageState } from './StoreShell.jsx';
 
 // 이미지를 덮는 상태: 출시 예정 / 재입고 예정 / 품절
@@ -10,6 +11,7 @@ const OVERLAY_LABELS = { coming: 'COMING SOON', restock: 'RESTOCK SOON', soldout
 
 export default function StoreProductSection({ storeId, searchContext }) {
   const [page, setPage] = useState(1);
+  const wish = useWishlist();
   const { data, isPending, isError, error, refetch } = useQuery({
     queryKey: ['store-products', storeId, 'popular', page],
     queryFn: () => storeApi.products(storeId, { sort: 'popular', page, size: 20 }),
@@ -54,15 +56,32 @@ export default function StoreProductSection({ storeId, searchContext }) {
                         <span>{OVERLAY_LABELS[product.overlay]}</span>
                       </div>
                     )}
-                    <span className="product-heart" aria-hidden="true">
+                    <button
+                      type="button"
+                      className={`product-heart${wish.isProductWished(product.storeProductId) ? ' is-wished' : ''}`}
+                      aria-pressed={wish.isProductWished(product.storeProductId)}
+                      aria-label={`${product.name} 찜하기`}
+                      onClick={(event) => {
+                        // 카드 전체가 링크라서 하트를 눌러도 상세로 넘어가지 않게 막는다.
+                        event.preventDefault();
+                        event.stopPropagation();
+                        wish.toggleProduct(product.storeProductId);
+                      }}
+                    >
                       <Icon name="heart" size={19} />
-                    </span>
+                    </button>
                   </div>
                   <h3>{product.name}</h3>
+                  {product.price != null && product.discountRate > 0 && (
+                    <span className="product-discount">{product.discountRate}%</span>
+                  )}
                   <strong className="product-price">
                     {product.price == null
                       ? '가격 정보 없음'
-                      : `${product.price.toLocaleString('ko-KR')}원`}
+                      : `${Math.round((product.price * (100 - (product.discountRate || 0))) / 100).toLocaleString('ko-KR')}원`}
+                    {product.price != null && product.discountRate > 0 && (
+                      <s className="product-original-price">{product.price.toLocaleString('ko-KR')}원</s>
+                    )}
                   </strong>
                   {product.stockLabel && (
                     <span className="stock-label sold-out">{product.stockLabel}</span>

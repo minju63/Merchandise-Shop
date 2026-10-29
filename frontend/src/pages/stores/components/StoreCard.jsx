@@ -1,8 +1,11 @@
 import { Link } from 'react-router-dom';
 import Icon from './Icon.jsx';
 import { AvailabilityBadges, ImageWithFallback } from './StoreShell.jsx';
+import useWishlist from '../../../hooks/useWishlist.js';
 
 export default function StoreCard({ store }) {
+  const wish = useWishlist();
+  const wished = wish.isShopWished(store.id);
   return (
     <article className="store-card">
       <Link
@@ -30,12 +33,12 @@ export default function StoreCard({ store }) {
           <AvailabilityBadges pickup={store.pickupAvailable} delivery={store.deliveryAvailable} />
         </div>
       </Link>
-      {/* TODO: 공통 인증 및 wishlist API가 합쳐지면 store.id로 연결 */}
       <button
-        className="card-heart"
-        disabled
-        title="찜 기능 준비 중"
-        aria-label={`${store.name} 찜 기능 준비 중`}
+        className={`card-heart${wished ? ' is-wished' : ''}`}
+        type="button"
+        aria-pressed={wished}
+        aria-label={wished ? `${store.name} 찜 해제` : `${store.name} 찜하기`}
+        onClick={() => wish.toggleShop(store.id)}
       >
         <Icon name="heart" size={21} />
       </button>

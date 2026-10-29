@@ -3,7 +3,7 @@ import { REGION_NAMES } from '../utils/regionNames.js';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 // upcoming: 오픈·입고 예정 시각이 가까운 순 → 나머지는 인기순. 홈의 입고 예정 전체보기에서만 쓴다.
-const SORTS = ['popular', 'sales', 'newest', 'stock', 'price_asc', 'price_desc', 'upcoming', 'stock_asc'];
+const SORTS = ['popular', 'sales', 'newest', 'stock', 'price_asc', 'price_desc', 'upcoming', 'stock_asc', 'wishlist'];
 
 function invalid(message) {
   const error = new Error(message);

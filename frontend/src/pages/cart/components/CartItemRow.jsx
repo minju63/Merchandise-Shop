@@ -40,6 +40,7 @@ export default function CartItemRow({ item, disabled, onToggle, onQuantity, onRe
         <p className="cart-item-price">
           {item.discountRate > 0 && <span className="cart-discount">{item.discountRate}%</span>}
           <strong>{won(item.finalPrice * item.quantity)}</strong>
+          {item.discountRate > 0 && <s className="cart-original-price">{won(item.price * item.quantity)}</s>}
           {item.quantity > 1 && <span className="cart-unit-price">개당 {won(item.finalPrice)}</span>}
         </p>
         {item.unavailableReason === 'NOT_ENOUGH_STOCK' && (

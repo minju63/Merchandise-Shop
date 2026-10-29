@@ -403,6 +403,12 @@ export default function HomePage({
               )}
             </>
           ) : (
+            <>
+            <div className="home-section-heading">
+              <div>
+                <h2>회원님을 위한 추천</h2>
+              </div>
+            </div>
             <div className="recommendation-section__notice">
               <span className="recommendation-section__notice-icon" aria-hidden="true">♡</span>
               <h2>{isAuthenticated ? '어떤 굿즈를 좋아하세요?' : '취향에 맞는 굿즈를 만나보세요'}</h2>
@@ -417,6 +423,7 @@ export default function HomePage({
                 disabled={isAuthenticated ? !onOpenInterestSettings : !onLogin}
               >{isAuthenticated ? '관심사 설정' : '로그인하기'}</button>
             </div>
+            </>
           )}
         </section>
 

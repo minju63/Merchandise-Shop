@@ -11,7 +11,8 @@
   max-width: 480px;
   min-height: 100vh;
   margin: 0 auto;
-  padding-bottom: calc(74px + env(safe-area-inset-bottom));
+  /* 하단 메뉴가 가리는 공간은 푸터 안쪽 여백으로 채워 푸터 배경과 메뉴 사이에 틈이 생기지 않게 한다 */
+  padding-bottom: 0;
   overflow: hidden;
   background: #fff;
   box-shadow: 0 0 40px rgb(47 36 78 / 8%);
@@ -559,7 +560,8 @@
   place-items: center;
   border-radius: 50%;
   color: #46414b;
-  background: rgb(255 255 255 / 93%);
+  background: none;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 25%));
 }
 
 .product-card__wish svg {
@@ -954,7 +956,7 @@
 }
 
 .home-footer {
-  padding: 23px 18px 28px;
+  padding: 23px 18px calc(93px + env(safe-area-inset-bottom));
   color: #918b98;
   background: #f8f7fa;
   font-size: 9px;
@@ -1002,8 +1004,18 @@
   font-size: 13px;
 }
 
+.product-card__price-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+}
+
 .product-card__discount s {
-  color: #9c97a4;
+  color: #aaa5b0;
+  font-size: 10px;
+  font-weight: 400;
 }
 
 /* 상품 목록에서 입고 예정 상품을 홈 입고 예정 카드처럼 보여준다 */
@@ -1060,4 +1072,12 @@
   font-size: 10px;
   letter-spacing: 1px;
   white-space: nowrap;
+}
+
+.product-card__wish.is-wished {
+  color: #e5484d;
+}
+.product-card__wish.is-wished svg {
+  fill: #e5484d;
+  stroke: #e5484d;
 }

@@ -5,6 +5,7 @@ import { searchApi } from '../../api/search.api.js';
 import Icon from '../../components/Icon.jsx';
 import BottomNavigation from '../../components/BottomNavigation.jsx';
 import SearchShopList from './SearchShopList.jsx';
+import useWishlist from '../../hooks/useWishlist.js';
 import IntegratedSearchFilters from './IntegratedSearchFilters.jsx';
 import './SearchPage.css';
 
@@ -368,18 +369,31 @@ const OVERLAY_STOCK_LABELS = { coming: '입고 예정', restock: '재입고 예�
 
 function ResultProductCard({ product, scoped = false, currentShopId }) {
   const location = useLocation();
+  const wish = useWishlist();
   const overlay = overlayOf(product);
   const stockLabel = OVERLAY_STOCK_LABELS[overlay];
   const content = <>
       <span className="result-product__image result-product__image--live">
         {product.image ? <img src={product.image} alt="" /> : <span className="result-product__placeholder"><Icon name="image" size={23} /><span>굿즈</span></span>}
         {overlay && <span className="sold-out-dim" aria-hidden="true"><span>{OVERLAY_LABELS[overlay]}</span></span>}
-        <span className="result-product__heart" aria-hidden="true"><Icon name="heart" size={15} /></span>
+        <span
+          className={`result-product__heart${wish.isProductWished(product.storeProductId) ? ' is-wished' : ''}`}
+          role="button"
+          tabIndex={0}
+          aria-pressed={wish.isProductWished(product.storeProductId)}
+          aria-label={`${product.name} 찜하기`}
+          onClick={(event) => { event.preventDefault(); event.stopPropagation(); wish.toggleProduct(product.storeProductId); }}
+          onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); event.stopPropagation(); wish.toggleProduct(product.storeProductId); } }}
+        ><Icon name="heart" size={15} /></span>
       </span>
       <span className="result-product__content">
         <small>{product.storeName}{currentShopId && product.storeId === currentShopId ? ' · 지금 보는 굿즈샵' : ''}</small>
         <strong>{product.name}</strong>
-        <b>{product.price == null ? '가격 정보 없음' : `${product.price.toLocaleString('ko-KR')}원`}</b>
+        {product.price != null && product.discountRate > 0 && <em className="result-product__discount">{product.discountRate}%</em>}
+        <b>
+          {product.price == null ? '가격 정보 없음' : `${Math.round(product.price * (100 - (product.discountRate || 0)) / 100).toLocaleString('ko-KR')}원`}
+          {product.price != null && product.discountRate > 0 && <s>{product.price.toLocaleString('ko-KR')}원</s>}
+        </b>
         <span className="result-product__meta">{stockLabel && <small className="result-product__stock result-product__stock--sold">{stockLabel}</small>}<small>{[product.pickupAvailable && '픽업', product.deliveryAvailable && '배달'].filter(Boolean).join('·')}</small></span>
       </span>
     </>;
@@ -404,7 +418,7 @@ function ProductSortMenu({ sort, onSortChange }) {
   return (
     <div className="result-sort" ref={menu}>
       <button type="button" aria-label="굿즈 정렬" aria-expanded={open} aria-haspopup="menu" onClick={() => setOpen((current) => !current)}>{PRODUCT_SORT_OPTIONS.find(([value]) => value === sort)?.[1] || '인기순'}<span className="sort-chevron" aria-hidden="true" /></button>
-      {open && <div className="result-sort__menu" role="menu">{PRODUCT_SORT_OPTIONS.map(([value, label]) => <button type="button" role="menuitemradio" aria-checked={sort === value} key={value} disabled={value === 'wishlist'} onClick={() => { onSortChange(value); setOpen(false); }}>{label}{sort === value && <span aria-hidden="true">✓</span>}</button>)}</div>}
+      {open && <div className="result-sort__menu" role="menu">{PRODUCT_SORT_OPTIONS.map(([value, label]) => <button type="button" role="menuitemradio" aria-checked={sort === value} key={value} onClick={() => { onSortChange(value); setOpen(false); }}>{label}{sort === value && <span aria-hidden="true">✓</span>}</button>)}</div>}
     </div>
   );
 }
@@ -489,6 +503,7 @@ export function SearchResultsPage({
   filterQuery,
   filterRegion,
 }) {
+  const wish = useWishlist();
   const [query, setQuery] = useState(initialQuery);
   const [suggestions, setSuggestions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -705,8 +720,7 @@ export function SearchResultsPage({
                       <small><Icon name="pin" size={10} />{shop.region || shop.address}</small>
                     </span>
                   </Link>
-                  {/* 굿즈샵 탭 카드와 같이 찜 기능 연결 전까지 비활성 */}
-                  <button type="button" className="result-shop__heart" disabled title="찜 기능 준비 중" aria-label={`${shop.name} 찜 기능 준비 중`}>
+                  <button type="button" className={`result-shop__heart${wish.isShopWished(shop.id) ? ' is-wished' : ''}`} aria-pressed={wish.isShopWished(shop.id)} aria-label={`${shop.name} 찜하기`} onClick={() => wish.toggleShop(shop.id)}>
                     <Icon name="heart" size={15} />
                   </button>
                 </div>

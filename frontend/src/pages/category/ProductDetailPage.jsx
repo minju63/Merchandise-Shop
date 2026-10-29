@@ -145,6 +145,7 @@ function ProductDetailPageContent({
         product={product}
         user={user}
         actions={actions}
+        wished={actions?.isWished?.(product.storeProductId)}
         onLogin={onLogin}
       />
     </main>

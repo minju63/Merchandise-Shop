@@ -226,9 +226,16 @@
   font-weight: 800;
 }
 .cart-discount {
+  flex-basis: 100%;
   color: #e5484d;
   font-size: 14px;
   font-weight: 800;
+}
+.cart-original-price {
+  color: #a5a9b1;
+  font-size: 12px;
+  font-weight: 400;
+  text-decoration: line-through;
 }
 .cart-unit-price {
   color: #8a8f99;

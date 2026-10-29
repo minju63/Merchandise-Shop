@@ -39,6 +39,7 @@ function toWishProduct(row, alertIds) {
     discountRate,
     finalPrice: Math.round((price * (100 - discountRate)) / 100),
     stock: storeProduct.stock,
+    status: storeProduct.status,
     stockLabel,
     restockExpectedAt: storeProduct.restock_expected_at,
     pickupAvailable: storeProduct.pickup_available === true && store.pickup_available === true,
