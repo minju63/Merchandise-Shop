@@ -107,6 +107,20 @@ function ProductDetailPageContent({
         images={product.images}
       />
       </div>
+      <section id="product-feedback" className="category-section">
+        <nav className="category-result-tabs" aria-label="리뷰와 상품 문의">
+          <button type="button" aria-pressed={feedbackTab === 'reviews'} onClick={() => setFeedbackTab('reviews')}>리뷰</button>
+          <button type="button" aria-pressed={feedbackTab === 'inquiries'} onClick={() => setFeedbackTab('inquiries')}>Q&A</button>
+        </nav>
+        {feedbackTab === 'reviews' ? <ProductEmptyState message="상품 리뷰는 아직 연결되지 않았습니다." /> : <ProductInquirySection
+        key={storeProductId}
+        storeProductId={storeProductId}
+        client={client}
+        user={user}
+        onLogin={onLogin}
+        api={inquiryApi}
+      />}
+      </section>
       <div id="product-sellers">
         <SimilarStoreSection
           storeProductId={storeProductId}
@@ -126,20 +140,6 @@ function ProductDetailPageContent({
         onRetry={related.retry}
       />
       </div>
-      <section id="product-feedback" className="category-section">
-        <nav className="category-result-tabs" aria-label="리뷰와 상품 문의">
-          <button type="button" aria-pressed={feedbackTab === 'reviews'} onClick={() => setFeedbackTab('reviews')}>리뷰</button>
-          <button type="button" aria-pressed={feedbackTab === 'inquiries'} onClick={() => setFeedbackTab('inquiries')}>Q&A</button>
-        </nav>
-        {feedbackTab === 'reviews' ? <ProductEmptyState message="상품 리뷰는 아직 연결되지 않았습니다." /> : <ProductInquirySection
-        key={storeProductId}
-        storeProductId={storeProductId}
-        client={client}
-        user={user}
-        onLogin={onLogin}
-        api={inquiryApi}
-      />}
-      </section>
       <ProductActionBar
         key={`${storeProductId}:${user?.id || 'guest'}`}
         product={product}
