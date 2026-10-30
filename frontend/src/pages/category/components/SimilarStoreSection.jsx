@@ -1,18 +1,22 @@
 import { Link } from 'react-router-dom';
+import { useRef } from 'react';
 import Icon from '../../stores/components/Icon.jsx';
 import ProductEmptyState from './ProductEmptyState';
 import useWishlist from '../../../hooks/useWishlist.js';
+import useDragScroll from '../../../hooks/useDragScroll.js';
 
 // 지금 보는 상품과 같거나 비슷한 상품을 재고 있게 파는 다른 굿즈샵 추천
 export default function SimilarStoreSection({ storeProductId, productName, stores: storeList, loading, error, onRetry }) {
   const wish = useWishlist();
   const stores = storeList ?? [];
+  const railRef = useRef(null);
+  useDragScroll(railRef, !loading && !error && stores.length > 1);
   return (
     <section className="category-section category-similar-stores">
       <div className="category-similar-heading">
         <h2>비슷한 상품을 취급하는 다른 굿즈샵</h2>
         {stores.length > 0 && (
-          <Link to={`/search/results?${new URLSearchParams({ q: productName, tab: 'shops', similarTo: storeProductId })}`}>
+          <Link to={`/search/results?${new URLSearchParams({ tab: 'shops', similarTo: storeProductId })}`} aria-label={`${productName} 관련 굿즈샵 전체보기`}>
             전체보기 ›
           </Link>
         )}
@@ -24,7 +28,7 @@ export default function SimilarStoreSection({ storeProductId, productName, store
       ) : stores.length === 0 ? (
         <ProductEmptyState message="비슷한 상품을 취급하는 다른 굿즈샵이 아직 없습니다." />
       ) : (
-        <ul className={stores.length > 1 ? 'slide' : ''}>
+        <ul ref={railRef} className={stores.length > 1 ? 'slide' : ''}>
           {stores.map((store) => (
             <li key={store.id}>
               <Link

@@ -30,6 +30,18 @@ const repository = createProductRepository(supabase);
 
 export const findById = repository.findById;
 
+export async function findSimilarityCandidates() {
+  const rows = [];
+  for (let offset = 0; ; offset += 1000) {
+    const { data, error } = await supabase.from('products')
+      .select('id,name,brand,work_title,character_name')
+      .order('id').range(offset, offset + 999);
+    if (error) throw error;
+    rows.push(...(data ?? []));
+    if (!data || data.length < 1000) return rows;
+  }
+}
+
 export async function getProducts(productIds) {
   if (!productIds.length) return [];
   const rows = [];

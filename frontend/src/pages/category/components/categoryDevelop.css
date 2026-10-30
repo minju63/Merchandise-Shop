@@ -83,7 +83,7 @@
 .category-develop-shell .category-detail .category-action-area { padding: 10px 14px; box-shadow: 0 -4px 18px #30204108; }
 .category-develop-shell .category-detail .category-action-bar { gap: 8px; }
 .category-develop-shell .category-detail .category-action-bar button { min-height: 44px; font-size: 13px; color: #7656ed; border-color: #a78aff; background: white; }
-.category-develop-shell .category-detail .category-action-bar button:first-child { width: 44px; padding: 8px; color: #292034; border-color: #ece8f4; font-size: 22px; }
+.category-develop-shell .category-detail .category-action-bar button:first-child { width: 44px; padding: 8px; color: #ff4d6d; border-color: #ece8f4; font-size: 22px; }
 .category-develop-shell .category-detail .category-action-bar .category-primary,
 .category-develop-shell .category-detail .category-action-bar button:nth-child(2) { background: #8058ff; color: white; border-color: #8058ff; }
 .category-swipe-gallery { touch-action: pan-y pinch-zoom; cursor: grab; user-select: none; }

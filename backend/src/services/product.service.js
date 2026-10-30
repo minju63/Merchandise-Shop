@@ -207,7 +207,9 @@ export function createProductService(repositories) {
 
   async function getRelatedProducts(storeProductId, { size = 20, userId } = {}) {
     const detail = await getProductDetail(storeProductId);
-    const categoryIds = detail.categories.map((item) => item.category_id);
+    const categoryIds = detail.categories
+      .filter((item) => item.category?.type === 'CONTENT')
+      .map((item) => item.category_id);
     if (categoryIds.length === 0) return [];
     requireMethod(productCategory, 'findRelatedProductIds');
     const relatedProductIds = await productCategory.findRelatedProductIds({
@@ -228,34 +230,39 @@ export function createProductService(repositories) {
     return result.items;
   }
 
-  // 같은 상품이거나, 같은 작품·굿즈 종류(예: 아이돌 + 키링)이면서 같은 브랜드인 상품을 비슷한 상품으로 본다.
-  // 브랜드 정보가 없으면 비교할 수 없어 같은 상품만 본다.
+  // 같은 장르 또는 작품·브랜드·캐릭터가 가까운 상품을 찾는다.
   async function similarProductIds(detail) {
     requireMethod(productCategory, 'findProductIdsByCategories');
-    const categoriesOf = (type) =>
-      detail.categories.filter((row) => row.category?.type === type).map((row) => row.category);
-    const [contents, goods] = [categoriesOf('CONTENT'), categoriesOf('GOODS')];
-    const similarIds = new Set([detail.productId]);
-    // 작품·굿즈 종류·브랜드 중 하나라도 없으면 너무 넓게 잡히므로 같은 상품만 본다.
-    if (!contents.length || !goods.length || !detail.brand) return similarIds;
-    requireMethod(product, 'getProducts');
-    const candidateIds = new Set();
-    for (const content of contents)
-      for (const goodsCategory of goods)
-        for (const id of await productCategory.findProductIdsByCategories({
-          contentCategoryId: content.id,
-          goodsCategoryId: goodsCategory.id,
-        }))
-          candidateIds.add(id);
-    for (const row of await product.getProducts([...candidateIds]))
-      if (row.brand === detail.brand) similarIds.add(row.id);
-    return similarIds;
+    requireMethod(product, 'findSimilarityCandidates');
+    const scores = new Map([[detail.productId, 100]]);
+    const contents = detail.categories.filter((row) => row.category?.type === 'CONTENT');
+    for (const content of contents) {
+      for (const id of await productCategory.findProductIdsByCategories({ contentCategoryId: content.category_id })) {
+        if (id !== detail.productId) scores.set(id, 10);
+      }
+    }
+    const normalize = (value) => String(value ?? '').normalize('NFKC').toLocaleLowerCase('ko-KR').replace(/[^a-z0-9가-힣ㄱ-ㅎㅏ-ㅣ]/g, '');
+    const close = (a, b) => {
+      const left = normalize(a), right = normalize(b);
+      return left.length >= 2 && right.length >= 2 && (left.includes(right) || right.includes(left));
+    };
+    for (const row of await product.findSimilarityCandidates()) {
+      if (row.id === detail.productId) continue;
+      let score = scores.get(row.id) ?? 0;
+      if (close(detail.brand, row.brand)) score += 20;
+      if (close(detail.workTitle, row.work_title)) score += 30;
+      if (close(detail.characterName, row.character_name) ||
+          (normalize(detail.characterName).length >= 2 && normalize(row.name).includes(normalize(detail.characterName))) ||
+          (normalize(row.character_name).length >= 2 && normalize(detail.name).includes(normalize(row.character_name)))) score += 40;
+      if (score) scores.set(row.id, score);
+    }
+    return scores;
   }
 
   // 검색 결과를 "비슷한 상품"으로 좁힐 때 쓰는 범위. 지금 보는 굿즈샵의 상품도 포함하고 그 굿즈샵 id를 알려준다.
   async function getSimilarScope(storeProductId) {
     const detail = await getProductDetail(storeProductId);
-    return { productIds: [...(await similarProductIds(detail))], currentStoreId: detail.storeId };
+    return { productIds: [...(await similarProductIds(detail)).keys()], currentStoreId: detail.storeId };
   }
 
   async function findSimilarListings(storeProductId) {
@@ -265,7 +272,7 @@ export function createProductService(repositories) {
     const listings = [];
     for (let page = 1; ; page += 1) {
       const { items, totalCount } = await storeProduct.findPage({
-        productIds: [...similarIds],
+        productIds: [...similarIds.keys()],
         inStock: true,
         page,
         size: 100,
@@ -276,13 +283,15 @@ export function createProductService(repositories) {
     // 영업 중이 아닌 굿즈샵의 상품은 추천에서 뺀다.
     return {
       detail,
-      listings: listings.filter((listing) => listing.store && listing.store.is_operating === true),
+      listings: listings.filter((listing) => listing.store && listing.store.is_operating === true)
+        .sort((a, b) => (similarIds.get(b.product_id) ?? 0) - (similarIds.get(a.product_id) ?? 0)),
+      scores: similarIds,
     };
   }
 
   // includeCurrent가 true면 지금 보는 굿즈샵도 목록 맨 앞에 isCurrent로 표시해 넣는다.
   async function getSimilarStores(storeProductId, { size = 10, includeCurrent = false } = {}) {
-    const { detail, listings } = await findSimilarListings(storeProductId);
+    const { detail, listings, scores } = await findSimilarListings(storeProductId);
     const stores = new Map();
     for (const listing of listings) {
       const owner = listing.store;
@@ -298,10 +307,12 @@ export function createProductService(repositories) {
         isCurrent: owner.id === detail.storeId,
         hasSameProduct: false,
         matchedCount: 0,
+        relevanceScore: 0,
         products: [],
       };
       entry.hasSameProduct ||= listing.product_id === detail.productId;
       entry.matchedCount += 1;
+      entry.relevanceScore = Math.max(entry.relevanceScore, scores.get(listing.product_id) ?? 0);
       const item = {
         storeProductId: listing.id,
         name: listing.product?.name ?? '',
@@ -334,6 +345,7 @@ export function createProductService(repositories) {
         (a, b) =>
           Number(b.isCurrent) - Number(a.isCurrent) ||
           Number(b.hasSameProduct) - Number(a.hasSameProduct) ||
+          (b.relevanceScore ?? 0) - (a.relevanceScore ?? 0) ||
           b.matchedCount - a.matchedCount ||
           a.name.localeCompare(b.name, 'ko-KR')
       )
