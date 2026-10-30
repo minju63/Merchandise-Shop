@@ -9,7 +9,7 @@ export default function ProductInfo({ product }) {
   const breadcrumb = [
     categories.find((row) => row.type === 'CONTENT')?.name,
     product.workTitle,
-    product.characterName,
+    categories.find((row) => row.type === 'GOODS')?.name,
   ].filter(Boolean);
   return (
     <section className="category-product-info">
