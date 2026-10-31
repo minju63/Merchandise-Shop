@@ -256,7 +256,14 @@ export default function SearchPage({
         return;
       }
       try {
-        const response = await searchApi.products({ storeId: storeId || undefined, q: query.trim(), size: 100 });
+        // 결과 화면이 기본으로 품절·입고 예정을 빼므로, 눌렀을 때 결과가 없는 상품이 뜨지 않게 같은 조건으로 찾는다
+        const response = await searchApi.products({
+          storeId: storeId || undefined,
+          q: query.trim(),
+          size: 100,
+          includeSoldOut: false,
+          includeUpcoming: false,
+        });
         if (!cancelled) setSuggestions(getAutocompleteSuggestions(query, data, response.data.items, shops, storeId));
       } catch {
         if (!cancelled) setSuggestions([]);
@@ -521,7 +528,14 @@ export function SearchResultsPage({
         return;
       }
       try {
-        const response = await searchApi.products({ storeId: storeId || undefined, q: query.trim(), size: 100 });
+        // 결과 화면이 기본으로 품절·입고 예정을 빼므로, 눌렀을 때 결과가 없는 상품이 뜨지 않게 같은 조건으로 찾는다
+        const response = await searchApi.products({
+          storeId: storeId || undefined,
+          q: query.trim(),
+          size: 100,
+          includeSoldOut: false,
+          includeUpcoming: false,
+        });
         if (!cancelled) setSuggestions(getAutocompleteSuggestions(query, data, response.data.items, shops, storeId));
       } catch {
         if (!cancelled) setSuggestions([]);
