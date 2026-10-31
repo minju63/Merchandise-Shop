@@ -383,6 +383,7 @@ function FanGuideRoute() {
       onCheer={() => navigate(sessionStatus === 'in' ? '/fan/cheer' : '/login?returnTo=%2Ffan%2Fcheer')}
       onShowRanking={() => navigate('/fan/ranking?slot=FREE')}
       onShowResult={() => navigate(sessionStatus === 'in' ? '/fan/result' : '/login?returnTo=%2Ffan%2Fresult')}
+      onShowTickets={() => navigate(sessionStatus === 'in' ? '/fan/tickets' : '/login?returnTo=%2Ffan%2Ftickets')}
     />
   );
 }
@@ -467,6 +468,8 @@ function ProductDetailRoute() {
       {sheet && (
         <FulfillmentSheet
           productName={detail.data?.productName || detail.data?.name || '이 상품'}
+          pickupAvailable={detail.data?.pickupAvailable !== false}
+          deliveryAvailable={detail.data?.deliveryAvailable !== false}
           isPending={sheet.pending}
           onCancel={() => {
             sheet.reject(Object.assign(new Error('취소'), { cancelled: true }));

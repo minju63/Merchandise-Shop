@@ -22,7 +22,8 @@ export const fanApi = {
   tickets: async () => client.get('/fan/tickets', { headers: await authHeaders() }),
   characters: async (params) => client.get('/fan/characters', { params, headers: await authHeaders() }),
   anniversaryDates: async () => client.get('/fan/anniversary-dates', { headers: await authHeaders() }),
-  buyWithCash: async (amount) => client.post('/fan/tickets/cash', { amount }, { headers: await authHeaders() }),
+  buyWithCash: async (amount, paymentMethodId) =>
+    client.post('/fan/tickets/cash', { amount, paymentMethodId, paymentAgreed: true }, { headers: await authHeaders() }),
   buyWithCredit: async (quantity) => client.post('/fan/tickets/credit', { quantity }, { headers: await authHeaders() }),
   refundPack: async (packId) => client.post(`/fan/tickets/${packId}/refund`, {}, { headers: await authHeaders() }),
   design: async (designId) => client.get(`/fan/designs/${designId}`, { headers: await authHeaders() }),

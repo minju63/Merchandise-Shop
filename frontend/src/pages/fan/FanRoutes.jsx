@@ -4,6 +4,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { fanApi } from '../../api/fan.api.js';
 import { supabase } from '../../lib/supabase.js';
 import { useSession } from '../my/hooks.js';
+import { listPaymentMethods } from '../my/account.api.js';
 import FanCheerPage from './FanCheerPage.jsx';
 import FanTicketsPage from './FanTicketsPage.jsx';
 import FanResultPage from './FanResultPage.jsx';
@@ -31,18 +32,30 @@ export function FanTicketsRoute() {
   const [method, setMethod] = useState('CASH');
   const [selected, setSelected] = useState(null);
   const [notice, setNotice] = useState('');
+  const [methodId, setMethodId] = useState(null);
+  const [agreed, setAgreed] = useState(false);
   const me = useQuery({ queryKey: ['fan-me'], queryFn: fanApi.me, enabled: loggedIn, retry: false });
   const tickets = useQuery({ queryKey: ['fan-tickets'], queryFn: fanApi.tickets, enabled: loggedIn, retry: false });
+  // 현금 구매는 멤버십처럼 내 결제수단을 골라 결제한다
+  const methods = useQuery({
+    queryKey: ['fan-payment-methods'],
+    queryFn: listPaymentMethods,
+    enabled: loggedIn && method === 'CASH',
+    retry: false,
+  });
+  const methodItems = methods.data?.items ?? [];
+  const activeMethodId = methodId ?? methodItems.find((item) => item.is_default)?.id ?? methodItems[0]?.id ?? null;
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: ['fan-me'] });
     queryClient.invalidateQueries({ queryKey: ['fan-tickets'] });
   };
   const buy = useMutation({
-    mutationFn: ({ kind, value }) => (kind === 'CASH' ? fanApi.buyWithCash(value) : fanApi.buyWithCredit(value)),
+    mutationFn: ({ kind, value }) => (kind === 'CASH' ? fanApi.buyWithCash(value, activeMethodId) : fanApi.buyWithCredit(value)),
     onSuccess: (response) => {
       refresh();
       setNotice(`응원권 ${response.data.bought}장을 구매했어요.`);
       setSelected(null);
+      setAgreed(false);
     },
   });
   const refund = useMutation({
@@ -63,6 +76,12 @@ export function FanTicketsRoute() {
       working={buy.isPending || refund.isPending}
       error={mutationError ?? me.error?.message}
       notice={notice}
+      paymentMethods={methods.data ? methodItems : undefined}
+      paymentMethodId={activeMethodId}
+      agreed={agreed}
+      onSelectPaymentMethod={setMethodId}
+      onAgree={setAgreed}
+      onAddPaymentMethod={() => navigate('/my/payment-methods')}
       onBack={goBack(navigate, '/fan/guide')}
       onChangeMethod={(next) => { setMethod(next); setSelected(null); setNotice(''); buy.reset(); refund.reset(); }}
       onSelect={(value) => { setSelected(value); setNotice(''); buy.reset(); }}

@@ -42,7 +42,6 @@ export default function FanCheerPage({
 }) {
   const [character, setCharacter] = useState(null);
   const [kind, setKind] = useState('');
-  const [message, setMessage] = useState('');
   const [nickname, setNickname] = useState('');
   const [count, setCount] = useState(1);
   const [agreedRules, setAgreedRules] = useState(false);
@@ -62,7 +61,6 @@ export default function FanCheerPage({
     && remaining >= 1
     && Boolean(character)
     && (slot === 'FREE' || Boolean(anniversary))
-    && message.trim().length > 0
     && nickname.trim().length > 0
     && !lackTickets
     && agreedRules
@@ -83,7 +81,8 @@ export default function FanCheerPage({
     slotType: slot,
     characterId: character.id,
     anniversaryId: anniversary?.id,
-    message: message.trim(),
+    // 전광판 문구는 꾸미기 화면의 메인 문구로 정하므로 응원 한마디는 받지 않는다
+    message: '',
     nickname: nickname.trim(),
     count: safeCount,
     agreedRules,
@@ -106,7 +105,7 @@ export default function FanCheerPage({
         <p className="fan-closed">이번 주 응원은 마감됐어요. 다음 주 월요일부터 다시 응원할 수 있어요.</p>
       ) : null}
 
-      <DetailSection title="① 응원 유형">
+      <DetailSection title="응원 유형">
         <div className="fan-pick" role="radiogroup" aria-label="응원 유형">
           {SLOTS.map((item) => (
             <button
@@ -125,7 +124,7 @@ export default function FanCheerPage({
       </DetailSection>
 
       <DetailSection
-        title="② 최애 선택"
+        title="최애 선택"
         description={slot === 'ANNIV' ? '다음 주에 기념일이 있는 최애만 고를 수 있어요' : '좋아하는 캐릭터를 검색해 보세요'}
       >
         <input
@@ -163,8 +162,9 @@ export default function FanCheerPage({
         </button>
       </DetailSection>
 
-      {slot === 'ANNIV' ? (
-        <DetailSection title="③ 기념일 종류">
+      {/* 기념일이 하나뿐인 최애는 자동으로 정해지므로, 두 개 이상일 때만 고르게 한다 */}
+      {slot === 'ANNIV' && character && character.anniversaries.length > 1 ? (
+        <DetailSection title="기념일 종류">
           <div className="fan-chips">
             {Object.entries(ANNIVERSARY_KINDS).map(([key, value]) => (
               <button
@@ -177,22 +177,17 @@ export default function FanCheerPage({
               >{value.label}</button>
             ))}
           </div>
-          {!character ? <p className="bd__caption">최애를 먼저 골라 주세요.</p> : null}
         </DetailSection>
       ) : null}
 
-      <DetailSection title="④ 응원 한마디">
-        <label className="fan-field">
-          <span>응원 한마디 <em>{message.length}/30</em></span>
-          <input className="fan-input" type="text" maxLength={30} value={message} placeholder="최애에게 전하고 싶은 말" onChange={(event) => setMessage(event.target.value)} />
-        </label>
+      <DetailSection title="표시 닉네임" description="전광판 문구는 1위가 된 뒤 꾸미기 화면에서 정해요">
         <label className="fan-field">
           <span>표시 닉네임 <em>{nickname.length}/20</em></span>
           <input className="fan-input" type="text" maxLength={20} value={nickname} placeholder="전광판에 from. 으로 표시돼요" onChange={(event) => setNickname(event.target.value)} />
         </label>
       </DetailSection>
 
-      <DetailSection title="⑤ 응원 횟수" description={`오늘 남은 응원 ${remaining}/${me?.dailyLimit ?? 100}회`}>
+      <DetailSection title="응원 횟수" description={`오늘 남은 응원 ${remaining}/${me?.dailyLimit ?? 100}회`}>
         <div className="fan-stepper">
           <button type="button" aria-label="횟수 줄이기" disabled={safeCount <= 1} onClick={() => setCount(safeCount - 1)}>−</button>
           <strong>{remaining === 0 ? 0 : safeCount}회</strong>
@@ -216,7 +211,7 @@ export default function FanCheerPage({
         ) : null}
       </DetailSection>
 
-      <DetailSection title="⑥ 무료 응원권 더 받기">
+      <DetailSection title="무료 응원권 더 받기">
         <ul className="fan-earn">
           {EARN_WAYS.map(([reason, name, limit]) => (
             <li key={reason}>
@@ -228,7 +223,7 @@ export default function FanCheerPage({
         <p className="bd__caption">무료 응원권은 목요일 마감 후 소멸하고, 무료로 한 응원은 반환되지 않아요.</p>
       </DetailSection>
 
-      <DetailSection title="⑦ 동의">
+      <DetailSection title="동의">
         <label className="fan-check">
           <input type="checkbox" checked={agreedRules} onChange={(event) => setAgreedRules(event.target.checked)} />
           <span>(필수) 응원·반환 규정을 확인했어요. 이긴 최애의 유료 응원은 반환되지 않아요.</span>

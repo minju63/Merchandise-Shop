@@ -57,12 +57,13 @@ export const send = (userId, input) => rpc('cheer_send', {
   p_agreed_image_rights: input.agreedImageRights === true,
 });
 
-export async function insertChargePayment(userId, { amount, transactionId, methodLabel, approvedAt, isMock }) {
+export async function insertChargePayment(userId, { amount, transactionId, methodLabel, approvedAt, isMock, paymentMethodId = null }) {
   const { data, error } = await getSupabase()
     .from('payments')
     .insert({
       user_id: userId,
       purpose: 'CHEER_CHARGE',
+      payment_method_id: paymentMethodId,
       method_label: methodLabel,
       amount,
       status: 'PAID',

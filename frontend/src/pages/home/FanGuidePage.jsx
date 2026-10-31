@@ -28,7 +28,7 @@ const SLOTS = [
 ];
 
 // 응원 홍보 배너의 "자세히 보기" 화면 (/fan/guide)
-export default function FanGuidePage({ status, ranking, onBack, onCheer, onShowRanking, onShowResult }) {
+export default function FanGuidePage({ status, ranking, onBack, onCheer, onShowRanking, onShowResult, onShowTickets }) {
   const deadline = thisWeekDeadline();
   const stage = currentScheduleIndex();
   const rows = ranking?.length ? ranking : MOCK_RANKING;
@@ -114,6 +114,7 @@ export default function FanGuidePage({ status, ranking, onBack, onCheer, onShowR
         </ol>
         <button className="bd__link-btn" type="button" onClick={onShowRanking}>실시간 순위 전체 보기 ›</button>
         <button className="bd__link-btn" type="button" onClick={onShowResult}>지난 주 내 응원 결과 보기 ›</button>
+        <button className="bd__link-btn" type="button" onClick={onShowTickets}>응원권 구매하기 ›</button>
         <p className="bd__caption">
           이번 주 전체 응원 {status.totalCheers.toLocaleString('ko-KR')}회
           {status.freeTickets === null ? '' : ` · 내 무료 응원권 ${status.freeTickets}장`}

@@ -1,5 +1,6 @@
 import { DetailSection, DetailShell, NoticeList } from '../home/BannerDetailParts.jsx';
 import { CHARGE_AMOUNTS, CHEER_PRICE, CREDIT_BUY_QUANTITIES, CREDIT_RETURN_RATE, DAILY_CHEER_LIMIT } from './fanGuideData.js';
+import { paymentMethodName } from '../my/accountFormat.js';
 import './FanCheer.css';
 
 const CREDIT_LABELS = {
@@ -25,6 +26,12 @@ export default function FanTicketsPage({
   working,
   error,
   notice,
+  paymentMethods,
+  paymentMethodId,
+  agreed,
+  onSelectPaymentMethod,
+  onAgree,
+  onAddPaymentMethod,
   onBack,
   onChangeMethod,
   onSelect,
@@ -39,6 +46,8 @@ export default function FanTicketsPage({
     ? (selected ? `${won(selected)}원 결제하기` : '금액을 선택해 주세요')
     : (selected ? `적립금 ${won(selected * CHEER_PRICE)}원으로 ${selected}장 구매` : '장수를 선택해 주세요');
   const lackCredit = method === 'CREDIT' && selected && selected * CHEER_PRICE > credit;
+  // 현금 구매는 결제수단을 고르고 동의해야 결제할 수 있다
+  const needPayment = method === 'CASH' && selected && (!paymentMethodId || !agreed);
 
   return (
     <DetailShell
@@ -49,7 +58,7 @@ export default function FanTicketsPage({
       footer={(
         <>
           <button className="bd__btn bd__btn--secondary" type="button" onClick={onCheer}>응원하러 가기</button>
-          <button className="bd__btn" type="button" disabled={!selected || working || lackCredit} onClick={onBuy}>
+          <button className="bd__btn" type="button" disabled={!selected || working || lackCredit || needPayment} onClick={onBuy}>
             {working ? '처리 중...' : label}
           </button>
         </>
@@ -96,6 +105,38 @@ export default function FanTicketsPage({
             {method === 'CASH' ? <p className="bd__caption">지금은 시연용 모의 결제라 실제 결제는 일어나지 않아요.</p> : null}
             {method === 'CREDIT' && credit < CHEER_PRICE ? <p className="bd__caption">적립금이 부족해요. 응원에서 지면 적립금으로 돌려드려요.</p> : null}
           </DetailSection>
+
+          {method === 'CASH' && selected ? (
+            <DetailSection title="결제수단" description={`${won(selected)}원을 결제해요`}>
+              {paymentMethods && paymentMethods.length === 0 ? (
+                <p className="bd__empty">
+                  등록된 결제수단이 없어요
+                  <br />
+                  <button className="fan-link" type="button" onClick={onAddPaymentMethod}>결제수단 추가하러 가기 ›</button>
+                </p>
+              ) : null}
+              <ul className="fan-methods">
+                {(paymentMethods ?? []).map((item) => (
+                  <li key={item.id}>
+                    <label className={paymentMethodId === item.id ? 'is-on' : ''}>
+                      <input
+                        type="radio"
+                        name="fan-payment-method"
+                        checked={paymentMethodId === item.id}
+                        onChange={() => onSelectPaymentMethod(item.id)}
+                      />
+                      <strong>{paymentMethodName(item)}</strong>
+                      {item.is_default ? <em className="fan-badge">기본</em> : null}
+                    </label>
+                  </li>
+                ))}
+              </ul>
+              <label className="fan-agree">
+                <input type="checkbox" checked={agreed} onChange={(event) => onAgree(event.target.checked)} />
+                시연용 결제에 동의해요 (실제 결제는 이뤄지지 않아요)
+              </label>
+            </DetailSection>
+          ) : null}
 
           <DetailSection title="구매 전에 확인해 주세요">
             <NoticeList

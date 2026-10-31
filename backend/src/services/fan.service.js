@@ -1,6 +1,8 @@
 // 팬 응원 전광판 서비스: 응원권 구매 · 응원하기 · 순위
 import * as repository from '../repositories/fan.repository.js';
 import { getPaymentProvider } from '../payments/index.js';
+import { resolvePaymentMethodSelection } from './paymentMethod.service.js';
+import { paymentMethodLabel } from './checkout.service.js';
 
 const failure = (status, code, message) => Object.assign(new Error(message), { status, code });
 
@@ -91,8 +93,18 @@ export async function buyWithCash(userId, body = {}) {
   if (!CHARGE_AMOUNTS.includes(amount)) {
     throw failure(400, 'FAN_INVALID_CHARGE_AMOUNT', DB_ERRORS.FAN_INVALID_CHARGE_AMOUNT[1]);
   }
+  if (body.paymentAgreed !== true) {
+    throw failure(400, 'FAN_PAYMENT_NOT_AGREED', '결제에 동의해 주세요.');
+  }
+  // 멤버십 구독과 같이 내가 등록한 결제수단만 쓸 수 있다
+  const method = await resolvePaymentMethodSelection(userId, body.paymentMethodId);
   const approval = await getPaymentProvider().charge({ userId, amount });
-  const paymentId = await repository.insertChargePayment(userId, { amount, ...approval });
+  const paymentId = await repository.insertChargePayment(userId, {
+    amount,
+    ...approval,
+    methodLabel: paymentMethodLabel(method),
+    paymentMethodId: method.id,
+  });
   return repository.buyWithCash(userId, paymentId).catch(translate);
 }
 

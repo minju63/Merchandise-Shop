@@ -2,7 +2,7 @@
 // 담당: 동균
 // 장바구니는 재고를 잡지 않는다. 화면의 재고·가격은 조회할 때마다 서버가 다시 계산한 값이다.
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { cartApi } from '../../api/cart.api.js';
 import { isAuthError } from '../../api/wishlist.api.js';
@@ -16,6 +16,7 @@ const TYPES = ['PICKUP', 'DELIVERY'];
 
 export default function CartPage() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const type = TYPES.includes(searchParams.get('type')) ? searchParams.get('type') : 'PICKUP';
   const [notice, setNotice] = useState('');
@@ -56,6 +57,16 @@ export default function CartPage() {
   const soldOutIds = items.filter((item) => item.unavailableReason === 'OUT_OF_STOCK').map((item) => item.cartItemId);
   const allSelected = availableItems.length > 0 && availableItems.every((item) => item.isSelected);
   const busy = updateMutation.isPending || removeMutation.isPending;
+
+  // 체크한 상품 중 지금 살 수 있는 것만 결제 화면으로 넘긴다 (결제 화면이 서버에서 다시 확인한다)
+  const order = () => {
+    const cartItemIds = availableItems.filter((item) => item.isSelected).map((item) => item.cartItemId);
+    if (cartItemIds.length === 0) {
+      setNotice('주문할 상품을 선택해 주세요');
+      return;
+    }
+    navigate('/checkout', { state: { mode: 'CART', cartItemIds } });
+  };
 
   const toggleAll = () =>
     updateMutation.mutate(
@@ -141,7 +152,7 @@ export default function CartPage() {
           type={type}
           selectedCount={cart.selectedCount}
           grandTotal={cart.grandTotal}
-          onOrder={() => setNotice('준비 중입니다')}
+          onOrder={order}
         />
       )}
       {notice && (
