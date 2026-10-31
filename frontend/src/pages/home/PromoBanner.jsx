@@ -1,4 +1,11 @@
-const formatEventDate = (value) => (value ? value.replaceAll('-', '. ') : '');
+import FanBoard from '../fan/FanBoard.jsx';
+import { fanBoardDesign, isFanBoardType } from '../fan/fanBoardPresets.js';
+
+const DEFAULT_TITLES = {
+  SERVICE_INTRO: '내 주변 굿즈샵 재고,\n픽업까지 한 번에',
+  EXHIBITION: '12월 생일 최애,\n굿즈로 축하해요',
+  FAN_PROMO: '내 최애를\n메인 배너에 올려요',
+};
 
 function Cta({ onOpen }) {
   return (
@@ -8,37 +15,15 @@ function Cta({ onOpen }) {
   );
 }
 
-// 팬 응원 전광판: 보기만 하는 축하 배너라 버튼도 클릭 이동도 없다.
-function FanBanner({ banner }) {
-  const hashtag = `#${banner.characterName?.replace(/\s/g, '')}_생일축하해`;
-
-  return (
-    <>
-      <div className="promo-banner__fan-image">
-        {banner.imageUrl ? <img src={banner.imageUrl} alt="" draggable="false" /> : null}
-      </div>
-      <div className="promo-banner__fan-text">
-        <span className="promo-banner__fan-badge">팬 응원</span>
-        <time className="promo-banner__fan-date">{formatEventDate(banner.eventDate)}</time>
-        <p className="promo-banner__fan-title">HAPPY<br />BIRTHDAY</p>
-        <p className="promo-banner__fan-name">{banner.title}</p>
-        <p className="promo-banner__fan-message">{banner.message}</p>
-        <p className="promo-banner__fan-from">from. {banner.fanNickname} · {hashtag}</p>
-      </div>
-      <i className="promo-banner__star promo-banner__star--1" aria-hidden="true" />
-      <i className="promo-banner__star promo-banner__star--2" aria-hidden="true" />
-      <i className="promo-banner__star promo-banner__star--3" aria-hidden="true" />
-    </>
-  );
-}
-
 export default function PromoBanner({ banner, position, dragProps, onOpen }) {
   const type = banner.bannerType;
+  const modifier = isFanBoardType(type) ? 'fan' : type.toLowerCase().replaceAll('_', '-');
 
   return (
-    <article className={`promo-banner promo-banner--${type.toLowerCase().replace('_', '-')}`} {...dragProps}>
-      {type === 'FAN' ? (
-        <FanBanner banner={banner} />
+    <article className={`promo-banner promo-banner--${modifier}`} {...dragProps}>
+      {isFanBoardType(type) ? (
+        // 전광판은 보기 전용: 자세히 보기도 클릭 이동도 없다.
+        <FanBoard design={fanBoardDesign(banner)} />
       ) : (
         <div className="promo-banner__body">
           {type === 'AD' ? (
@@ -47,7 +32,12 @@ export default function PromoBanner({ banner, position, dragProps, onOpen }) {
               {banner.advertiserName}
             </p>
           ) : null}
-          <h2>{banner.title}</h2>
+          {type === 'FAN_PROMO' ? (
+            <p className="promo-banner__eyebrow">
+              <span className="promo-banner__live">응원 중 · 이번 주 목요일 마감</span>
+            </p>
+          ) : null}
+          <h2>{banner.title || DEFAULT_TITLES[type]}</h2>
           <Cta onOpen={onOpen} />
         </div>
       )}

@@ -1,0 +1,290 @@
+/* 전광판 꾸미기 화면 — 공통 틀은 BannerDetail.css 의 .bd 를 쓴다 */
+.fan-design__badge {
+  margin: 0;
+  padding: 12px 20px;
+  color: #6f5be7;
+  background: #f1eeff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.fan-design__reject {
+  margin: 0;
+  padding: 12px 20px;
+  color: #fff;
+  background: #e5484d;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* 미리보기는 홈 배너와 같은 높이·비율로 위에 고정한다 */
+.fan-design__preview {
+  position: sticky;
+  top: 52px;
+  z-index: 5;
+  padding: 12px 18px 8px;
+  background: #fafafc;
+}
+
+.fan-design__preview .fan-board {
+  height: 131px;
+  border-radius: 16px;
+}
+
+.fan-board--edit [data-fan-line] {
+  cursor: grab;
+  outline: 1px dashed rgb(255 255 255 / 55%);
+  outline-offset: 2px;
+  touch-action: none;
+}
+
+.fan-board--edit {
+  touch-action: pan-y;
+}
+
+.fan-design__hint {
+  margin: 8px 0 0;
+  color: #747781;
+  font-size: 12px;
+  text-align: center;
+}
+
+.fan-design__error {
+  margin: 8px 20px 0;
+}
+
+.fan-design__fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.fan-design__fieldset:disabled {
+  opacity: 0.6;
+}
+
+.fan-design__row {
+  display: flex;
+  gap: 8px;
+}
+
+.fan-design__btn {
+  padding: 10px 14px;
+  border: 1px solid #e9e9ee;
+  border-radius: 10px;
+  color: #1f2028;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.fan-design__presets {
+  display: grid;
+  margin-top: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.fan-design__presets button {
+  display: flex;
+  height: 52px;
+  padding: 0 8px 6px;
+  align-items: flex-end;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  text-shadow: 0 1px 3px rgb(0 0 0 / 45%);
+  cursor: pointer;
+}
+
+.fan-design__presets button.is-on {
+  border-color: #6f5be7;
+  box-shadow: 0 0 0 2px #fff inset;
+}
+
+.fan-design__seg {
+  display: flex;
+  margin: 12px 0;
+  overflow: hidden;
+  border: 1px solid #e9e9ee;
+  border-radius: 10px;
+}
+
+.fan-design__seg button {
+  flex: 1;
+  padding: 10px 4px;
+  border: 0;
+  border-right: 1px solid #e9e9ee;
+  color: #1f2028;
+  background: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.fan-design__seg button:last-child {
+  border-right: 0;
+}
+
+.fan-design__seg button.is-on {
+  color: #6f5be7;
+  background: #f1eeff;
+  font-weight: 700;
+}
+
+.fan-design__seg button:disabled {
+  color: #b5b7bf;
+  cursor: not-allowed;
+}
+
+.fan-design__fonts,
+.fan-design__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fan-design__chips {
+  margin: 12px 0;
+}
+
+.fan-design__fonts button,
+.fan-design__chips button {
+  padding: 9px 12px;
+  border: 1px solid #e9e9ee;
+  border-radius: 10px;
+  color: #1f2028;
+  background: #fff;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.fan-design__chips button {
+  font-size: 13px;
+}
+
+.fan-design__fonts .is-on,
+.fan-design__chips .is-on {
+  border-color: #6f5be7;
+  background: #f1eeff;
+}
+
+.fan-design__colors {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fan-design__colors > button:not(.fan-design__btn) {
+  width: 36px;
+  height: 36px;
+  border: 2px solid #e9e9ee;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.fan-design__colors > button.is-on {
+  border-color: #6f5be7;
+}
+
+/* 색 팔레트 패널 */
+.fan-palette {
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid #e9e9ee;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.fan-palette__head {
+  display: flex;
+  margin-bottom: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fan-palette__head button {
+  border: 0;
+  color: #6f5be7;
+  background: none;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.fan-palette__swatches {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.fan-palette__swatches button {
+  height: 34px;
+  border: 1px solid #e9e9ee;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.fan-palette__swatches button[aria-pressed="true"] {
+  outline: 2px solid #6f5be7;
+  outline-offset: 1px;
+}
+
+.fan-palette__slider {
+  display: flex;
+  margin-top: 10px;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.fan-palette__slider input {
+  flex: 1;
+  accent-color: #6f5be7;
+  touch-action: pan-y;
+}
+
+.fan-palette__slider output {
+  min-width: 28px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.fan-palette__code {
+  display: flex;
+  margin-top: 12px;
+  align-items: center;
+  gap: 10px;
+}
+
+.fan-palette__code i {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #e9e9ee;
+  border-radius: 50%;
+}
+
+.fan-palette__code code {
+  font-size: 13px;
+}
+
+.fan-palette__device {
+  display: flex;
+  margin-left: auto;
+  align-items: center;
+  gap: 8px;
+  color: #6f5be7;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.fan-palette__device input {
+  width: 32px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  background: none;
+}

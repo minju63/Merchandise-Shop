@@ -13,7 +13,12 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173', credentials: true }));
+const allowedClientOrigins = (process.env.CLIENT_URL || 'http://localhost:5173,http://localhost:5174')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.use(cors({ origin: allowedClientOrigins, credentials: true }));
 app.use('/api/v1/reviews', express.json({ limit: '36mb' }));
 app.use(express.json());
 

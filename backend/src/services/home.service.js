@@ -1,6 +1,7 @@
 // 담당: 민주
 // 홈 서비스 — 비즈니스 로직, DB 접근은 repositories/ 를 통해서만
 import { findActiveCategories, findHomeBanners, findHomeProducts } from '../repositories/home.repository.js';
+import { getHomeBoards } from './fan.service.js';
 
 const SECTION_LIMIT = 10;
 const RECOMMENDATION_LIMIT = 30;
@@ -104,8 +105,36 @@ function buildInterestCategories(categories) {
     .map((category) => ({ id: categorySlug(category.code), name: category.name, type: category.type }));
 }
 
-function buildBanners(rows) {
-  return rows.map((banner) => ({
+// 홈 캐러셀 순서: 서비스 소개 → 광고 → 기획전 → 기념일 전광판 → 자유 응원 전광판 → 응모 홍보
+const BANNER_ORDER = ['SERVICE_INTRO', 'AD', 'EXHIBITION', 'FAN_ANNIV', 'FAN', 'FAN_FREE', 'FAN_PROMO'];
+
+// 응모 홍보 배너는 banners 행이 없어도 항상 마지막에 붙는다.
+const PROMO_BANNER = {
+  id: 'fan-promo',
+  bannerType: 'FAN_PROMO',
+  title: '내 최애를\n메인 배너에 올려요',
+  imageUrl: null,
+  advertiserName: null,
+  startAt: '1970-01-01T00:00:00Z',
+  endAt: '9999-12-31T23:59:59Z',
+  clickCount: 0,
+};
+
+// 오늘 게시 중인 승인된 팬 응원 전광판 디자인을 홈 배너 모양으로 바꾼다.
+const boardBanners = (boards) => boards.map((board) => ({
+  id: `fan-${board.designId}`,
+  bannerType: board.slotType === 'FREE' ? 'FAN_FREE' : 'FAN_ANNIV',
+  title: board.design.name ?? '',
+  imageUrl: null,
+  advertiserName: null,
+  design: board.design,
+  startAt: '1970-01-01T00:00:00Z',
+  endAt: '9999-12-31T23:59:59Z',
+  clickCount: 0,
+}));
+
+function buildBanners(rows, boards = []) {
+  const banners = rows.map((banner) => ({
     id: banner.id,
     bannerType: banner.banner_type,
     title: banner.title,
@@ -120,6 +149,12 @@ function buildBanners(rows) {
     endAt: banner.ends_at ?? '9999-12-31T23:59:59Z',
     clickCount: banner.click_count,
   }));
+
+  banners.push(...boardBanners(boards));
+  if (!banners.some((banner) => banner.bannerType === 'FAN_PROMO')) banners.push(PROMO_BANNER);
+  const rank = (banner) => BANNER_ORDER.indexOf(banner.bannerType);
+  // 같은 종류 안에서는 기존 sort_order 순서를 유지한다(정렬은 안정 정렬).
+  return banners.sort((a, b) => rank(a) - rank(b));
 }
 
 function buildUpcoming(products, now) {
@@ -162,10 +197,12 @@ function buildUpcoming(products, now) {
 
 export async function getHome() {
   const now = new Date();
-  const [bannerRows, products, categories] = await Promise.all([
+  const [bannerRows, products, categories, fanBoards] = await Promise.all([
     findHomeBanners(now.toISOString()),
     findHomeProducts(),
     findActiveCategories(),
+    // 전광판 조회가 실패해도 홈은 그대로 보여준다.
+    getHomeBoards().catch(() => []),
   ]);
 
   const onSale = products
@@ -219,7 +256,7 @@ export async function getHome() {
     }));
 
   return {
-    banners: buildBanners(bannerRows),
+    banners: buildBanners(bannerRows, fanBoards),
     categories: buildCategoryShortcuts(categories),
     interestCategories: buildInterestCategories(categories),
     popularProducts,

@@ -15,6 +15,7 @@ import reportRoutes from './report.routes.js';
 import sellerApplicationRoutes from './sellerApplication.routes.js';
 import supportRoutes from './support.routes.js';
 import reviewRoutes from './review.routes.js';
+import fanRoutes from './fan.routes.js';
 
 // 민주
 import upcomingRoutes from './upcoming.routes.js';
@@ -63,6 +64,7 @@ router.use('/', upcomingRoutes);
 router.use('/home', homeRoutes);
 router.use('/search', searchRoutes);
 router.use('/banners', bannerRoutes);
+router.use('/fan', fanRoutes); // 팬 응원 전광판
 router.use('/open-alerts', openAlertRoutes);
 
 // 여경 — 굿즈샵

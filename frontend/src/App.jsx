@@ -77,6 +77,9 @@ import {
 import AdDetailPage from './pages/home/AdDetailPage.jsx';
 import AdProductsPage from './pages/home/AdProductsPage.jsx';
 import ExhibitionPage from './pages/home/ExhibitionPage.jsx';
+import FanGuidePage from './pages/home/FanGuidePage.jsx';
+import { fanApi } from './api/fan.api.js';
+import { FanCheerRoute, FanDesignRoute, FanRankingRoute, FanResultRoute, FanTicketsRoute } from './pages/fan/FanRoutes.jsx';
 import './App.css';
 
 const queryClient = new QueryClient({
@@ -115,7 +118,7 @@ function useStoreFilter(storeId) {
   });
 }
 
-// 배너 종류별 상세 화면. 팬 응원 전광판(FAN)은 상세 화면이 없어 이동하지 않는다.
+// 배너 종류별 상세 화면. 팬 응원 전광판(FAN_ANNIV · FAN_FREE)은 상세 화면이 없어 이동하지 않는다.
 const BANNER_DETAIL_PATHS = {
   SERVICE_INTRO: '/intro',
   AD: '/ads',
@@ -123,6 +126,7 @@ const BANNER_DETAIL_PATHS = {
 };
 
 function bannerPath({ bannerId, bannerType }) {
+  if (bannerType === 'FAN_PROMO') return '/fan/guide';
   const base = BANNER_DETAIL_PATHS[bannerType];
   return base ? `${base}/${bannerId}` : null;
 }
@@ -339,6 +343,38 @@ function ExhibitionRoute() {
       onToggleInStock={() => setFilter({ inStock: inStock ? '' : 'true' })}
       onOpenProduct={(product) => navigate(`/products/${product.storeProductId}`)}
       onShowAll={(name) => navigate(`/search/results?q=${encodeURIComponent(name)}`)}
+    />
+  );
+}
+
+function FanGuideRoute() {
+  const navigate = useNavigate();
+  const { status: sessionStatus } = useSession();
+  const week = useQuery({ queryKey: ['fan-week'], queryFn: fanApi.week, retry: false, refetchInterval: 15000 });
+  const ranking = useQuery({
+    queryKey: ['fan-ranking', 'FREE', '', false],
+    queryFn: () => fanApi.ranking({ slot: 'FREE' }),
+    retry: false,
+    refetchInterval: 15000,
+  });
+  const me = useQuery({ queryKey: ['fan-me'], queryFn: fanApi.me, enabled: sessionStatus === 'in', retry: false });
+  const topRanks = (ranking.data?.data.items ?? []).slice(0, 3).map((item) => ({
+    rank: item.rank,
+    name: item.name,
+    count: item.cheerCount,
+  }));
+
+  return (
+    <FanGuidePage
+      status={{
+        totalCheers: week.data?.data.totalCheers ?? 0,
+        freeTickets: me.data?.data.freeTickets ?? null,
+      }}
+      ranking={topRanks}
+      onBack={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))}
+      onCheer={() => navigate(sessionStatus === 'in' ? '/fan/cheer' : '/login?returnTo=%2Ffan%2Fcheer')}
+      onShowRanking={() => navigate('/fan/ranking?slot=FREE')}
+      onShowResult={() => navigate(sessionStatus === 'in' ? '/fan/result' : '/login?returnTo=%2Ffan%2Fresult')}
     />
   );
 }
@@ -608,6 +644,12 @@ export default function App() {
         <Route path="/ads/:bannerId" element={<AdDetailRoute />} />
         <Route path="/ads/:bannerId/products" element={<AdProductsRoute />} />
         <Route path="/exhibitions/:bannerId" element={<ExhibitionRoute />} />
+        <Route path="/fan/guide" element={<FanGuideRoute />} />
+        <Route path="/fan/cheer" element={<FanCheerRoute />} />
+        <Route path="/fan/tickets" element={<FanTicketsRoute />} />
+        <Route path="/fan/ranking" element={<FanRankingRoute />} />
+        <Route path="/fan/result" element={<FanResultRoute />} />
+        <Route path="/fan/design/:designId" element={<FanDesignRoute />} />
 
         {/* 여경 — 굿즈샵 */}
         <Route path="/stores" element={<StoreListPage />} />

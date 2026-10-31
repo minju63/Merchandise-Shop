@@ -15,6 +15,7 @@ export const MY_ROUTES = {
   reorder: '/checkout',
   reviewWrite: (orderId) => `/my/orders/${orderId}/review`,
   membership: '/my/membership',
+  fanResult: '/fan/result',
   coupons: '/my/coupons',
   couponDetail: (id) => `/my/coupons/${id}`,
   addresses: '/my/addresses',

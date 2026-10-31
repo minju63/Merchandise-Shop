@@ -810,3 +810,232 @@
   padding: 8px 12px;
   font-size: 13px;
 }
+
+/* 응모 안내 (/fan/guide) */
+.bd__hero--fan {
+  color: #3a2a6b;
+  background: linear-gradient(135deg, #fce7f0, #ece6ff);
+}
+
+.bd__slots {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  list-style: none;
+}
+
+/* 글자 크기가 너비(cqw) 기준이라 높이를 고정하면 잘린다. 홈 배너 비율(약 2.8:1)에 맞춘다 */
+.bd__slot-preview {
+  aspect-ratio: 17 / 6;
+  margin-bottom: 8px;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+/* 같은 영역의 문단 스타일이 전광판 글자색을 덮지 않게 디자인에서 정한 색을 따른다 */
+.bd__slot-preview .fan-board__text p {
+  color: inherit;
+  font-weight: inherit;
+}
+
+.bd__slots li > strong {
+  display: block;
+  font-size: 14px;
+}
+
+/* 전광판 미리보기 안의 글자(.fan-board p)는 건드리지 않고 설명 문단만 꾸민다 */
+.bd__slots li > p {
+  margin: 3px 0 0;
+  color: var(--bd-sub);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.bd__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.bd__table th,
+.bd__table td {
+  padding: 11px 6px;
+  border-bottom: 1px solid var(--bd-border);
+  text-align: left;
+}
+
+.bd__table th {
+  color: var(--bd-sub);
+  font-weight: 600;
+}
+
+.bd__timeline {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  gap: 10px;
+  list-style: none;
+}
+
+.bd__timeline li {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--bd-border);
+  border-radius: 12px;
+}
+
+.bd__timeline li.is-current {
+  border-color: var(--bd-primary);
+  background: var(--bd-primary-light);
+}
+
+.bd__timeline-day {
+  flex: 0 0 92px;
+  color: var(--bd-primary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.bd__timeline strong {
+  font-size: 14px;
+}
+
+.bd__timeline em {
+  margin-left: 6px;
+  padding: 2px 6px;
+  border-radius: 99px;
+  color: #fff;
+  background: var(--bd-primary);
+  font-size: 10px;
+  font-style: normal;
+}
+
+.bd__timeline p {
+  margin: 3px 0 0;
+  color: var(--bd-sub);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.bd__stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.bd__stats div {
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--bd-primary-light);
+}
+
+.bd__stats span {
+  display: block;
+  color: var(--bd-sub);
+  font-size: 12px;
+}
+
+.bd__stats strong {
+  display: block;
+  margin-top: 4px;
+  color: var(--bd-primary);
+  font-size: 18px;
+}
+
+/* 응원 순위 · 반환 안내 */
+.bd__rank {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  gap: 12px;
+  list-style: none;
+}
+
+.bd__rank li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bd__rank-no {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--bd-primary);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.bd__rank-body {
+  min-width: 0;
+  flex: 1;
+}
+
+.bd__rank-body strong {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.bd__rank-body i {
+  display: block;
+  height: 8px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #a596f3, var(--bd-primary));
+}
+
+.bd__rank b {
+  flex: 0 0 auto;
+  font-size: 13px;
+}
+
+.bd__returns {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  gap: 10px;
+  list-style: none;
+}
+
+.bd__returns li {
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--bd-primary-light);
+}
+
+.bd__returns strong {
+  color: var(--bd-primary);
+  font-size: 14px;
+}
+
+.bd__returns p {
+  margin: 4px 0 0;
+  color: var(--bd-sub);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.bd__link-btn {
+  display: block;
+  margin-top: 10px;
+  padding: 2px 0;
+  line-height: 1.3;
+  border: 0;
+  color: var(--bd-primary);
+  background: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* 링크가 연달아 있을 때는 간격을 좁힌다 */
+.bd__link-btn + .bd__link-btn {
+  margin-top: 4px;
+}

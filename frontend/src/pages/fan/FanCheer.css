@@ -1,0 +1,379 @@
+/* 응원 충전 · 응원하기 · 순위 화면 — 공통 틀은 BannerDetail.css 의 .bd 를 쓴다 */
+.fan-closed {
+  margin: 0;
+  padding: 12px 20px;
+  color: #fff;
+  background: #e5484d;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.fan-balance {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.fan-balance div {
+  padding: 12px 8px;
+  border-radius: 12px;
+  background: #f1eeff;
+  text-align: center;
+}
+
+.fan-balance span {
+  display: block;
+  color: #747781;
+  font-size: 11px;
+}
+
+.fan-balance strong {
+  display: block;
+  margin-top: 4px;
+  color: #6f5be7;
+  font-size: 16px;
+}
+
+.fan-notice {
+  margin: 12px 0 0;
+  color: #6f5be7;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.fan-error {
+  margin: 8px 0 0;
+  color: #e5484d;
+  font-size: 13px;
+}
+
+.fan-amounts,
+.fan-pick {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.fan-amounts button,
+.fan-pick button,
+.fan-list button {
+  display: flex;
+  width: 100%;
+  padding: 14px;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid #e9e9ee;
+  border-radius: 12px;
+  color: #1f2028;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.fan-amounts span,
+.fan-pick span,
+.fan-list span {
+  color: #747781;
+  font-size: 12px;
+}
+
+.fan-amounts .is-on,
+.fan-pick .is-on,
+.fan-list .is-on,
+.fan-chips .is-on,
+.fan-tabs .is-on {
+  border-color: #6f5be7;
+  background: #f1eeff;
+}
+
+.fan-input {
+  width: 100%;
+  height: 46px;
+  padding: 0 14px;
+  border: 1px solid #e9e9ee;
+  border-radius: 12px;
+  color: #1f2028;
+  background: #fff;
+  font-size: 15px;
+}
+
+.fan-input:focus {
+  border-color: #6f5be7;
+  outline: 0;
+}
+
+.fan-list {
+  display: grid;
+  margin: 12px 0 0;
+  padding: 0;
+  max-height: 280px;
+  overflow-y: auto;
+  gap: 8px;
+  list-style: none;
+}
+
+.fan-link {
+  padding: 0;
+  border: 0;
+  color: #6f5be7;
+  background: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.fan-list + .fan-link {
+  margin-top: 12px;
+}
+
+.fan-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fan-chips--center {
+  margin-top: 12px;
+  justify-content: center;
+}
+
+.fan-chips button,
+.fan-tabs button {
+  padding: 9px 14px;
+  border: 1px solid #e9e9ee;
+  border-radius: 99px;
+  color: #1f2028;
+  background: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.fan-chips button:disabled {
+  color: #b5b7bf;
+  cursor: not-allowed;
+}
+
+.fan-tabs {
+  display: flex;
+  margin-bottom: 12px;
+  gap: 8px;
+}
+
+.fan-tabs button {
+  flex: 1;
+  font-weight: 700;
+}
+
+.fan-field {
+  display: block;
+  margin-bottom: 14px;
+}
+
+.fan-field span {
+  display: flex;
+  margin-bottom: 6px;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.fan-field em {
+  color: #747781;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.fan-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+}
+
+.fan-stepper button {
+  width: 44px;
+  height: 44px;
+  border: 1px solid #e9e9ee;
+  border-radius: 50%;
+  color: #6f5be7;
+  background: #fff;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.fan-stepper button:disabled {
+  color: #b5b7bf;
+  cursor: not-allowed;
+}
+
+.fan-stepper strong {
+  min-width: 64px;
+  font-size: 22px;
+  text-align: center;
+}
+
+.fan-cost {
+  margin: 14px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.fan-cost span {
+  color: #747781;
+  font-weight: 400;
+}
+
+.fan-earn {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fan-earn li,
+.fan-ledger li {
+  display: flex;
+  padding: 11px 0;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e9e9ee;
+  font-size: 13px;
+}
+
+.fan-earn b {
+  color: #6f5be7;
+}
+
+.fan-ledger {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fan-ledger div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.fan-ledger span {
+  color: #747781;
+  font-size: 11px;
+}
+
+.fan-ledger b {
+  color: #6f5be7;
+}
+
+.fan-ledger b.is-minus {
+  color: #1f2028;
+}
+
+.fan-check {
+  display: flex;
+  margin-bottom: 12px;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.fan-check input {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  accent-color: #6f5be7;
+}
+
+.fan-count {
+  margin: 14px 0 0;
+  color: #747781;
+  font-size: 13px;
+  text-align: center;
+}
+
+.fan-count b {
+  color: #e5484d;
+  font-variant-numeric: tabular-nums;
+}
+
+.fan-badge {
+  margin-left: 6px;
+  padding: 2px 6px;
+  border-radius: 99px;
+  color: #fff;
+  background: #6f5be7;
+  font-size: 10px;
+  font-style: normal;
+}
+
+.bd__rank-body small {
+  display: block;
+  margin-top: 4px;
+  color: #6f5be7;
+  font-size: 11px;
+}
+
+.fan-progress {
+  height: 10px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: #f1eeff;
+}
+
+.fan-progress i {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #a596f3, #6f5be7);
+}
+
+.bd__btn:disabled {
+  color: #fff;
+  background: #c9c4ee;
+  cursor: not-allowed;
+}
+
+.bd__footer .bd__btn--secondary:disabled {
+  color: #b5b7bf;
+  background: #f1eeff;
+}
+
+.fan-result__week {
+  margin: 28px 20px 0;
+  color: #4d5661;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.fan-result__meta {
+  margin: 0 0 12px;
+  color: #747781;
+  font-size: 12px;
+}
+
+.fan-result {
+  padding: 16px;
+  border-radius: 12px;
+  background: #f5f4f7;
+}
+
+.fan-result--win {
+  background: #f1eeff;
+}
+
+.fan-result strong {
+  font-size: 15px;
+}
+
+.fan-result p {
+  margin: 6px 0 0;
+  color: #747781;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.fan-result .bd__btn {
+  width: 100%;
+  margin-top: 12px;
+}
