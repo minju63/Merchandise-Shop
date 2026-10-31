@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import Icon from '../../../components/Icon.jsx';
 
 // actions: wishlist(id, wished), buy(id, quantity), cart(id, quantity), restock(id), preorder(id).
 // Shared handlers own persistence, inventory rechecks and checkout navigation.
@@ -6,6 +7,11 @@ export default function ProductActionBar({ product, user, actions = {}, wished: 
   const [pending, setPending] = useState('');
   const [message, setMessage] = useState('');
   const [wishedOverride, setWishedOverride] = useState(null);
+  useEffect(() => {
+    if (!message) return;
+    const timer = setTimeout(() => setMessage(''), 2600);
+    return () => clearTimeout(timer);
+  }, [message]);
   const wished = wishedOverride ?? wishedProp ?? product.isWishlisted;
   const status =
     product.displayStatus ||
@@ -27,8 +33,8 @@ export default function ProductActionBar({ product, user, actions = {}, wished: 
       setMessage(
         name === 'wishlist'
           ? !wished
-            ? '찜 목록에 추가했습니다.'
-            : '찜을 해제했습니다.'
+            ? '찜했어요'
+            : '찜을 해제했어요'
           : '요청을 완료했습니다.'
       );
     } catch (error) {
@@ -50,12 +56,13 @@ export default function ProductActionBar({ product, user, actions = {}, wished: 
       <div className="category-action-bar" aria-label="상품 구매 및 저장">
         <button
           type="button"
+          className="category-wish-button"
           aria-label={wished ? '찜 해제' : '상품 찜'}
           aria-pressed={Boolean(wished)}
           disabled={disabled('wishlist')}
           onClick={() => run('wishlist')}
         >
-          {wished ? '♥' : '♡'}
+          <Icon name="heart" size={24} fill={wished ? 'currentColor' : 'none'} />
         </button>
         {canBuy ? (
           <>
@@ -84,7 +91,12 @@ export default function ProductActionBar({ product, user, actions = {}, wished: 
           <span>{product.storeOperating === false ? '매장 운영 중지' : '입고 예정'}</span>
         )}
       </div>
-      {message && <p role="status">{message}</p>}
+      {message && (
+        <div className="category-action-toast" role="status" aria-live="polite">
+          {message === '찜했어요' && <Icon name="heart" size={18} fill="currentColor" />}
+          <span>{message}</span>
+        </div>
+      )}
     </div>
   );
 }

@@ -434,8 +434,8 @@ function ProductDetailRoute() {
   useEffect(() => {
     if (viewerId) recordProductView(storeProductId).catch(() => {});
   }, [viewerId, storeProductId]);
-  const addToCart = (fulfillmentType) =>
-    cartApi.addItem({ storeProductId, quantity: 1, fulfillmentType });
+  const addToCart = (id, quantity, fulfillmentType) =>
+    cartApi.addItem({ storeProductId: id, quantity, fulfillmentType });
   return (
     <>
       <ProductDetailPage
@@ -444,15 +444,20 @@ function ProductDetailRoute() {
           navigate(`/login?returnTo=${encodeURIComponent(`${location.pathname}${location.search}`)}`)
         }
         actions={{
+          buy: (id, quantity) => {
+            navigate('/checkout', {
+              state: { mode: 'DIRECT', items: [{ storeProductId: id, quantity }] },
+            });
+          },
           isWished: (id) => (wish.loggedIn ? wish.isProductWished(id) : undefined),
           wishlist: async (id, wished) => {
             await (wished ? wishlistApi.addProduct(id) : wishlistApi.removeProduct(id));
             queryClient.invalidateQueries({ queryKey: ['wishlist'] });
           },
           // 담은 뒤에는 수령 방법을 바꿀 수 없어서, 자동으로 고르지 않고 시트로 먼저 묻는다.
-          cart: () =>
+          cart: (id, quantity) =>
             new Promise((resolve, reject) => {
-              setSheet({ resolve, reject });
+              setSheet({ resolve, reject, storeProductId: id, quantity });
             }),
         }}
       />
@@ -467,7 +472,8 @@ function ProductDetailRoute() {
           onSelect={async (fulfillmentType) => {
             setSheet({ ...sheet, pending: true });
             try {
-              await addToCart(fulfillmentType);
+              await addToCart(sheet.storeProductId, sheet.quantity, fulfillmentType);
+              await queryClient.invalidateQueries({ queryKey: ['cart'] });
               sheet.resolve();
               setSheet(null);
               navigate(`/cart?type=${fulfillmentType}`);

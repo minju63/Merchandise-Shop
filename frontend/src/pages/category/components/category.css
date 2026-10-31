@@ -305,10 +305,33 @@
 .category-action-bar button:not(:first-child) {
   flex: 1;
 }
-.category-action-area > p {
-  margin-top: 8px;
-  font-size: 14px;
+.category-action-area .category-action-bar .category-wish-button {
+  display: grid;
+  place-items: center;
+  color: #ff4d6d;
 }
+.category-action-area .category-action-toast {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+  max-width: calc(100% - 28px);
+  padding: 12px 18px;
+  border: 1px solid #ffd9e1;
+  border-radius: 999px;
+  background: #fff5f7;
+  color: #a72e48;
+  box-shadow: 0 6px 24px #9f28451a;
+  font-size: 13px;
+  font-weight: 600;
+  pointer-events: none;
+}
+.category-action-toast svg { color: #ff4d6d; flex-shrink: 0; }
+.category-wish-button svg { color: #ff4d6d; }
 @media (max-width: 600px) {
   .category-page {
     padding: 20px 12px;
@@ -793,6 +816,15 @@
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
+  cursor: grab;
+  user-select: none;
+}
+.category-similar-stores ul.slide a { cursor: inherit; }
+.category-similar-stores ul.slide img { -webkit-user-drag: none; }
+.category-similar-stores ul.slide.is-dragging {
+  cursor: grabbing;
+  scroll-snap-type: none;
+  scroll-behavior: auto;
 }
 .category-similar-stores ul.slide::-webkit-scrollbar {
   display: none;

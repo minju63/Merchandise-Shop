@@ -13,12 +13,16 @@ dotenv.config();
 
 const app = express();
 
-const allowedClientOrigins = (process.env.CLIENT_URL || 'http://localhost:5173,http://localhost:5174')
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);
 
-app.use(cors({ origin: allowedClientOrigins, credentials: true }));
+if (process.env.NODE_ENV !== 'production') {
+  allowedOrigins.push('http://localhost:5173', 'http://localhost:5174');
+}
+
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use('/api/v1/reviews', express.json({ limit: '36mb' }));
 app.use(express.json());
 

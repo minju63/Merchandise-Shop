@@ -10,7 +10,6 @@ export default function ProductInfo({ product }) {
     categories.find((row) => row.type === 'CONTENT')?.name,
     product.workTitle,
     categories.find((row) => row.type === 'GOODS')?.name,
-    product.characterName,
   ].filter(Boolean))];
   return (
     <section className="category-product-info">
