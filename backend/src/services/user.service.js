@@ -253,7 +253,7 @@ export async function withdrawAccount(userId, input = {}, context = {}) {
 
 // ---- 적립금 · 최근 본 상품 · 알림 신청 · 응원배너 신청 (마이탭 신규) ----
 
-export const POINT_POLICY = { earnRatePercent: 1, minUse: 1000 };
+export const POINT_POLICY = { earnRatePercent: 1, minUse: 1000, reviewReward: 500 };
 const RECENT_PRODUCT_DAYS = 14;
 const UUID_PATTERN = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
 
@@ -416,5 +416,25 @@ export async function recordOrderPoints(userId, orderId, { used, earn }) {
       amount: earn,
       memo: '구매 확정 시 적립',
     });
+  }
+}
+
+// 리뷰 작성 적립금. 주문 상품당 한 번만 지급하고, 이미 받았으면 조용히 넘어간다.
+export async function grantReviewReward(userId, { orderId, orderItemId }) {
+  try {
+    await userRepository.insertPointTransaction({
+      user_id: userId,
+      order_id: orderId,
+      order_item_id: orderItemId,
+      type: 'REVIEW_REWARD',
+      status: 'CONFIRMED',
+      amount: POINT_POLICY.reviewReward,
+      memo: '리뷰 작성 적립',
+    });
+    return { granted: true, amount: POINT_POLICY.reviewReward };
+  } catch (error) {
+    if (error.databaseCode === '23505')
+      return { granted: false, amount: 0, reason: 'ALREADY_REWARDED' };
+    throw error;
   }
 }

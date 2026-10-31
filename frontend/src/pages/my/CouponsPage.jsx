@@ -94,7 +94,9 @@ export default function CouponsPage() {
         key={item.id}
         item={item}
         usable={tab === 'AVAILABLE'}
-        onUse={() => navigate(MY_ROUTES.shop)}
+        onUse={() =>
+          navigate(item.coupon.store?.id ? MY_ROUTES.store(item.coupon.store.id) : MY_ROUTES.shop)
+        }
         onOpen={() => navigate(MY_ROUTES.couponDetail(item.id))}
       />
     ));
