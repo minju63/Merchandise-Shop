@@ -73,10 +73,12 @@ function page(rows, options) {
   };
 }
 
-export function validateImageUrls(userId, values = []) {
+export function validateImageUrls(userId, values = [], options = {}) {
+  const { maxCount = 3, bucket, folderPrefix = [] } = options;
+  const ownerFolderIndex = 5 + folderPrefix.length;
   if (
     !Array.isArray(values) ||
-    values.length > 3 ||
+    values.length > maxCount ||
     new Set(values).size !== values.length
   )
     throw failure(
@@ -95,7 +97,9 @@ export function validateImageUrls(userId, values = []) {
     }
     let origin;
     try {
-      origin = new URL(process.env.SUPABASE_URL).origin;
+      const storageBaseUrl = (process.env.SUPABASE_URL || process.env.API_URL)
+        ?.replace(/\/(rest\/v1\/?|)$/, "");
+      origin = new URL(storageBaseUrl).origin;
     } catch {
       throw failure(
         503,
@@ -116,8 +120,10 @@ export function validateImageUrls(userId, values = []) {
       url.search ||
       url.hash ||
       parts.slice(0, 4).join("/") !== "storage/v1/object/public" ||
-      parts[5] !== userId ||
-      parts.length < 7 ||
+      (bucket && parts[4] !== bucket) ||
+      !folderPrefix.every((folder, index) => parts[5 + index] === folder) ||
+      parts[ownerFolderIndex] !== userId ||
+      parts.length < ownerFolderIndex + 2 ||
       parts.some(
         (p) =>
           !p || p === "." || p === ".." || p.includes("/") || p.includes("\\"),
@@ -136,8 +142,8 @@ export function validateImageUrls(userId, values = []) {
     };
   });
 }
-export async function verifyOwnedImageUrls(userId, values = []) {
-  const paths = validateImageUrls(userId, values);
+export async function verifyOwnedImageUrls(userId, values = [], options = {}) {
+  const paths = validateImageUrls(userId, values, options);
   if (!paths.length) return [];
   const { supabase } = await import("../lib/supabase.js");
   for (const path of paths) {
