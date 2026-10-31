@@ -34,8 +34,8 @@ export default function ProductActionBar({ product, user, actions = {}, wished: 
       setMessage(
         name === 'wishlist'
           ? !wished
-            ? '찜했어요'
-            : '찜을 해제했어요'
+            ? '찜 목록에 추가했습니다.'
+            : '찜을 해제했습니다.'
           : name === 'cart'
             ? ''
             : '요청을 완료했습니다.'
@@ -96,7 +96,7 @@ export default function ProductActionBar({ product, user, actions = {}, wished: 
       </div>
       {message && (
         <div className="category-action-toast" role="status" aria-live="polite">
-          {message === '찜했어요' && <Icon name="heart" size={18} fill="currentColor" />}
+          {message === '찜 목록에 추가했습니다.' && <Icon name="heart" size={18} fill="currentColor" />}
           <span>{message}</span>
         </div>
       )}
