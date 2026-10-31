@@ -92,6 +92,10 @@
   font-size: 14px;
   font-weight: 600;
 }
+.cart-toolbar-actions {
+  display: flex;
+  gap: 6px;
+}
 .cart-remove-selected {
   padding: 6px 10px;
   border: 1px solid #e3e6eb;

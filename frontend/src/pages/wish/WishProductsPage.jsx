@@ -15,9 +15,13 @@ import RestockAlertSheet from './components/RestockAlertSheet.jsx';
 import GoodsPassSheet from './components/GoodsPassSheet.jsx';
 import PreorderSheet from './components/PreorderSheet.jsx';
 import WishEmptyState, { WishLoginRequired } from './components/WishEmptyState.jsx';
+import ProductSort from '../category/components/ProductSort.jsx';
+import { baseOptions } from '../category/components/productSortOptions.js';
 import './WishProductsPage.css';
 
 const PAGE_SIZE = 20;
+// 카테고리 정렬과 같은 목록에, 찜 목록 기본값인 최근 찜한 순을 앞에 붙인다.
+const WISH_SORT_OPTIONS = [['recent', '최근 찜한 순'], ...baseOptions];
 
 // POST /cart/items 409 사유별 안내
 const addFailMessages = {
@@ -47,6 +51,7 @@ export default function WishProductsPage() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
+  const [sort, setSort] = useState('recent');
   const [target, setTarget] = useState(null);
   const [sheetItem, setSheetItem] = useState(null);
   const [restockItem, setRestockItem] = useState(null);
@@ -55,10 +60,12 @@ export default function WishProductsPage() {
   // 토스트: { text, duration, actionLabel?, onAction? }
   const [notice, setNotice] = useState(null);
   const toast = (text, options = {}) => setNotice({ text, duration: 2000, ...options });
-  const params = { page, size: PAGE_SIZE };
+  const params = { page, size: PAGE_SIZE, sort };
   const { data, isPending, isError, error, refetch } = useQuery({
     queryKey: ['wishlist', 'products', params],
     queryFn: () => wishlistApi.products(params),
+    // 정렬·페이지를 바꾸는 동안 스켈레톤 대신 이전 목록을 유지한다.
+    placeholderData: (previous) => previous,
     retry: (count, queryError) => !isAuthError(queryError) && count < 1,
   });
   const removeMutation = useMutation({
@@ -79,13 +86,17 @@ export default function WishProductsPage() {
     onSuccess: (response, { fulfillmentType }) => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       setSheetItem(null);
-      const goToCart = () => navigate(`/cart?type=${fulfillmentType}`);
-      if (response.data.capped) {
-        toast(`1인 최대 ${response.data.quantity}개까지 담을 수 있어요`);
-        setTimeout(goToCart, 1500);
-      } else {
-        goToCart();
-      }
+      // 계속 쇼핑할 수 있게 이동하지 않고, 토스트에서 원할 때만 장바구니로 보낸다.
+      toast(
+        response.data.capped
+          ? `1인 최대 ${response.data.quantity}개까지 담을 수 있어요`
+          : '장바구니에 담았어요',
+        {
+          duration: 3000,
+          actionLabel: '장바구니 바로가기',
+          onAction: () => navigate(`/cart?type=${fulfillmentType}`),
+        },
+      );
     },
     onError: (addError) => {
       setSheetItem(null);
@@ -186,6 +197,17 @@ export default function WishProductsPage() {
     else addMutation.mutate({ item, fulfillmentType: item.pickupAvailable ? 'PICKUP' : 'DELIVERY' });
   };
 
+  // 바로 구매는 장바구니를 거치지 않고 결제 화면으로 간다. 수령 방법은 결제 화면에서 고른다.
+  const buyNow = (item) =>
+    navigate('/checkout', {
+      state: {
+        mode: 'DIRECT',
+        items: [{ storeProductId: item.storeProductId, quantity: 1 }],
+        fulfillmentType:
+          item.pickupAvailable && item.deliveryAvailable ? null : item.pickupAvailable ? 'PICKUP' : 'DELIVERY',
+      },
+    });
+
   useEffect(() => {
     if (!notice) return undefined;
     const timer = setTimeout(() => setNotice(null), notice.duration);
@@ -219,6 +241,21 @@ export default function WishProductsPage() {
             </div>
           )
         ) : data.data.items.length ? (
+          <>
+          <div className="wish-sort-bar">
+            <span>
+              상품 <strong>{data.data.totalCount}</strong>
+            </span>
+            <ProductSort
+              compact
+              value={sort}
+              sortOptions={WISH_SORT_OPTIONS}
+              onChange={(nextSort) => {
+                setSort(nextSort);
+                setPage(1);
+              }}
+            />
+          </div>
           <div className="wish-product-grid">
             {data.data.items.map((item) => (
               <WishProductCard
@@ -227,6 +264,7 @@ export default function WishProductsPage() {
                 isAdding={addMutation.isPending && addMutation.variables?.item.storeProductId === item.storeProductId}
                 onRemove={() => setTarget(item)}
                 onAddToCart={() => addToCart(item)}
+                onBuyNow={() => buyNow(item)}
                 isAlertPending={alertPendingId === item.storeProductId}
                 onRestockAlert={() => toggleRestockAlert(item)}
                 isPreordered={preorderedIds.has(item.storeProductId)}
@@ -235,6 +273,7 @@ export default function WishProductsPage() {
               />
             ))}
           </div>
+          </>
         ) : (
           <WishEmptyState type="products" />
         )}

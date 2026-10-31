@@ -37,6 +37,7 @@ export function validateAddable(storeProduct, store, fulfillmentType) {
   if (CLOSED_STORE_STATUSES.includes(store.status)) return 'STORE_CLOSED';
   if (!supportsFulfillment(storeProduct, store, fulfillmentType)) return 'FULFILLMENT_OFF';
   if (storeProduct.status === 'UPCOMING') return 'UPCOMING';
+  if (storeProduct.status === 'SOLD_OUT') return 'OUT_OF_STOCK';
   if (storeProduct.status !== 'ON_SALE') return 'NOT_ON_SALE';
   if (!(storeProduct.stock > 0)) return 'OUT_OF_STOCK';
   return null;

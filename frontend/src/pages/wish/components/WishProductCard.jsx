@@ -31,6 +31,7 @@ export default function WishProductCard({
   isAlertPending,
   onRemove,
   onAddToCart,
+  onBuyNow,
   onRestockAlert,
   isPreordered,
   isPreorderLoading,
@@ -99,14 +100,14 @@ export default function WishProductCard({
       </Link>
       <div className="wish-product-actions">
         {inStock && (
-          <button
-            type="button"
-            className="wish-action is-primary"
-            disabled={!canAdd || isAdding}
-            onClick={onAddToCart}
-          >
-            {isAdding ? '담는 중…' : '장바구니 담기'}
-          </button>
+          <>
+            <button type="button" className="wish-action" disabled={!canAdd || isAdding} onClick={onAddToCart}>
+              {isAdding ? '담는 중…' : '장바구니'}
+            </button>
+            <button type="button" className="wish-action is-primary" disabled={!canAdd} onClick={onBuyNow}>
+              바로 구매
+            </button>
+          </>
         )}
         {item.stockLabel === 'SOLD_OUT' && restockButton}
         {item.stockLabel === 'INCOMING' && (

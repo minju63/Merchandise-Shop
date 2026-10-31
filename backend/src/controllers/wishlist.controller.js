@@ -34,7 +34,12 @@ function uuid(res, value, name) {
 export async function getWishProducts(req, res) {
   const paging = pagination(req, res);
   if (!paging) return;
-  res.json(ok(await wishlistService.getWishProducts({ userId: req.user.id, ...paging })));
+  const { sort = 'recent' } = req.query;
+  if (typeof sort !== 'string' || !Object.hasOwn(wishlistService.WISH_SORTS, sort)) {
+    badRequest(res, 'INVALID_SORT', '지원하지 않는 정렬 방식입니다.');
+    return;
+  }
+  res.json(ok(await wishlistService.getWishProducts({ userId: req.user.id, ...paging, sort })));
 }
 
 // POST /api/v1/wishlist/products — 상품 찜 등록 🔒

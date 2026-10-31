@@ -22,19 +22,29 @@ export async function findStoreProductIds({ userId, storeProductIds }) {
 }
 
 // 숨김·삭제 판매상품과 폐점·삭제 매장은 목록과 totalCount 양쪽에서 제외한다.
-export async function findPageByUser({ userId, page, size }) {
-  const offset = (page - 1) * size;
-  const { data, count, error } = await supabase
+function listQuery(userId) {
+  return supabase
     .from('wishlist_products')
     .select(LIST_SELECT, { count: 'exact' })
     .eq('user_id', userId)
     .not('store_product.status', 'in', '(HIDDEN,DELETED)')
     .not('store_product.store.status', 'in', '(CLOSED,DELETED)')
     .order('created_at', { ascending: false })
-    .order('id', { ascending: true })
-    .range(offset, offset + size - 1);
+    .order('id', { ascending: true });
+}
+
+export async function findPageByUser({ userId, page, size }) {
+  const offset = (page - 1) * size;
+  const { data, count, error } = await listQuery(userId).range(offset, offset + size - 1);
   check(error);
   return { rows: data ?? [], totalCount: count ?? 0 };
+}
+
+// 상품 필드 기준 정렬은 서비스에서 하므로 찜 목록 전체를 가져온다 (최근 찜한 순).
+export async function findAllByUser(userId) {
+  const { data, error } = await listQuery(userId);
+  check(error);
+  return data ?? [];
 }
 
 export async function countByUser(userId) {

@@ -1,21 +1,13 @@
-const baseOptions = [
-  ['popular', '인기순'],
-  ['sales', '판매순'],
-  ['newest', '최신순'],
-  ['wishlist', '찜 많은 순'],
-  ['stock', '재고 많은 순'],
-  ['stock_asc', '재고 적은 순'],
-  ['price_asc', '낮은 가격 순'],
-  ['price_desc', '높은 가격 순'],
-];
+import { baseOptions } from './productSortOptions.js';
 
-export default function ProductSort({ value = 'popular', onChange, compact = false }) {
+// sortOptions: 다른 화면(찜 목록 등)에서 정렬 목록을 바꿔 쓸 때 넘긴다.
+export default function ProductSort({ value = 'popular', onChange, compact = false, sortOptions = baseOptions }) {
   // 입고 예정순은 홈의 입고 예정 전체보기에서 들어왔을 때만 보이고, 다른 정렬을 고르면 사라진다.
-  const options = value === 'upcoming' ? [['upcoming', '입고 예정순'], ...baseOptions] : baseOptions;
+  const options = value === 'upcoming' ? [['upcoming', '입고 예정순'], ...sortOptions] : sortOptions;
   return (
     <details className="category-sort category-sort-dropdown">
       {!compact && '정렬'}
-      <summary aria-label="상품 정렬">{options.find(([key]) => key === value)?.[1] || '인기순'}<span className="sort-chevron" aria-hidden="true" /></summary>
+      <summary aria-label="상품 정렬">{options.find(([key]) => key === value)?.[1] || options[0][1]}<span className="sort-chevron" aria-hidden="true" /></summary>
       <div className="category-sort-options" aria-label="정렬 방식">
         {options.map(([key, label]) => <button type="button" key={key} aria-pressed={value === key} onClick={(event) => {
           onChange(key);

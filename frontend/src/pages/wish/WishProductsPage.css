@@ -664,3 +664,61 @@
   line-height: 1.5;
   text-align: left;
 }
+
+/* 찜한 상품 정렬 — 카테고리 정렬 드롭다운(ProductSort)과 같은 모양 */
+.wish-sort-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  color: #3d434d;
+  font-size: 14px;
+  font-weight: 700;
+}
+.wish-sort-bar strong {
+  color: #6846d8;
+}
+.wish-sort-bar .category-sort-dropdown {
+  position: relative;
+  font-size: 12px;
+}
+.wish-sort-bar .category-sort-dropdown summary {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  cursor: pointer;
+  padding: 8px 0 8px 12px;
+  color: #6846d8;
+  font-weight: 700;
+}
+.wish-sort-bar .category-sort-dropdown summary::-webkit-details-marker {
+  display: none;
+}
+.wish-sort-bar .category-sort-options {
+  position: absolute;
+  z-index: 25;
+  top: 100%;
+  right: 0;
+  width: 170px;
+  padding: 6px;
+  border: 1px solid #eeeaf2;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 8px 28px #30204124;
+}
+.wish-sort-bar .category-sort-options button {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  text-align: left;
+  font-size: 12px;
+}
+.wish-sort-bar .category-sort-options button[aria-pressed='true'] {
+  color: #6846d8;
+  background: #f5f1ff;
+  font-weight: 800;
+}
