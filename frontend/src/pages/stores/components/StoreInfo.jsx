@@ -18,7 +18,12 @@ export default function StoreInfo({ store, onGuide }) {
       <h1>{store.name}</h1>
       {store.shortDescription && <p className="short-description">{store.shortDescription}</p>}
       <div className="detail-rating">
-        <Link className="detail-review-link" to={`/stores/${store.id}/reviews`} aria-label={`${store.name} 리뷰 ${store.reviewCount}개 보기`}>
+        <Link
+          className="detail-review-link"
+          to={`/stores/${store.id}/reviews`}
+          state={{ fromStoreDetail: true }}
+          aria-label={`${store.name} 리뷰 ${store.reviewCount}개 보기`}
+        >
           {store.rating != null && <span className="star">★</span>}
           <strong>{store.rating != null ? store.rating.toFixed(1) : '평점 없음'}</strong>
           <span className="review-count">리뷰 {store.reviewCount}개</span>

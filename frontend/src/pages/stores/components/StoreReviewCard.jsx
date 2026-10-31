@@ -10,7 +10,7 @@ function dateLabel(value) {
       }).format(date);
 }
 
-export default function StoreReviewCard({ review }) {
+export default function StoreReviewCard({ review, onEdit, onDelete, deleting = false }) {
   return (
     <article className="review-card">
       <div className="review-card-head">
@@ -24,7 +24,9 @@ export default function StoreReviewCard({ review }) {
         </span>
         <span>{review.rating}점</span>
       </div>
-      {review.productName && <p className="review-product">구매 상품 · {review.productName}</p>}
+      {review.products?.length > 0 && (
+        <p className="review-product">구매 상품 · {review.products.join(', ')}</p>
+      )}
       {review.content && <p className="review-content">{review.content}</p>}
       {review.images.length > 0 && (
         <div className="review-images">
@@ -32,10 +34,18 @@ export default function StoreReviewCard({ review }) {
             <img
               key={`${src}-${index}`}
               src={src}
-              alt={`${review.productName || '리뷰'} 사진 ${index + 1}`}
+              alt={`리뷰 사진 ${index + 1}`}
               loading="lazy"
             />
           ))}
+        </div>
+      )}
+      {review.isMine && (
+        <div className="review-card-actions">
+          <button type="button" onClick={onEdit}>수정하기</button>
+          <button type="button" onClick={onDelete} disabled={deleting}>
+            {deleting ? '삭제 중…' : '삭제하기'}
+          </button>
         </div>
       )}
     </article>

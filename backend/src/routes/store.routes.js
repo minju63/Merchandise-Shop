@@ -9,7 +9,8 @@ router.get('/:storeId/business-hours', controller.hours);
 router.get('/:storeId/pickup-info', controller.pickup);
 router.get('/:storeId/delivery-info', controller.delivery);
 router.get('/:storeId/products', controller.products);
-router.get('/:storeId/reviews', reviewController.list);
+router.get('/:storeId/reviews', reviewController.optionalViewer, reviewController.list);
+router.post('/:storeId/reviews', reviewController.requireUser, reviewController.createStoreReview);
 router.get('/:storeId/reviewable-items', reviewController.requireUser, reviewController.eligible);
 
 export default router;

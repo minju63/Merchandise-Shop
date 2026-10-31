@@ -17,6 +17,8 @@ async function requireAuthentication(req, res, next) {
 }
 router.get("/me", requireAuthentication, controller.listMyReviewItems);
 router.post("/", requireAuthentication, controller.createReview);
+router.patch("/store/:reviewId", requireAuthentication, controller.updateStoreReview);
+router.delete("/store/:reviewId", requireAuthentication, controller.deleteStoreReview);
 router.patch("/:reviewId", requireAuthentication, controller.updateReview);
 router.delete("/:reviewId", requireAuthentication, controller.deleteReview);
 router.use((error, req, res, next) => {
