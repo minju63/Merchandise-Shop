@@ -1,6 +1,7 @@
 .co-page {
   --co-text: #1c1b22; --co-sub: #6b6878; --co-faint: #abaab3; --co-line: #e6e5ed; --co-soft: #f7f6fa;
   --co-primary: #5b45d6; --co-primary-soft: #efebfe; --co-btn: #b4a5f8; --co-btn-text: #231a4f; --co-error: #d23b3b;
+  --lg-primary: var(--co-primary);
   --my-text: var(--co-text); --my-sub: var(--co-sub); --my-faint: var(--co-faint); --my-line: var(--co-line);
   --my-soft: var(--co-soft); --my-primary: var(--co-primary); --my-primary-soft: var(--co-primary-soft); --my-btn: var(--co-btn); --my-btn-text: var(--co-btn-text);
   min-height: 100vh; box-sizing: border-box; padding: 0 0 110px; background: #fff; color: var(--co-text); font-size: 15px;
@@ -136,3 +137,11 @@
 /* 홈과 같은 폭(최대 480px, 가운데 정렬) */
 .co-page { width: min(100%, 480px); margin: 0 auto; box-shadow: 0 0 24px #dce0e526; }
 .co-footer { max-width: 480px; }
+
+.co-pts__balance { display: flex; align-items: baseline; gap: 8px; margin: 0 0 10px; font-size: 14px; }
+.co-pts__balance strong { font-size: 16px; }
+.co-pts__balance span { color: var(--co-faint); font-size: 12px; }
+.co-pts__row { display: flex; gap: 8px; }
+.co-pts__row .co-input { flex: 1; min-width: 0; margin-top: 0; }
+.co-pts__btn { flex: none; padding: 0 14px; border: 1px solid var(--co-line); border-radius: 10px; background: #fff; font-size: 13px; font-weight: 600; }
+.co-pts__toggle { display: flex; align-items: center; gap: 10px; margin-top: 14px; font-size: 14px; }

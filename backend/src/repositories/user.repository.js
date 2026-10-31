@@ -319,3 +319,121 @@ export async function withdrawAccount(userId, withdrawnAt) {
   checkDatabaseError(error);
   return data;
 }
+
+// ---- 적립금 · 최근 본 상품 · 알림 신청 · 응원배너 신청 (마이탭 신규) ----
+
+const POINT_COLUMNS = 'id,user_id,order_id,type,status,amount,memo,created_at';
+
+export async function listPointTransactions(userId) {
+  const db = await getDatabase();
+  const { data, error } = await db
+    .from('point_transactions')
+    .select(POINT_COLUMNS)
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .order('id', { ascending: true });
+  checkDatabaseError(error);
+  return data ?? [];
+}
+
+export async function listPendingPointEarnings(userId) {
+  const db = await getDatabase();
+  const { data, error } = await db
+    .from('point_transactions')
+    .select('id,order_id,amount,order:orders(status)')
+    .eq('user_id', userId)
+    .eq('type', 'EARN')
+    .eq('status', 'PENDING');
+  checkDatabaseError(error);
+  return data ?? [];
+}
+
+export async function setPointTransactionStatus(id, status) {
+  const db = await getDatabase();
+  const { error } = await db
+    .from('point_transactions')
+    .update({ status })
+    .eq('id', id)
+    .eq('status', 'PENDING');
+  checkDatabaseError(error);
+}
+
+export async function insertPointTransaction(row) {
+  const db = await getDatabase();
+  const { data, error } = await db
+    .from('point_transactions')
+    .insert(row)
+    .select(POINT_COLUMNS)
+    .single();
+  checkDatabaseError(error);
+  return data;
+}
+
+export async function listOrderPointTransactions(userId, orderId) {
+  const db = await getDatabase();
+  const { data, error } = await db
+    .from('point_transactions')
+    .select(POINT_COLUMNS)
+    .eq('user_id', userId)
+    .eq('order_id', orderId);
+  checkDatabaseError(error);
+  return data ?? [];
+}
+
+export async function upsertProductView(userId, productId, viewedAt) {
+  const db = await getDatabase();
+  const { error } = await db
+    .from('product_views')
+    .upsert(
+      { user_id: userId, product_id: productId, viewed_at: viewedAt },
+      { onConflict: 'user_id,product_id' }
+    );
+  checkDatabaseError(error);
+}
+
+export async function findStoreProduct(storeProductId) {
+  const db = await getDatabase();
+  const { data, error } = await db
+    .from('store_products')
+    .select('id,product_id')
+    .eq('id', storeProductId)
+    .maybeSingle();
+  checkDatabaseError(error);
+  return data;
+}
+
+export async function listRecentProductViews(userId, since, limit) {
+  const db = await getDatabase();
+  const { data, error } = await db
+    .from('product_views')
+    .select('viewed_at,product:products(id,name,thumbnail_url,character_name,work_title,status)')
+    .eq('user_id', userId)
+    .gte('viewed_at', since)
+    .order('viewed_at', { ascending: false })
+    .limit(limit);
+  checkDatabaseError(error);
+  return data ?? [];
+}
+
+export async function listLowestSalePrices(productIds) {
+  if (!productIds.length) return [];
+  const db = await getDatabase();
+  const { data, error } = await db
+    .from('store_products')
+    .select('id,product_id,price')
+    .in('product_id', productIds)
+    .eq('status', 'ON_SALE');
+  checkDatabaseError(error);
+  return data ?? [];
+}
+
+export async function listOpenAlertProducts(userId) {
+  const db = await getDatabase();
+  const { data, error } = await db
+    .from('open_alerts')
+    .select('created_at,product:products(id,name,thumbnail_url,character_name,status,open_at)')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+  checkDatabaseError(error);
+  return data ?? [];
+}

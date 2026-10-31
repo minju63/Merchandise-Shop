@@ -250,3 +250,191 @@ export async function withdrawAccount(userId, input = {}, context = {}) {
     ...request,
   };
 }
+
+// ---- 적립금 · 최근 본 상품 · 알림 신청 · 응원배너 신청 (마이탭 신규) ----
+
+export const POINT_POLICY = { earnRatePercent: 1, minUse: 1000, reviewReward: 500 };
+const RECENT_PRODUCT_DAYS = 14;
+const UUID_PATTERN = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
+
+export function sumConfirmedPoints(rows) {
+  return rows
+    .filter((row) => row.status === 'CONFIRMED')
+    .reduce((total, row) => total + row.amount, 0);
+}
+
+// 적립 예정분은 주문이 구매 확정(COMPLETED)되면 확정하고, 취소(CANCELED)되면 소멸시킨다.
+export async function syncPointEarnings(userId) {
+  const pending = await userRepository.listPendingPointEarnings(userId);
+  for (const row of pending) {
+    const status = row.order?.status;
+    if (status === 'COMPLETED') await userRepository.setPointTransactionStatus(row.id, 'CONFIRMED');
+    if (status === 'CANCELED') await userRepository.setPointTransactionStatus(row.id, 'CANCELED');
+  }
+}
+
+export async function getPointBalance(userId) {
+  await syncPointEarnings(userId);
+  const rows = await userRepository.listPointTransactions(userId);
+  return {
+    balance: sumConfirmedPoints(rows),
+    pending: rows
+      .filter((row) => row.type === 'EARN' && row.status === 'PENDING')
+      .reduce((total, row) => total + row.amount, 0),
+    rows,
+  };
+}
+
+export async function getMyPoints(userId, input = {}) {
+  validateObject(input, [], '적립금 조회');
+  await requireActiveProfile(userId);
+  const { balance, pending, rows } = await getPointBalance(userId);
+  return {
+    balance,
+    pendingAmount: pending,
+    policy: POINT_POLICY,
+    items: rows
+      .filter((row) => row.status !== 'CANCELED')
+      .slice(0, 100)
+      .map((row) => ({
+        id: row.id,
+        type: row.type,
+        status: row.status,
+        amount: row.amount,
+        memo: row.memo,
+        orderId: row.order_id,
+        createdAt: row.created_at,
+      })),
+  };
+}
+
+export async function recordProductView(userId, input, context = {}) {
+  validateObject(input, ['storeProductId'], '최근 본 상품');
+  if (typeof input.storeProductId !== 'string' || !UUID_PATTERN.test(input.storeProductId)) {
+    throw failure(400, 'INVALID_PRODUCT_ID', '상품 식별자를 확인해 주세요.');
+  }
+  await requireActiveProfile(userId);
+  const listing = await userRepository.findStoreProduct(input.storeProductId);
+  if (!listing) throw failure(404, 'PRODUCT_NOT_FOUND', '상품을 찾지 못했어요.');
+  await userRepository.upsertProductView(
+    userId,
+    listing.product_id,
+    currentTime(context).toISOString()
+  );
+  return { recorded: true };
+}
+
+export async function getRecentProducts(userId, input = {}, context = {}) {
+  validateObject(input, [], '최근 본 상품');
+  await requireActiveProfile(userId);
+  const now = currentTime(context);
+  const since = new Date(now.getTime() - RECENT_PRODUCT_DAYS * 24 * 60 * 60 * 1000);
+  const rows = (
+    await userRepository.listRecentProductViews(userId, since.toISOString(), 50)
+  ).filter((row) => row.product && !['HIDDEN', 'DELETED'].includes(row.product.status));
+  const cheapest = new Map();
+  for (const sale of await userRepository.listLowestSalePrices(rows.map((row) => row.product.id))) {
+    const current = cheapest.get(sale.product_id);
+    if (!current || sale.price < current.price) cheapest.set(sale.product_id, sale);
+  }
+  return {
+    days: RECENT_PRODUCT_DAYS,
+    items: rows.map((row) => ({
+      productId: row.product.id,
+      name: row.product.name,
+      thumbnailUrl: row.product.thumbnail_url,
+      characterName: row.product.character_name,
+      workTitle: row.product.work_title,
+      status: row.product.status,
+      storeProductId: cheapest.get(row.product.id)?.id ?? null,
+      lowestPrice: cheapest.get(row.product.id)?.price ?? null,
+      viewedAt: row.viewed_at,
+    })),
+  };
+}
+
+export async function listMyOpenAlerts(userId, input = {}) {
+  validateObject(input, [], '오픈 알림');
+  await requireActiveProfile(userId);
+  const rows = (await userRepository.listOpenAlertProducts(userId)).filter((row) => row.product);
+  return {
+    items: rows.map((row) => ({
+      productId: row.product.id,
+      name: row.product.name,
+      thumbnailUrl: row.product.thumbnail_url,
+      characterName: row.product.character_name,
+      status: row.product.status,
+      openAt: row.product.open_at,
+      alertedAt: row.created_at,
+    })),
+  };
+}
+
+// 주문 취소·결제 실패 시 사용한 적립금을 돌려주고 적립 예정분을 소멸시킨다. 여러 번 불러도 한 번만 복구한다.
+export async function restoreOrderPoints(userId, orderId) {
+  const rows = await userRepository.listOrderPointTransactions(userId, orderId);
+  const used = rows
+    .filter((row) => row.type === 'USE' && row.status === 'CONFIRMED')
+    .reduce((total, row) => total - row.amount, 0);
+  const restored = rows
+    .filter((row) => row.type === 'USE_CANCEL' && row.status === 'CONFIRMED')
+    .reduce((total, row) => total + row.amount, 0);
+  if (used - restored > 0) {
+    await userRepository.insertPointTransaction({
+      user_id: userId,
+      order_id: orderId,
+      type: 'USE_CANCEL',
+      status: 'CONFIRMED',
+      amount: used - restored,
+      memo: '주문 취소로 적립금 복구',
+    });
+  }
+  for (const row of rows) {
+    if (row.type === 'EARN' && row.status === 'PENDING') {
+      await userRepository.setPointTransactionStatus(row.id, 'CANCELED');
+    }
+  }
+}
+
+export async function recordOrderPoints(userId, orderId, { used, earn }) {
+  if (used > 0) {
+    await userRepository.insertPointTransaction({
+      user_id: userId,
+      order_id: orderId,
+      type: 'USE',
+      status: 'CONFIRMED',
+      amount: -used,
+      memo: '주문 결제에 적립금 사용',
+    });
+  }
+  if (earn > 0) {
+    await userRepository.insertPointTransaction({
+      user_id: userId,
+      order_id: orderId,
+      type: 'EARN',
+      status: 'PENDING',
+      amount: earn,
+      memo: '구매 확정 시 적립',
+    });
+  }
+}
+
+// 리뷰 작성 적립금. 주문 상품당 한 번만 지급하고, 이미 받았으면 조용히 넘어간다.
+export async function grantReviewReward(userId, { orderId, orderItemId }) {
+  try {
+    await userRepository.insertPointTransaction({
+      user_id: userId,
+      order_id: orderId,
+      order_item_id: orderItemId,
+      type: 'REVIEW_REWARD',
+      status: 'CONFIRMED',
+      amount: POINT_POLICY.reviewReward,
+      memo: '리뷰 작성 적립',
+    });
+    return { granted: true, amount: POINT_POLICY.reviewReward };
+  } catch (error) {
+    if (error.databaseCode === '23505')
+      return { granted: false, amount: 0, reason: 'ALREADY_REWARDED' };
+    throw error;
+  }
+}

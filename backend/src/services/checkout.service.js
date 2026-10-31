@@ -3,6 +3,12 @@ import * as orderRepository from "../repositories/order.repository.js";
 import * as paymentRepository from "../repositories/payment.repository.js";
 import { getCancellationRestoreDecision } from "./coupon.service.js";
 import { findByAuthId } from "../repositories/user.repository.js";
+import {
+  POINT_POLICY,
+  getPointBalance,
+  recordOrderPoints,
+  restoreOrderPoints,
+} from "./user.service.js";
 import { resolveAddressSelection, listMyAddresses } from "./address.service.js";
 import {
   resolvePaymentMethodSelection,
@@ -78,6 +84,8 @@ export function normalizeCheckoutInput(input) {
     "storeOptions",
     "addressId",
     "paymentMethodId",
+    "pointsUse",
+    "useExpectedPoints",
   ]);
   if (!["DIRECT", "CART"].includes(input.mode))
     throw failure(
@@ -93,7 +101,11 @@ export function normalizeCheckoutInput(input) {
     addressId: input.addressId == null ? null : id(input.addressId),
     paymentMethodId:
       input.paymentMethodId == null ? null : id(input.paymentMethodId),
+    pointsUse: input.pointsUse == null ? 0 : integer(input.pointsUse, 0, true),
+    useExpectedPoints: input.useExpectedPoints === true,
   };
+  if (input.useExpectedPoints != null && typeof input.useExpectedPoints !== "boolean")
+    throw failure(400, "INVALID_POINTS", "적립예정금 사용 여부를 확인해 주세요.");
   if (input.mode === "DIRECT") {
     if (
       input.cartItemIds !== undefined ||
@@ -780,6 +792,48 @@ export function calculateStoreQuote(
     coupon,
   };
 }
+export function quotePoints(balance, orders, input) {
+  const payable = orders.every((row) => row.totalAmount !== null)
+    ? orders.reduce((total, row) => total + row.totalAmount, 0)
+    : null;
+  const rate = POINT_POLICY.earnRatePercent;
+  const expectedAmount = payable === null ? 0 : Math.floor((payable * rate) / 100);
+  const issues = [];
+  const none = {
+    balance,
+    minUse: POINT_POLICY.minUse,
+    earnRatePercent: rate,
+    expectedAmount,
+    pointsUse: 0,
+    expectedUse: 0,
+    earnAmount: 0,
+    issues,
+    allocations: orders.map(() => ({ used: 0, earn: 0 })),
+  };
+  if (payable === null) return none;
+  const expectedUse = input.useExpectedPoints ? expectedAmount : 0;
+  if (input.pointsUse > 0 && balance < POINT_POLICY.minUse) issues.push("POINTS_MIN_BALANCE");
+  else if (input.pointsUse > balance) issues.push("POINTS_EXCEED_BALANCE");
+  if (input.pointsUse + expectedUse > payable) issues.push("POINTS_EXCEED_PAYABLE");
+  if (issues.length) return { ...none, pointsUse: input.pointsUse, expectedUse };
+  let remaining = input.pointsUse + expectedUse;
+  const allocations = orders.map((row) => {
+    const used = Math.min(remaining, row.totalAmount);
+    remaining -= used;
+    const earn = input.useExpectedPoints
+      ? 0
+      : Math.floor(((row.totalAmount - used) * rate) / 100);
+    return { used, earn };
+  });
+  return {
+    ...none,
+    pointsUse: input.pointsUse,
+    expectedUse,
+    earnAmount: allocations.reduce((total, row) => total + row.earn, 0),
+    allocations,
+  };
+}
+
 export async function previewCheckout(userId, rawInput) {
   const input = normalizeCheckoutInput(rawInput);
   const profile = await findByAuthId(userId);
@@ -868,6 +922,13 @@ export async function previewCheckout(userId, rawInput) {
       ...amounts,
     });
   }
+  const points = quotePoints((await getPointBalance(userId)).balance, orders, input);
+  orders.forEach((row, index) => {
+    const { used, earn } = points.allocations[index];
+    row.pointsUsedAmount = used;
+    row.pointsEarnAmount = earn;
+    row.payAmount = row.totalAmount === null ? null : row.totalAmount - used;
+  });
   const ready = orders.every(
     (row) => row.issues.length === 0 && row.totalAmount !== null,
   );
@@ -883,7 +944,16 @@ export async function previewCheckout(userId, rawInput) {
     orders,
     stockIssues,
     paymentMethod,
-    issues: paymentMethod ? [] : ["PAYMENT_METHOD_REQUIRED"],
+    issues: [...(paymentMethod ? [] : ["PAYMENT_METHOD_REQUIRED"]), ...points.issues],
+    points: {
+      balance: points.balance,
+      minUse: points.minUse,
+      earnRatePercent: points.earnRatePercent,
+      expectedAmount: points.expectedAmount,
+      pointsUse: points.pointsUse,
+      expectedUse: points.expectedUse,
+      earnAmount: points.earnAmount,
+    },
     totals: {
       itemsAmount: sum("itemsAmount"),
       deliveryFee: orders.some((row) => row.deliveryFee === null)
@@ -893,8 +963,11 @@ export async function previewCheckout(userId, rawInput) {
       totalAmount: orders.some((row) => row.totalAmount === null)
         ? null
         : sum("totalAmount"),
+      pointsUsedAmount: points.pointsUse + points.expectedUse,
+      payAmount: orders.some((row) => row.payAmount === null) ? null : sum("payAmount"),
     },
-    canSubmit: ready && stockIssues.length === 0 && paymentMethod !== null,
+    canSubmit:
+      ready && stockIssues.length === 0 && paymentMethod !== null && points.issues.length === 0,
     serverPriceVerified: true,
     persisted: false,
   };
@@ -908,6 +981,8 @@ export function validateSubmitInput(raw) {
     "storeOptions",
     "addressId",
     "paymentMethodId",
+    "pointsUse",
+    "useExpectedPoints",
     "paymentAgreed",
   ]);
   if (raw.paymentAgreed !== true)
@@ -1016,7 +1091,9 @@ export async function submitCheckout(userId, raw) {
         items_amount: order.itemsAmount,
         delivery_fee: order.deliveryFee,
         discount_amount: order.discountAmount,
-        total_amount: order.totalAmount,
+        total_amount: order.payAmount,
+        points_used_amount: order.pointsUsedAmount,
+        points_earn_amount: order.pointsEarnAmount,
         commission_rate: policy.rate,
         commission_amount: policy.amount,
         used_coupon_id: order.coupon?.userCouponId ?? null,
@@ -1075,13 +1152,18 @@ export async function submitCheckout(userId, raw) {
         await couponRepository.markOwnedUsed(userId, order.coupon.userCouponId);
         consumed.push(order.coupon.userCouponId);
       }
-      await paymentRepository.createMockPayment(userId, {
-        purpose: "ORDER",
-        order_id: row.id,
-        payment_method_id: quote.paymentMethod.id,
-        method_label: methodLabel,
-        amount: row.total_amount,
+      await recordOrderPoints(userId, row.id, {
+        used: order.pointsUsedAmount,
+        earn: order.pointsEarnAmount,
       });
+      if (row.total_amount > 0)
+        await paymentRepository.createMockPayment(userId, {
+          purpose: "ORDER",
+          order_id: row.id,
+          payment_method_id: quote.paymentMethod.id,
+          method_label: methodLabel,
+          amount: row.total_amount,
+        });
     }
   } catch (error) {
     const recovery = [];
@@ -1115,6 +1197,7 @@ export async function submitCheckout(userId, raw) {
     for (const row of saved) {
       try {
         await paymentRepository.cancelMockOrderPayments(userId, row.id);
+        await restoreOrderPoints(userId, row.id);
         await orderRepository.cancelOwnedPaid(
           userId,
           row.id,
@@ -1170,6 +1253,7 @@ export async function getCheckoutResult(userId, checkoutGroupId) {
       payments,
       processingComplete:
         row.status === "CANCELED" ||
+        row.total_amount === 0 ||
         payments.some(
           (payment) =>
             payment.status === "PAID" &&

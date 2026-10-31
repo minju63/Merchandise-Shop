@@ -57,3 +57,15 @@ export const createReview = (body) => http.post('/reviews', body).then(data);
 // 입점 신청
 export const getMySellerApplication = () => http.get('/seller-applications/me').then(data);
 export const submitSellerApplication = (body) => http.post('/seller-applications', body).then(data);
+
+// 적립금 · 반품/교환 · 최근 본 상품 · 알림 신청
+export const getMyPoints = () => http.get('/users/me/points').then(data);
+export const listClaims = () => http.get('/orders/claims').then(data);
+export const createClaim = (orderId, body) => http.post(`/orders/${orderId}/claims`, body).then(data);
+export const getRecentProducts = () => http.get('/users/me/recent-products').then(data);
+export const recordProductView = (storeProductId) =>
+  http.post('/users/me/recent-products', { storeProductId }).then(data);
+export const listPreorders = () => http.get('/preorders', { params: { page: 1, size: 50 } }).then(data);
+export const listRestockAlerts = () =>
+  http.get('/restock-alerts', { params: { page: 1, size: 50 } }).then(data);
+export const listOpenAlerts = () => http.get('/users/me/open-alerts').then(data);

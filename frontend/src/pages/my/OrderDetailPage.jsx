@@ -301,6 +301,15 @@ export default function OrderDetailPage() {
             주문 취소
           </button>
         ) : null}
+        {order.status === 'COMPLETED' ? (
+          <button
+            type="button"
+            className="ord-btn"
+            onClick={() => navigate(MY_ROUTES.claimNew(order.id))}
+          >
+            반품·교환
+          </button>
+        ) : null}
         <button
           type="button"
           className="ord-btn ord-btn--grow"

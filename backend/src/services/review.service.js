@@ -5,6 +5,7 @@ export { reviewError } from './reviewValidation.js'; // 여경 컨트롤러용 (
 import * as repository from "../repositories/review.repository.js";
 import { findOwnedItem, findSale } from "../repositories/order.repository.js";
 import { verifyOwnedImageUrls } from "./support.service.js";
+import { grantReviewReward } from "./user.service.js";
 
 import { findByAuthId } from "../repositories/user.repository.js";
 function failure(status, code, message) {
@@ -169,7 +170,7 @@ export async function createReview(userId, input) {
     input.orderItemId,
   );
   const images = await verifyOwnedImageUrls(userId, input.imageUrls);
-  return finishReview(
+  const created = await finishReview(
     await repository.createOwnedWithImages(
       userId,
       {
@@ -182,6 +183,12 @@ export async function createReview(userId, input) {
       existing,
     ),
   );
+  // 적립금 지급이 실패해도 리뷰 작성 자체는 성공으로 둔다.
+  const pointReward = await grantReviewReward(userId, {
+    orderId: item.order_id,
+    orderItemId: item.id,
+  }).catch(() => ({ granted: false, amount: 0, reason: "REWARD_PENDING" }));
+  return { ...created, pointReward };
 }
 export async function updateReview(userId, id, input) {
   uuid(id);

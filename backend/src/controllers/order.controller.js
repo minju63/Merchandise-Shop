@@ -94,3 +94,27 @@ export async function cancelMyOrder(req, res, next) {
     next(error);
   }
 }
+export async function listMyClaims(req, res, next) {
+  try {
+    res.json(ok(await service.listMyClaims(res.locals.authUser.id, req.query)));
+  } catch (error) {
+    next(error);
+  }
+}
+export async function createMyClaim(req, res, next) {
+  try {
+    res
+      .status(201)
+      .json(
+        ok(
+          await service.createMyClaim(
+            res.locals.authUser.id,
+            req.params.orderId,
+            req.body,
+          ),
+        ),
+      );
+  } catch (error) {
+    next(error);
+  }
+}

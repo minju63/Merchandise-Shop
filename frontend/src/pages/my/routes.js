@@ -21,7 +21,8 @@ export const MY_ROUTES = {
   addresses: '/my/addresses',
   addressNew: '/my/addresses/new',
   addressEdit: (id) => `/my/addresses/${id}/edit`,
-  shop: '/shops',
+  shop: '/stores',
+  store: (storeId) => `/stores/${storeId}`,
   paymentMethods: '/my/payment-methods',
   notificationSettings: '/my/settings/notifications',
   support: '/my/support',
@@ -35,4 +36,13 @@ export const MY_ROUTES = {
   termsBody: (type) => `/my/terms/${type}`,
   sellerApply: '/my/seller-apply',
   sellerCenter: '/my/seller-center',
+  points: '/my/points',
+  claims: '/my/claims',
+  claimNew: (orderId) => `/my/orders/${orderId}/claim`,
+  recentProducts: '/my/recent',
+  refundAccounts: '/my/refund-accounts',
+  // 이벤트 상세는 민주 담당. 라우트가 확정되면 이 경로만 맞춘다.
+  weeklyPickEvent: '/events/weekly-pick',
+  alerts: '/my/alerts',
+  product: (storeProductId) => `/products/${storeProductId}`,
 };

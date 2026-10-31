@@ -1,0 +1,36 @@
+/* 담당: 연수 — 마이탭 신규 화면(적립금·반품교환·최근 본 상품·환불계좌·응원배너·알림 신청) */
+.mt-hero { margin: 4px 0 16px; padding: 20px; border-radius: 16px; background: var(--my-primary-soft); }
+.mt-hero__label { margin: 0; color: var(--my-sub); font-size: 13px; }
+.mt-hero__value { margin: 6px 0 0; font-size: 28px; font-weight: 800; color: var(--my-primary); }
+.mt-hero__sub { margin: 8px 0 0; color: var(--my-sub); font-size: 13px; }
+.mt-guide { margin: 0 0 20px; padding: 14px 16px 14px 30px; border-radius: 12px; background: var(--my-soft); color: var(--my-sub); font-size: 13px; line-height: 1.7; }
+.mt-h { margin: 20px 0 8px; font-size: 16px; font-weight: 700; }
+.mt-row { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--my-line); }
+.mt-row__main { flex: 1; min-width: 0; }
+.mt-row__main strong { display: block; font-size: 14px; }
+.mt-row__main span { color: var(--my-faint); font-size: 12px; }
+.mt-amount { font-size: 15px; font-weight: 700; }
+.mt-amount.is-plus { color: var(--my-primary); }
+.mt-tag { margin-left: 6px; padding: 2px 6px; border-radius: 6px; background: var(--my-soft); color: var(--my-sub); font-size: 11px; font-weight: 600; }
+.mt-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.mt-product { display: flex; flex-direction: column; gap: 8px; text-align: left; }
+.mt-product .ord-thumb { width: 100% !important; height: auto !important; aspect-ratio: 1; }
+.mt-product strong { font-size: 13px; line-height: 1.4; }
+.mt-product span { color: var(--my-sub); font-size: 12px; }
+.mt-product.is-off { opacity: 0.5; }
+.mt-seg { display: flex; gap: 8px; margin: 14px 0; }
+.mt-rank { display: grid; place-items: center; flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--my-soft); font-size: 13px; font-weight: 700; }
+.mt-rank.is-top { background: var(--my-btn); color: var(--my-btn-text); }
+.mt-mine { color: var(--my-primary); font-weight: 700; }
+.mt-select { display: flex; flex-direction: column; gap: 8px; }
+.mt-option { display: flex; align-items: center; gap: 10px; padding: 12px; border: 1px solid var(--my-line); border-radius: 12px; text-align: left; }
+.mt-option.is-active { border-color: var(--my-btn); background: var(--my-primary-soft); }
+.mt-textarea { width: 100%; box-sizing: border-box; min-height: 90px; padding: 12px; border: 1px solid var(--my-line); border-radius: 12px; font: inherit; color: var(--my-text); resize: vertical; outline: 0; }
+.mt-error { margin: 12px 0 0; color: var(--my-error, #d23b3b); font-size: 13px; }
+.mt-notice { margin: 0 0 14px; padding: 12px 14px; border-radius: 12px; background: var(--my-soft); color: var(--my-sub); font-size: 13px; line-height: 1.6; }
+.mt-points-card { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; }
+.mt-points-card__text { flex: 1; min-width: 0; }
+.mt-points-card__text strong { display: block; font-size: 17px; }
+.mt-points-card__text span { color: var(--my-sub); font-size: 12px; }
+.ord-tabs--four { grid-template-columns: repeat(4, 1fr); }
+.mt-row { width: 100%; text-align: left; }

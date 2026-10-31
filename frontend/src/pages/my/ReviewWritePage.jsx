@@ -8,6 +8,7 @@ import { ImageIcon } from './icons.jsx';
 import { getOrder } from './my.api.js';
 import { MY_ROUTES } from './routes.js';
 import './orders.css';
+import './mytab.css';
 import './support.css';
 
 const LABELS = ['별로예요', '아쉬워요', '보통이에요', '좋아요', '최고예요'];
@@ -78,12 +79,14 @@ export default function ReviewWritePage() {
         if (uploadError) throw uploadError;
         imageUrls.push(supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl);
       }
-      await createReview({
+      const created = await createReview({
         orderItemId: item.id,
         rating,
         content: content.trim(),
         ...(imageUrls.length ? { imageUrls } : {}),
       });
+      if (created?.pointReward?.granted)
+        window.alert(`리뷰 작성 완료! 적립금 ${created.pointReward.amount.toLocaleString()}원이 적립됐어요.`);
       navigate(MY_ROUTES.orderDetail(orderId), { replace: true });
     } catch (cause) {
       setError(cause.message);
@@ -183,6 +186,7 @@ export default function ReviewWritePage() {
   return (
     <main className="ord-page ord-page--fab">
       <PageHeader title="리뷰 쓰기" />
+      <p className="mt-notice">리뷰를 작성하면 적립금 500원을 바로 드려요. (상품당 1회)</p>
       {body}
     </main>
   );

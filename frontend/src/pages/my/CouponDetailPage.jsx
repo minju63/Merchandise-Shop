@@ -52,7 +52,7 @@ export default function CouponDetailPage() {
             <button
               type="button"
               className="ord-btn ord-btn--primary ord-btn--block"
-              onClick={() => navigate(storeId ? `${MY_ROUTES.shop}/${storeId}` : MY_ROUTES.shop)}
+              onClick={() => navigate(storeId ? MY_ROUTES.store(storeId) : MY_ROUTES.shop)}
             >
               {storeId ? '이 굿즈샵에서 사용하기' : '쿠폰 사용하러 가기'}
             </button>

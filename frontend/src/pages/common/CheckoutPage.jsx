@@ -436,6 +436,9 @@ export default function CheckoutPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [attempt, setAttempt] = useState(0);
+  const [pointsInput, setPointsInput] = useState('');
+  const [pointsUse, setPointsUse] = useState(0);
+  const [useExpected, setUseExpected] = useState(false);
 
   const coupons = useRequest(signedIn, 'checkout-coupons', listCoupons);
   const methods = useRequest(signedIn, 'checkout-methods', listPaymentMethods);
@@ -470,6 +473,8 @@ export default function CheckoutPage() {
       : {}),
     ...(addressId ? { addressId } : {}),
     ...(paymentMethodId ? { paymentMethodId } : {}),
+    ...(pointsUse > 0 ? { pointsUse } : {}),
+    ...(useExpected ? { useExpectedPoints: true } : {}),
   };
   const key = signedIn && previewBody ? `${attempt}:${JSON.stringify(previewBody)}` : null;
 
@@ -539,6 +544,18 @@ export default function CheckoutPage() {
     ? data.orders.reduce((sum, order) => sum + order.items.reduce((s, i) => s + i.quantity, 0), 0)
     : 0;
   const totals = data?.totals;
+  const points = data?.points;
+  const applyPoints = (amount) => {
+    const value = Math.max(0, Math.floor(Number(amount) || 0));
+    setPointsInput(value ? String(value) : '');
+    setPointsUse(value);
+  };
+  const pointIssue = (data?.issues ?? []).find((code) => code.startsWith('POINTS_'));
+  const pointIssueText = {
+    POINTS_MIN_BALANCE: `보유 적립금이 ${points?.minUse?.toLocaleString() ?? '1,000'}원 이상일 때 사용할 수 있어요`,
+    POINTS_EXCEED_BALANCE: '보유 적립금보다 많이 사용할 수 없어요',
+    POINTS_EXCEED_PAYABLE: '결제 금액보다 많이 사용할 수 없어요',
+  }[pointIssue];
   const stockIssues = data?.stockIssues ?? [];
   const blockers = data
     ? [
@@ -664,6 +681,52 @@ export default function CheckoutPage() {
     </>
   );
 
+  const pointsBlock = points ? (
+    <section className="co-section">
+      <h2 className="co-h">적립금</h2>
+      <p className="co-pts__balance">
+        보유 <strong>{formatWon(points.balance)}</strong>
+        <span>{points.minUse.toLocaleString()}원부터 사용할 수 있어요</span>
+      </p>
+      <div className="co-pts__row">
+        <input
+          className="co-input"
+          inputMode="numeric"
+          placeholder="사용할 금액"
+          value={pointsInput}
+          onChange={(event) => setPointsInput(event.target.value.replace(/\D/g, ''))}
+        />
+        <button type="button" className="co-pts__btn" onClick={() => applyPoints(pointsInput)}>
+          적용
+        </button>
+        <button
+          type="button"
+          className="co-pts__btn"
+          onClick={() => applyPoints(Math.min(points.balance, totals?.totalAmount ?? 0))}
+        >
+          전액
+        </button>
+      </div>
+      <label className="co-pts__toggle">
+        <Box
+          checked={useExpected}
+          onChange={setUseExpected}
+          label="적립예정금 바로 사용"
+        />
+        <span>
+          이번 주문 적립예정금 {formatWon(points.expectedAmount)} 바로 사용하기
+        </span>
+      </label>
+      <p className="co-info">
+        <InfoIcon width={14} height={14} />
+        {useExpected
+          ? '지금 사용하면 이번 주문은 추가 적립이 없어요'
+          : `쓰지 않으면 구매 확정 후 ${formatWon(points.earnAmount)}이 적립돼요 (결제금액의 ${points.earnRatePercent}%)`}
+      </p>
+      {pointIssueText ? <p className="co-warn">{pointIssueText}</p> : null}
+    </section>
+  ) : null;
+
   const totalRows = totals ? (
     <dl className="co-sum">
       <div>
@@ -680,9 +743,15 @@ export default function CheckoutPage() {
         <dt>배달비</dt>
         <dd>{totals.deliveryFee === null ? '-' : formatWon(totals.deliveryFee)}</dd>
       </div>
+      {totals.pointsUsedAmount ? (
+        <div>
+          <dt>적립금 사용</dt>
+          <dd className="is-discount">-{formatWon(totals.pointsUsedAmount)}</dd>
+        </div>
+      ) : null}
       <div className="co-sum__total">
         <dt>최종 결제 금액</dt>
-        <dd>{totals.totalAmount === null ? '-' : formatWon(totals.totalAmount)}</dd>
+        <dd>{totals.payAmount == null ? '-' : formatWon(totals.payAmount)}</dd>
       </div>
     </dl>
   ) : null;
@@ -758,6 +827,7 @@ export default function CheckoutPage() {
           )}
         </section>
 
+        {pointsBlock}
         <section className="co-section">
           <h2 className="co-h">결제 금액</h2>
           {totalRows}
@@ -800,6 +870,7 @@ export default function CheckoutPage() {
           {paymentList}
         </section>
 
+        {pointsBlock}
         <section className="co-section">
           <h2 className="co-h">결제 금액</h2>
           {totalRows}
@@ -820,8 +891,8 @@ export default function CheckoutPage() {
       {error ? <p className="co-warn co-warn--footer">{error}</p> : null}
       <div className="co-footer">
         <button type="button" className="co-pay" disabled={!canPay} onClick={pay}>
-          {totals?.totalAmount != null
-            ? `${formatWon(totals.totalAmount)} 결제하기${multi ? ` · 주문 ${data.orders.length}건` : ''}`
+          {totals?.payAmount != null
+            ? `${formatWon(totals.payAmount)} 결제하기${multi ? ` · 주문 ${data.orders.length}건` : ''}`
             : '결제하기'}
         </button>
       </div>

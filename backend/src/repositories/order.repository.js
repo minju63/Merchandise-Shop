@@ -309,3 +309,36 @@ export async function findOwnedItem(userId, itemId) {
   const order = await findOwned(userId, item.order_id);
   return order ? { ...item, order } : null;
 }
+
+// ---- 반품/교환 요청 ----
+const CLAIM_SELECT =
+  "*,order:orders(order_no,store:stores(name)),item:order_items(product_name,product_image_url,quantity,unit_price)";
+export async function listOwnedClaims(userId) {
+  const db = await database();
+  const rows = check(
+    await db
+      .from("order_claims")
+      .select(CLAIM_SELECT)
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false }),
+  );
+  return rows ?? [];
+}
+export async function listClaimsForItem(userId, itemId) {
+  const db = await database();
+  return (
+    check(
+      await db
+        .from("order_claims")
+        .select("id,status")
+        .eq("user_id", userId)
+        .eq("order_item_id", itemId),
+    ) ?? []
+  );
+}
+export async function createClaim(row) {
+  const db = await database();
+  return check(
+    await db.from("order_claims").insert(row).select(CLAIM_SELECT).single(),
+  );
+}
