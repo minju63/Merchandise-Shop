@@ -1,0 +1,24 @@
+.cart-added-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(96px + env(safe-area-inset-bottom));
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transform: translateX(-50%);
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: rgb(33 29 43 / 88%);
+  color: #fff;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.cart-added-toast-action {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #c7b8ff;
+  font-size: 13px;
+  font-weight: 800;
+}

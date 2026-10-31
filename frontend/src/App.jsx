@@ -8,7 +8,7 @@ import {
   useSearchParams,
 } from 'react-router-dom';
 import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import HomePage from './pages/home/HomePage.jsx';
 import { homeMockData } from './pages/home/homeMockData.js';
 import { useSession } from './pages/my/hooks.js';
@@ -64,6 +64,7 @@ import { wishlistApi } from './api/wishlist.api.js';
 import useWishlist from './hooks/useWishlist.js';
 import { supabase } from './lib/supabase.js';
 import FulfillmentSheet from './pages/wish/components/FulfillmentSheet.jsx';
+import CartAddedToast from './components/CartAddedToast.jsx';
 import { searchApi } from './api/search.api.js';
 import { bannerApi, homeApi } from './api/home.api.js';
 import ServiceIntroPage from './pages/home/ServiceIntroPage.jsx';
@@ -371,6 +372,8 @@ function ProductDetailRoute() {
   const { storeProductId } = useParams();
   const [user, setUser] = useState(null);
   const [sheet, setSheet] = useState(null);
+  const [cartToast, setCartToast] = useState(null);
+  const closeCartToast = useCallback(() => setCartToast(null), []);
   const queryClient = useQueryClient();
   const wish = useWishlist();
   const detail = useQuery({
@@ -417,15 +420,29 @@ function ProductDetailRoute() {
           onSelect={async (fulfillmentType) => {
             setSheet({ ...sheet, pending: true });
             try {
-              await addToCart(fulfillmentType);
+              const response = await addToCart(fulfillmentType);
               sheet.resolve();
               setSheet(null);
-              navigate(`/cart?type=${fulfillmentType}`);
+              queryClient.invalidateQueries({ queryKey: ['cart'] });
+              // 계속 쇼핑할 수 있게 이동하지 않고, 토스트에서 원할 때만 장바구니로 보낸다.
+              setCartToast({
+                type: fulfillmentType,
+                text: response.data?.capped
+                  ? `1인 최대 ${response.data.quantity}개까지 담을 수 있어요`
+                  : '장바구니에 담았어요',
+              });
             } catch (error) {
               sheet.reject(error);
               setSheet(null);
             }
           }}
+        />
+      )}
+      {cartToast && (
+        <CartAddedToast
+          text={cartToast.text}
+          onClose={closeCartToast}
+          onGoToCart={() => navigate(`/cart?type=${cartToast.type}`)}
         />
       )}
     </>

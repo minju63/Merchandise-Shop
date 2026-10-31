@@ -53,6 +53,7 @@ export default function CartPage() {
   const items = cart?.stores.flatMap((store) => store.items) ?? [];
   const availableItems = items.filter((item) => item.available);
   const selectedIds = items.filter((item) => item.isSelected).map((item) => item.cartItemId);
+  const soldOutIds = items.filter((item) => item.unavailableReason === 'OUT_OF_STOCK').map((item) => item.cartItemId);
   const allSelected = availableItems.length > 0 && availableItems.every((item) => item.isSelected);
   const busy = updateMutation.isPending || removeMutation.isPending;
 
@@ -98,14 +99,24 @@ export default function CartPage() {
                 />
                 전체 선택 ({selectedIds.length}/{availableItems.length})
               </label>
-              <button
-                type="button"
-                className="cart-remove-selected"
-                disabled={busy || selectedIds.length === 0}
-                onClick={() => removeMutation.mutate(selectedIds)}
-              >
-                선택 삭제
-              </button>
+              <div className="cart-toolbar-actions">
+                <button
+                  type="button"
+                  className="cart-remove-selected"
+                  disabled={busy || soldOutIds.length === 0}
+                  onClick={() => removeMutation.mutate(soldOutIds)}
+                >
+                  품절 삭제
+                </button>
+                <button
+                  type="button"
+                  className="cart-remove-selected"
+                  disabled={busy || selectedIds.length === 0}
+                  onClick={() => removeMutation.mutate(selectedIds)}
+                >
+                  선택 삭제
+                </button>
+              </div>
             </div>
             {cart.stores.map((store) => (
               <CartStoreGroup

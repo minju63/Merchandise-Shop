@@ -24,12 +24,15 @@ export default function ProductActionBar({ product, user, actions = {}, wished: 
       const argument = name === 'wishlist' ? !wished : 1;
       await actions[name](product.storeProductId, argument);
       if (name === 'wishlist') setWishedOverride(!wished);
+      // 장바구니 담기 결과는 화면 아래 토스트로 따로 알려 준다.
       setMessage(
         name === 'wishlist'
           ? !wished
             ? '찜 목록에 추가했습니다.'
             : '찜을 해제했습니다.'
-          : '요청을 완료했습니다.'
+          : name === 'cart'
+            ? ''
+            : '요청을 완료했습니다.'
       );
     } catch (error) {
       // 수령 방법 선택 시트를 닫은 경우는 실패 안내를 띄우지 않는다.

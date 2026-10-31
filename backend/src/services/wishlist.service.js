@@ -51,8 +51,42 @@ function toWishProduct(row, alertIds) {
   };
 }
 
-export async function getWishProducts({ userId, page, size }) {
-  const { rows, totalCount } = await wishlistProductRepository.findPageByUser({ userId, page, size });
+// 찜 목록 정렬 — 카테고리 상품 정렬(storeProduct.repository.js)과 같은 키·기준을 쓴다.
+// recent(최근 찜한 순)는 DB 순서 그대로라 따로 정렬하지 않는다.
+const descending = (pick) => (a, b) => (pick(b) ?? -Infinity) - (pick(a) ?? -Infinity);
+const ascending = (pick) => (a, b) => (pick(a) ?? Infinity) - (pick(b) ?? Infinity);
+const releasedAt = (row) => {
+  const time = Date.parse(row.store_product.product.released_at);
+  return Number.isNaN(time) ? null : time;
+};
+export const WISH_SORTS = {
+  recent: null,
+  popular: descending((row) => row.store_product.product.popularity_score),
+  sales: descending((row) => row.store_product.sales_count),
+  newest: descending(releasedAt),
+  wishlist: descending((row) => row.store_product.product.wish_count),
+  stock: descending((row) => row.store_product.stock),
+  stock_asc: ascending((row) => row.store_product.stock),
+  price_asc: ascending((row) => row.store_product.price),
+  price_desc: descending((row) => row.store_product.price),
+};
+
+// 값이 같으면 원래 순서(최근 찜한 순)를 유지한다. Array.prototype.sort 는 안정 정렬이다.
+export function sortWishRows(rows, sort) {
+  const compare = WISH_SORTS[sort];
+  return compare ? [...rows].sort(compare) : rows;
+}
+
+export async function getWishProducts({ userId, page, size, sort = 'recent' }) {
+  let rows;
+  let totalCount;
+  if (WISH_SORTS[sort]) {
+    const all = sortWishRows(await wishlistProductRepository.findAllByUser(userId), sort);
+    rows = all.slice((page - 1) * size, page * size);
+    totalCount = all.length;
+  } else {
+    ({ rows, totalCount } = await wishlistProductRepository.findPageByUser({ userId, page, size }));
+  }
   const alertIds = new Set(
     await restockAlertRepository.findActiveStoreProductIds({
       userId,
