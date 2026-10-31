@@ -2,7 +2,7 @@ import CategoryLayout from './components/CategoryLayout.jsx';
 import CategoryProductCard from './components/CategoryProductCard.jsx';
 import sharedClient from '../../api/client.js';
 import { useCallback, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import * as productApi from '../../api/product.api';
 import * as categoryApi from '../../api/category.api';
 import * as regionApi from '../../api/region.api.js';
@@ -37,6 +37,9 @@ function ProductListPageContent({
 }) {
   const [params, setParams] = useSearchParams();
   const [filterOpen, setFilterOpen] = useState(false);
+  // 필터를 바꿔 주소가 갱신돼도 location.state가 사라지므로 처음 진입 때 한 번만 읽어 둔다.
+  const location = useLocation();
+  const [fromHome] = useState(() => Boolean(location.state?.fromHome));
   const queryKey = params.toString();
   const loadCategories = useCallback(
     (signal) => categories.length ? categories : categoryApi.getCategories({ signal }, client),
@@ -106,7 +109,11 @@ function ProductListPageContent({
     <main className="category-page">
       {/* 뒤로가기는 제목 앞의 꺾쇠 아이콘으로 대신하고, 단계 구분은 / 로 표시한다 */}
       <div className="category-list-heading">
-        <Link className="category-list-back" to={categoryReturnTo} aria-label="카테고리로 돌아가기">
+        <Link
+          className="category-list-back"
+          to={fromHome ? '/' : categoryReturnTo}
+          aria-label={fromHome ? '홈으로 돌아가기' : '카테고리로 돌아가기'}
+        >
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7" /></svg>
         </Link>
         <h1 className="category-list-title">{selectedNames.join(' / ') || '상품 목록'}</h1>

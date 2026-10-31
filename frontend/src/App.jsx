@@ -178,7 +178,9 @@ function HomeRoute() {
   // 로그인한 경우에만 관심사를 적용한다. 비회원은 관심사가 비어 있는 처음 상태로 둘러본다.
   const { status: sessionStatus } = useSession();
   const goLogin = () => navigate('/login?returnTo=%2F');
-  const openCategory = (category) => navigate(categoryPath(category));
+  // 홈에서 바로 들어온 목록은 뒤로가기를 카테고리가 아니라 홈으로 되돌린다.
+  const fromHome = { state: { fromHome: true } };
+  const openCategory = (category) => navigate(categoryPath(category), fromHome);
   const homeQuery = useQuery({
     queryKey: ['home'],
     queryFn: homeApi.get,
@@ -210,8 +212,8 @@ function HomeRoute() {
       onOpenProduct={(product) => navigate(`/products/${product.storeProductId}`)}
       onOpenCategory={openCategory}
       onOpenTrending={(tab) => navigate(trendingPath(tab))}
-      onOpenUpcoming={() => navigate(UPCOMING_PATH)}
-      onOpenLowStock={() => navigate(LOW_STOCK_PATH)}
+      onOpenUpcoming={() => navigate(UPCOMING_PATH, fromHome)}
+      onOpenLowStock={() => navigate(LOW_STOCK_PATH, fromHome)}
       onBannerClick={(bannerId) => {
         bannerApi.click(bannerId).catch(() => {
           // 클릭 기록 실패가 화면 이동을 막지 않는다.
