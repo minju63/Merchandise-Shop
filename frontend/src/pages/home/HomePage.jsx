@@ -139,7 +139,7 @@ export default function HomePage({
   const homeCategories = data.categories
     .filter((category) => category.isHomeShortcut)
     .sort((a, b) => a.sortOrder - b.sortOrder)
-    .slice(0, 5);
+    .slice(0, 6);
   const openedUpcomingProducts = data.upcomingProducts
     .filter((product) => new Date(product.openAt).getTime() <= currentTimestamp)
     .map((product) => ({ ...product, isNew: true, releasedAt: product.openAt, status: 'ON_SALE' }));

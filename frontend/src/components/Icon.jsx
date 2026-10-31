@@ -18,6 +18,9 @@ const paths = {
   check: <path d="m4 12 5 5L20 6" />,
   mic: <><rect x="8" y="3" width="8" height="12" rx="4" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></>,
   play: <><rect x="3" y="5" width="18" height="14" rx="3" /><path d="m10 9 5 3-5 3Z" /></>,
+  game: <><path d="M8 8h8a5 5 0 0 1 4.8 6.4l-.8 2.7a2.6 2.6 0 0 1-4.5 1l-1.2-1.6H9.7l-1.2 1.6a2.6 2.6 0 0 1-4.5-1l-.8-2.7A5 5 0 0 1 8 8Z" /><path d="M7 12v4M5 14h4M16 12h.01M18 15h.01" /></>,
+  film: <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M7 5v14M17 5v14M3 9h4M17 9h4M3 15h4M17 15h4" /></>,
+  character: <><circle cx="12" cy="12" r="9" /><circle cx="9" cy="10" r="1" fill="currentColor" stroke="none" /><circle cx="15" cy="10" r="1" fill="currentColor" stroke="none" /><path d="M8.5 15a5 5 0 0 0 7 0" /></>,
   card: <><rect x="5" y="3" width="14" height="18" rx="2" /><path d="M8 7h8M8 11h5M8 15h8" /></>,
   link: <><path d="m9.5 14.5 5-5M7.3 17.7l-1 1a3.5 3.5 0 0 1-5-5l3-3a3.5 3.5 0 0 1 5 0M16.7 6.3l1-1a3.5 3.5 0 0 1 5 5l-3 3a3.5 3.5 0 0 1-5 0" /></>,
 };

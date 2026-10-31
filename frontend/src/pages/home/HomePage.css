@@ -393,7 +393,7 @@
 .category-shortcuts {
   display: grid;
   padding: 0 14px 15px;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   border-bottom: 7px solid #f7f6f9;
 }
 

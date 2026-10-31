@@ -9,11 +9,22 @@ const ACCENTS = ['#eee8ff', '#ffe9ee', '#e3f2fa', '#fff2cf', '#e5f4ed', '#f1e8ff
 
 export const formatPrice = (price) => `${price.toLocaleString('ko-KR')}원`;
 export const salePrice = ({ price, discount_rate: discountRate }) => Math.round(price * (100 - discountRate) / 100);
-// CONTENT_IDOL → idol, GOODS_PHOTOCARD → photocard (프런트 관심 카테고리 id)
-// categories.is_home_shortcut 으로 지정한 카테고리가 없으면 아래 4개를 홈 바로가기로 쓴다.
-const HOME_SHORTCUT_LIMIT = 4;
-const DEFAULT_SHORTCUT_CODES = ['CONTENT_IDOL', 'CONTENT_ANIMATION', 'GOODS_PHOTOCARD', 'GOODS_KEYRING'];
-const SHORTCUT_ICONS = { idol: 'mic', animation: 'play', photocard: 'card', keyring: 'link' };
+// CONTENT_IDOL → idol (프런트 관심 카테고리 id)
+// 홈 바로가기는 주요 작품 분류 5개와 마지막의 "전체"로 고정한다.
+const HOME_SHORTCUT_CODES = [
+  'CONTENT_GAME',
+  'CONTENT_IDOL',
+  'CONTENT_ANIMATION',
+  'CONTENT_FILM_DRAMA',
+  'CONTENT_CHARACTER',
+];
+const SHORTCUT_ICONS = {
+  game: 'game',
+  idol: 'mic',
+  animation: 'play',
+  film_drama: 'film',
+  character: 'character',
+};
 
 const categorySlug = (code) => code.replace(/^(CONTENT|GOODS)_/, '').toLowerCase();
 
@@ -57,11 +68,9 @@ export function toCard(product, listing, index) {
 }
 
 function buildCategoryShortcuts(categories) {
-  const flagged = categories.filter((category) => category.is_home_shortcut);
-  const picked = (flagged.length
-    ? flagged
-    : DEFAULT_SHORTCUT_CODES.map((code) => categories.find((category) => category.code === code)).filter(Boolean)
-  ).slice(0, HOME_SHORTCUT_LIMIT);
+  const picked = HOME_SHORTCUT_CODES
+    .map((code) => categories.find((category) => category.code === code))
+    .filter(Boolean);
 
   const shortcuts = picked.map((category, index) => {
     const id = categorySlug(category.code);
