@@ -104,7 +104,6 @@ export default function StoreReviewPage() {
                   </>
                 )}
               </div>
-              <p>리뷰 {reviews.reviewCount}개</p>
               {isMemberSession && eligible.isSuccess && !eligible.isFetching && (
                 <Link
                   className="review-write-button"

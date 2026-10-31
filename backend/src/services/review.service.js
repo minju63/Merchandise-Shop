@@ -257,7 +257,7 @@ function validateStoreReviewInput(input, partial = false) {
     fields.rating = input.rating;
   }
   if (!partial || input.content !== undefined)
-    fields.content = text(input.content ?? "", 500, 0);
+    fields.content = text(input.content ?? "", 500, 10);
   if (input.storeId !== undefined) fields.store_id = uuid(input.storeId);
   if (partial && !Object.keys(fields).length && input.imageUrls === undefined)
     throw failure(400, "EMPTY_PATCH", "변경할 리뷰 내용을 입력해 주세요.");

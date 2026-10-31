@@ -1055,10 +1055,10 @@
 .review-summary { padding: 25px 0 21px; border-bottom: 8px solid #f5f6f8; }
 .review-summary h2, .review-form h2 { margin: 0 0 16px; font-size: 21px; }
 .review-summary-rating { display: flex; align-items: center; gap: 8px; }
-.review-summary-rating strong { font-size: 23px; }
-.review-summary-rating .review-stars { margin-left: 4px; font-size: 15px; }
+.review-summary-rating strong { font-size: 30px; }
+.review-main .review-summary-rating .review-stars { margin: 0 4px 0 0; font-size: 30px; }
 .review-summary p { color: #5b636e; margin: 10px 0 18px; font-size: 13px; }
-.review-write-button { display: block; width: 100%; padding: 12px; border: 1px solid #242a33; border-radius: 8px; color: #fff; background: #242a33; font-weight: 700; font-size: 14px; text-align: center; }
+.review-write-button { display: block; width: 100%; margin-top: 18px; padding: 12px; border: 1px solid #242a33; border-radius: 8px; color: #fff; background: #242a33; font-weight: 700; font-size: 14px; text-align: center; }
 .review-write-button:disabled { opacity: .5; }
 .review-list-section { padding-top: 17px; }
 .review-main .section-heading {
@@ -1121,6 +1121,7 @@
 .review-card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; font-size: 13px; }
 .review-card-head time { color: #8b939d; font-size: 12px; }
 .review-stars { display: flex; align-items: center; gap: 7px; color: #f7a33d; font-size: 16px; margin-top: 7px; }
+.review-main .review-stars { font-size: 20px; }
 .review-stars span:last-child { color: #606975; font-size: 12px; }
 .review-product { color: #727b86; font-size: 12px; margin: 10px 0 0; }
 .review-content { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14px; line-height: 1.6; margin: 12px 0 0; }
@@ -1163,6 +1164,7 @@
   border: 0;
   background: transparent;
 }
+.goods-review-main .rv-stars h2 { transform: translateY(6px); }
 .goods-review-main .rv-photo > button {
   padding: 0;
   border: 0;
@@ -1214,6 +1216,7 @@
 .goods-review-content .rv-label,
 .goods-review-photos > .rv-label { display: block; margin: 0 20px 9px; color: #262330; font-size: 14px; font-weight: 700; }
 .goods-review-content .rv-count { margin: 7px 20px 0; color: #8b8493; text-align: right; font-size: 11px; }
+.goods-review-content-error { margin: 7px 20px 0; }
 .goods-review-photos { margin-top: 22px; }
 .goods-review-photos .rv-photos { margin-bottom: 8px; }
 .goods-review-photo-guide { margin: 0 20px; color: #827b8a; font-size: 11px; }

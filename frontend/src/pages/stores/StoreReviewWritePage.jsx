@@ -66,6 +66,7 @@ export default function StoreReviewWritePage() {
   const lastDropTarget = useRef(null);
   const previews = useRef(new Set());
   const [formError, setFormError] = useState('');
+  const [contentError, setContentError] = useState('');
   const loginPath = `/login?returnTo=${encodeURIComponent(`/stores/${storeId}/reviews/write`)}`;
   const session = useQuery({
     queryKey: ['review-auth-session'],
@@ -224,10 +225,15 @@ export default function StoreReviewWritePage() {
       setFormError('별점을 선택해 주세요.');
       return;
     }
+    if (content.trim().length < 10) {
+      setContentError('리뷰 내용은 10자 이상 입력해 주세요.');
+      return;
+    }
     if (content.length > 500) {
       setFormError('리뷰 내용은 500자 이내로 입력해 주세요.');
       return;
     }
+    setContentError('');
     submitting.current = true;
     setFormError('');
     try {
@@ -391,10 +397,19 @@ export default function StoreReviewWritePage() {
                     id="review-content"
                     className="rv-text"
                     value={content}
-                    onChange={(event) => setContent(event.target.value)}
+                    onChange={(event) => {
+                      const nextContent = event.target.value;
+                      setContent(nextContent);
+                      if (nextContent.trim().length >= 10) setContentError('');
+                    }}
                     maxLength={500}
                     placeholder="구매한 상품과 매장 이용 경험을 알려주세요."
                   />
+                  {contentError && (
+                    <p className="review-error goods-review-content-error" role="alert">
+                      {contentError}
+                    </p>
+                  )}
                   <p className="rv-count">{content.length} / 500</p>
                 </div>
                 <section className="goods-review-photos" aria-labelledby="review-images-label">
