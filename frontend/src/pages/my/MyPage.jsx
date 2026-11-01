@@ -232,6 +232,7 @@ function MemberView({ data, provider, onNavigate }) {
       </section>
 
       <Section title="쇼핑">
+        <Row icon={BoxIcon} label="내 진열장" onClick={() => onNavigate(MY_ROUTES.showcases)} />
         <Row icon={BagIcon} label="전체 주문 내역" onClick={() => onNavigate(MY_ROUTES.orders)} />
         <Row
           icon={StoreIcon}

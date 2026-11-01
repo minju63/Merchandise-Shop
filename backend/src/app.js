@@ -24,6 +24,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use('/api/v1/reviews', express.json({ limit: '36mb' }));
+app.use('/api/v1/showcases', express.json({ limit: '9mb' }));
 app.use(express.json());
 
 app.get('/api/v1/health', (req, res) => {

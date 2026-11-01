@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { storeApi } from '../../api/store.api.js';
 import { PageState, StoreHeader, TabBar } from './components/StoreShell.jsx';
@@ -8,8 +9,11 @@ import StoreFilter from './components/StoreFilter.jsx';
 import StoreSort from './components/StoreSort.jsx';
 import StoreDistance from './components/StoreDistance.jsx';
 import { sortOptions, useStoreLocation } from './storeListTools.js';
+import { ShowcaseGallery } from '../showcases/ShowcasePages.jsx';
+import '../showcases/showcases.css';
 
 export default function StoreListPage() {
+  const navigate = useNavigate();
   const [filters, setFilters] = useState({ openNow: false, pickup: false, delivery: false });
   const [sort, setSort] = useState('popular');
   const [page, setPage] = useState(1);
@@ -59,10 +63,14 @@ export default function StoreListPage() {
     setFilters((current) => ({ ...current, [key]: !current[key] }));
     setPage(1);
   };
+  const showcaseTab = searchParams.get('tab') === 'showcases';
+  const tabs = <div className="showcase-store-tabs"><button className={!showcaseTab ? 'active' : ''} onClick={() => navigate('/stores')}>매장 찾기</button><button className={showcaseTab ? 'active' : ''} onClick={() => navigate('/stores?tab=showcases')}>진열장 구경</button></div>;
+  if (showcaseTab) return <div className="app-shell"><StoreHeader /><main className="store-main list-main">{tabs}<ShowcaseGallery type="SHOP" /></main><TabBar /></div>;
   return (
     <div className="app-shell">
       <StoreHeader />
       <main className="store-main list-main">
+        {tabs}
         <div className="section-heading store-list-heading">
           <div>
             <h1>굿즈샵 둘러보기</h1>

@@ -37,6 +37,7 @@ export const MY_ROUTES = {
   termsBody: (type) => `/my/terms/${type}`,
   sellerApply: '/my/seller-apply',
   sellerCenter: '/my/seller-center',
+  showcases: '/my/showcases',
   points: '/my/points',
   claims: '/my/claims',
   claimNew: (orderId) => `/my/orders/${orderId}/claim`,

@@ -18,6 +18,8 @@ import { searchMockData } from './pages/search/searchMockData.js';
 import { EMPTY_FILTERS, filterParams } from './pages/search/searchFilters.js';
 import StoreListPage from './pages/stores/StoreListPage.jsx';
 import StoreDetailPage from './pages/stores/StoreDetailPage.jsx';
+import ShowcaseEditorPage from './pages/showcases/ShowcaseEditorPage.jsx';
+import { ShowcaseGalleryPage, ShowcaseDetailPage, ShowcaseManagePage } from './pages/showcases/ShowcasePages.jsx';
 import StoreReviewPage from './pages/stores/StoreReviewPage.jsx';
 import StoreReviewWritePage from './pages/stores/StoreReviewWritePage.jsx';
 import LoginPage from './pages/auth/LoginPage.jsx';
@@ -693,6 +695,11 @@ export default function App() {
         <Route path="/stores/:storeId" element={<StoreDetailPage />} />
         <Route path="/stores/:storeId/reviews" element={<StoreReviewPage />} />
         <Route path="/stores/:storeId/reviews/write" element={<StoreReviewWritePage />} />
+        <Route path="/showcases" element={<ShowcaseGalleryPage />} />
+        <Route path="/showcases/:id" element={<ShowcaseDetailPage />} />
+        <Route path="/my/showcases" element={<ShowcaseManagePage />} />
+        <Route path="/my/showcases/:id/edit" element={<ShowcaseEditorPage />} />
+        <Route path="/my/seller-center/stores/:storeId/showcases" element={<ShowcaseManagePage type="SHOP" />} />
 
         {/* 은혜 — 카테고리 · 상품 */}
         <Route path="/category" element={<CategoryPage />} />
