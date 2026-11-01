@@ -1,0 +1,16 @@
+.pi-card-rail { position:relative; display:flex; gap:12px; overflow-x:auto; scroll-snap-type:x mandatory; overscroll-behavior-x:contain; padding:8px 2px 12px; margin:12px 0 0; scrollbar-width:thin; scrollbar-color:#ded4ec transparent; cursor:grab; user-select:none; }
+.pi-card-rail.is-dragging { cursor:grabbing; scroll-snap-type:none; scroll-behavior:auto; }
+.pi-card { flex:0 0 90%; min-width:0; padding:18px; border:1px solid #eae3f1; border-radius:14px; background:white; box-shadow:0 3px 7px #21182c12; scroll-snap-align:start; }
+.pi-card header { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.pi-card time { color:#a399ad; font-size:11px; white-space:nowrap; }
+.pi-status { display:inline-flex; padding:4px 8px; border-radius:6px; background:#f2eff5; color:#97859e; font-size:11px; font-weight:700; }
+.pi-status.is-answered { color:#7545bc; background:#f1e9fe; }
+.pi-card h3 { margin:14px 0 10px; font-size:15px; line-height:1.5; overflow-wrap:anywhere; }
+.pi-card>p,.pi-card blockquote p { margin:0; font-size:13px; line-height:1.7; overflow-wrap:anywhere; }
+.pi-card blockquote { margin:16px 0 0; padding:12px; border:0; border-radius:10px; background:#f8f5fc; color:#6d5a80; }
+.pi-card blockquote strong { display:block; margin-bottom:6px; font-size:12px; color:#7950aa; }
+.pi-card img { -webkit-user-drag:none; }
+.pi-carousel-controls { display:flex; align-items:center; justify-content:flex-end; gap:6px; margin-bottom:18px; }
+.pi-carousel-controls>span { margin-right:auto; color:#a297ad; font-size:11px; }
+.pi-carousel-controls button { width:28px; height:28px; padding:0; border:1px solid #ece6f2; border-radius:50%; background:white; color:#7b648d; font-size:21px; cursor:pointer; }
+.pi-card-rail:focus-visible { outline:2px solid #9a6bdf; outline-offset:3px; border-radius:14px; }

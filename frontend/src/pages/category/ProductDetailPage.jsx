@@ -27,7 +27,7 @@ function ProductDetailPageContent({
   api = productApi,
   inquiryApi,
 }) {
-  const [feedbackTab, setFeedbackTab] = useState('reviews');
+  const [feedbackTab, setFeedbackTab] = useState('description');
   const { storeProductId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -65,8 +65,8 @@ function ProductDetailPageContent({
   const related = useCategoryRequest(relatedLoad, user?.id);
   const reviews = useCategoryRequest(reviewsLoad, user?.id);
   useEffect(() => {
-    if (location.hash !== '#product-feedback' || request.loading) return;
-    setFeedbackTab('reviews');
+    if (!['#product-feedback', '#product-description'].includes(location.hash) || request.loading) return;
+    setFeedbackTab(location.hash === '#product-description' ? 'description' : 'reviews');
     requestAnimationFrame(() => document.getElementById('product-feedback')?.scrollIntoView());
   }, [location.hash, request.loading]);
   if (request.loading)
@@ -113,15 +113,9 @@ function ProductDetailPageContent({
       <div className="category-primary-seller">
         <SellerInfoCard store={product.store} storeId={product.storeId} storeName={product.storeName} />
       </div>
-      <div id="product-description">
-      <ProductDescription
-        description={product.description}
-        spec={product.spec}
-        images={product.images}
-      />
-      </div>
       <section id="product-feedback" className="category-section">
-        <nav className="category-result-tabs" aria-label="리뷰와 상품 문의">
+        <nav className="category-result-tabs" aria-label="상품 설명과 리뷰 및 상품 문의">
+          <button type="button" aria-pressed={feedbackTab === 'description'} onClick={() => setFeedbackTab('description')}>상품 설명</button>
           <button
             type="button"
             aria-pressed={feedbackTab === 'reviews'}
@@ -131,7 +125,13 @@ function ProductDetailPageContent({
           </button>
           <button type="button" aria-pressed={feedbackTab === 'inquiries'} onClick={() => setFeedbackTab('inquiries')}>Q&A</button>
         </nav>
-        {feedbackTab === 'reviews' ? <ProductReviewSection
+        {feedbackTab === 'description' ? <div id="product-description">
+          <ProductDescription description={product.description} spec={product.spec} images={product.images} />
+        </div> : feedbackTab === 'reviews' ? <ProductReviewSection
+          key={storeProductId}
+          storeProductId={storeProductId}
+          client={client}
+          api={api}
           reviews={reviews.data}
           loading={reviews.loading}
           error={reviews.error}
