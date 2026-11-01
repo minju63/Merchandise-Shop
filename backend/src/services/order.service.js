@@ -224,6 +224,14 @@ export async function listMyOrders(userId, input = {}) {
         : null,
     });
   }
+  const reviewedItemIds = new Set(
+    await repository.findReviewedItemIds(userId, result.flatMap((order) => order.items.map((item) => item.id))),
+  );
+  for (const order of result)
+    order.items = order.items.map((item) => ({
+      ...item,
+      review_completed: reviewedItemIds.has(item.id),
+    }));
   result.sort(
     (a, b) =>
       b.created_at.localeCompare(a.created_at) || b.id.localeCompare(a.id),
@@ -233,9 +241,16 @@ export async function listMyOrders(userId, input = {}) {
 export async function getMyOrderDetail(userId, orderId, query = {}) {
   object(query, []);
   const row = await owned(userId, orderId);
+  const items = await repository.listItems(row.id);
+  const reviewedItemIds = new Set(
+    await repository.findReviewedItemIds(userId, items.map((item) => item.id)),
+  );
   return {
     ...row,
-    items: await repository.listItems(row.id),
+    items: items.map((item) => ({
+      ...item,
+      review_completed: reviewedItemIds.has(item.id),
+    })),
     histories: await repository.listHistories(row.id),
     payments: await payments.listOwnedOrderPayments(userId, row.id),
     requests: parseOrderRequests(row.delivery_request),

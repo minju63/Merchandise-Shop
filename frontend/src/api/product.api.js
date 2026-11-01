@@ -15,6 +15,15 @@ export function getProductDetail(storeProductId, { signal } = {}, client) {
   return get(`/products/${encodeURIComponent(storeProductId)}`, undefined, signal, client);
 }
 
+export function getProductReviews(storeProductId, { signal, sort = 'latest', page = 1, size = 20 } = {}, client) {
+  return get(
+    `/products/${encodeURIComponent(storeProductId)}/reviews`,
+    { sort, page, size },
+    signal,
+    client
+  );
+}
+
 export function getRelatedProducts(storeProductId, { signal, size = 8 } = {}, client) {
   return get(`/products/${encodeURIComponent(storeProductId)}/related`, { size }, signal, client);
 }

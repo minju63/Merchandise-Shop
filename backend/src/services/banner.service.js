@@ -4,6 +4,8 @@ import { incrementBannerClick } from '../repositories/banner.repository.js';
 
 // TODO: getBanners
 export async function clickBanner(bannerId) {
+  // 홈에서 코드로 합성하는 응원 홍보 배너는 banners 테이블 행이 없으므로 집계하지 않는다.
+  if (bannerId === 'fan-promo') return;
   const found = await incrementBannerClick(bannerId).catch((error) => {
     if (error.code === '22P02') return false;
     throw error;

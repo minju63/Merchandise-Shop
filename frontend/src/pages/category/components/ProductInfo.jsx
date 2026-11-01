@@ -1,10 +1,24 @@
 import Icon from '../../../components/Icon.jsx';
 
+function upcomingTime(value) {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return new Intl.DateTimeFormat('ko-KR', {
+    month: 'long',
+    day: 'numeric',
+    weekday: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date);
+}
+
 export default function ProductInfo({ product }) {
   const status =
     product.displayStatus ||
     (product.status === 'ON_SALE' && product.stock <= 0 ? 'SOLD_OUT' : product.status);
   const labels = { ON_SALE: '판매 중', SOLD_OUT: '품절', UPCOMING: '입고 예정' };
+  const expectedAt = upcomingTime(product.upcomingAt);
   const categories = (product.categories || []).map((row) => row.category || row);
   const breadcrumb = [...new Set([
     categories.find((row) => row.type === 'CONTENT')?.name,
@@ -26,6 +40,9 @@ export default function ProductInfo({ product }) {
           {status === 'ON_SALE' ? `재고 ${product.stock}개` : labels[status] || '이용 불가'}
         </span>
       </div>
+      {expectedAt && (
+        <time className="category-upcoming-time" dateTime={product.upcomingAt}>{expectedAt}</time>
+      )}
       <div className="category-fulfillment">
         <span><Icon name="store" size={22} />{product.pickupAvailable ? '매장 픽업 가능' : '매장 픽업 불가'}</span>
         <span><Icon name="truck" size={22} />{product.deliveryAvailable ? '일반 배송 가능' : '배송 불가'}</span>

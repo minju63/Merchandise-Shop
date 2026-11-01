@@ -52,7 +52,9 @@ export default function PointsPage() {
             <div key={item.id} className="mt-row">
               <div className="mt-row__main">
                 <strong>
-                  {TYPE_LABEL[item.type] ?? item.memo}
+                  {item.memo?.startsWith('리뷰 작성 적립')
+                    ? '리뷰 작성 적립'
+                    : TYPE_LABEL[item.type] ?? item.memo}
                   {item.status === 'PENDING' ? <span className="mt-tag">적립 예정</span> : null}
                 </strong>
                 <span>{formatFullDate(item.createdAt)}</span>

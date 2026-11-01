@@ -16,6 +16,7 @@ async function requireAuthentication(req, res, next) {
   }
 }
 router.get("/me", requireAuthentication, controller.listMyReviewItems);
+router.post("/images", requireAuthentication, controller.uploadReviewImages);
 router.post("/", requireAuthentication, controller.createReview);
 router.patch("/store/:reviewId", requireAuthentication, controller.updateStoreReview);
 router.delete("/store/:reviewId", requireAuthentication, controller.deleteStoreReview);

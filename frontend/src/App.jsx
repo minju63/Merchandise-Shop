@@ -68,9 +68,13 @@ import * as productApi from './api/product.api.js';
 import client from './api/client.js';
 import { cartApi } from './api/cart.api.js';
 import { wishlistApi } from './api/wishlist.api.js';
+import { openAlertApi } from './api/openAlert.api.js';
+import { preorderApi } from './api/preorder.api.js';
 import useWishlist from './hooks/useWishlist.js';
 import { supabase } from './lib/supabase.js';
 import FulfillmentSheet from './pages/wish/components/FulfillmentSheet.jsx';
+import GoodsPassSheet from './pages/wish/components/GoodsPassSheet.jsx';
+import PreorderSheet from './pages/wish/components/PreorderSheet.jsx';
 import CartAddedToast from './components/CartAddedToast.jsx';
 import { searchApi } from './api/search.api.js';
 import { bannerApi, homeApi } from './api/home.api.js';
@@ -187,8 +191,10 @@ const LOW_STOCK_PATH = `/category/products?${new URLSearchParams({
 
 function HomeRoute() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   // 로그인한 경우에만 관심사를 적용한다. 비회원은 관심사가 비어 있는 처음 상태로 둘러본다.
-  const { status: sessionStatus } = useSession();
+  const { status: sessionStatus, session } = useSession();
+  const alertQueryKey = ['home-alerts', session?.user?.id];
   const goLogin = () => navigate('/login?returnTo=%2F');
   // 홈에서 바로 들어온 목록은 뒤로가기를 카테고리가 아니라 홈으로 되돌린다.
   const fromHome = { state: { fromHome: true } };
@@ -199,6 +205,42 @@ function HomeRoute() {
     staleTime: 10000,
     retry: false,
   });
+  const alertQuery = useQuery({
+    queryKey: alertQueryKey,
+    queryFn: async () => {
+      const [openResponse, restockResponse] = await Promise.all([
+        openAlertApi.list(),
+        wishlistApi.restockAlerts.list({ page: 1, size: 100 }),
+      ]);
+      return [
+        ...(openResponse.data?.items ?? []).map((item) => item.productId),
+        ...(restockResponse.data?.items ?? []).map((item) => item.storeProductId),
+      ];
+    },
+    enabled: sessionStatus === 'in',
+    retry: false,
+  });
+
+  const toggleProductAlert = async (product) => {
+    const alertId = product.id;
+    const isAlerted = (alertQuery.data ?? []).includes(alertId);
+    try {
+      if (product.openType === 'RESTOCK') {
+        await (isAlerted
+          ? wishlistApi.restockAlerts.remove(product.storeProductId)
+          : wishlistApi.restockAlerts.create(product.storeProductId));
+      } else {
+        await (isAlerted ? openAlertApi.remove(product.id) : openAlertApi.create(product.id));
+      }
+      queryClient.setQueryData(alertQueryKey, (current = []) =>
+        isAlerted ? current.filter((id) => id !== alertId) : [...current, alertId]
+      );
+      return { alerted: !isAlerted, type: product.openType };
+    } catch (error) {
+      window.alert(error.message || '알림 신청을 처리하지 못했어요. 다시 시도해 주세요.');
+      return null;
+    }
+  };
 
   if (homeQuery.isPending) return <p className="home-status">불러오는 중...</p>;
   if (homeQuery.isError) {
@@ -226,6 +268,8 @@ function HomeRoute() {
       onOpenTrending={(tab) => navigate(trendingPath(tab))}
       onOpenUpcoming={() => navigate(UPCOMING_PATH, fromHome)}
       onOpenLowStock={() => navigate(LOW_STOCK_PATH, fromHome)}
+      alertedProductIds={sessionStatus === 'in' ? (alertQuery.data ?? []) : []}
+      onToggleOpenAlert={toggleProductAlert}
       onBannerClick={(bannerId) => {
         bannerApi.click(bannerId).catch(() => {
           // 클릭 기록 실패가 화면 이동을 막지 않는다.
@@ -418,6 +462,7 @@ function ProductDetailRoute() {
   const { storeProductId } = useParams();
   const [user, setUser] = useState(null);
   const [sheet, setSheet] = useState(null);
+  const [preorderFlow, setPreorderFlow] = useState(null);
   const [cartToast, setCartToast] = useState(null);
   const closeCartToast = useCallback(() => setCartToast(null), []);
   const queryClient = useQueryClient();
@@ -427,6 +472,26 @@ function ProductDetailRoute() {
     queryFn: () => productApi.getProductDetail(storeProductId, {}, client),
     retry: false,
   });
+  const preorders = useQuery({
+    queryKey: ['preorders', 'list'],
+    queryFn: () => preorderApi.list({ page: 1, size: 100 }),
+    enabled: Boolean(user),
+    retry: false,
+  });
+  const restockAlerts = useQuery({
+    queryKey: ['restock-alerts', 'list'],
+    queryFn: () => wishlistApi.restockAlerts.list({ page: 1, size: 100 }),
+    enabled: Boolean(user),
+    retry: false,
+  });
+  const preorderedIds = new Set(
+    (preorders.data?.data.items ?? [])
+      .filter((preorder) => ['PENDING', 'RESERVED'].includes(preorder.status))
+      .map((preorder) => preorder.storeProductId)
+  );
+  const restockAlertedIds = new Set(
+    (restockAlerts.data?.data.items ?? []).map((alert) => alert.storeProductId)
+  );
   useEffect(() => {
     if (!supabase) return undefined;
     supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null));
@@ -458,6 +523,34 @@ function ProductDetailRoute() {
             await (wished ? wishlistApi.addProduct(id) : wishlistApi.removeProduct(id));
             queryClient.invalidateQueries({ queryKey: ['wishlist'] });
           },
+          restock: async (id, enabled) => {
+            await (enabled
+              ? wishlistApi.restockAlerts.create(id)
+              : wishlistApi.restockAlerts.remove(id));
+            queryClient.invalidateQueries({ queryKey: ['restock-alerts'] });
+          },
+          isRestockAlerted: (id) => restockAlertedIds.has(id),
+          isPreordered: (id) => preorderedIds.has(id),
+          preorder: (id) =>
+            new Promise((resolve, reject) => {
+              preorderApi.quote({ storeProductId: id, qty: 1 }).then((response) => {
+                if (response.data.alreadyPreordered) {
+                  reject(Object.assign(new Error('이미 예약한 상품이에요.'), { code: 'ALREADY_PREORDERED' }));
+                  return;
+                }
+                setPreorderFlow({
+                  resolve,
+                  reject,
+                  step: response.data.isSubscribed ? 'preorder' : 'pass',
+                  item: {
+                    storeProductId: id,
+                    productName: detail.data?.productName || detail.data?.name || '상품',
+                    storeName: detail.data?.storeName || '',
+                    thumbnailUrl: detail.data?.thumbnailUrl || null,
+                  },
+                });
+              }, reject);
+            }),
           // 담은 뒤에는 수령 방법을 바꿀 수 없어서, 자동으로 고르지 않고 시트로 먼저 묻는다.
           cart: (id, quantity) =>
             new Promise((resolve, reject) => {
@@ -501,6 +594,37 @@ function ProductDetailRoute() {
           text={cartToast.text}
           onClose={closeCartToast}
           onGoToCart={() => navigate(`/cart?type=${cartToast.type}`)}
+        />
+      )}
+      {preorderFlow?.step === 'pass' && (
+        <GoodsPassSheet
+          onClose={() => {
+            preorderFlow.reject(Object.assign(new Error('취소'), { cancelled: true }));
+            setPreorderFlow(null);
+          }}
+          onSubscribed={() => setPreorderFlow({ ...preorderFlow, step: 'preorder' })}
+        />
+      )}
+      {preorderFlow?.step === 'preorder' && (
+        <PreorderSheet
+          item={preorderFlow.item}
+          onClose={() => {
+            preorderFlow.reject(Object.assign(new Error('취소'), { cancelled: true }));
+            setPreorderFlow(null);
+          }}
+          onDone={(result) => {
+            preorderFlow.resolve(result);
+            setPreorderFlow(null);
+            queryClient.invalidateQueries({ queryKey: ['preorders'] });
+          }}
+          onFail={(error) => {
+            if (error.code === 'SUBSCRIPTION_REQUIRED') {
+              setPreorderFlow({ ...preorderFlow, step: 'pass' });
+              return;
+            }
+            preorderFlow.reject(error);
+            setPreorderFlow(null);
+          }}
         />
       )}
     </>

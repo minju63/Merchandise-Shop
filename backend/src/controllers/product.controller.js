@@ -1,4 +1,5 @@
 import * as productService from '../services/product.service.js';
+import * as reviewService from '../services/review.service.js';
 import { REGION_NAMES } from '../utils/regionNames.js';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -125,6 +126,27 @@ export async function getProductDetail(req, res, next) {
 
   try {
     const data = await productService.getProductDetail(storeProductId, { userId: req.user?.id });
+    return res.status(200).json({ success: true, data, message: null });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+export async function getProductReviews(req, res, next) {
+  const input = validate(res, () => ({
+    storeProductId: uuid(req.params.storeProductId, 'storeProductId'),
+    sort: req.query.sort ?? 'latest',
+    page: req.query.page === undefined ? 1 : integer(req.query.page, 'page', 1),
+    size: req.query.size === undefined ? 20 : integer(req.query.size, 'size', 1, 100),
+  }));
+  if (!input) return;
+  try {
+    const data = await reviewService.listProductReviews(input.storeProductId, {
+      sort: input.sort,
+      page: input.page,
+      size: input.size,
+      userId: req.user?.id,
+    });
     return res.status(200).json({ success: true, data, message: null });
   } catch (error) {
     return next(error);

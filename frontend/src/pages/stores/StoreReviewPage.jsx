@@ -66,7 +66,7 @@ export default function StoreReviewPage() {
           onClick={() => {
             const historyIndex = window.history.state?.idx ?? 0;
             if (
-              location.state?.fromStoreDetail &&
+              (location.state?.fromStoreDetail || location.state?.fromProductDetail) &&
               historyIndex > (location.state?.returnedFromWrite ? 1 : 0)
             ) {
               navigate(location.state?.returnedFromWrite ? -2 : -1);
@@ -110,6 +110,7 @@ export default function StoreReviewPage() {
                   to={`/stores/${storeId}/reviews/write`}
                   state={{
                     fromStoreDetail: Boolean(location.state?.fromStoreDetail),
+                    fromProductDetail: Boolean(location.state?.fromProductDetail),
                     returnToReview: true,
                     review: eligible.data.data.review,
                   }}
@@ -174,6 +175,7 @@ export default function StoreReviewPage() {
                           review,
                           isMine: true,
                           fromStoreDetail: Boolean(location.state?.fromStoreDetail),
+                          fromProductDetail: Boolean(location.state?.fromProductDetail),
                         },
                       })
                     }

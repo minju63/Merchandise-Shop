@@ -435,6 +435,17 @@ export async function grantReviewReward(userId, { orderId, orderItemId }) {
   } catch (error) {
     if (error.databaseCode === '23505')
       return { granted: false, amount: 0, reason: 'ALREADY_REWARDED' };
-    throw error;
+    if (!['42703', '23514', 'PGRST204'].includes(error.databaseCode)) throw error;
+    const existing = await userRepository.findReviewRewardFallback(userId, orderId, orderItemId);
+    if (existing) return { granted: false, amount: 0, reason: 'ALREADY_REWARDED' };
+    await userRepository.insertPointTransaction({
+      user_id: userId,
+      order_id: orderId,
+      type: 'EARN',
+      status: 'CONFIRMED',
+      amount: POINT_POLICY.reviewReward,
+      memo: `리뷰 작성 적립:${orderItemId}`,
+    });
+    return { granted: true, amount: POINT_POLICY.reviewReward };
   }
 }

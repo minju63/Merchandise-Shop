@@ -126,6 +126,7 @@ export default function HomePage({
   const [activeProductTab, setActiveProductTab] = useState('popular');
   const [autoSlideVersion, setAutoSlideVersion] = useState(0);
   const [currentTimestamp, setCurrentTimestamp] = useState(() => new Date().getTime());
+  const [alertNotice, setAlertNotice] = useState('');
   const lastImpressionId = useRef(null);
   const bannerDragState = useRef({ active: false, moved: false, startX: 0 });
   // 게시 중인 디자인이 없는 전광판은 캐러셀에서 빠지고, 카운터·점은 남은 배너 수로 센다.
@@ -259,13 +260,27 @@ export default function HomePage({
     bannerDragState.current.moved = false;
   };
 
-  const handleOpenAlert = (product) => {
+  useEffect(() => {
+    if (!alertNotice) return undefined;
+    const timer = setTimeout(() => setAlertNotice(''), 2600);
+    return () => clearTimeout(timer);
+  }, [alertNotice]);
+
+  const handleOpenAlert = async (product) => {
     if (!isAuthenticated) {
       onRequestLogin?.();
       return;
     }
 
-    onToggleOpenAlert?.(product);
+    const result = await onToggleOpenAlert?.(product);
+    if (!result) return;
+    setAlertNotice(
+      result.alerted
+        ? result.type === 'RESTOCK'
+          ? '재입고 알림을 신청했어요. 마이 > 알림 신청에서 확인할 수 있어요.'
+          : '입고 알림을 신청했어요. 마이 > 알림 신청에서 확인할 수 있어요.'
+        : '알림 신청을 취소했어요.'
+    );
   };
 
   const alertActionAvailable = isAuthenticated
@@ -474,6 +489,11 @@ export default function HomePage({
       </main>
 
       <BottomNavigation />
+      {alertNotice && (
+        <div className="home-alert-toast" role="status" aria-live="polite">
+          {alertNotice}
+        </div>
+      )}
     </div>
   );
 }

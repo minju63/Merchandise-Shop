@@ -369,6 +369,19 @@ export async function insertPointTransaction(row) {
   return data;
 }
 
+export async function findReviewRewardFallback(userId, orderId, orderItemId) {
+  const db = await getDatabase();
+  const { data, error } = await db
+    .from('point_transactions')
+    .select(POINT_COLUMNS)
+    .eq('user_id', userId)
+    .eq('order_id', orderId)
+    .eq('memo', `리뷰 작성 적립:${orderItemId}`)
+    .maybeSingle();
+  checkDatabaseError(error);
+  return data;
+}
+
 export async function listOrderPointTransactions(userId, orderId) {
   const db = await getDatabase();
   const { data, error } = await db

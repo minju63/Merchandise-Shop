@@ -3,6 +3,7 @@ import { Router } from 'express';
 import {
   getProducts,
   getProductDetail,
+  getProductReviews,
   getRelatedProducts,
   getSimilarStores,
 } from '../controllers/product.controller.js';
@@ -29,6 +30,7 @@ export function createProductRouter({ requireAuth = authUnavailable, optionalAut
   router.get('/', getProducts);
   router.get('/:storeProductId/related', getRelatedProducts);
   router.get('/:storeProductId/similar-stores', getSimilarStores);
+  router.get('/:storeProductId/reviews', getProductReviews);
   router.get('/:storeProductId/inquiries', getProductInquiries);
   router.post('/:storeProductId/inquiries', requireAuth, createProductInquiry);
   router.get('/:storeProductId', getProductDetail);

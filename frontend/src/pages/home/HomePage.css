@@ -1029,3 +1029,21 @@
   fill: #e5484d;
   stroke: #e5484d;
 }
+
+.home-alert-toast {
+  position: fixed;
+  z-index: 80;
+  left: 50%;
+  bottom: 82px;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100% - 28px);
+  padding: 12px 18px;
+  border: 1px solid #ffd9e1;
+  border-radius: 999px;
+  background: #fff5f7;
+  color: #a72e48;
+  box-shadow: 0 6px 24px #9f28451a;
+  font-size: 13px;
+  font-weight: 700;
+}

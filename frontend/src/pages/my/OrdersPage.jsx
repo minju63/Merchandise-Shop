@@ -37,6 +37,8 @@ function OrderCard({ order, onCancel, onNavigate, onReorder }) {
   const NoteIcon = NOTE_ICONS[note.icon];
   const detailPath = MY_ROUTES.orderDetail(order.id);
   const thumb = order.items?.[0]?.product_image_url;
+  const reviewCompleted =
+    order.items?.length > 0 && order.items.every((item) => item.review_completed);
 
   let actions;
   if (order.status === 'READY_FOR_PICKUP') {
@@ -68,9 +70,12 @@ function OrderCard({ order, onCancel, onNavigate, onReorder }) {
         <button
           type="button"
           className="ord-btn"
-          onClick={() => onNavigate(MY_ROUTES.reviewWrite(order.id))}
+          disabled={reviewCompleted}
+          onClick={() => {
+            if (!reviewCompleted) onNavigate(MY_ROUTES.reviewWrite(order.id));
+          }}
         >
-          리뷰 쓰기
+          {reviewCompleted ? '작성 완료' : '리뷰 쓰기'}
         </button>
       </div>
     );

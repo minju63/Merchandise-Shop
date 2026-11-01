@@ -14,6 +14,15 @@ export async function listMyReviewItems(req, res, next) {
     next(error);
   }
 }
+export async function uploadReviewImages(req, res, next) {
+  try {
+    res
+      .status(201)
+      .json(ok(await service.uploadReviewImages(res.locals.authUser.id, req.body)));
+  } catch (error) {
+    next(error);
+  }
+}
 export async function createReview(req, res, next) {
   try {
     res

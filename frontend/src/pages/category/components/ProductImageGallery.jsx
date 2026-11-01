@@ -16,6 +16,7 @@ export default function ProductImageGallery({
   thumbnailUrl,
   productName,
   soldOut = false,
+  comingSoon = false,
 }) {
   const urls = [
     ...new Set(
@@ -62,7 +63,11 @@ export default function ProductImageGallery({
         <div className="category-swipe-image" style={{ transform: `translateX(${dragOffset * 0.35}px)` }}>
           <GalleryImage key={current || 'empty'} src={current} alt={productName} />
         </div>
-        {soldOut && <div className="category-soldout-overlay">SOLD OUT</div>}
+        {(soldOut || comingSoon) && (
+          <div className={`category-soldout-overlay${comingSoon ? ' category-coming-soon-overlay' : ''}`}>
+            <span>{comingSoon ? 'COMING SOON' : 'SOLD OUT'}</span>
+          </div>
+        )}
         {urls.length > 0 && (
           <span className="category-gallery-count">
             {Math.max(1, urls.indexOf(current) + 1)}/{urls.length}
