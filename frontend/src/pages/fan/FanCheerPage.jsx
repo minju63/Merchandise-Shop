@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { DetailSection, DetailShell } from '../home/BannerDetailParts.jsx';
 import { ANNIVERSARY_KINDS } from './fanBoardPresets.js';
-import { splitTickets } from './fanGuideData.js';
+import { cheerPoints, splitTickets } from './fanGuideData.js';
 import './FanCheer.css';
 
 const SLOTS = [
@@ -97,7 +97,7 @@ export default function FanCheerPage({
       onBack={onBack}
       footer={(
         <button className="bd__btn" type="button" disabled={!ready || sending} onClick={submit}>
-          {sending ? '응원을 보내는 중...' : `응원 ${safeCount}회 보내기${cost.cash ? ` (${(cost.cash * price).toLocaleString('ko-KR')}원 상당)` : ''}`}
+          {sending ? '응원을 보내는 중...' : `응원포인트 ${cheerPoints(safeCount).toLocaleString('ko-KR')}점 보내기${cost.cash ? ` (${(cost.cash * price).toLocaleString('ko-KR')}원 상당)` : ''}`}
         </button>
       )}
     >
@@ -187,19 +187,19 @@ export default function FanCheerPage({
         </label>
       </DetailSection>
 
-      <DetailSection title="응원 횟수" description={`오늘 남은 응원 ${remaining}/${me?.dailyLimit ?? 100}회`}>
+      <DetailSection title="응원포인트" description={`오늘 남은 응원포인트 ${cheerPoints(remaining).toLocaleString('ko-KR')}/${cheerPoints(me?.dailyLimit ?? 100).toLocaleString('ko-KR')}점`}>
         <div className="fan-stepper">
           <button type="button" aria-label="횟수 줄이기" disabled={safeCount <= 1} onClick={() => setCount(safeCount - 1)}>−</button>
-          <strong>{remaining === 0 ? 0 : safeCount}회</strong>
+          <strong>{cheerPoints(remaining === 0 ? 0 : safeCount).toLocaleString('ko-KR')}점</strong>
           <button type="button" aria-label="횟수 늘리기" disabled={safeCount >= remaining} onClick={() => setCount(safeCount + 1)}>＋</button>
         </div>
         <div className="fan-chips fan-chips--center">
           {QUICK_COUNTS.map((value) => (
-            <button key={value} type="button" disabled={value > remaining} onClick={() => setCount(value)}>{value}회</button>
+            <button key={value} type="button" disabled={value > remaining} onClick={() => setCount(value)}>{cheerPoints(value).toLocaleString('ko-KR')}점</button>
           ))}
         </div>
         <p className="fan-cost">
-          무료 {cost.free}장 · 적립금 구매 {cost.credit}장 · 현금 구매 {cost.cash}장 사용
+          응원포인트 {cheerPoints(safeCount).toLocaleString('ko-KR')}점 · 무료 {cost.free}장 · 적립금 구매 {cost.credit}장 · 현금 구매 {cost.cash}장 사용
           <br />
           <span>보유 무료 {me?.freeTickets ?? 0}장 · 적립금 구매 {me?.creditTickets ?? 0}장 · 현금 구매 {me?.cashTickets ?? 0}장</span>
         </p>

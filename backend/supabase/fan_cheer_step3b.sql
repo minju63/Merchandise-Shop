@@ -14,8 +14,10 @@
 -- ── 설정값
 insert into fan_settings (key, int_value, description) values
   ('ticket_valid_days', 365, '유료 응원권 유효기간(일)'),
-  ('cash_refund_days', 7, '현금 구매 응원권 미사용분 환불 가능 기간(일)')
-on conflict (key) do nothing;
+  ('cash_refund_days', 30, '구매 응원권 환불 가능 기간(일)')
+on conflict (key) do update
+  set int_value = excluded.int_value,
+      description = excluded.description;
 
 -- ── 이전 함수 · 원장 정리
 drop function if exists cheer_charge(uuid, uuid);
@@ -182,13 +184,15 @@ declare
 begin
   select * into v_pack from cheer_ticket_packs where id = p_pack and user_id = p_user for update;
   if not found or v_pack.status <> 'ACTIVE' or v_pack.remaining = 0 then raise exception 'FAN_PACK_NOT_REFUNDABLE'; end if;
+  if v_pack.created_at < now() - make_interval(days => fan_setting('cash_refund_days')) then
+    raise exception 'FAN_PACK_NOT_REFUNDABLE';
+  end if;
 
   v_amount := v_pack.remaining * v_pack.unit_price;
 
   if v_pack.source = 'CASH' then
     -- 현금 구매분은 사용하지 않은 장수가 전부 남아 있고 환불 가능 기간 안일 때만 결제 취소가 가능하다
-    if v_pack.remaining <> v_pack.quantity
-       or v_pack.created_at < now() - make_interval(days => fan_setting('cash_refund_days')) then
+    if v_pack.remaining <> v_pack.quantity then
       raise exception 'FAN_PACK_NOT_REFUNDABLE';
     end if;
     update cheer_ticket_packs set remaining = 0, status = 'REFUNDED' where id = p_pack;

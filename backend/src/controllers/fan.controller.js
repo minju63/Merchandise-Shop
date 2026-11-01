@@ -30,7 +30,7 @@ export const buyWithCash = handle((req, res) => service.buyWithCash(userId(res),
 // POST /api/v1/fan/tickets/credit — 적립금으로 응원권 구매 🔒
 export const buyWithCredit = handle((req, res) => service.buyWithCredit(userId(res), req.body), 201);
 // POST /api/v1/fan/tickets/:packId/refund — 미사용 응원권 환불 🔒
-export const refundPack = handle((req, res) => service.refundPack(userId(res), req.params.packId));
+export const refundPack = handle((req, res) => service.refundPack(userId(res), req.params.packId, req.body));
 // POST /api/v1/fan/cheers 🔒
 export const sendCheers = handle((req, res) => service.sendCheers(userId(res), req.body), 201);
 

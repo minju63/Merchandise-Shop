@@ -4,13 +4,14 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { fanApi } from '../../api/fan.api.js';
 import { supabase } from '../../lib/supabase.js';
 import { useSession } from '../my/hooks.js';
-import { listPaymentMethods } from '../my/account.api.js';
+import { createPaymentMethod, listPaymentMethods } from '../my/account.api.js';
 import FanCheerPage from './FanCheerPage.jsx';
 import FanTicketsPage from './FanTicketsPage.jsx';
 import FanResultPage from './FanResultPage.jsx';
 import FanDesignPage from './FanDesignPage.jsx';
 import FanRankingPage from './FanRankingPage.jsx';
 import FanDayPage from './FanDayPage.jsx';
+import { cheerPoints } from './fanGuideData.js';
 
 const RANKING_REFRESH_MS = 5000;
 
@@ -33,6 +34,7 @@ export function FanTicketsRoute() {
   const [method, setMethod] = useState('CASH');
   const [selected, setSelected] = useState(null);
   const [notice, setNotice] = useState('');
+  const [paymentOption, setPaymentOption] = useState(null);
   const [methodId, setMethodId] = useState(null);
   const [agreed, setAgreed] = useState(false);
   const me = useQuery({ queryKey: ['fan-me'], queryFn: fanApi.me, enabled: loggedIn, retry: false });
@@ -45,25 +47,35 @@ export function FanTicketsRoute() {
     retry: false,
   });
   const methodItems = methods.data?.items ?? [];
-  const activeMethodId = methodId ?? methodItems.find((item) => item.is_default)?.id ?? methodItems[0]?.id ?? null;
+  const bankAccounts = methodItems.filter((item) => item.method_type === 'BANK_ACCOUNT');
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: ['fan-me'] });
     queryClient.invalidateQueries({ queryKey: ['fan-tickets'] });
   };
   const buy = useMutation({
-    mutationFn: ({ kind, value }) => (kind === 'CASH' ? fanApi.buyWithCash(value, activeMethodId) : fanApi.buyWithCredit(value)),
+    mutationFn: ({ kind, value }) => (kind === 'CASH'
+      ? fanApi.buyWithCash(value, paymentOption, methodId)
+      : fanApi.buyWithCredit(value)),
     onSuccess: (response) => {
       refresh();
-      setNotice(`응원권 ${response.data.bought}장을 구매했어요.`);
+      setNotice(`응원권 ${response.data.bought}장 · 응원포인트 ${cheerPoints(response.data.bought).toLocaleString('ko-KR')}점을 구매했어요.`);
       setSelected(null);
       setAgreed(false);
     },
   });
   const refund = useMutation({
-    mutationFn: fanApi.refundPack,
+    mutationFn: async ({ packId, account }) => {
+      const created = await createPaymentMethod({
+        methodType: 'BANK_ACCOUNT',
+        providerName: account.bank.trim(),
+        last4: account.last4,
+        alias: account.holder.trim(),
+      });
+      return fanApi.refundPack(packId, created.paymentMethod.id);
+    },
     onSuccess: (response) => {
       refresh();
-      setNotice(`${response.data.amount.toLocaleString('ko-KR')}원을 ${response.data.source === 'CASH' ? '결제 취소로' : '적립금으로'} 돌려드렸어요.`);
+      setNotice(`환불 신청이 완료됐어요. ${response.data.amount.toLocaleString('ko-KR')}원 환불까지 영업일 기준 2~3일이 걸릴 수 있어요.`);
     },
   });
   const mutationError = buy.error?.message ?? refund.error?.message;
@@ -77,17 +89,27 @@ export function FanTicketsRoute() {
       working={buy.isPending || refund.isPending}
       error={mutationError ?? me.error?.message}
       notice={notice}
-      paymentMethods={methods.data ? methodItems : undefined}
-      paymentMethodId={activeMethodId}
+      paymentMethods={methods.data ? bankAccounts : undefined}
+      paymentOption={paymentOption}
+      paymentMethodId={methodId}
       agreed={agreed}
-      onSelectPaymentMethod={setMethodId}
+      onSelectPaymentOption={(option, id = null) => { setPaymentOption(option); setMethodId(id); setAgreed(false); }}
       onAgree={setAgreed}
       onAddPaymentMethod={() => navigate('/my/payment-methods')}
       onBack={goBack(navigate, '/fan/guide')}
-      onChangeMethod={(next) => { setMethod(next); setSelected(null); setNotice(''); buy.reset(); refund.reset(); }}
+      onChangeMethod={(next) => {
+        setMethod(next);
+        setSelected(null);
+        setPaymentOption(null);
+        setMethodId(null);
+        setAgreed(false);
+        setNotice('');
+        buy.reset();
+        refund.reset();
+      }}
       onSelect={(value) => { setSelected(value); setNotice(''); buy.reset(); }}
       onBuy={() => buy.mutate({ kind: method, value: selected })}
-      onRefund={(packId) => { setNotice(''); refund.mutate(packId); }}
+      onRefund={(packId, account) => { setNotice(''); return refund.mutateAsync({ packId, account }); }}
       onCheer={() => navigate('/fan/cheer')}
     />
   );

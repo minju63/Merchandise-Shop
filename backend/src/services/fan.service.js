@@ -8,6 +8,35 @@ import { findHomeBanners } from '../repositories/home.repository.js';
 const failure = (status, code, message) => Object.assign(new Error(message), { status, code });
 
 const CHARGE_AMOUNTS = [5000, 10000, 30000, 50000];
+export const FAN_PAYMENT_OPTIONS = Object.freeze({
+  GOODSPICK_PAY: '굿즈픽페이',
+  TOSS_PAY: '토스페이',
+  NAVER_PAY: '네이버페이',
+  KAKAO_PAY: '카카오페이',
+  CARD: '카드 결제',
+  VIRTUAL_ACCOUNT: '가상계좌',
+  MOBILE: '휴대폰 결제',
+});
+export const FAN_REFUND_DAYS = 30;
+
+export function fanPaymentOptionLabel(option) {
+  const label = FAN_PAYMENT_OPTIONS[option];
+  if (!label && option !== 'REGISTERED_ACCOUNT') {
+    throw failure(400, 'FAN_INVALID_PAYMENT_OPTION', '결제수단을 선택해 주세요.');
+  }
+  return label ?? null;
+}
+
+export function isPackRefundable(pack, now = Date.now()) {
+  const purchasedAt = new Date(pack.created_at).getTime();
+  const withinRefundPeriod = Number.isFinite(purchasedAt)
+    && now >= purchasedAt
+    && now - purchasedAt <= FAN_REFUND_DAYS * 86400000;
+  return pack.status === 'ACTIVE'
+    && pack.remaining > 0
+    && withinRefundPeriod
+    && (pack.source === 'CREDIT' || pack.remaining === pack.quantity);
+}
 
 // 생일 모아보기 목업 기본 축하 수. DB 시드가 아직 적용되지 않은 개발 환경에서도
 // 화면을 확인할 수 있게 하고, DB가 이미 기본값을 반환하면 중복 합산하지 않는다.
@@ -39,10 +68,10 @@ const DB_ERRORS = {
   FAN_INVALID_MESSAGE: [400, '응원 한마디는 1~30자로 입력해 주세요.'],
   FAN_INVALID_NICKNAME: [400, '표시 닉네임은 1~20자로 입력해 주세요.'],
   FAN_BANNED_WORD: [400, '사용할 수 없는 표현이 들어 있어요.'],
-  FAN_INVALID_COUNT: [400, '응원 횟수를 확인해 주세요.'],
+  FAN_INVALID_COUNT: [400, '보낼 응원포인트를 확인해 주세요.'],
   FAN_CHARACTER_NOT_FOUND: [404, '최애를 찾을 수 없어요.'],
   FAN_ANNIVERSARY_NOT_NEXT_WEEK: [400, '다음 주에 기념일이 있는 최애만 기념일 응원을 보낼 수 있어요.'],
-  FAN_DAILY_LIMIT: [409, '하루에 최대 100회까지 응원할 수 있어요. 남은 횟수를 확인해 주세요.'],
+  FAN_DAILY_LIMIT: [409, '하루에 최대 응원포인트 100,000점까지 보낼 수 있어요. 남은 포인트를 확인해 주세요.'],
   FAN_NOT_ENOUGH_TICKETS: [409, '응원권이 부족해요. 응원권을 구매해 주세요.'],
   FAN_NOT_ENOUGH_CREDIT: [409, '적립금이 부족해요.'],
   FAN_PACK_NOT_REFUNDABLE: [409, '환불할 수 없는 응원권이에요. 사용했거나 환불 가능 기간이 지났어요.'],
@@ -89,7 +118,7 @@ export const getResults = (userId) => repository.resultFor(userId).catch(transla
 // 내 응원권 묶음과 적립금 내역
 export async function getTickets(userId) {
   const [packs, credit] = await Promise.all([repository.findTicketPacks(userId), repository.findCreditLedger(userId)]);
-  const refundDays = 7;
+  const now = Date.now();
   return {
     packs: packs.map((pack) => ({
       id: pack.id,
@@ -100,9 +129,7 @@ export async function getTickets(userId) {
       status: pack.status,
       expiresAt: pack.expires_at,
       createdAt: pack.created_at,
-      refundable: pack.status === 'ACTIVE' && pack.remaining > 0
-        && (pack.source === 'CREDIT'
-          || (pack.remaining === pack.quantity && Date.now() - new Date(pack.created_at).getTime() < refundDays * 86400000)),
+      refundable: isPackRefundable(pack, now),
     })),
     credit: credit.map((row) => ({
       id: row.id,
@@ -123,14 +150,28 @@ export async function buyWithCash(userId, body = {}) {
   if (body.paymentAgreed !== true) {
     throw failure(400, 'FAN_PAYMENT_NOT_AGREED', '결제에 동의해 주세요.');
   }
-  // 멤버십 구독과 같이 내가 등록한 결제수단만 쓸 수 있다
-  const method = await resolvePaymentMethodSelection(userId, body.paymentMethodId);
-  const approval = await getPaymentProvider().charge({ userId, amount });
+  const optionLabel = fanPaymentOptionLabel(body.paymentOption);
+  let method = null;
+  let methodLabel = optionLabel;
+  // 굿즈픽페이는 요청한 기본 계좌가 실제로 내 활성 은행 계좌인지 확인한다.
+  if (['GOODSPICK_PAY', 'REGISTERED_ACCOUNT'].includes(body.paymentOption)) {
+    method = await resolvePaymentMethodSelection(userId, body.paymentMethodId);
+    if (method.method_type !== 'BANK_ACCOUNT') {
+      throw failure(400, 'FAN_INVALID_PAYMENT_OPTION', '등록된 은행 계좌를 선택해 주세요.');
+    }
+    if (body.paymentOption === 'GOODSPICK_PAY' && method.is_default !== true) {
+      throw failure(400, 'FAN_INVALID_PAYMENT_OPTION', '굿즈픽페이 기본 계좌를 확인해 주세요.');
+    }
+    methodLabel = body.paymentOption === 'GOODSPICK_PAY'
+      ? `굿즈픽페이 · ${paymentMethodLabel(method)}`
+      : `등록 계좌 · ${paymentMethodLabel(method)}`;
+  }
+  const approval = await getPaymentProvider().charge({ userId, amount, methodLabel });
   const paymentId = await repository.insertChargePayment(userId, {
     amount,
     ...approval,
-    methodLabel: paymentMethodLabel(method),
-    paymentMethodId: method.id,
+    methodLabel,
+    paymentMethodId: method?.id ?? null,
   });
   return repository.buyWithCash(userId, paymentId).catch(translate);
 }
@@ -141,7 +182,14 @@ export async function buyWithCredit(userId, body = {}) {
 }
 
 // 미사용 응원권 환불: 적립금 구매분은 적립금으로 복원, 현금 구매분은 결제 취소(모의)
-export async function refundPack(userId, packId) {
+export async function refundPack(userId, packId, body = {}) {
+  if (!body.refundPaymentMethodId) {
+    throw failure(400, 'FAN_REFUND_ACCOUNT_REQUIRED', '환불받을 은행 계좌를 입력해 주세요.');
+  }
+  const refundMethod = await resolvePaymentMethodSelection(userId, body.refundPaymentMethodId);
+  if (refundMethod.method_type !== 'BANK_ACCOUNT') {
+    throw failure(400, 'FAN_REFUND_ACCOUNT_REQUIRED', '환불받을 은행 계좌를 입력해 주세요.');
+  }
   let result;
   try {
     result = await repository.refundPack(userId, packId);
@@ -154,7 +202,7 @@ export async function refundPack(userId, packId) {
     await getPaymentProvider().cancel({ transactionId: payment.pg_transaction_id });
     await repository.markPaymentCanceled(result.paymentId);
   }
-  return { source: result.source, amount: result.amount };
+  return { source: result.source, amount: result.amount, processingDays: '2~3일' };
 }
 
 // 기념일 날짜 탭: 다음 주 게시 기간에 기념일이 있는 날짜와 그날의 최애들
