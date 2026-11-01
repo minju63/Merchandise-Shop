@@ -8,12 +8,14 @@ import {
   FONTS,
   GRADIENT_PRESETS,
   MESSAGE_MAX_LENGTH,
+  PHOTO_BOX,
   TEXT_COLORS,
   defaultDesign,
 } from './fanBoardPresets.js';
 import { defaultPosFor, fillYears, initialMessage, mergeDesign, messageTabs, toPayload } from './fanDesignUtils.js';
 import './FanCheer.css';
 import './FanDesign.css';
+import { useDialog } from '../../components/useDialog.jsx';
 
 const AUTOSAVE_MS = 1000;
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
@@ -55,6 +57,7 @@ export default function FanDesignPage({ data, ...props }) {
 }
 
 function FanDesignEditor({ data, saveState, error, onBack, onSave, onSubmit, onUpload }) {
+  const { confirm, dialog } = useDialog();
   const type = data.slotType;
   const kind = data.anniversaryKind;
   const years = data.years;
@@ -67,6 +70,7 @@ function FanDesignEditor({ data, saveState, error, onBack, onSave, onSubmit, onU
   const [tab, setTab] = useState(() => (messageTabs(type, kind).find((item) => item.active) ?? messageTabs(type, kind)[0]).key);
   const latest = useRef({ design, paths });
   const fileInputs = useRef({});
+  const [selected, setSelected] = useState(null);
 
   useEffect(() => { latest.current = { design, paths }; }, [design, paths]);
 
@@ -91,6 +95,14 @@ function FanDesignEditor({ data, saveState, error, onBack, onSave, onSubmit, onU
     disabled: locked,
     onMove: (key, offset) => setDesign((current) => ({ ...current, lineOffsets: { ...current.lineOffsets, [key]: offset } })),
     onCommit: (key, offset) => update({ lineOffsets: { ...design.lineOffsets, [key]: offset } }),
+    scales: design.lineScales,
+    onScale: (key, scale) => setDesign((current) => ({ ...current, lineScales: { ...current.lineScales, [key]: scale } })),
+    onScaleCommit: (key, scale) => update({ lineScales: { ...design.lineScales, [key]: scale } }),
+    // 사진 틀을 손으로 바꾸면 정해진 배치(왼쪽·오른쪽·꽉 채움) 대신 '자유' 배치가 된다
+    photoBox: design.photoUrl && design.photoLayout !== 'none' ? design.photoBox : null,
+    onPhotoMove: (next) => setDesign((current) => ({ ...current, photoBox: next, photoLayout: 'free' })),
+    onPhotoCommit: (next) => update({ photoBox: next, photoLayout: 'free' }),
+    onSelect: setSelected,
   });
 
   const tabs = useMemo(() => messageTabs(type, kind), [type, kind]);
@@ -115,6 +127,7 @@ function FanDesignEditor({ data, saveState, error, onBack, onSave, onSubmit, onU
         update({
           photoUrl: url,
           photoLayout: layout,
+          photoBox: PHOTO_BOX[layout] ?? null,
           pos: layout === design.photoLayout ? design.pos : defaultPosFor(layout),
           lineOffsets: layout === design.photoLayout ? design.lineOffsets : {},
         }, { photo: path });
@@ -136,13 +149,15 @@ function FanDesignEditor({ data, saveState, error, onBack, onSave, onSubmit, onU
       message: initialMessage(type, kind, years),
       pos: defaultPosFor('none'),
       lineOffsets: {},
+      photoBox: null,
+      lineScales: {},
     }));
     setPaths({ background: null, photo: null });
     setVersion((value) => value + 1);
   };
 
-  const submit = () => {
-    if (window.confirm('검수를 요청할까요? 요청한 뒤에는 수정할 수 없어요.')) {
+  const submit = async () => {
+    if (await confirm('검수를 요청할까요? 요청한 뒤에는 수정할 수 없어요.', { confirmLabel: '요청' })) {
       onSubmit(toPayload(design), { backgroundPath: paths.background, photoPath: paths.photo });
     }
   };
@@ -176,9 +191,9 @@ function FanDesignEditor({ data, saveState, error, onBack, onSave, onSubmit, onU
       ) : null}
 
       <div className="fan-design__preview">
-        <FanBoard design={design} className={locked ? '' : 'fan-board--edit'} {...drag} />
+        <FanBoard design={design} editable={!locked} selected={selected} className={locked ? '' : 'fan-board--edit'} {...drag} />
         <p className="fan-design__hint">
-          {locked ? '지금은 수정할 수 없어요' : '글자 줄을 하나씩 끌어서 위치를 옮길 수 있어요'}
+          {locked ? '지금은 수정할 수 없어요' : '글자나 사진을 눌러 끌면 위치가, 네모 점을 끌면 크기가 바뀌어요'}
           {saveLabel ? <span> · {saveLabel}</span> : null}
         </p>
       </div>
@@ -245,10 +260,20 @@ function FanDesignEditor({ data, saveState, error, onBack, onSave, onSubmit, onU
                 aria-checked={design.photoLayout === value}
                 className={design.photoLayout === value ? 'is-on' : ''}
                 disabled={value !== 'none' && !design.photoUrl}
-                onClick={() => update({ photoLayout: value, pos: defaultPosFor(value), lineOffsets: {} })}
+                onClick={() => update({ photoLayout: value, photoBox: PHOTO_BOX[value] ?? null, pos: defaultPosFor(value), lineOffsets: {}, lineScales: {} })}
               >{label}</button>
             ))}
           </div>
+          {design.photoUrl && design.photoLayout !== 'none' ? (
+            <div className="fan-design__row">
+              <button
+                type="button"
+                className="fan-design__btn"
+                onClick={() => update({ photoLayout: 'left', photoBox: { ...PHOTO_BOX.left }, pos: defaultPosFor('left'), lineOffsets: {}, lineScales: {} })}
+              >사진 틀 처음으로</button>
+            </div>
+          ) : null}
+          <p className="bd__caption">미리보기에서 사진을 누르면 네모 점이 생겨요. 끌면 위치가, 점을 끌면 가로·세로 크기가 바뀌어요.</p>
         </DetailSection>
 
         <DetailSection title="폰트">
@@ -280,7 +305,7 @@ function FanDesignEditor({ data, saveState, error, onBack, onSave, onSubmit, onU
               >{label}</button>
             ))}
           </div>
-          <button type="button" className="fan-design__btn" onClick={() => update({ pos: defaultPosFor(design.photoLayout), lineOffsets: {} })}>위치 처음으로</button>
+          <button type="button" className="fan-design__btn" onClick={() => update({ pos: defaultPosFor(design.photoLayout), lineOffsets: {}, lineScales: {} })}>글자 위치·크기 처음으로</button>
           <p className="bd__caption">날짜 줄, 캐릭터 이름, from. 닉네임은 자동으로 붙어서 글자는 바꿀 수 없지만 위치는 옮길 수 있어요.</p>
         </DetailSection>
 
@@ -334,6 +359,7 @@ function FanDesignEditor({ data, saveState, error, onBack, onSave, onSubmit, onU
           ) : null}
         </DetailSection>
       </fieldset>
+      {dialog}
     </DetailShell>
   );
 }

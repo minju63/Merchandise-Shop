@@ -18,6 +18,7 @@
 
 .fan-board__photo {
   position: absolute;
+  overflow: hidden;
   top: 0;
   bottom: 0;
   width: 38%;
@@ -78,4 +79,45 @@
   margin-top: 1cqw !important;
   font-size: 2.4cqw;
   opacity: 0.85;
+}
+
+/* PPT처럼 선택한 줄·사진에 보이는 네모 점 */
+.fan-handle {
+  position: absolute;
+  z-index: 5;
+  width: 12px;
+  height: 12px;
+  box-sizing: border-box;
+  border: 2px solid #6f5be7;
+  border-radius: 2px;
+  background: #fff;
+  touch-action: none;
+}
+
+.fan-board__photo.is-selected {
+  outline: 2px solid #6f5be7;
+  outline-offset: -2px;
+}
+
+.fan-handle--nw { top: 0; left: 0; cursor: nwse-resize; }
+.fan-handle--n { top: 0; left: calc(50% - 6px); cursor: ns-resize; }
+.fan-handle--ne { top: 0; right: 0; cursor: nesw-resize; }
+.fan-handle--e { top: calc(50% - 6px); right: 0; cursor: ew-resize; }
+.fan-handle--se { right: 0; bottom: 0; cursor: nwse-resize; }
+.fan-handle--s { bottom: 0; left: calc(50% - 6px); cursor: ns-resize; }
+.fan-handle--sw { bottom: 0; left: 0; cursor: nesw-resize; }
+.fan-handle--w { top: calc(50% - 6px); left: 0; cursor: ew-resize; }
+
+/* 글자 줄의 점은 줄 바깥 모서리에 걸치고, 줄을 키워도 같은 크기로 보이게 배율을 되돌린다 */
+[data-fan-line].is-selected {
+  position: relative;
+  outline: 2px solid #6f5be7;
+  outline-offset: 2px;
+}
+
+[data-fan-line] .fan-handle {
+  width: calc(12px / var(--line-scale, 1));
+  height: calc(12px / var(--line-scale, 1));
+  border-width: calc(2px / var(--line-scale, 1));
+  margin: calc(-8px / var(--line-scale, 1));
 }

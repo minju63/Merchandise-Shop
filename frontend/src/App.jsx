@@ -33,6 +33,7 @@ import MyPage from './pages/my/MyPage.jsx';
 import OrdersPage from './pages/my/OrdersPage.jsx';
 import OrderDetailPage from './pages/my/OrderDetailPage.jsx';
 import ReviewWritePage from './pages/my/ReviewWritePage.jsx';
+import MyReviewsPage from './pages/my/MyReviewsPage.jsx';
 import MembershipPage from './pages/my/MembershipPage.jsx';
 import CouponsPage from './pages/my/CouponsPage.jsx';
 import CouponDetailPage from './pages/my/CouponDetailPage.jsx';
@@ -94,6 +95,7 @@ import FanGuidePage from './pages/home/FanGuidePage.jsx';
 import { fanApi } from './api/fan.api.js';
 import { FanCheerRoute, FanDesignRoute, FanRankingRoute, FanResultRoute, FanTicketsRoute } from './pages/fan/FanRoutes.jsx';
 import './App.css';
+import { useDialog } from './components/useDialog.jsx';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
@@ -222,6 +224,8 @@ function HomeRoute() {
     retry: false,
   });
 
+  const { alert: showAlert, dialog } = useDialog();
+
   const toggleProductAlert = async (product) => {
     const alertId = product.id;
     const isAlerted = (alertQuery.data ?? []).includes(alertId);
@@ -238,7 +242,7 @@ function HomeRoute() {
       );
       return { alerted: !isAlerted, type: product.openType };
     } catch (error) {
-      window.alert(error.message || '알림 신청을 처리하지 못했어요. 다시 시도해 주세요.');
+      showAlert(error.message || '알림 신청을 처리하지 못했어요. 다시 시도해 주세요.');
       return null;
     }
   };
@@ -254,6 +258,7 @@ function HomeRoute() {
   }
 
   return (
+    <>
     <HomePage
       data={{ ...homeMockData, ...homeQuery.data.data }}
       isAuthenticated={sessionStatus === 'in'}
@@ -281,6 +286,8 @@ function HomeRoute() {
         if (path) navigate(path);
       }}
     />
+    {dialog}
+    </>
   );
 }
 
@@ -843,6 +850,7 @@ export default function App() {
         <Route path="/my/orders" element={<OrdersPage />} />
         <Route path="/my/orders/:orderId" element={<OrderDetailPage />} />
         <Route path="/my/orders/:orderId/review" element={<ReviewWritePage />} />
+        <Route path="/my/reviews" element={<MyReviewsPage />} />
         <Route path="/my/membership" element={<MembershipPage />} />
         <Route path="/my/coupons" element={<CouponsPage />} />
         <Route path="/my/coupons/:couponId" element={<CouponDetailPage />} />

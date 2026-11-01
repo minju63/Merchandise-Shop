@@ -16,6 +16,7 @@ import {
 } from './orderFormat.js';
 import { MY_ROUTES } from './routes.js';
 import './orders.css';
+import { useDialog } from '../../components/useDialog.jsx';
 
 const TABS = [
   ['all', '전체', undefined],
@@ -136,6 +137,7 @@ function OrderCard({ order, onCancel, onNavigate, onReorder }) {
 }
 
 export default function OrdersPage() {
+  const { alert: showAlert, dialog } = useDialog();
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const { status: authStatus } = useSession();
@@ -185,7 +187,7 @@ export default function OrdersPage() {
       const result = await getReorderItems(order.id);
       navigate(MY_ROUTES.reorder, { state: { reorder: result } });
     } catch (error) {
-      window.alert(error.message);
+      await showAlert(error.message);
     }
   };
 
@@ -268,6 +270,7 @@ export default function OrdersPage() {
           }}
         />
       ) : null}
+      {dialog}
     </main>
   );
 }

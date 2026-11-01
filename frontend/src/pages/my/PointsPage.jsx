@@ -41,7 +41,7 @@ export default function PointsPage() {
             결제할 때 &lsquo;적립예정금 바로 사용&rsquo;을 고르면 이번 주문의 예정 적립금을 바로
             쓰고, 그 주문은 추가 적립이 없어요.
           </li>
-          <li>구매한 상품의 리뷰를 쓰면 적립금 {data.policy.reviewReward.toLocaleString()}원이 바로 적립돼요. (상품당 1회)</li>
+          <li>구매 후 {data.policy.reviewRewardDays}일 안에 리뷰를 쓰면 적립금 {data.policy.reviewReward.toLocaleString()}원이 바로 적립돼요. (상품당 1회)</li>
           <li>주문을 취소하면 사용한 적립금은 돌려받고, 적립 예정분은 사라져요.</li>
         </ul>
         <h2 className="mt-h">적립금 내역</h2>

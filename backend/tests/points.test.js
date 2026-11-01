@@ -65,3 +65,11 @@ test('잔액은 확정된 내역만 합산한다', () => {
     3200
   );
 });
+
+test('리뷰 적립금은 구매 후 30일까지만 받을 수 있다', async () => {
+  const { grantReviewReward, reviewRewardDeadline } = await import('../src/services/user.service.js');
+  const purchased = '2026-01-01T00:00:00.000Z';
+  assert.equal(reviewRewardDeadline(purchased).toISOString(), '2026-01-31T00:00:00.000Z');
+  const expired = await grantReviewReward('u', { orderId: 'o', orderItemId: 'i', purchasedAt: purchased });
+  assert.deepEqual(expired, { granted: false, amount: 0, reason: 'REWARD_EXPIRED' });
+});

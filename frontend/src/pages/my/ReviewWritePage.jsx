@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { createReview } from './account.api.js';
 import { uploadReviewImages } from '../../api/reviewImage.api.js';
+import Dialog from '../../components/Dialog.jsx';
 import { ErrorNotice, Loading, PageHeader, Thumb } from './common.jsx';
 import { useRequest, useRequireLogin } from './hooks.js';
 import { ImageIcon } from './icons.jsx';
@@ -44,6 +45,7 @@ export default function ReviewWritePage() {
   const [photos, setPhotos] = useState([]);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [done, setDone] = useState(null);
 
   const order = detail.data;
   const wanted = params.get('item');
@@ -75,9 +77,21 @@ export default function ReviewWritePage() {
         content: content.trim(),
         ...(imageUrls.length ? { imageUrls } : {}),
       });
-      if (created?.pointReward?.granted)
-        window.alert(`리뷰 작성 완료! 적립금 ${created.pointReward.amount.toLocaleString()}원이 적립됐어요.`);
-      navigate(`/products/${item.store_product_id}#product-feedback`, { replace: true });
+      const reward = created?.pointReward;
+      const to = `/products/${item.store_product_id}#product-feedback`;
+      if (reward?.granted)
+        setDone({
+          to,
+          title: '리뷰 작성 완료!',
+          message: `적립금 ${reward.amount.toLocaleString()}원이 적립됐어요.`,
+        });
+      else if (reward?.reason === 'REWARD_EXPIRED')
+        setDone({
+          to,
+          title: '리뷰가 등록됐어요',
+          message: '구매 후 30일이 지나 적립금은 지급되지 않아요.',
+        });
+      else navigate(to, { replace: true });
     } catch (cause) {
       setError(cause.message);
       setBusy(false);
@@ -176,8 +190,14 @@ export default function ReviewWritePage() {
   return (
     <main className="ord-page ord-page--fab">
       <PageHeader title="리뷰 쓰기" />
-      <p className="mt-notice">리뷰를 작성하면 적립금 500원을 바로 드려요. (상품당 1회)</p>
+      <p className="mt-notice">구매 후 30일 안에 리뷰를 작성하면 적립금 500원을 바로 드려요. (상품당 1회)</p>
       {body}
+      <Dialog
+        open={Boolean(done)}
+        title={done?.title}
+        message={done?.message}
+        onConfirm={() => navigate(done.to, { replace: true })}
+      />
     </main>
   );
 }

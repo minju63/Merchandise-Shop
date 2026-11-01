@@ -14,6 +14,7 @@ export const MY_ROUTES = {
   pickupQr: (orderId) => `/my/orders/${orderId}`,
   reorder: '/checkout',
   reviewWrite: (orderId) => `/my/orders/${orderId}/review`,
+  myReviews: '/my/reviews',
   membership: '/my/membership',
   fanResult: '/fan/result',
   fanTickets: '/fan/tickets',

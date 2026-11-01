@@ -5,7 +5,7 @@ export { reviewError } from './reviewValidation.js'; // 여경 컨트롤러용 (
 import * as repository from "../repositories/review.repository.js";
 import { findOwnedItem, findSale } from "../repositories/order.repository.js";
 import { verifyOwnedImageUrls } from "./support.service.js";
-import { grantReviewReward } from "./user.service.js";
+import { grantReviewReward, reviewRewardDeadline } from "./user.service.js";
 import { randomUUID } from "node:crypto";
 
 import { findByAuthId } from "../repositories/user.repository.js";
@@ -234,7 +234,30 @@ export async function listMyReviewItems(userId, input = {}) {
       ),
     );
   rows.sort((a, b) => b.created_at.localeCompare(a.created_at));
-  return page(rows, options);
+  const result = page(rows, options);
+  if (input.tab !== "WRITTEN")
+    result.items = result.items.map((row) => ({
+      ...row,
+      reward_deadline: reviewRewardDeadline(row.created_at).toISOString(),
+    }));
+  if (input.tab === "WRITTEN") {
+    // 작성한 리뷰에는 상품 이름·사진이 없어서 주문 상품에서 붙여 준다.
+    const items = await repository.getOrderItemsByIds(
+      result.items.map((row) => row.order_item_id).filter(Boolean),
+    );
+    const byId = new Map(items.map((item) => [item.id, item]));
+    result.items = result.items.map((row) => {
+      const item = byId.get(row.order_item_id);
+      return {
+        ...row,
+        order_id: item?.order_id ?? null,
+        store_product_id: item?.store_product_id ?? null,
+        product_name: item?.product_name ?? null,
+        product_image_url: item?.product_image_url ?? null,
+      };
+    });
+  }
+  return result;
 }
 
 async function finishReview(review) {
@@ -287,6 +310,7 @@ export async function createReview(userId, input) {
   const pointReward = await grantReviewReward(userId, {
     orderId: item.order_id,
     orderItemId: item.id,
+    purchasedAt: item.created_at,
   }).catch(() => ({ granted: false, amount: 0, reason: "REWARD_PENDING" }));
   return { ...created, pointReward };
 }
@@ -308,11 +332,15 @@ export async function updateReview(userId, id, input) {
   const images =
     input.imageUrls === undefined
       ? undefined
-      : await verifyOwnedImageUrls(userId, input.imageUrls, {
-          bucket: "review",
-          folderPrefix: ["shop", existing.store_id],
-          maxCount: 5,
-        });
+      : await verifyOwnedImageUrls(
+          userId,
+          input.imageUrls,
+          // 굿즈샵 폴더(shop/<storeId>/<userId>)에 올린 사진이면 그 규칙으로, 아니면 작성할 때와 같은 기본 규칙으로 확인한다.
+          input.imageUrls.length &&
+            input.imageUrls.every((url) => String(url).includes("/review/shop/"))
+            ? { bucket: "review", folderPrefix: ["shop", existing.store_id], maxCount: 5 }
+            : undefined,
+        );
   const row = await repository.updateOwnedWithImages(
     userId,
     id,

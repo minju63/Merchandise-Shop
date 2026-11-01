@@ -253,7 +253,17 @@ export async function withdrawAccount(userId, input = {}, context = {}) {
 
 // ---- 적립금 · 최근 본 상품 · 알림 신청 · 응원배너 신청 (마이탭 신규) ----
 
-export const POINT_POLICY = { earnRatePercent: 1, minUse: 1000, reviewReward: 500 };
+export const POINT_POLICY = {
+  earnRatePercent: 1,
+  minUse: 1000,
+  reviewReward: 500,
+  reviewRewardDays: 30,
+};
+
+// 구매일로부터 리뷰 적립금을 받을 수 있는 마지막 시각
+export function reviewRewardDeadline(purchasedAt) {
+  return new Date(new Date(purchasedAt).getTime() + POINT_POLICY.reviewRewardDays * 86400000);
+}
 const RECENT_PRODUCT_DAYS = 14;
 const UUID_PATTERN = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
 
@@ -420,7 +430,10 @@ export async function recordOrderPoints(userId, orderId, { used, earn }) {
 }
 
 // 리뷰 작성 적립금. 주문 상품당 한 번만 지급하고, 이미 받았으면 조용히 넘어간다.
-export async function grantReviewReward(userId, { orderId, orderItemId }) {
+// 구매 후 reviewRewardDays 안에 쓴 리뷰만 적립한다.
+export async function grantReviewReward(userId, { orderId, orderItemId, purchasedAt }) {
+  if (purchasedAt && Date.now() > reviewRewardDeadline(purchasedAt).getTime())
+    return { granted: false, amount: 0, reason: 'REWARD_EXPIRED' };
   try {
     await userRepository.insertPointTransaction({
       user_id: userId,

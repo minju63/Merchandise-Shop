@@ -1,5 +1,5 @@
 // 꾸미기 화면의 순수 함수들 (문구 치환 · 색 변환)
-import { DEFAULT_TEXT_POS, MESSAGE_PRESETS, defaultDesign } from './fanBoardPresets.js';
+import { DEFAULT_TEXT_POS, PHOTO_BOX, MESSAGE_PRESETS, defaultDesign } from './fanBoardPresets.js';
 
 // 색 팔레트 패널의 30색 스와치 (6열 × 5행)
 export const PALETTE_30 = [
@@ -47,6 +47,8 @@ export function mergeDesign(type, server, years, kind) {
   if (!server.message) merged.message = initialMessage(type, kind, years);
   if (!server.pos) merged.pos = defaultPosFor(merged.photoLayout);
   if (!server.lineOffsets) merged.lineOffsets = {};
+  if (!server.lineScales) merged.lineScales = {};
+  if (!server.photoBox) merged.photoBox = PHOTO_BOX[merged.photoLayout] ?? null;
   return merged;
 }
 
@@ -60,6 +62,8 @@ export function toPayload(design) {
     align: design.align,
     pos: design.pos,
     lineOffsets: design.lineOffsets ?? {},
+    lineScales: design.lineScales ?? {},
+    photoBox: design.photoLayout === 'none' ? null : (design.photoBox ?? PHOTO_BOX[design.photoLayout] ?? null),
     message: design.message,
   };
 }

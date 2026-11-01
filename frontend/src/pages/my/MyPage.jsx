@@ -248,6 +248,7 @@ function MemberView({ data, provider, onNavigate }) {
           label="취소·반품·교환 내역"
           onClick={() => onNavigate(MY_ROUTES.claims)}
         />
+        <Row icon={DocIcon} label="리뷰" onClick={() => onNavigate(MY_ROUTES.myReviews)} />
         <Row
           icon={ClockRowIcon}
           label="최근 본 상품"
