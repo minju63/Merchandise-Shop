@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import Icon from './Icon.jsx';
+import NotificationBell from '../../../components/NotificationBell.jsx';
 
 export { default as TabBar } from '../../../components/BottomNavigation.jsx';
 
@@ -22,9 +23,7 @@ export function StoreHeader({ back = false, searchContext = null }) {
             <Link className="store-list-header__action" to="/search" aria-label="검색">
               <Icon name="search" size={21} />
             </Link>
-            <button className="store-list-header__action" type="button" disabled title="알림 화면 준비 중" aria-label="알림 준비 중">
-              <Icon name="bell" size={21} />
-            </button>
+            <NotificationBell className="store-list-header__action" iconSize={21} />
             <Link className="store-list-header__action" to="/cart" aria-label="장바구니">
               <Icon name="cart" size={22} />
             </Link>
@@ -55,14 +54,7 @@ export function StoreHeader({ back = false, searchContext = null }) {
             <Icon name="search" />
           </Link>
         )}
-        <button
-          className="icon-button"
-          disabled
-          title="알림 화면 준비 중"
-          aria-label="알림 준비 중"
-        >
-          <Icon name="bell" />
-        </button>
+        <NotificationBell className="icon-button" iconSize={24} />
         <Link className="icon-button" to="/cart" aria-label="장바구니">
           <Icon name="cart" />
         </Link>

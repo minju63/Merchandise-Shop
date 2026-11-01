@@ -10,6 +10,7 @@ import {
 import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import HomePage from './pages/home/HomePage.jsx';
+import NotificationPage from './pages/notifications/NotificationPage.jsx';
 import { homeMockData } from './pages/home/homeMockData.js';
 import { useSession } from './pages/my/hooks.js';
 import SearchPage, { SearchResultsPage } from './pages/search/SearchPage.jsx';
@@ -806,6 +807,7 @@ export default function App() {
       <Routes>
         {/* 민주 — 홈 · 검색 */}
         <Route path="/" element={<HomeRoute />} />
+        <Route path="/notifications" element={<NotificationPage />} />
         <Route path="/interests" element={<InterestRoute />} />
         <Route path="/search" element={<SearchRoute />} />
         <Route path="/search/results" element={<SearchResultsRoute />} />

@@ -71,6 +71,11 @@
   background: transparent;
 }
 
+.header-actions .notification-bell {
+  width: 33px;
+  height: 33px;
+}
+
 .action-badge {
   position: absolute;
   top: -1px;

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import ProductCard from '../../components/ProductCard.jsx';
 import UpcomingProductCard from '../../components/UpcomingProductCard.jsx';
 import Icon from '../../components/Icon.jsx';
+import NotificationBell from '../../components/NotificationBell.jsx';
 import PromoBanner from './PromoBanner.jsx';
 import { fanBoardDesign, isFanBoardType } from '../fan/fanBoardPresets.js';
 import { brandGroupFor, hasPickedBrands, matchesInterests } from './interestMatch.js';
@@ -293,10 +294,7 @@ export default function HomePage({
         <div className="header-row">
           <h1>굿즈<span>픽</span></h1>
           <div className="header-actions">
-            <button type="button" aria-label="알림 목록 화면 준비 중" disabled>
-              <Icon name="bell" size={21} />
-              {data.badges.notifications > 0 && <span className="action-badge">{data.badges.notifications}</span>}
-            </button>
+            <NotificationBell iconSize={21} />
             <button type="button" aria-label="장바구니" onClick={onOpenCart} disabled={!onOpenCart}>
               <Icon name="cart" size={22} />
               {data.badges.cart > 0 && <span className="action-badge">{data.badges.cart}</span>}
