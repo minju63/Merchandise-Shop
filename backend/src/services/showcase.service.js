@@ -76,6 +76,7 @@ async function decorate(row, viewerId, detailed = false) {
     || (items.data ?? []).find((item) => item.original_path)?.original_path;
   return {
     ...row, ownerNickname: owner.data?.nickname ?? '회원', ownerStatus: owner.data?.status,
+    backgroundUrl: asset(row.id, row.background_path),
     storeName: store.data?.name ?? null,
     storeStatus: store.data?.status ?? null, itemCount: items.data?.length ?? 0,
     likeCount: row.like_count ?? 0, liked: Boolean(liked.data?.length),
@@ -144,6 +145,8 @@ export function validateItems(items, row) {
       || (item.note != null && !validText(item.note, 300)))
       fail(400, 'INVALID_ITEM', '굿즈 배치 정보를 확인해 주세요.');
     if (row.type === 'PERSONAL') {
+      if (!validText(item.goods_name, 100, true))
+        fail(400, 'INVALID_ITEM', '굿즈 이름을 입력해 주세요.');
       if (item.store_product_id || !item.original_path?.startsWith(`${row.owner_id}/${row.id}/original/`)
         || item.cutout_path && !item.cutout_path.startsWith(`${row.owner_id}/${row.id}/cutout/`))
         fail(400, 'INVALID_IMAGE', '내 사진만 추가할 수 있어요.');
@@ -161,6 +164,15 @@ export async function save(id, input, viewerId) {
     fail(400, 'INVALID_SHOWCASE', '진열장 정보를 확인해 주세요.');
   const background = check(await db().from('showcase_backgrounds').select('id').eq('id', input.backgroundId).eq('enabled', true).maybeSingle());
   if (!background) fail(400, 'INVALID_BACKGROUND', '배경을 다시 선택해 주세요.');
+  const backgroundPath = input.backgroundPath ?? null;
+  if (backgroundPath !== null && (typeof backgroundPath !== 'string'
+    || !backgroundPath.startsWith(`${row.owner_id}/${id}/background/`)
+    || input.backgroundId !== 'glass'))
+    fail(400, 'INVALID_BACKGROUND', '배경 사진을 다시 선택해 주세요.');
+  const backgroundX = input.backgroundX ?? 0.5;
+  const backgroundY = input.backgroundY ?? 0.5;
+  if (![backgroundX, backgroundY].every((value) => Number.isFinite(value) && value >= 0 && value <= 1))
+    fail(400, 'INVALID_BACKGROUND', '배경 사진 위치를 확인해 주세요.');
   validateItems(input.items, row);
   if (row.type === 'SHOP') {
     const ids = [...new Set(input.items.map((item) => item.store_product_id))];
@@ -168,10 +180,11 @@ export async function save(id, input, viewerId) {
     if (products.length !== ids.length || products.some((product) => product.store_id !== row.store_id))
       fail(403, 'PRODUCT_FORBIDDEN', '내 매장 상품만 추가할 수 있어요.');
   }
-  const result = await db().rpc('save_showcase', {
+  const result = await db().rpc('save_showcase_with_background', {
     p_id: id, p_owner: viewerId, p_version: input.version,
     p_name: input.name.trim(), p_description: input.description ?? '',
-    p_background: input.backgroundId, p_public: input.isPublic,
+    p_background: input.backgroundId, p_background_path: backgroundPath,
+    p_background_x: backgroundX, p_background_y: backgroundY, p_public: input.isPublic,
     p_items: input.items.map((item, index) => ({
       store_product_id: item.store_product_id ?? null, goods_name: item.goods_name ?? null,
       work_title: item.work_title ?? null, character_name: item.character_name ?? null,
@@ -182,7 +195,7 @@ export async function save(id, input, viewerId) {
   });
   if (result.error) fail(result.error.message?.includes('changed elsewhere') ? 409 : 503,
     'SHOWCASE_SAVE_FAILED', result.error.message?.includes('changed elsewhere')
-      ? '다른 기기에서 수정했어요. 새로고침 후 다시 편집해 주세요.' : '저장하지 못했어요. 다시 시도해 주세요.');
+      ? '진열장 정보가 변경돼 저장하지 못했어요. 현재 편집 내용을 확인한 뒤 새로고침해 주세요.' : '저장하지 못했어요. 다시 시도해 주세요.');
   return detail(id, viewerId);
 }
 
@@ -247,7 +260,8 @@ function imageInfo(buffer) {
 
 export async function upload(id, input, viewerId) {
   const row = await allowed(id, viewerId, true);
-  if ((row.type !== 'PERSONAL' && input.kind !== 'thumbnail') || !['original', 'cutout', 'thumbnail'].includes(input.kind)
+  if ((row.type !== 'PERSONAL' && !['thumbnail', 'background'].includes(input.kind))
+    || !['original', 'cutout', 'thumbnail', 'background'].includes(input.kind)
     || typeof input.base64 !== 'string' || input.base64.length > 8_400_000)
     fail(400, 'INVALID_IMAGE', '사진 파일을 확인해 주세요.');
   const buffer = Buffer.from(input.base64, 'base64');
@@ -337,7 +351,8 @@ export async function media(id, path, viewerId) {
     .eq('showcase_id', id).eq('original_path', path).limit(1));
   const cutouts = originals.length ? [] : check(await db().from('showcase_items').select('id')
     .eq('showcase_id', id).eq('cutout_path', path).limit(1));
-  if (!originals.length && !cutouts.length && row.thumbnail_path !== path && row.owner_id !== viewerId)
+  if (!originals.length && !cutouts.length && row.thumbnail_path !== path
+    && row.background_path !== path && row.owner_id !== viewerId)
     fail(404, 'IMAGE_NOT_FOUND', '이미지를 찾을 수 없어요.');
   const result = await db().storage.from('showcase-private').download(path);
   if (result.error) fail(404, 'IMAGE_NOT_FOUND', '이미지를 찾을 수 없어요.');

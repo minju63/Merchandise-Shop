@@ -5,12 +5,14 @@ import BottomNavigation from '../../components/BottomNavigation.jsx';
 import { showcaseApi } from '../../api/showcase.api.js';
 import { cartApi } from '../../api/cart.api.js';
 import { useRequireLogin, useSession } from '../my/hooks.js';
+import StoreSort from '../stores/components/StoreSort.jsx';
 import ShowcaseBoard from './ShowcaseBoard.jsx';
+import ShowcaseImage from './ShowcaseImage.jsx';
 import './showcases.css';
 
 function Header({ title, action }) {
   const navigate = useNavigate();
-  return <header className="showcase-header"><button type="button" onClick={() => navigate(-1)} aria-label="뒤로">‹</button><h1>{title}</h1>{action}</header>;
+  return <header className="showcase-header"><button type="button" onClick={() => navigate(-1)} aria-label="뒤로" />{title && <h1>{title}</h1>}{action}</header>;
 }
 function State({ query, empty }) {
   if (query.isPending) return <p className="showcase-state">진열장을 불러오는 중이에요…</p>;
@@ -21,7 +23,7 @@ function State({ query, empty }) {
 export function ShowcaseCard({ showcase }) {
   const navigate = useNavigate();
   return <button type="button" className="showcase-card" onClick={() => navigate(`/showcases/${showcase.id}`)}>
-    <div className="showcase-card__preview"><ShowcaseBoard showcase={showcase} /></div>
+    <div className="showcase-card__preview"><ShowcaseBoard showcase={showcase} cacheMedia /></div>
     <strong>{showcase.name}</strong>
     <span>{showcase.type === 'SHOP' ? showcase.storeName : `by ${showcase.ownerNickname}`}</span>
     <small>굿즈 {showcase.itemCount}개 · ♡ {showcase.likeCount}</small>
@@ -29,26 +31,27 @@ export function ShowcaseCard({ showcase }) {
 }
 export function ShowcaseGallery({ type = 'PERSONAL', storeId, compact = false }) {
   const navigate = useNavigate();
-  const [sort, setSort] = useState('newest');
+  const [sort, setSort] = useState('popular');
   const [page, setPage] = useState(1);
   const [categoryId, setCategoryId] = useState('');
   const categories = useQuery({ queryKey: ['showcase-categories'], queryFn: showcaseApi.categories, enabled: type === 'SHOP' && !compact, retry: false });
-  const query = useQuery({ queryKey: ['showcases', type, storeId, sort, page, categoryId],
-    queryFn: () => showcaseApi.list({ type, storeId, sort, page, categoryId: categoryId || undefined, size: compact ? 6 : 12 }), retry: false, refetchInterval: 60000 });
+  const query = useQuery({ queryKey: ['showcases', type, storeId, sort, page, categoryId, compact],
+    queryFn: () => showcaseApi.list({ type, storeId, sort, page, categoryId: categoryId || undefined, size: compact ? 5 : 12 }), retry: false, staleTime: 60_000, refetchInterval: 60000 });
   return <section className={`showcase-gallery ${compact ? 'is-compact' : ''}`}>
     <div className="showcase-gallery__heading"><div><h2>{type === 'PERSONAL' ? '덕질 진열장' : '진열장 구경'}</h2>
       <p>{type === 'PERSONAL' ? '다른 팬들이 꾸민 진열장을 구경해 보세요' : '굿즈샵에서 꾸민 쇼핑 진열장을 둘러보세요'}</p></div>
       {compact ? <button type="button" onClick={() => navigate(type === 'PERSONAL' ? '/showcases' : '/stores?tab=showcases')}>전체보기 ›</button>
-        : <select aria-label="정렬" value={sort} onChange={(event) => { setSort(event.target.value); setPage(1); }}><option value="newest">최신순</option><option value="popular">인기순</option></select>}
+        : <div className="showcase-gallery__sort"><StoreSort value={sort} options={[{ value: 'popular', label: '인기순' }, { value: 'newest', label: '최신순' }]} onChange={(value) => { setSort(value); setPage(1); }} /></div>}
     </div>
     {type === 'SHOP' && !compact && <div className="showcase-filter-chips"><button className={!categoryId ? 'active' : ''} onClick={() => { setCategoryId(''); setPage(1); }}>전체</button>{categories.data?.map((category) => <button key={category.id} className={categoryId === category.id ? 'active' : ''} onClick={() => { setCategoryId(category.id); setPage(1); }}>{category.name}</button>)}</div>}
     <State query={query} empty="아직 공개된 진열장이 없어요." />
     {query.data?.items?.length > 0 && <div className="showcase-gallery__grid">{query.data.items.map((item) => <ShowcaseCard key={item.id} showcase={item} />)}</div>}
-    {!compact && <div className="showcase-pages"><button type="button" disabled={page === 1} onClick={() => setPage(page - 1)}>이전</button><span>{page}</span><button type="button" disabled={page * 12 >= (query.data?.totalCount ?? 0)} onClick={() => setPage(page + 1)}>다음</button></div>}
+    {!compact && <nav className="showcase-pages" aria-label="진열장 페이지"><button type="button" disabled={page === 1} onClick={() => setPage(page - 1)}>‹ 이전</button><span aria-current="page">{page}</span><button type="button" disabled={page * 12 >= (query.data?.totalCount ?? 0)} onClick={() => setPage(page + 1)}>다음 ›</button></nav>}
   </section>;
 }
 export function ShowcaseGalleryPage() {
-  return <div className="app-shell"><Header title="덕질 진열장" /><main className="showcase-page"><ShowcaseGallery /></main><BottomNavigation /></div>;
+  const navigate = useNavigate();
+  return <div className="app-shell"><Header title="덕질 진열장" action={<button type="button" className="showcase-primary" onClick={() => navigate('/my/showcases')}>내 진열장 관리</button>} /><main className="showcase-page"><ShowcaseGallery /></main><BottomNavigation /></div>;
 }
 
 export function ShowcaseManagePage({ type = 'PERSONAL' }) {
@@ -64,7 +67,7 @@ export function ShowcaseManagePage({ type = 'PERSONAL' }) {
     setBusy(true); setError('');
     try {
       const row = await showcaseApi.create({ type, storeId, name: type === 'SHOP' ? '새 쇼핑 진열장' : '새 진열장' });
-      navigate(`/my/showcases/${row.id}/edit`);
+      navigate(`/my/showcases/${row.id}/edit`, { state: { defaultPublic: true } });
     } catch (e) { setError(e.message); setBusy(false); }
   };
   const remove = async (id) => {
@@ -107,15 +110,39 @@ function ProductSheet({ product, storeName, onClose }) {
   </section></div>;
 }
 
+function PersonalItemSheet({ item, onClose }) {
+  return <div className="showcase-sheet-backdrop" onClick={onClose}>
+    <section className="showcase-product-sheet showcase-personal-sheet" role="dialog" aria-label="굿즈 정보" onClick={(event) => event.stopPropagation()}>
+      <button type="button" className="showcase-sheet-close" onClick={onClose} aria-label="닫기">×</button>
+      <div className="showcase-personal-sheet__body">
+        <div className="showcase-personal-sheet__image"><ShowcaseImage src={item.imageUrl} alt={item.goods_name || '굿즈 사진'} /></div>
+        <div><strong>{item.goods_name?.trim() || '굿즈 사진'}</strong>{item.work_title?.trim() && <p>작품명 · {item.work_title}</p>}</div>
+      </div>
+    </section>
+  </div>;
+}
+
 export function ShowcaseDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const session = useSession();
   const query = useQuery({ queryKey: ['showcase', id], queryFn: () => showcaseApi.detail(id), retry: false, refetchInterval: 30000 });
   const [selected, setSelected] = useState(null);
+  const [selectedPersonal, setSelectedPersonal] = useState(null);
   const [likeBusy, setLikeBusy] = useState(false);
+  const [deleteBusy, setDeleteBusy] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
   const [message, setMessage] = useState('');
   const row = query.data;
+  const isOwner = session.status === 'in' && row?.owner_id === session.session?.user?.id;
+  const removeOwn = async () => {
+    if (!isOwner || deleteBusy || !window.confirm('진열장을 삭제할까요? 삭제한 진열장은 복구할 수 없어요.')) return;
+    setDeleteBusy(true); setDeleteError('');
+    try {
+      await showcaseApi.remove(id);
+      navigate(row.type === 'SHOP' ? `/my/seller-center/stores/${row.store_id}/showcases` : '/my/showcases', { replace: true });
+    } catch (error) { setDeleteError(error.message); setDeleteBusy(false); }
+  };
   const toggleLike = async () => {
     if (!row || likeBusy) return;
     if (session.status === 'loading') return;
@@ -126,6 +153,7 @@ export function ShowcaseDetailPage() {
     finally { setLikeBusy(false); }
   };
   const choose = async (item) => {
+    if (row?.type === 'PERSONAL') { setSelectedPersonal(item); return; }
     if (row?.type !== 'SHOP' || !item.store_product_id) return;
     try {
       const fresh = await showcaseApi.detail(id);
@@ -133,16 +161,27 @@ export function ShowcaseDetailPage() {
       if (!fresh.items.find((candidate) => candidate.id === item.id)?.product) setMessage('판매가 종료된 상품이에요.');
     } catch (e) { setMessage(e.message); }
   };
-  return <div className="app-shell"><Header title={row?.name || '진열장 둘러보기'} />
+  return <div className="app-shell"><Header />
     <main className="showcase-page"><State query={query} />{!query.isError && row && <>
-      <div className="showcase-detail-title"><h2>{row.name}</h2><span>{row.type === 'SHOP' ? row.storeName : `by ${row.ownerNickname}`}</span></div>
+      <div className="showcase-detail-title"><h2>{row.name}</h2>
+        {isOwner && <details className="showcase-owner-menu">
+          <summary>관리</summary>
+          <div className="showcase-owner-menu__panel">
+            <button type="button" disabled={deleteBusy} onClick={() => navigate(`/my/showcases/${row.id}/edit`)}>수정하기</button>
+            <button type="button" disabled={deleteBusy} onClick={removeOwn}>{deleteBusy ? '삭제 중…' : '삭제하기'}</button>
+          </div>
+        </details>}
+      </div>
+      <span className="showcase-detail-owner">{row.type === 'SHOP' ? row.storeName : `by ${row.ownerNickname}`}</span>
       {row.type === 'SHOP' && <button className="showcase-store-link" onClick={() => navigate(`/stores/${row.store_id}`)}>매장 보기 ›</button>}
       {row.description && <p>{row.description}</p>}
+      {deleteError && <p role="alert">{deleteError}</p>}
       <ShowcaseBoard showcase={row} onItemClick={choose} />
-      <p className="showcase-hint">{row.type === 'SHOP' ? '궁금한 굿즈를 눌러 상품 정보를 확인해 보세요' : '팬이 직접 꾸민 진열장이에요'}</p>
+      <p className="showcase-hint">{row.type === 'SHOP' ? '궁금한 굿즈를 눌러 상품 정보를 확인해 보세요' : '굿즈를 눌러 이름과 작품명을 확인해 보세요'}</p>
       <button className="showcase-like" type="button" disabled={likeBusy || row.owner_id === session.session?.user?.id} onClick={toggleLike}>{row.liked ? '♥' : '♡'} {row.likeCount}</button>
       {message && <p role="alert">{message}</p>}
     </>}</main><BottomNavigation />
-    {!query.isError && selected && <ProductSheet product={selected} storeName={row.storeName} onClose={() => setSelected(null)} />}
+    {row?.type === 'SHOP' && selected && <ProductSheet product={selected} storeName={row.storeName} onClose={() => setSelected(null)} />}
+    {row?.type === 'PERSONAL' && selectedPersonal && <PersonalItemSheet item={selectedPersonal} onClose={() => setSelectedPersonal(null)} />}
   </div>;
 }

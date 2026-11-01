@@ -9,8 +9,10 @@ const layout = { x: 0.5, y: 0.4, scale: 1, rotation: 0, layer_order: 0 };
 
 test('개인 진열장에는 해당 진열장의 사진만 허용한다', () => {
   const row = { id, owner_id: owner, type: 'PERSONAL' };
-  const good = { ...layout, original_path: `${owner}/${id}/original/photo.png` };
+  const good = { ...layout, goods_name: '토끼 인형', original_path: `${owner}/${id}/original/photo.png` };
   assert.doesNotThrow(() => validateItems([good], row));
+  assert.throws(() => validateItems([{ ...good, goods_name: '' }], row), { code: 'INVALID_ITEM' });
+  assert.throws(() => validateItems([{ ...good, goods_name: '   ' }], row), { code: 'INVALID_ITEM' });
   assert.throws(() => validateItems([{ ...good, original_path: `${owner}/other/original/photo.png` }], row), { code: 'INVALID_IMAGE' });
   assert.throws(() => validateItems([{ ...good, store_product_id: sku }], row), { code: 'INVALID_IMAGE' });
   assert.throws(() => validateItems([{ ...good, x: 1.2 }], row), { code: 'INVALID_ITEM' });

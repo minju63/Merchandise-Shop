@@ -445,6 +445,10 @@
   align-items: end;
 }
 
+.store-main.list-main > .showcase-store-tabs + .store-list-heading {
+  margin-top: 16px;
+}
+
 .store-list-heading h1 {
   margin: 0;
   color: #211d2b;
@@ -507,6 +511,16 @@
   color: #6846d8;
   background: #f5f1ff;
   font-weight: 800;
+}
+
+.store-main.list-main .showcase-gallery__sort .sort-trigger,
+.store-main.list-main .showcase-gallery__sort .sort-menu button {
+  font-size: 13px;
+}
+
+.store-main.list-main .showcase-gallery__sort .sort-trigger svg {
+  width: 15px;
+  height: 15px;
 }
 
 .list-main .sort-menu {
