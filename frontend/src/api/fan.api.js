@@ -30,4 +30,10 @@ export const fanApi = {
   saveDesign: async (designId, body) => client.put(`/fan/designs/${designId}`, body, { headers: await authHeaders() }),
   submitDesign: async (designId) => client.post(`/fan/designs/${designId}/submit`, {}, { headers: await authHeaders() }),
   sendCheers: async (body) => client.post('/fan/cheers', body, { headers: await authHeaders() }),
+  // 오늘 기념일인 최애 모아보기 (로그인 없이 볼 수 있고, 로그인하면 내 축하하기 표시가 함께 온다)
+  day: async (date) => client.get(`/fan/day/${date}`, { headers: await optionalHeaders() }),
+  toggleDayLike: async (date, characterId) =>
+    client.post(`/fan/day/${date}/likes`, { characterId }, { headers: await authHeaders() }),
+  addDayCongrats: async (date, characterId, message) =>
+    client.post(`/fan/day/${date}/congrats`, { characterId, message }, { headers: await authHeaders() }),
 };

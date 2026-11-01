@@ -1,5 +1,6 @@
 import FanBoard from '../fan/FanBoard.jsx';
 import { fanBoardDesign, isFanBoardType } from '../fan/fanBoardPresets.js';
+import { dayChipLabel } from '../fan/fanDayFormat.js';
 
 const DEFAULT_TITLES = {
   SERVICE_INTRO: '내 주변 굿즈샵 재고,\n픽업까지 한 번에',
@@ -15,14 +16,31 @@ function Cta({ onOpen }) {
   );
 }
 
-export default function PromoBanner({ banner, position, dragProps, onOpen }) {
+export default function PromoBanner({ banner, position, dragProps, onOpen, onOpenFanDay }) {
   const type = banner.bannerType;
   const modifier = isFanBoardType(type) ? 'fan' : type.toLowerCase().replaceAll('_', '-');
+  // 기념일 전광판(FAN_ANNIV)만 눌러서 "그날 기념일인 최애" 화면으로 갈 수 있다. 자유 응원 전광판은 보기 전용이다.
+  const dayLink = (type === 'FAN_ANNIV' || type === 'FAN') && banner.fanDay?.count > 0 ? onOpenFanDay : undefined;
 
   return (
-    <article className={`promo-banner promo-banner--${modifier}`} {...dragProps}>
+    <article
+      className={`promo-banner promo-banner--${modifier}${dayLink ? ' is-link' : ''}`}
+      {...(dayLink ? {
+        role: 'link',
+        tabIndex: 0,
+        'aria-label': dayChipLabel(banner.fanDay.date, banner.fanDay.count, banner.fanDay.birthdayOnly),
+        onClick: dayLink,
+        onKeyDown: (event) => {
+          if (event.target === event.currentTarget && (event.key === 'Enter' || event.key === ' ')) {
+            event.preventDefault();
+            dayLink();
+          }
+        },
+      } : {})}
+      {...dragProps}
+    >
       {isFanBoardType(type) ? (
-        // 전광판은 보기 전용: 자세히 보기도 클릭 이동도 없다.
+        // 배너 디자인(당첨자가 꾸민 것)은 그대로 둔다.
         <FanBoard design={fanBoardDesign(banner)} />
       ) : (
         <div className="promo-banner__body">
@@ -41,6 +59,11 @@ export default function PromoBanner({ banner, position, dragProps, onOpen }) {
           <Cta onOpen={onOpen} />
         </div>
       )}
+      {dayLink ? (
+        <span className="promo-banner__day">
+          {dayChipLabel(banner.fanDay.date, banner.fanDay.count, banner.fanDay.birthdayOnly)} <b aria-hidden="true">›</b>
+        </span>
+      ) : null}
       <span className="promo-banner__count">{position}</span>
     </article>
   );

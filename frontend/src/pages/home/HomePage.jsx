@@ -203,6 +203,12 @@ export default function HomePage({
     }
   }, [activeBannerId, onBannerImpression]);
 
+  // 기념일 전광판은 디자인은 그대로 두고, 누르면 그날 기념일인 최애 모아보기로 이동한다. (전광판은 banners 행이 아니라 클릭 수는 세지 않는다)
+  const handleFanDayOpen = () => {
+    if (!activeBanner?.fanDay || !onNavigate) return;
+    onNavigate({ bannerType: 'FAN_ANNIV', fanDate: activeBanner.fanDay.date });
+  };
+
   const handleBannerAction = () => {
     if (!activeBanner || !onNavigate) return;
     onBannerClick?.(activeBanner.id);
@@ -322,6 +328,7 @@ export default function HomePage({
                 onClickCapture: handleBannerClickCapture,
               }}
               onOpen={onNavigate && !isFanBoardType(activeBanner.bannerType) ? handleBannerAction : undefined}
+              onOpenFanDay={onNavigate && activeBanner.fanDay?.count > 0 ? handleFanDayOpen : undefined}
             />
           ) : null}
           <div className="banner-dots" aria-label="배너 선택">

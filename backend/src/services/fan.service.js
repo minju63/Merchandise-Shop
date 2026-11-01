@@ -3,6 +3,7 @@ import * as repository from '../repositories/fan.repository.js';
 import { getPaymentProvider } from '../payments/index.js';
 import { resolvePaymentMethodSelection } from './paymentMethod.service.js';
 import { paymentMethodLabel } from './checkout.service.js';
+import { findHomeBanners } from '../repositories/home.repository.js';
 
 const failure = (status, code, message) => Object.assign(new Error(message), { status, code });
 
@@ -32,6 +33,9 @@ const DB_ERRORS = {
   FAN_DESIGN_INVALID_PATH: [400, '이미지 경로가 올바르지 않아요.'],
   FAN_DESIGN_EMPTY: [400, '메인 문구를 입력한 뒤 검수를 요청해 주세요.'],
   FAN_WEEK_NOT_FOUND: [404, '주차를 찾을 수 없어요.'],
+  FAN_DAY_CHARACTER_NOT_FOUND: [404, '그날 기념일인 최애가 아니에요.'],
+  FAN_DAY_INVALID_MESSAGE: [400, '축하 한마디는 1~50자로 입력해 주세요.'],
+  FAN_DAY_CONGRATS_LIMIT: [409, '축하 한마디는 하루에 최대 5개까지 남길 수 있어요.'],
 };
 
 function translate(error) {
@@ -243,8 +247,64 @@ export async function submitDesign(userId, designId) {
   return repository.submitDesign(userId, designId).catch(translate);
 }
 
-// 홈 4·5번 배너: 오늘 게시 중인 승인된 디자인
+// 홈 4·5번 배너: 오늘 게시 중인 승인된 디자인.
+// 기념일 전광판에는 "그날 기념일인 최애 n명" 칩에 쓸 정보(day)를 함께 붙인다.
 export async function getHomeBoards() {
   const views = (await repository.homeBoards()) ?? [];
-  return Promise.all(views.map(withImageUrls));
+  const boards = await Promise.all(views.map(withImageUrls));
+  return Promise.all(boards.map(async (board) => {
+    if (board.slotType !== 'ANNIV' || !board.publishDate) return board;
+    return { ...board, day: await describeDay(board.publishDate) };
+  }));
+}
+
+// 홈 배너 칩에 쓰는 정보: 그날 기념일인 최애 수와 전부 생일인지 여부
+export async function describeDay(date) {
+  const kinds = await repository.findDayAnniversaryKinds(date).catch(() => []);
+  return { date, count: kinds.length, birthdayOnly: kinds.every((kind) => kind === 'BIRTHDAY') };
+}
+
+const isDate = (value) => /^\d{4}-\d{2}-\d{2}$/.test(String(value ?? '')) && !Number.isNaN(Date.parse(value));
+
+// 오늘 기념일인 최애 모아보기 (로그인하지 않아도 볼 수 있고, 로그인하면 내 축하하기 표시가 함께 온다)
+export async function getDayBoard(date, userId) {
+  if (!isDate(date)) throw failure(400, 'FAN_INVALID_DATE', '날짜를 확인해 주세요.');
+  const [board, banners] = await Promise.all([
+    repository.dayBoard(date, userId).catch(translate),
+    // 하단 "굿즈 보러 가기" 버튼이 열 기획전 배너
+    findHomeBanners(new Date().toISOString()).catch(() => []),
+  ]);
+  const exhibition = banners.find((banner) => banner.banner_type === 'EXHIBITION');
+  return { ...board, exhibitionBannerId: exhibition?.id ?? null };
+}
+
+function dayInput(date, characterId) {
+  if (!isDate(date)) throw failure(400, 'FAN_INVALID_DATE', '날짜를 확인해 주세요.');
+  if (!characterId) throw failure(404, 'FAN_DAY_CHARACTER_NOT_FOUND', DB_ERRORS.FAN_DAY_CHARACTER_NOT_FOUND[1]);
+}
+
+const badCharacterId = (error) => (error.code === '22P02'
+  ? failure(404, 'FAN_DAY_CHARACTER_NOT_FOUND', DB_ERRORS.FAN_DAY_CHARACTER_NOT_FOUND[1])
+  : null);
+
+export async function toggleDayLike(userId, date, body = {}) {
+  dayInput(date, body.characterId);
+  try {
+    return await repository.dayLikeToggle(userId, date, body.characterId);
+  } catch (error) {
+    const bad = badCharacterId(error);
+    if (bad) throw bad;
+    return translate(error);
+  }
+}
+
+export async function addDayCongrats(userId, date, body = {}) {
+  dayInput(date, body.characterId);
+  try {
+    return await repository.dayCongratsAdd(userId, date, body.characterId, String(body.message ?? ''));
+  } catch (error) {
+    const bad = badCharacterId(error);
+    if (bad) throw bad;
+    return translate(error);
+  }
 }

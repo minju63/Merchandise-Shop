@@ -34,6 +34,13 @@ export const refundPack = handle((req, res) => service.refundPack(userId(res), r
 // POST /api/v1/fan/cheers 🔒
 export const sendCheers = handle((req, res) => service.sendCheers(userId(res), req.body), 201);
 
+// GET /api/v1/fan/day/:date — 그날 기념일인 최애 모아보기 (로그인하면 내 축하하기 표시 포함)
+export const getDayBoard = handle((req, res) => service.getDayBoard(req.params.date, userId(res)));
+// POST /api/v1/fan/day/:date/likes — 축하하기 하트 켜기·끄기 🔒
+export const toggleDayLike = handle((req, res) => service.toggleDayLike(userId(res), req.params.date, req.body));
+// POST /api/v1/fan/day/:date/congrats — 생일 축하 한마디 남기기 🔒
+export const addDayCongrats = handle((req, res) => service.addDayCongrats(userId(res), req.params.date, req.body), 201);
+
 // GET /api/v1/fan/designs/:designId — 꾸미기 불러오기 🔒
 export const getDesign = handle((req, res) => service.getDesign(userId(res), req.params.designId));
 // PUT /api/v1/fan/designs/:designId — 임시 저장 🔒

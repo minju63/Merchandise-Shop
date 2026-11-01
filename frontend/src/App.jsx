@@ -94,7 +94,7 @@ import AdProductsPage from './pages/home/AdProductsPage.jsx';
 import ExhibitionPage from './pages/home/ExhibitionPage.jsx';
 import FanGuidePage from './pages/home/FanGuidePage.jsx';
 import { fanApi } from './api/fan.api.js';
-import { FanCheerRoute, FanDesignRoute, FanRankingRoute, FanResultRoute, FanTicketsRoute } from './pages/fan/FanRoutes.jsx';
+import { FanCheerRoute, FanDayRoute, FanDesignRoute, FanRankingRoute, FanResultRoute, FanTicketsRoute } from './pages/fan/FanRoutes.jsx';
 import './App.css';
 import { useDialog } from './components/useDialog.jsx';
 
@@ -134,15 +134,16 @@ function useStoreFilter(storeId) {
   });
 }
 
-// 배너 종류별 상세 화면. 팬 응원 전광판(FAN_ANNIV · FAN_FREE)은 상세 화면이 없어 이동하지 않는다.
+// 배너 종류별 상세 화면. 기념일 전광판(FAN_ANNIV)은 "오늘 기념일인 최애" 화면으로, 자유 응원 전광판(FAN_FREE)은 보기 전용이라 이동하지 않는다.
 const BANNER_DETAIL_PATHS = {
   SERVICE_INTRO: '/intro',
   AD: '/ads',
   EXHIBITION: '/exhibitions',
 };
 
-function bannerPath({ bannerId, bannerType }) {
+function bannerPath({ bannerId, bannerType, fanDate }) {
   if (bannerType === 'FAN_PROMO') return '/fan/guide';
+  if (bannerType === 'FAN_ANNIV') return fanDate ? `/fan-banner/day/${fanDate}` : null;
   const base = BANNER_DETAIL_PATHS[bannerType];
   return base ? `${base}/${bannerId}` : null;
 }
@@ -373,12 +374,13 @@ function ExhibitionRoute() {
   const { bannerId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const character = searchParams.get('character') ?? '';
+  const date = searchParams.get('date') ?? '';
   const type = searchParams.get('type') ?? '';
   const inStock = searchParams.get('inStock') === 'true';
   // 캐릭터·종류·재고 조건이 바뀌면 그 기준으로 굿즈를 다시 불러온다.
   const query = useQuery({
-    queryKey: ['home-exhibition', bannerId, character, type, inStock],
-    queryFn: () => homeApi.exhibition(bannerId, { character, type, inStock: inStock || undefined }),
+    queryKey: ['home-exhibition', bannerId, character, date, type, inStock],
+    queryFn: () => homeApi.exhibition(bannerId, { character, date: date || undefined, type, inStock: inStock || undefined }),
     placeholderData: (previous) => previous,
     retry: false,
   });
@@ -820,6 +822,7 @@ export default function App() {
         <Route path="/fan/tickets" element={<FanTicketsRoute />} />
         <Route path="/fan/ranking" element={<FanRankingRoute />} />
         <Route path="/fan/result" element={<FanResultRoute />} />
+        <Route path="/fan-banner/day/:date" element={<FanDayRoute />} />
         <Route path="/fan/design/:designId" element={<FanDesignRoute />} />
 
         {/* 여경 — 굿즈샵 */}

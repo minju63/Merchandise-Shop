@@ -10,6 +10,7 @@ import FanTicketsPage from './FanTicketsPage.jsx';
 import FanResultPage from './FanResultPage.jsx';
 import FanDesignPage from './FanDesignPage.jsx';
 import FanRankingPage from './FanRankingPage.jsx';
+import FanDayPage from './FanDayPage.jsx';
 
 const RANKING_REFRESH_MS = 5000;
 
@@ -255,6 +256,75 @@ export function FanDesignRoute() {
       onSave={(payload, paths) => save.mutate({ payload, paths })}
       onSubmit={(payload, paths) => submit.mutate({ payload, paths })}
       onUpload={(file, target) => uploadDesignImage(designId, file, target)}
+    />
+  );
+}
+
+// 홈 4번 기념일 전광판을 누르면 열리는 "오늘 기념일인 최애" 화면 (/fan-banner/day/:date)
+export function FanDayRoute() {
+  const { date } = useParams();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { status } = useSession();
+  const loggedIn = status === 'in';
+  const [notice, setNotice] = useState('');
+  const query = useQuery({
+    queryKey: ['fan-day', date, loggedIn],
+    queryFn: () => fanApi.day(date),
+    enabled: status !== 'loading',
+    retry: false,
+  });
+  const board = query.data?.data;
+  const refresh = () => queryClient.invalidateQueries({ queryKey: ['fan-day', date] });
+  const toLogin = () => navigate(`/login?returnTo=${encodeURIComponent(`/fan-banner/day/${date}`)}`);
+  const like = useMutation({
+    mutationFn: (characterId) => fanApi.toggleDayLike(date, characterId),
+    onSuccess: refresh,
+  });
+  const congrats = useMutation({
+    mutationFn: ({ characterId, message }) => fanApi.addDayCongrats(date, characterId, message),
+    onSuccess: (response) => {
+      refresh();
+      setNotice(response.data.hidden ? '등록했어요. 운영 정책에 어긋나는 글은 숨김 처리돼요.' : '축하 한마디를 남겼어요!');
+    },
+  });
+
+  // 굿즈는 기획전 상세로 연다. 누른 최애가 캘린더에서 선택된 상태가 되도록 이름과 날짜를 함께 넘긴다.
+  const openGoods = (item) => {
+    const bannerId = board?.exhibitionBannerId;
+    if (!item) return navigate(bannerId ? `/exhibitions/${bannerId}?character=all` : '/search');
+    if (!bannerId) return navigate(`/search/results?q=${encodeURIComponent(item.name)}`);
+    return navigate(`/exhibitions/${bannerId}?character=${encodeURIComponent(item.name)}&date=${date}`);
+  };
+
+  return (
+    <FanDayPage
+      date={date}
+      board={board}
+      error={query.error?.response?.data?.message ?? query.error?.message}
+      loggedIn={loggedIn}
+      busy={like.isPending}
+      posting={congrats.isPending}
+      congratsNotice={notice}
+      congratsError={congrats.error?.message ?? like.error?.message}
+      onBack={goBack(navigate, '/')}
+      onRetry={() => query.refetch()}
+      onLike={(item) => (loggedIn ? like.mutate(item.characterId) : toLogin())}
+      onGoods={openGoods}
+      onGoodsAll={openGoods}
+      onSubmitCongrats={async (input) => {
+        if (!loggedIn) {
+          toLogin();
+          return false;
+        }
+        setNotice('');
+        try {
+          await congrats.mutateAsync(input);
+          return true;
+        } catch {
+          return false;
+        }
+      }}
     />
   );
 }

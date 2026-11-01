@@ -45,5 +45,8 @@ router.get('/designs/:designId', requireAuthentication, controller.getDesign);
 router.put('/designs/:designId', requireAuthentication, controller.saveDesign);
 router.post('/designs/:designId/submit', requireAuthentication, controller.submitDesign);
 router.post('/cheers', requireAuthentication, controller.sendCheers);
+router.get('/day/:date', optionalAuthentication, controller.getDayBoard);
+router.post('/day/:date/likes', requireAuthentication, controller.toggleDayLike);
+router.post('/day/:date/congrats', requireAuthentication, controller.addDayCongrats);
 
 export default router;

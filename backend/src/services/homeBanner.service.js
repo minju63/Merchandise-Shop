@@ -181,12 +181,21 @@ function exhibitionGoodsState(listing) {
   return listing.stock === 1 ? 'LAST_ONE' : 'IN_STOCK';
 }
 
-export async function getExhibition(bannerId, { character, type, inStock } = {}) {
+export async function getExhibition(bannerId, { character, date, type, inStock } = {}) {
   const banner = await loadLiveBanner(bannerId, 'EXHIBITION');
   // character=all 이면 이번 달 생일 캐릭터 전체의 굿즈를 보여준다.
   const showAll = character === 'all';
-  const selected = showAll ? null : (BIRTHDAY_CHARACTERS.find((item) => item.name === character)
+  // 팬 응원 "오늘 기념일인 최애" 화면에서 넘어오면 목록에 없는 최애도 그 날짜(date=YYYY-MM-DD)로 골라진 상태로 연다.
+  const listed = BIRTHDAY_CHARACTERS.find((item) => item.name === character);
+  const picked = /^\d{4}-(\d{2})-(\d{2})$/.exec(date ?? '');
+  const guest = !showAll && !listed && character && picked
+    ? { name: String(character).slice(0, 40), work: '', month: Number(picked[1]), day: Number(picked[2]) }
+    : null;
+  const selected = showAll ? null : (listed ?? guest
     ?? BIRTHDAY_CHARACTERS.find((item) => item.name === DEFAULT_CHARACTER));
+  const calendar = guest
+    ? [...BIRTHDAY_CHARACTERS, guest].sort((a, b) => a.month - b.month || a.day - b.day)
+    : BIRTHDAY_CHARACTERS;
   const categoryName = GOODS_TYPES[type];
   const products = await findProductsByCharacters(
     showAll ? BIRTHDAY_CHARACTERS.map((item) => item.name) : [selected.name]
@@ -214,7 +223,7 @@ export async function getExhibition(bannerId, { character, type, inStock } = {})
     id: banner.id,
     title: banner.title,
     month: EXHIBITION_MONTH,
-    characters: BIRTHDAY_CHARACTERS,
+    characters: calendar,
     selected,
     goodsTypes: Object.keys(GOODS_TYPES),
     goods,
