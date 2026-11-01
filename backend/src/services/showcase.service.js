@@ -207,7 +207,7 @@ export async function like(id, viewerId, liked) {
     ? await db().from('showcase_likes').upsert({ showcase_id: id, user_id: viewerId }, { onConflict: 'showcase_id,user_id', ignoreDuplicates: true })
     : await db().from('showcase_likes').delete().eq('showcase_id', id).eq('user_id', viewerId);
   check(result);
-  return decorate(row, viewerId);
+  return decorate(await base(id), viewerId);
 }
 
 export async function products(storeId, viewerId) {
