@@ -1,8 +1,10 @@
 import { Router } from 'express';
+import { map } from '../controllers/storeMap.controller.js';
 import * as controller from '../controllers/store.controller.js';
 import * as reviewController from '../controllers/review.controller.js';
 
 const router = Router();
+router.get('/map', map);
 router.get('/', controller.list);
 router.get('/:storeId', controller.detail);
 router.get('/:storeId/business-hours', controller.hours);
