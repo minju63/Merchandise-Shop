@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import BottomNavigation from '../../components/BottomNavigation.jsx';
 import { showcaseApi } from '../../api/showcase.api.js';
@@ -34,9 +34,11 @@ export function ShowcaseGallery({ type = 'PERSONAL', storeId, compact = false })
   const [sort, setSort] = useState('popular');
   const [page, setPage] = useState(1);
   const [categoryId, setCategoryId] = useState('');
+  const pageSize = compact ? 5 : type === 'SHOP' ? 6 : 12;
   const categories = useQuery({ queryKey: ['showcase-categories'], queryFn: showcaseApi.categories, enabled: type === 'SHOP' && !compact, retry: false });
   const query = useQuery({ queryKey: ['showcases', type, storeId, sort, page, categoryId, compact],
-    queryFn: () => showcaseApi.list({ type, storeId, sort, page, categoryId: categoryId || undefined, size: compact ? 5 : 12 }), retry: false, staleTime: 60_000, refetchInterval: 60000 });
+    queryFn: () => showcaseApi.list({ type, storeId, sort, page, categoryId: categoryId || undefined, size: pageSize }), retry: false, staleTime: 60_000, refetchInterval: 60000 });
+  const totalPages = Math.ceil((query.data?.totalCount ?? 0) / pageSize);
   return <section className={`showcase-gallery ${compact ? 'is-compact' : ''}`}>
     <div className="showcase-gallery__heading"><div><h2>{type === 'PERSONAL' ? '덕질 진열장' : '진열장 구경'}</h2>
       <p>{type === 'PERSONAL' ? '다른 팬들이 꾸민 진열장을 구경해 보세요' : '굿즈샵에서 꾸민 쇼핑 진열장을 둘러보세요'}</p></div>
@@ -46,7 +48,7 @@ export function ShowcaseGallery({ type = 'PERSONAL', storeId, compact = false })
     {type === 'SHOP' && !compact && <div className="showcase-filter-chips"><button className={!categoryId ? 'active' : ''} onClick={() => { setCategoryId(''); setPage(1); }}>전체</button>{categories.data?.map((category) => <button key={category.id} className={categoryId === category.id ? 'active' : ''} onClick={() => { setCategoryId(category.id); setPage(1); }}>{category.name}</button>)}</div>}
     <State query={query} empty="아직 공개된 진열장이 없어요." />
     {query.data?.items?.length > 0 && <div className="showcase-gallery__grid">{query.data.items.map((item) => <ShowcaseCard key={item.id} showcase={item} />)}</div>}
-    {!compact && <nav className="showcase-pages" aria-label="진열장 페이지"><button type="button" disabled={page === 1} onClick={() => setPage(page - 1)}>‹ 이전</button><span aria-current="page">{page}</span><button type="button" disabled={page * 12 >= (query.data?.totalCount ?? 0)} onClick={() => setPage(page + 1)}>다음 ›</button></nav>}
+    {!compact && totalPages > 0 && <nav className="showcase-pages" aria-label="진열장 페이지"><button type="button" disabled={page === 1} onClick={() => setPage(page - 1)}>이전</button><span aria-current="page">{page} / {totalPages}</span><button type="button" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>다음</button></nav>}
   </section>;
 }
 export function ShowcaseGalleryPage() {
@@ -172,8 +174,9 @@ export function ShowcaseDetailPage() {
           </div>
         </details>}
       </div>
-      <span className="showcase-detail-owner">{row.type === 'SHOP' ? row.storeName : `by ${row.ownerNickname}`}</span>
-      {row.type === 'SHOP' && <button className="showcase-store-link" onClick={() => navigate(`/stores/${row.store_id}`)}>매장 보기 ›</button>}
+      {row.type === 'SHOP'
+        ? <Link className="showcase-detail-owner showcase-detail-store" to={`/stores/${row.store_id}`}>{row.storeName}<span aria-hidden="true">›</span></Link>
+        : <span className="showcase-detail-owner">by {row.ownerNickname}</span>}
       {row.description && <p>{row.description}</p>}
       {deleteError && <p role="alert">{deleteError}</p>}
       <ShowcaseBoard showcase={row} onItemClick={choose} />

@@ -440,27 +440,14 @@
 }
 
 .list-main .store-list-heading {
-  min-height: 42px;
-  margin: 0 0 11px;
-  align-items: end;
+  min-height: 0;
+  margin: 0 0 14px;
+  align-items: start;
+  gap: 12px;
 }
 
 .store-main.list-main > .showcase-store-tabs + .store-list-heading {
   margin-top: 16px;
-}
-
-.store-list-heading h1 {
-  margin: 0;
-  color: #211d2b;
-  font-size: 17px;
-  line-height: 1.25;
-  letter-spacing: -0.65px;
-}
-
-.store-list-heading p {
-  margin: 4px 0 0;
-  color: #817b8a;
-  font-size: 11px;
 }
 
 .list-main .sort-trigger {

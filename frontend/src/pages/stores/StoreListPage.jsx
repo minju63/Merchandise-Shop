@@ -71,19 +71,21 @@ export default function StoreListPage() {
       <StoreHeader />
       <main className="store-main list-main">
         {tabs}
-        <div className="section-heading store-list-heading">
+        <div className="section-heading store-list-heading showcase-gallery__heading">
           <div>
-            <h1>굿즈샵 둘러보기</h1>
+            <h2>굿즈샵 둘러보기</h2>
             <p>
               전체 {data?.data.allStoresCount ?? 0}곳
               {(distanceMode || Object.values(filters).some(Boolean)) && ` · 검색 결과 ${data?.data.totalCount ?? 0}곳`}
             </p>
           </div>
-          <StoreSort
-            value={sort}
-            options={sortOptions}
-            onChange={changeSort}
-          />
+          <div className="showcase-gallery__sort">
+            <StoreSort
+              value={sort}
+              options={sortOptions}
+              onChange={changeSort}
+            />
+          </div>
         </div>
         <StoreFilter filters={filters} onChange={changeFilter} />
         {distanceMode ? (

@@ -564,7 +564,8 @@ function SearchResultsRoute() {
   const query = searchParams.get('q')?.trim() ?? '';
   const storeId = searchParams.get('storeId');
   const originStoreId = storeId || location.state?.originStoreId;
-  const searchState = originStoreId ? { originStoreId } : undefined;
+  const fromStoreDetail = Boolean(storeId && location.state?.fromStoreDetail);
+  const searchState = originStoreId ? { originStoreId, fromStoreDetail } : undefined;
   const sort = searchParams.get('sort') ?? 'popular';
   const page = Number(searchParams.get('page') ?? 1);
   const regionAll = searchParams.get('region') === 'all';
@@ -661,7 +662,9 @@ function SearchResultsRoute() {
         setSavedFilters({ key: filterKey, value: nextFilters });
         if (page > 1) navigate(searchUrl('/search/results', { query, storeId, sort, regionAll }), { state: searchState });
       }}
-      onBack={() => navigate(searchUrl('/search', { query, storeId }), { state: searchState })}
+      onBack={() => fromStoreDetail
+        ? navigate(`/stores/${encodeURIComponent(storeId)}`, { replace: true })
+        : navigate(searchUrl('/search', { query, storeId }), { state: searchState })}
       // 결과 화면에서 다시 검색하면 이전 정렬을 이어받지 않고 처음 검색할 때처럼 시작한다.
       onSearch={(nextQuery) => navigate(searchUrl('/search/results', { query: nextQuery, storeId }), { state: searchState })}
       onLogSearch={logSearch}

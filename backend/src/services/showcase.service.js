@@ -3,6 +3,20 @@ import { getSupabase } from '../lib/supabase.js';
 
 const db = () => getSupabase();
 const fail = (status, code, message) => { throw Object.assign(new Error(message), { status, code }); };
+async function removalFailure(response, message) {
+  let payload;
+  try { payload = await response.json(); } catch { /* The provider may return an empty or non-JSON body. */ }
+  const errors = Array.isArray(payload?.errors) ? payload.errors.map((error) => ({
+    code: String(error.code ?? '').slice(0, 80),
+    title: String(error.title ?? '').slice(0, 180),
+  })) : [];
+  console.error('remove.bg rejected background removal', { status: response.status, errors });
+  if (errors.some((error) => error.code === 'unknown_foreground')) {
+    fail(422, 'REMOVAL_UNKNOWN_FOREGROUND', '이 사진에서 상품을 인식하지 못했어요. 다른 상품 사진을 사용해 주세요.');
+  }
+  const reason = errors.map((error) => error.title || error.code).filter(Boolean).join('; ');
+  fail(503, 'REMOVAL_FAILED', `${message} (remove.bg HTTP ${response.status}${reason ? `: ${reason}` : ''})`);
+}
 const uuid = (value) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value ?? '');
 const check = ({ data, error }) => {
   if (error) fail(503, 'SHOWCASE_STORAGE_ERROR', '진열장 정보를 처리하지 못했어요.');
@@ -70,7 +84,8 @@ async function decorate(row, viewerId, detailed = false) {
   const enriched = (items.data ?? []).map((item) => {
     const product = products.get(item.store_product_id) ?? null;
     return { ...item, imageUrl: item.cutout_path ? asset(row.id, item.cutout_path)
-      : item.original_path ? asset(row.id, item.original_path) : product?.imageUrl, product };
+      : item.original_path ? asset(row.id, item.original_path) : product?.imageUrl,
+    isSoldOut: Boolean(product && product.stock <= 0), product };
   });
   const thumbnail = row.thumbnail_path || (items.data ?? []).find((item) => item.cutout_path || item.original_path)?.cutout_path
     || (items.data ?? []).find((item) => item.original_path)?.original_path;
@@ -83,7 +98,7 @@ async function decorate(row, viewerId, detailed = false) {
     thumbnailUrl: asset(row.id, thumbnail),
     items: detailed ? enriched : enriched.map((item) => ({
       id: item.id, x: item.x, y: item.y, scale: item.scale, rotation: item.rotation,
-      layer_order: item.layer_order, imageUrl: item.imageUrl,
+      layer_order: item.layer_order, imageUrl: item.imageUrl, isSoldOut: item.isSoldOut,
     })),
   };
 }
@@ -225,9 +240,17 @@ export async function like(id, viewerId, liked) {
 
 export async function products(storeId, viewerId) {
   await shopOwner(viewerId, storeId);
-  const rows = check(await db().from('store_products')
-    .select('id,store_id,price,stock,status,product:products(name,thumbnail_url)')
-    .eq('store_id', storeId).not('status', 'in', '(HIDDEN,DELETED)').order('created_at', { ascending: false }).limit(100));
+  const rows = [];
+  const pageSize = 500;
+  for (let offset = 0; ; offset += pageSize) {
+    const page = check(await db().from('store_products')
+      .select('id,store_id,price,stock,status,product:products(name,thumbnail_url)')
+      .eq('store_id', storeId).not('status', 'in', '(HIDDEN,DELETED)')
+      .order('created_at', { ascending: false }).order('id', { ascending: false })
+      .range(offset, offset + pageSize - 1));
+    rows.push(...page);
+    if (page.length < pageSize) break;
+  }
   return rows.map((row) => ({ ...row, name: row.product?.name, imageUrl: row.product?.thumbnail_url }));
 }
 
@@ -306,7 +329,8 @@ export async function removeBackground(id, input, viewerId) {
   } catch {
     fail(503, 'REMOVAL_FAILED', '배경 제거 연결이 끊겼어요. 다시 시도해 주세요.');
   }
-  if (!response.ok) fail(503, 'REMOVAL_FAILED', '배경 제거에 실패했어요. 다시 시도하거나 원본을 사용해 주세요.');
+  if (response.status === 402) fail(503, 'REMOVAL_NO_CREDITS', '배경 제거 서비스의 사용 가능 횟수가 소진됐어요. 원본 사진을 사용해 주세요.');
+  if (!response.ok) await removalFailure(response, '배경 제거에 실패했어요. 다시 시도하거나 원본을 사용해 주세요.');
   const buffer = Buffer.from(await response.arrayBuffer());
   const info = imageInfo(buffer);
   if (info?.mime !== 'image/png' || ![4, 6].includes(buffer[25])) fail(503, 'REMOVAL_FAILED', '투명 이미지를 만들지 못했어요.');
@@ -328,6 +352,7 @@ export async function removeProductBackground(id, productId, viewerId) {
   const form = new FormData();
   form.append('image_url', product.product.thumbnail_url);
   form.append('size', 'auto');
+  form.append('type', 'product');
   let response;
   try {
     response = await fetch('https://api.remove.bg/v1.0/removebg', {
@@ -335,7 +360,8 @@ export async function removeProductBackground(id, productId, viewerId) {
       body: form, signal: AbortSignal.timeout(30000),
     });
   } catch { fail(503, 'REMOVAL_FAILED', '배경 제거 연결이 끊겼어요. 다시 시도해 주세요.'); }
-  if (!response.ok) fail(503, 'REMOVAL_FAILED', '배경 제거에 실패했어요. 원본 사진을 사용할 수 있어요.');
+  if (response.status === 402) fail(503, 'REMOVAL_NO_CREDITS', '배경 제거 서비스의 사용 가능 횟수가 소진됐어요. 원본 사진을 사용해 주세요.');
+  if (!response.ok) await removalFailure(response, '배경 제거에 실패했어요. 원본 사진을 사용할 수 있어요.');
   const buffer = Buffer.from(await response.arrayBuffer());
   if (imageInfo(buffer)?.mime !== 'image/png' || ![4, 6].includes(buffer[25])) fail(503, 'REMOVAL_FAILED', '투명 이미지를 만들지 못했어요.');
   const path = `${viewerId}/${id}/cutout/${randomUUID()}.png`;

@@ -36,12 +36,16 @@ export default function ShowcaseEditorPage() {
   const [newNameError, setNewNameError] = useState(false);
   const [invalidItemId, setInvalidItemId] = useState(null);
   const [showProducts, setShowProducts] = useState(false);
+  const [productSearch, setProductSearch] = useState('');
   const fileSelection = useRef(0);
   const newNameInput = useRef(null);
   const selectedNameInput = useRef(null);
   const backgroundFileInput = useRef(null);
   const products = useQuery({ queryKey: ['showcase-products', draft?.store_id],
     queryFn: () => showcaseApi.products(draft.store_id), enabled: Boolean(draft?.type === 'SHOP' && showProducts), retry: false });
+  const searchTerm = productSearch.trim().toLocaleLowerCase();
+  const filteredProducts = products.data?.filter((product) =>
+    (product.name ?? '').toLocaleLowerCase().includes(searchTerm)) ?? [];
 
   if (query.isSuccess && query.isFetchedAfterMount && !query.isFetching
     && (draft?.id !== query.data.id || (!dirty && draft.version !== query.data.version)))
@@ -234,6 +238,7 @@ export default function ShowcaseEditorPage() {
     const item = { id: uuid(), store_product_id: product.id, original_path: null,
       cutout_path: useCutout ? productCutout.path : null,
       imageUrl: useCutout ? productCutout.imageUrl : product.imageUrl,
+      isSoldOut: product.stock <= 0,
       product: { name: product.name, imageUrl: product.imageUrl },
       x: 0.5, y: 0.28, scale: 1, rotation: 0, layer_order: draft.items.length };
     change({ items: [...draft.items, item] }); setSelected(item.id);
@@ -340,8 +345,14 @@ export default function ShowcaseEditorPage() {
         {draft.background_path && !backgroundEditing && <button type="button" onClick={() => { setSelected(null); setBackgroundEditing(true); }}>배경 위치 다시 조절</button>}
       </div>
       <div className="showcase-editor-section"><h2>{draft.type === 'SHOP' ? '매장 상품 추가' : '굿즈 사진 추가'}</h2>
-        {draft.type === 'SHOP' ? <><button className="showcase-primary" disabled={busy} onClick={() => setShowProducts((v) => !v)}>상품 선택</button>
-          {showProducts && <div className="showcase-product-picker">{products.isPending ? '상품을 불러오는 중이에요…' : products.isError ? <p>{products.error.message} <button onClick={() => products.refetch()}>다시 시도</button></p> : products.data?.length ? products.data.map((product) => <button key={product.id} disabled={busy} onClick={() => { setProductChoice(product); setProductCutout(null); setShowProducts(false); setMessage(''); }}>{product.imageUrl ? <img src={product.imageUrl} alt="" /> : <span className="showcase-image-fallback" aria-label="상품 이미지 없음" />}<span>{product.name}</span></button>) : '등록된 상품이 없어요.'}</div>}
+        {draft.type === 'SHOP' ? <><button className="showcase-primary" disabled={busy} onClick={() => { setShowProducts((v) => !v); setProductSearch(''); }}>상품 선택</button>
+          {showProducts && <div className="showcase-product-selection">
+            <label className="showcase-product-search">상품 검색
+              <input type="search" value={productSearch} onChange={(event) => setProductSearch(event.target.value)} placeholder="상품 이름을 입력하세요" />
+            </label>
+            {products.isSuccess && <p className="showcase-product-search-count">{filteredProducts.length}개 상품</p>}
+            <div className="showcase-product-picker">{products.isPending ? '상품을 불러오는 중이에요…' : products.isError ? <p>{products.error.message} <button onClick={() => products.refetch()}>다시 시도</button></p> : filteredProducts.length ? filteredProducts.map((product) => <button key={product.id} disabled={busy} onClick={() => { setProductChoice(product); setProductCutout(null); setShowProducts(false); setProductSearch(''); setMessage(''); }}>{product.imageUrl ? <img src={product.imageUrl} alt="" /> : <span className="showcase-image-fallback" aria-label="상품 이미지 없음" />}<span>{product.name}</span></button>) : products.data?.length ? '검색 결과가 없어요.' : '등록된 상품이 없어요.'}</div>
+          </div>}
           {productChoice && <><p className="showcase-hint">{productChoice.name}</p>
             <div className="showcase-image-compare"><div><strong>원본 상품 사진</strong><ShowcaseImage src={productChoice.imageUrl} alt="원본 상품 사진" /></div>
               <div><strong>배경 제거 결과</strong>{productCutout ? <ShowcaseImage src={productCutout.imageUrl} alt="배경 제거 결과" /> : <span>처리 전</span>}</div></div>

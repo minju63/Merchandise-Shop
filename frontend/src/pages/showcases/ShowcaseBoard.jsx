@@ -77,8 +77,9 @@ export default function ShowcaseBoard({ showcase, items = showcase.items ?? [], 
       {backgroundControls && <div className="showcase-board__background-actions">{backgroundControls}</div>}
       {[...items].sort((a, b) => a.layer_order - b.layer_order).map((item) => {
         const Element = onMove || onItemClick ? 'button' : 'span';
+        const isSoldOut = showcase.type === 'SHOP' && item.isSoldOut;
         return <Element key={item.id} {...(Element === 'button' ? { type: 'button' } : {})}
-          className={`showcase-board__item ${selectedId === item.id && !onResize ? 'is-selected' : ''}`}
+          className={`showcase-board__item ${selectedId === item.id && !onResize ? 'is-selected' : ''} ${isSoldOut ? 'is-sold-out' : ''}`}
           style={{ left: `${item.x * 100}%`, top: `${item.y * 100}%`,
             width: `${26 * item.scale}%`, zIndex: item.layer_order + 1,
             transform: `translate(-50%, -50%) rotate(${item.rotation}deg)` }}
@@ -111,8 +112,9 @@ export default function ShowcaseBoard({ showcase, items = showcase.items ?? [], 
           }}
           onPointerUp={(event) => { pointers.delete(event.pointerId); delete event.currentTarget.dataset.pinchDistance; }}
           onPointerCancel={(event) => { pointers.delete(event.pointerId); delete event.currentTarget.dataset.pinchDistance; }}
-          aria-label={item.goods_name || item.product?.name || '굿즈'}>
+          aria-label={`${item.goods_name || item.product?.name || '굿즈'}${isSoldOut ? ', 품절' : ''}`}>
           <ShowcaseImage src={item.imageUrl || item.product?.imageUrl} alt="" draggable={false} cacheMedia={cacheMedia} />
+          {isSoldOut && <span className="showcase-board__sold-out" aria-hidden="true">품절</span>}
         </Element>;
       })}
       {selectedItem && <div className="showcase-board__selection"
