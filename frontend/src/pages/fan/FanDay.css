@@ -99,6 +99,7 @@
 
 .fd-name { margin: 6px 0 0; font-size: 18px; letter-spacing: -0.5px; }
 .fd-sub { margin: 4px 0 0; color: #747781; font-size: 13px; }
+.fd-like-count { margin: 5px 0 0; color: #6f5be7; font-size: 13px; font-weight: 800; }
 .fd-wish { margin: 14px 0 0; font-size: 15px; font-weight: 700; }
 
 .fd-quote {
@@ -158,6 +159,7 @@
 .fd-mini__info { display: flex; flex: 1; flex-direction: column; gap: 2px; min-width: 0; }
 .fd-mini__info strong { font-size: 14px; }
 .fd-mini__info span { color: #747781; font-size: 12px; }
+.fd-mini__info .fd-mini__likes { margin-top: 2px; color: #6f5be7; font-weight: 800; }
 
 .fd-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 
@@ -212,3 +214,33 @@
 
 .fd-congrats p { margin: 6px 0 2px; font-size: 14px; line-height: 1.5; word-break: break-all; }
 .fd-congrats small { color: #abaab3; font-size: 12px; }
+
+.fd-congrats__meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.fd-congrats__actions { display: flex; gap: 10px; }
+.fd-congrats__actions button,
+.fd-congrats__edit button {
+  padding: 0;
+  border: 0;
+  color: #6f5be7;
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.fd-congrats__actions button:last-child { color: #d34b62; }
+.fd-congrats__actions button:disabled,
+.fd-congrats__edit button:disabled { opacity: 0.45; }
+
+.fd-congrats__edit { display: flex; align-items: center; gap: 8px; margin: 8px 0 4px; }
+.fd-congrats__edit input {
+  flex: 1;
+  min-width: 0;
+  height: 38px;
+  padding: 0 11px;
+  border: 1px solid #b4a5f8;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 14px;
+  outline: 0;
+}

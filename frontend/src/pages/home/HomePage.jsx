@@ -300,7 +300,7 @@ export default function HomePage({
         <div className="header-row">
           <h1>굿즈<span>픽</span></h1>
           <div className="header-actions">
-            <NotificationBell iconSize={21} />
+            <NotificationBell iconSize={21} count={data.badges.notifications} />
             <button type="button" aria-label="장바구니" onClick={onOpenCart} disabled={!onOpenCart}>
               <Icon name="cart" size={22} />
               {data.badges.cart > 0 && <span className="action-badge">{data.badges.cart}</span>}

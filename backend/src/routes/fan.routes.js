@@ -48,5 +48,7 @@ router.post('/cheers', requireAuthentication, controller.sendCheers);
 router.get('/day/:date', optionalAuthentication, controller.getDayBoard);
 router.post('/day/:date/likes', requireAuthentication, controller.toggleDayLike);
 router.post('/day/:date/congrats', requireAuthentication, controller.addDayCongrats);
+router.put('/day/:date/congrats/:congratsId', requireAuthentication, controller.updateDayCongrats);
+router.delete('/day/:date/congrats/:congratsId', requireAuthentication, controller.deleteDayCongrats);
 
 export default router;

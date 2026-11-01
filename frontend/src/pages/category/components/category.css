@@ -117,6 +117,11 @@
   background: var(--accent-bg, #f4efff);
   font-size: 13px;
 }
+.category-chip--danger {
+  color: #c54c48;
+  background: #ffe8e6;
+  font-weight: 700;
+}
 .category-product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
@@ -552,6 +557,7 @@
   color: white;
   font-size: 12px;
 }
+.category-gallery-count.has-countdown { bottom: 50px; }
 .category-soldout-overlay {
   position: absolute;
   inset: 0;
@@ -571,6 +577,19 @@
 }
 .category-coming-soon-overlay {
   background: rgb(110 108 120 / 45%);
+}
+.category-upcoming-countdown {
+  position: absolute;
+  z-index: 2;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 12px 16px;
+  color: #fff;
+  background: rgb(41 35 43 / 78%);
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.35;
 }
 .category-upcoming-time {
   display: block;

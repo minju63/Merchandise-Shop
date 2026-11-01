@@ -9,6 +9,28 @@ const failure = (status, code, message) => Object.assign(new Error(message), { s
 
 const CHARGE_AMOUNTS = [5000, 10000, 30000, 50000];
 
+// 생일 모아보기 목업 기본 축하 수. DB 시드가 아직 적용되지 않은 개발 환경에서도
+// 화면을 확인할 수 있게 하고, DB가 이미 기본값을 반환하면 중복 합산하지 않는다.
+const DAY_LIKE_MOCK_COUNTS = new Map([
+  ['고죠 사토루', 3284],
+  ['후시구로 메구미', 1436],
+  ['쿠기사키 노바라', 1092],
+]);
+
+export function applyDayLikeMocks(board) {
+  const apply = (item) => {
+    const base = DAY_LIKE_MOCK_COUNTS.get(item.name);
+    const current = Number(item.likeCount ?? 0);
+    if (!base || current >= base) return item;
+    return { ...item, likeCount: base + current };
+  };
+  return {
+    ...board,
+    ranked: (board.ranked ?? []).map(apply),
+    others: (board.others ?? []).map(apply),
+  };
+}
+
 // DB 함수가 던지는 FAN_* 오류를 화면에 보여 줄 메시지로 바꾼다.
 const DB_ERRORS = {
   FAN_CHEER_CLOSED: [409, '이번 주 응원이 마감됐어요. 다음 주 월요일에 다시 응원할 수 있어요.'],
@@ -36,6 +58,7 @@ const DB_ERRORS = {
   FAN_DAY_CHARACTER_NOT_FOUND: [404, '그날 기념일인 최애가 아니에요.'],
   FAN_DAY_INVALID_MESSAGE: [400, '축하 한마디는 1~50자로 입력해 주세요.'],
   FAN_DAY_CONGRATS_LIMIT: [409, '축하 한마디는 하루에 최대 5개까지 남길 수 있어요.'],
+  FAN_DAY_CONGRATS_NOT_FOUND: [404, '수정하거나 삭제할 축하 한마디를 찾을 수 없어요.'],
 };
 
 function translate(error) {
@@ -275,7 +298,7 @@ export async function getDayBoard(date, userId) {
     findHomeBanners(new Date().toISOString()).catch(() => []),
   ]);
   const exhibition = banners.find((banner) => banner.banner_type === 'EXHIBITION');
-  return { ...board, exhibitionBannerId: exhibition?.id ?? null };
+  return applyDayLikeMocks({ ...board, exhibitionBannerId: exhibition?.id ?? null });
 }
 
 function dayInput(date, characterId) {
@@ -304,6 +327,37 @@ export async function addDayCongrats(userId, date, body = {}) {
     return await repository.dayCongratsAdd(userId, date, body.characterId, String(body.message ?? ''));
   } catch (error) {
     const bad = badCharacterId(error);
+    if (bad) throw bad;
+    return translate(error);
+  }
+}
+
+function congratsInput(date, congratsId) {
+  if (!isDate(date)) throw failure(400, 'FAN_INVALID_DATE', '날짜를 확인해 주세요.');
+  if (!congratsId) throw failure(404, 'FAN_DAY_CONGRATS_NOT_FOUND', DB_ERRORS.FAN_DAY_CONGRATS_NOT_FOUND[1]);
+}
+
+const badCongratsId = (error) => (error.code === '22P02'
+  ? failure(404, 'FAN_DAY_CONGRATS_NOT_FOUND', DB_ERRORS.FAN_DAY_CONGRATS_NOT_FOUND[1])
+  : null);
+
+export async function updateDayCongrats(userId, date, congratsId, body = {}) {
+  congratsInput(date, congratsId);
+  try {
+    return await repository.dayCongratsUpdate(userId, date, congratsId, String(body.message ?? ''));
+  } catch (error) {
+    const bad = badCongratsId(error);
+    if (bad) throw bad;
+    return translate(error);
+  }
+}
+
+export async function deleteDayCongrats(userId, date, congratsId) {
+  congratsInput(date, congratsId);
+  try {
+    return await repository.dayCongratsDelete(userId, date, congratsId);
+  } catch (error) {
+    const bad = badCongratsId(error);
     if (bad) throw bad;
     return translate(error);
   }

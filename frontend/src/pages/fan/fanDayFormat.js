@@ -11,6 +11,21 @@ export const dayParts = (date) => {
 // 기념일이 전부 생일이면 "생일", 아니면 "기념일"
 export const eventWord = (birthdayOnly) => (birthdayOnly ? '생일' : '기념일');
 
+// 축하 한마디 작성 시각을 서비스 기준 시간대(한국)로 표시한다.
+export function congratsTime(value) {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleString('ko-KR', {
+    timeZone: 'Asia/Seoul',
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
 // "오늘의 생일 최애 3명" / 오늘이 아니면 "12.7 생일 최애 3명"
 export function dayChipLabel(date, count, birthdayOnly) {
   const { month, day } = dayParts(date);

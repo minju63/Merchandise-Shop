@@ -4,8 +4,18 @@
 // 🔒 표시는 로그인 필요 — 구현 시 middlewares/auth.middleware.js의 requireAuth 적용
 import { Router } from 'express';
 import * as notificationController from '../controllers/notification.controller.js';
+import { authenticate } from '../services/auth.service.js';
 
 const router = Router();
+
+router.use(async (req, res, next) => {
+  try {
+    res.locals.authUser = await authenticate(req.get('Authorization'));
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 router.get('/', notificationController.getNotifications); // 알림 목록 🔒
 router.patch('/read-all', notificationController.readAllNotifications); // 전체 읽음 🔒

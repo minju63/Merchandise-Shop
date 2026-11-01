@@ -72,6 +72,7 @@ import client from './api/client.js';
 import { cartApi } from './api/cart.api.js';
 import { wishlistApi } from './api/wishlist.api.js';
 import { openAlertApi } from './api/openAlert.api.js';
+import { notificationApi } from './api/notification.api.js';
 import { preorderApi } from './api/preorder.api.js';
 import useWishlist from './hooks/useWishlist.js';
 import { supabase } from './lib/supabase.js';
@@ -225,6 +226,12 @@ function HomeRoute() {
     enabled: sessionStatus === 'in',
     retry: false,
   });
+  const badgeQuery = useQuery({
+    queryKey: ['header-badges', session?.user?.id],
+    queryFn: notificationApi.badges,
+    enabled: sessionStatus === 'in',
+    retry: false,
+  });
 
   const { alert: showAlert, dialog } = useDialog();
 
@@ -262,7 +269,15 @@ function HomeRoute() {
   return (
     <>
     <HomePage
-      data={{ ...homeMockData, ...homeQuery.data.data }}
+      data={{
+        ...homeMockData,
+        ...homeQuery.data.data,
+        badges: {
+          ...homeMockData.badges,
+          ...homeQuery.data.data.badges,
+          notifications: badgeQuery.data?.data?.notifications ?? 0,
+        },
+      }}
       isAuthenticated={sessionStatus === 'in'}
       onLogin={goLogin}
       onRequestLogin={goLogin}

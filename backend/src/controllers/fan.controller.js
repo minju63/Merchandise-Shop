@@ -40,6 +40,10 @@ export const getDayBoard = handle((req, res) => service.getDayBoard(req.params.d
 export const toggleDayLike = handle((req, res) => service.toggleDayLike(userId(res), req.params.date, req.body));
 // POST /api/v1/fan/day/:date/congrats — 생일 축하 한마디 남기기 🔒
 export const addDayCongrats = handle((req, res) => service.addDayCongrats(userId(res), req.params.date, req.body), 201);
+// PUT /api/v1/fan/day/:date/congrats/:congratsId — 내가 쓴 축하 한마디 수정 🔒
+export const updateDayCongrats = handle((req, res) => service.updateDayCongrats(userId(res), req.params.date, req.params.congratsId, req.body));
+// DELETE /api/v1/fan/day/:date/congrats/:congratsId — 내가 쓴 축하 한마디 삭제 🔒
+export const deleteDayCongrats = handle((req, res) => service.deleteDayCongrats(userId(res), req.params.date, req.params.congratsId));
 
 // GET /api/v1/fan/designs/:designId — 꾸미기 불러오기 🔒
 export const getDesign = handle((req, res) => service.getDesign(userId(res), req.params.designId));

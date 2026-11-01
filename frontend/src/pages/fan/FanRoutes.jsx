@@ -279,13 +279,49 @@ export function FanDayRoute() {
   const toLogin = () => navigate(`/login?returnTo=${encodeURIComponent(`/fan-banner/day/${date}`)}`);
   const like = useMutation({
     mutationFn: (characterId) => fanApi.toggleDayLike(date, characterId),
-    onSuccess: refresh,
+    onMutate: async (characterId) => {
+      await queryClient.cancelQueries({ queryKey: ['fan-day', date] });
+      const previous = queryClient.getQueriesData({ queryKey: ['fan-day', date] });
+      queryClient.setQueriesData({ queryKey: ['fan-day', date] }, (current) => {
+        if (!current?.data) return current;
+        const toggle = (item) => item.characterId === characterId
+          ? { ...item, liked: !item.liked, likeCount: Math.max(0, item.likeCount + (item.liked ? -1 : 1)) }
+          : item;
+        return {
+          ...current,
+          data: {
+            ...current.data,
+            ranked: current.data.ranked.map(toggle),
+            others: current.data.others.map(toggle),
+          },
+        };
+      });
+      return { previous };
+    },
+    onError: (_error, _characterId, context) => {
+      context?.previous.forEach(([key, value]) => queryClient.setQueryData(key, value));
+    },
+    onSettled: refresh,
   });
   const congrats = useMutation({
     mutationFn: ({ characterId, message }) => fanApi.addDayCongrats(date, characterId, message),
     onSuccess: (response) => {
       refresh();
       setNotice(response.data.hidden ? '등록했어요. 운영 정책에 어긋나는 글은 숨김 처리돼요.' : '축하 한마디를 남겼어요!');
+    },
+  });
+  const updateCongrats = useMutation({
+    mutationFn: ({ id, message }) => fanApi.updateDayCongrats(date, id, message),
+    onSuccess: (response) => {
+      refresh();
+      setNotice(response.data.hidden ? '수정했어요. 운영 정책에 어긋나는 글은 숨김 처리돼요.' : '축하 한마디를 수정했어요.');
+    },
+  });
+  const deleteCongrats = useMutation({
+    mutationFn: (id) => fanApi.deleteDayCongrats(date, id),
+    onSuccess: () => {
+      refresh();
+      setNotice('축하 한마디를 삭제했어요.');
     },
   });
 
@@ -304,9 +340,9 @@ export function FanDayRoute() {
       error={query.error?.response?.data?.message ?? query.error?.message}
       loggedIn={loggedIn}
       busy={like.isPending}
-      posting={congrats.isPending}
+      posting={congrats.isPending || updateCongrats.isPending || deleteCongrats.isPending}
       congratsNotice={notice}
-      congratsError={congrats.error?.message ?? like.error?.message}
+      congratsError={congrats.error?.message ?? updateCongrats.error?.message ?? deleteCongrats.error?.message ?? like.error?.message}
       onBack={goBack(navigate, '/')}
       onRetry={() => query.refetch()}
       onLike={(item) => (loggedIn ? like.mutate(item.characterId) : toLogin())}
@@ -320,6 +356,24 @@ export function FanDayRoute() {
         setNotice('');
         try {
           await congrats.mutateAsync(input);
+          return true;
+        } catch {
+          return false;
+        }
+      }}
+      onUpdateCongrats={async (input) => {
+        setNotice('');
+        try {
+          await updateCongrats.mutateAsync(input);
+          return true;
+        } catch {
+          return false;
+        }
+      }}
+      onDeleteCongrats={async (id) => {
+        setNotice('');
+        try {
+          await deleteCongrats.mutateAsync(id);
           return true;
         } catch {
           return false;

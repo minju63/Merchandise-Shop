@@ -107,6 +107,7 @@ function ProductDetailPageContent({
             displayStatus === 'SOLD_OUT'
           }
           comingSoon={displayStatus === 'UPCOMING'}
+          upcomingAt={product.upcomingAt}
         />
         <ProductInfo product={product} />
       </div>

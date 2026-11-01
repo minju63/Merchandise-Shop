@@ -36,4 +36,8 @@ export const fanApi = {
     client.post(`/fan/day/${date}/likes`, { characterId }, { headers: await authHeaders() }),
   addDayCongrats: async (date, characterId, message) =>
     client.post(`/fan/day/${date}/congrats`, { characterId, message }, { headers: await authHeaders() }),
+  updateDayCongrats: async (date, congratsId, message) =>
+    client.put(`/fan/day/${date}/congrats/${congratsId}`, { message }, { headers: await authHeaders() }),
+  deleteDayCongrats: async (date, congratsId) =>
+    client.delete(`/fan/day/${date}/congrats/${congratsId}`, { headers: await authHeaders() }),
 };

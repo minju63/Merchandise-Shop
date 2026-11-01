@@ -1,6 +1,7 @@
 -- 응원 12단계: 홈 4번 기념일 전광판을 누르면 열리는 "오늘 기념일인 최애 모아보기" 화면.
 --  · birthday_congrats  : 생일 축하 한마디 (최대 50자, 금칙어는 숨김 처리)
 --  · congrats_likes     : 축하하기 하트 (1인 1최애 1회, 다시 누르면 취소)
+--  · congrats_like_seeds: 목업용 기본 축하 수 (실제 하트 수와 합산)
 --  · fan_day_board      : 그날 기념일인 최애 · 응원 순위 · 대표 응원 한마디 · 축하 수를 한 번에 돌려준다
 --  · fan_day_like_toggle / fan_day_congrats_add : 로그인한 사용자의 축하하기 · 축하 한마디 (무료)
 -- 쓰기는 서버(service role)만 한다. fan_cheer_step3b.sql · fan_banner_step3.sql 실행 후 한 번 실행한다(여러 번 실행해도 안전).
@@ -28,8 +29,17 @@ create table if not exists congrats_likes (
 );
 create index if not exists congrats_likes_day_idx on congrats_likes (event_date, character_id);
 
+create table if not exists congrats_like_seeds (
+  event_date date not null,
+  character_id uuid not null references characters(id) on delete cascade,
+  like_count integer not null default 0 check (like_count >= 0),
+  primary key (event_date, character_id)
+);
+
 alter table birthday_congrats enable row level security;
 alter table congrats_likes enable row level security;
+alter table congrats_like_seeds enable row level security;
+revoke all on table birthday_congrats, congrats_likes, congrats_like_seeds from anon, authenticated;
 
 -- ── 그날의 기념일 모아보기
 -- 응원 순위·응원 수는 cheer_results(기념일 슬롯)에서 읽고, 정산 전이라 결과가 없으면 cheers 합계로 대신한다.
@@ -96,7 +106,8 @@ begin
                   c.seq desc
          limit 1
       ),
-      'likeCount', (select count(*) from congrats_likes l where l.event_date = p_date and l.character_id = ch.id),
+      'likeCount', coalesce((select s.like_count from congrats_like_seeds s where s.event_date = p_date and s.character_id = ch.id), 0)
+                   + (select count(*) from congrats_likes l where l.event_date = p_date and l.character_id = ch.id),
       'liked', p_user is not null and exists (select 1 from congrats_likes l where l.event_date = p_date and l.character_id = ch.id and l.user_id = p_user)
     ) as item
     from (
@@ -123,7 +134,8 @@ begin
       'workTitle', ch.work_title,
       'imageUrl', ch.profile_image_url,
       'kind', a.kind,
-      'likeCount', (select count(*) from congrats_likes l where l.event_date = p_date and l.character_id = ch.id),
+      'likeCount', coalesce((select s.like_count from congrats_like_seeds s where s.event_date = p_date and s.character_id = ch.id), 0)
+                   + (select count(*) from congrats_likes l where l.event_date = p_date and l.character_id = ch.id),
       'liked', p_user is not null and exists (select 1 from congrats_likes l where l.event_date = p_date and l.character_id = ch.id and l.user_id = p_user)
     ) as item
     from anniversaries a
@@ -179,7 +191,8 @@ begin
   end if;
   return jsonb_build_object(
     'liked', v_liked,
-    'likeCount', (select count(*) from congrats_likes where event_date = p_date and character_id = p_character)
+    'likeCount', coalesce((select like_count from congrats_like_seeds where event_date = p_date and character_id = p_character), 0)
+                 + (select count(*) from congrats_likes where event_date = p_date and character_id = p_character)
   );
 end;
 $$;
@@ -211,4 +224,42 @@ begin
 end;
 $$;
 
-revoke execute on function fan_day_board, fan_day_like_toggle, fan_day_congrats_add from public, anon, authenticated;
+-- ── 내가 쓴 축하 한마디 수정. 수정한 문구도 금칙어를 다시 검사한다.
+create or replace function fan_day_congrats_update(p_user uuid, p_date date, p_congrats uuid, p_message text)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_message text := btrim(coalesce(p_message, ''));
+  v_hidden boolean;
+begin
+  if char_length(v_message) not between 1 and 50 then raise exception 'FAN_DAY_INVALID_MESSAGE'; end if;
+  v_hidden := fan_has_banned_word(v_message);
+
+  update birthday_congrats
+     set message = v_message, is_hidden = v_hidden
+   where id = p_congrats and user_id = p_user and event_date = p_date;
+  if not found then raise exception 'FAN_DAY_CONGRATS_NOT_FOUND'; end if;
+
+  return jsonb_build_object('id', p_congrats, 'hidden', v_hidden);
+end;
+$$;
+
+-- ── 내가 쓴 축하 한마디 삭제
+create or replace function fan_day_congrats_delete(p_user uuid, p_date date, p_congrats uuid)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  delete from birthday_congrats where id = p_congrats and user_id = p_user and event_date = p_date;
+  if not found then raise exception 'FAN_DAY_CONGRATS_NOT_FOUND'; end if;
+  return jsonb_build_object('id', p_congrats, 'deleted', true);
+end;
+$$;
+
+revoke execute on function fan_day_board, fan_day_like_toggle, fan_day_congrats_add,
+  fan_day_congrats_update, fan_day_congrats_delete from public, anon, authenticated;

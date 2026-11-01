@@ -1,30 +1,50 @@
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import Icon from '../../components/Icon.jsx';
+import { notificationApi } from '../../api/notification.api.js';
+import { useRequireLogin, useSession } from '../my/hooks.js';
 import './NotificationPage.css';
 
-const MOCK_NOTIFICATIONS = [
-  {
-    id: 'restock-wishlist',
-    category: '재입고 소식',
-    categoryIcon: '💜',
-    time: '방금 전',
-    title: '찜한 상품이 재입고됐어요',
-    message: '블랙핑크 콘서트 공식 응원봉을 지금 구매할 수 있어요. 다시 품절되기 전에 확인해 보세요.',
-    accent: 'restock',
-  },
-  {
-    id: 'pickup-ready',
-    category: '픽업 준비 완료',
-    categoryIcon: '🛍️',
-    time: '10분 전',
-    title: '주문하신 상품의 픽업 준비가 끝났어요',
-    message: '준비 완료일로부터 7일 이내에 매장을 방문해 수령해 주세요.',
-    accent: 'pickup',
-  },
-];
+const TYPE_META = {
+  RESTOCK: ['재입고 소식', '💜', 'restock'],
+  PICKUP_READY: ['픽업 준비 완료', '🛍️', 'pickup'],
+  ORDER_STATUS: ['주문 소식', '📦', 'pickup'],
+  FAN_BANNER: ['응원 전광판', '🎉', 'restock'],
+  COUPON: ['쿠폰 소식', '🎟️', 'restock'],
+};
+
+function notificationMeta(type) {
+  return TYPE_META[type] ?? ['굿즈픽 소식', '🔔', 'restock'];
+}
+
+function timeLabel(value) {
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) return '';
+  const minutes = Math.max(0, Math.floor((Date.now() - date.getTime()) / 60000));
+  if (minutes < 1) return '방금 전';
+  if (minutes < 60) return `${minutes}분 전`;
+  if (minutes < 1440) return `${Math.floor(minutes / 60)}시간 전`;
+  return date.toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul', month: 'long', day: 'numeric' });
+}
 
 export default function NotificationPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { session } = useSession();
+  const loggedIn = useRequireLogin('/login');
+  const notifications = useQuery({
+    queryKey: ['notifications', session?.user?.id],
+    queryFn: async () => {
+      await notificationApi.readAll();
+      queryClient.setQueriesData({ queryKey: ['header-badges'] }, (current) => (
+        current?.data ? { ...current, data: { ...current.data, notifications: 0 } } : current
+      ));
+      return notificationApi.list();
+    },
+    enabled: loggedIn && Boolean(session?.user?.id),
+    retry: false,
+  });
+  const items = notifications.data?.data?.items ?? [];
   const goBack = () => {
     if (window.history.state?.idx > 0) navigate(-1);
     else navigate('/', { replace: true });
@@ -48,20 +68,28 @@ export default function NotificationPage() {
       </header>
 
       <main className="notification-feed" aria-label="알림 목록">
-        {MOCK_NOTIFICATIONS.map((notification) => (
-          <article className={`notification-feed__item is-${notification.accent}`} key={notification.id}>
-            <div className="notification-feed__meta">
-              <span className="notification-feed__category-icon" aria-hidden="true">{notification.categoryIcon}</span>
-              <strong>{notification.category}</strong>
-              <time>{notification.time}</time>
-              <span className="notification-feed__unread" aria-label="읽지 않은 알림" />
-            </div>
-            <div className="notification-feed__content">
-              <h2>{notification.title}</h2>
-              <p>{notification.message}</p>
-            </div>
-          </article>
-        ))}
+        {notifications.isPending ? <p className="notification-feed__state">알림을 불러오는 중...</p> : null}
+        {notifications.isError ? <p className="notification-feed__state is-error">{notifications.error.message}</p> : null}
+        {!notifications.isPending && !notifications.isError && items.length === 0 ? (
+          <p className="notification-feed__state">도착한 알림이 없어요.</p>
+        ) : null}
+        {items.map((notification) => {
+          const [category, categoryIcon, accent] = notificationMeta(notification.type);
+          return (
+            <article className={`notification-feed__item is-${accent}`} key={notification.id}>
+              <div className="notification-feed__meta">
+                <span className="notification-feed__category-icon" aria-hidden="true">{categoryIcon}</span>
+                <strong>{category}</strong>
+                <time dateTime={notification.createdAt}>{timeLabel(notification.createdAt)}</time>
+              </div>
+              <div className="notification-feed__content">
+                <h2>{notification.title}</h2>
+                <p>{notification.body}</p>
+              </div>
+            </article>
+          );
+        })}
+        <p className="notification-feed__retention">알림은 받은 날로부터 30일 후 순차적으로 삭제돼요.</p>
       </main>
     </div>
   );

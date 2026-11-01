@@ -59,6 +59,16 @@
   padding-bottom: max(24px, env(safe-area-inset-bottom));
 }
 
+.notification-feed__state {
+  margin: 0;
+  padding: 64px 24px;
+  color: #7b7980;
+  font-size: 14px;
+  text-align: center;
+}
+
+.notification-feed__state.is-error { color: #c33e55; }
+
 .notification-feed__item {
   position: relative;
   min-height: 146px;
@@ -141,6 +151,16 @@
   font-size: 13px;
   line-height: 1.5;
   word-break: keep-all;
+}
+
+.notification-feed__retention {
+  margin: 0;
+  padding: 22px 20px calc(22px + env(safe-area-inset-bottom));
+  color: #929097;
+  background: #f5f8fc;
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
 }
 
 @media (max-width: 380px) {

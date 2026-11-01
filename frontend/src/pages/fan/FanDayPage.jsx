@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { DetailSection, DetailShell } from '../home/BannerDetailParts.jsx';
-import { dayParts, dayTitle, eventWord, kstToday } from './fanDayFormat.js';
+import { congratsTime, dayParts, dayTitle, eventWord, kstToday } from './fanDayFormat.js';
 import './FanDay.css';
 
 const CONGRATS_MAX = 50;
@@ -38,7 +38,7 @@ function Actions({ item, busy, onLike, onGoods }) {
   return (
     <div className="fd-actions">
       <button type="button" className={`fd-btn fd-btn--like${item.liked ? ' is-on' : ''}`} disabled={busy} aria-pressed={item.liked} onClick={() => onLike(item)}>
-        <HeartIcon on={item.liked} /> 축하하기 {item.likeCount > 0 ? <b>{item.likeCount.toLocaleString('ko-KR')}</b> : null}
+        <HeartIcon on={item.liked} /> 축하하기
       </button>
       <button type="button" className="fd-btn" onClick={() => onGoods(item)}>생일 굿즈 보기</button>
     </div>
@@ -48,10 +48,12 @@ function Actions({ item, busy, onLike, onGoods }) {
 // 홈 4번 기념일 전광판을 누르면 열리는 "오늘 기념일인 최애 모아보기" (/fan-banner/day/:date)
 export default function FanDayPage({
   date, board, error, loggedIn, busy, congratsNotice, congratsError, posting,
-  onBack, onRetry, onLike, onGoods, onGoodsAll, onSubmitCongrats,
+  onBack, onRetry, onLike, onGoods, onGoodsAll, onSubmitCongrats, onUpdateCongrats, onDeleteCongrats,
 }) {
   const [picked, setPicked] = useState(null);
   const [text, setText] = useState('');
+  const [editingId, setEditingId] = useState(null);
+  const [editText, setEditText] = useState('');
 
   const ranked = board?.ranked ?? [];
   const others = board?.others ?? [];
@@ -69,6 +71,27 @@ export default function FanDayPage({
     if (!selected || !text.trim()) return;
     const ok = await onSubmitCongrats({ characterId: selected.characterId, message: text.trim() });
     if (ok) setText('');
+  };
+
+  const startEdit = (entry) => {
+    setEditingId(entry.id);
+    setEditText(entry.message);
+  };
+  const saveEdit = async () => {
+    if (!editingId || !editText.trim()) return;
+    const ok = await onUpdateCongrats({ id: editingId, message: editText.trim() });
+    if (ok) {
+      setEditingId(null);
+      setEditText('');
+    }
+  };
+  const remove = async (entry) => {
+    if (!window.confirm('이 축하 한마디를 삭제할까요?')) return;
+    const ok = await onDeleteCongrats(entry.id);
+    if (ok && editingId === entry.id) {
+      setEditingId(null);
+      setEditText('');
+    }
   };
 
   const goods = (item) => {
@@ -126,6 +149,7 @@ export default function FanDayPage({
                 <span className="fd-badge fd-badge--winner">1위 · 메인 전광판</span>
                 <h3 className="fd-name">{winner.name}</h3>
                 <p className="fd-sub">{cheerSub(winner)}</p>
+                <p className="fd-like-count">축하 {winner.likeCount.toLocaleString('ko-KR')}개</p>
                 <p className="fd-wish">{congratsLine(winner, board.birthdayOnly)}</p>
                 <CheerQuote item={winner} />
                 <Actions item={winner} busy={busy} onLike={like} onGoods={goods} />
@@ -153,6 +177,7 @@ export default function FanDayPage({
                         <span className="fd-badge">응원 {item.rank}위</span>
                         <h3 className="fd-name">{item.name}</h3>
                         <p className="fd-sub">{cheerSub(item)}</p>
+                        <p className="fd-like-count">축하 {item.likeCount.toLocaleString('ko-KR')}개</p>
                       </div>
                     </div>
                     <p className="fd-wish">{congratsLine(item, board.birthdayOnly)}</p>
@@ -166,9 +191,10 @@ export default function FanDayPage({
                     <div className="fd-mini__info">
                       <strong>{congratsLine(item, board.birthdayOnly)}</strong>
                       {item.workTitle ? <span>{item.workTitle}</span> : null}
+                      <span className="fd-mini__likes">축하 {item.likeCount.toLocaleString('ko-KR')}개</span>
                     </div>
                     <button type="button" className={`fd-btn fd-btn--like fd-btn--small${item.liked ? ' is-on' : ''}`} disabled={busy} aria-pressed={item.liked} onClick={() => like(item)}>
-                      <HeartIcon on={item.liked} /> {item.likeCount > 0 ? <b>{item.likeCount.toLocaleString('ko-KR')}</b> : '축하'}
+                      <HeartIcon on={item.liked} /> 축하하기
                     </button>
                   </article>
                 ))}
@@ -217,8 +243,38 @@ export default function FanDayPage({
                   {board.congrats.map((entry) => (
                     <li key={entry.id}>
                       <span className="fd-congrats__to">{entry.characterName}</span>
-                      <p>{entry.message}</p>
-                      <small>{entry.nickname}{entry.mine ? ' · 내 글' : ''}</small>
+                      {editingId === entry.id ? (
+                        <>
+                          <div className="fd-congrats__edit">
+                            <input
+                              type="text"
+                              value={editText}
+                              maxLength={CONGRATS_MAX}
+                              aria-label="축하 한마디 수정"
+                              autoFocus
+                              onChange={(event) => setEditText(event.target.value)}
+                              onKeyDown={(event) => { if (event.key === 'Enter') saveEdit(); }}
+                            />
+                            <button type="button" disabled={posting || !editText.trim()} onClick={saveEdit}>저장</button>
+                            <button type="button" disabled={posting} onClick={() => setEditingId(null)}>취소</button>
+                          </div>
+                          <small>{editText.length} / {CONGRATS_MAX}</small>
+                        </>
+                      ) : (
+                        <p>{entry.message}</p>
+                      )}
+                      <div className="fd-congrats__meta">
+                        <small>
+                          {entry.nickname}{entry.mine ? ' · 내 글' : ''}
+                          {entry.createdAt ? <> · <time dateTime={entry.createdAt}>{congratsTime(entry.createdAt)}</time></> : null}
+                        </small>
+                        {entry.mine && editingId !== entry.id ? (
+                          <span className="fd-congrats__actions">
+                            <button type="button" disabled={posting} onClick={() => startEdit(entry)}>수정</button>
+                            <button type="button" disabled={posting} onClick={() => remove(entry)}>삭제</button>
+                          </span>
+                        ) : null}
+                      </div>
                     </li>
                   ))}
                 </ul>

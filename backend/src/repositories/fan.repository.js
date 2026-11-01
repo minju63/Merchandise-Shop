@@ -47,6 +47,17 @@ export const dayCongratsAdd = (userId, date, characterId, message) => rpc('fan_d
   p_character: characterId,
   p_message: message,
 });
+export const dayCongratsUpdate = (userId, date, congratsId, message) => rpc('fan_day_congrats_update', {
+  p_user: userId,
+  p_date: date,
+  p_congrats: congratsId,
+  p_message: message,
+});
+export const dayCongratsDelete = (userId, date, congratsId) => rpc('fan_day_congrats_delete', {
+  p_user: userId,
+  p_date: date,
+  p_congrats: congratsId,
+});
 
 // 홈 배너 칩에 쓰는 "그날 기념일인 최애" 종류 목록
 export async function findDayAnniversaryKinds(date) {
