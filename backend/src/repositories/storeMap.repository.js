@@ -14,7 +14,7 @@ export function createStoreMapRepository(client) {
   return {
     async load(productId) {
       const [stores, listings, products, regions, hours] = await Promise.all([
-        read('stores', 'id,name,address,latitude,longitude,thumbnail_url,region_id,pickup_available,delivery_available,status,temporary_closed,view_count', (q) => q.eq('status', 'ACTIVE')),
+        read('stores', 'id,name,address,latitude,longitude,thumbnail_url,region_id,pickup_available,delivery_available,status,temporary_closed,view_count,created_at', (q) => q.eq('status', 'ACTIVE')),
         read('store_products', 'id,store_id,product_id,stock,status,pickup_available,delivery_available', (q) => {
           q = q.in('status', ['ON_SALE', 'SOLD_OUT']);
           return productId ? q.eq('product_id', productId) : q;

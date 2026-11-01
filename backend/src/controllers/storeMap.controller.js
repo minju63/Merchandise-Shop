@@ -1,8 +1,13 @@
 import { getMapStores } from '../services/storeMap.service.js';
+import { REGION_NAMES } from '../utils/regionNames.js';
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 function invalid(message) { throw Object.assign(new Error(message), { status: 400, code: 'INVALID_PARAMETER' }); }
 export function parseMapQuery(query, productId) {
   const result = {};
+  if (query.region !== undefined && (typeof query.region !== 'string' || !Object.hasOwn(REGION_NAMES, query.region))) invalid('지역이 올바르지 않습니다.');
+  result.region = query.region;
+  if (query.district !== undefined && (typeof query.district !== 'string' || !/^[가-힣0-9·\s-]{1,40}$/.test(query.district) || !result.region)) invalid('시·군·구 조건이 올바르지 않습니다.');
+  result.district = query.district;
   for (const key of ['productId', 'regionId']) {
     const value = key === 'productId' && productId !== undefined ? productId : query[key];
     if (value !== undefined && (typeof value !== 'string' || !uuid.test(value))) invalid(`${key}가 올바르지 않습니다.`);
@@ -25,7 +30,7 @@ export function parseMapQuery(query, productId) {
   result.origin = latitude === null ? null : { latitude, longitude };
   result.radius = number('radius', 0.001, 1000);
   result.sort = query.sort ?? 'popular';
-  if (!['popular', 'stock', 'distance'].includes(result.sort)) invalid('정렬 조건이 올바르지 않습니다.');
+  if (!['popular', 'newest', 'stock', 'distance'].includes(result.sort)) invalid('정렬 조건이 올바르지 않습니다.');
   if ((result.radius || result.sort === 'distance') && !result.origin) invalid('거리 검색에는 기준 위치가 필요합니다.');
   const south = number('south', -90, 90), north = number('north', -90, 90), west = number('west', -180, 180), east = number('east', -180, 180);
   if ([south, north, west, east].some((v) => v !== null)) {

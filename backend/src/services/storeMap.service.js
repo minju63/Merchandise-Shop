@@ -1,6 +1,8 @@
 import { storeMapRepository } from '../repositories/storeMap.repository.js';
 import { businessStatus } from './storeBusinessHours.service.js';
 import { supabase } from '../lib/supabase.js';
+import { matchesRegionName } from '../utils/regionNames.js';
+import { DISTRICTS } from '../../../shared/districts.js';
 
 const normalize = (value) => String(value ?? '').toLocaleLowerCase().replace(/\s+/g, '');
 const matches = (values, keyword) => normalize(values.join(' ')).includes(normalize(keyword));
@@ -18,6 +20,7 @@ export function distanceKm(a, b) {
 export function buildMapResult(data, options = {}) {
   const { keyword = '', productId, regionId, openNow, pickup, delivery, inStock, origin, radius, bounds, sort = 'popular' } = options;
   const regions = new Map(data.regions.map((r) => [r.id, r.name]));
+  const districts = DISTRICTS[options.region] || [];
   const products = new Map(data.products.filter((p) => ['ON_SALE', 'SOLD_OUT'].includes(p.status)).map((p) => [p.id, p]));
   const listings = data.listings.filter((l) => ['ON_SALE', 'SOLD_OUT'].includes(l.status) && products.has(l.product_id));
   const activeStores = new Set(data.stores.filter((s) => s.status === 'ACTIVE').map((s) => s.id));
@@ -34,6 +37,12 @@ export function buildMapResult(data, options = {}) {
     const listing = productId ? owned.find((l) => l.product_id === productId) : null;
     if (productId && !listing) return [];
     if (regionId && s.region_id !== regionId) return [];
+    if (options.region && !matchesRegionName(s.address || regions.get(s.region_id), [options.region])) return [];
+    if (options.district) {
+      const addressParts = String(s.address || '').trim().split(/\s+/).slice(1);
+      const selectedParts = options.district.split(/\s+/);
+      if (!selectedParts.every((part, index) => addressParts[index] === part)) return [];
+    }
     if (keyword && !matches([s.name, s.address, regions.get(s.region_id)], keyword)
       && !owned.some((l) => { const p = products.get(l.product_id); return matches([p.name, p.work_title, p.character_name], keyword); })) return [];
     const open = businessStatus(hoursByStore.get(s.id) || [], s.temporary_closed === true, undefined, s.status).openNow;
@@ -52,7 +61,7 @@ export function buildMapResult(data, options = {}) {
       region: regions.get(s.region_id) || '', latitude, longitude, thumbnailUrl: image(s.thumbnail_url),
       stock, status: listing ? (available ? 'ON_SALE' : 'SOLD_OUT') : null, inStock: available,
       storeProductId: listing?.id ?? null, pickupAvailable, deliveryAvailable, openNow: open,
-      distanceKm: distance, popularity: Number(s.view_count) || 0 }];
+      distanceKm: distance, popularity: Number(s.view_count) || 0, createdAt: s.created_at ?? null }];
   });
   // Count sellers before location and UI filters so an empty viewport is not
   // mistaken for a product that has no sellers anywhere.
@@ -61,10 +70,12 @@ export function buildMapResult(data, options = {}) {
     : activeStores.size;
   const inStockCount = items.filter((s) => s.inStock).length;
   items.sort((a, b) => (sort === 'stock' ? (b.inStock ? b.stock || 0 : 0) - (a.inStock ? a.stock || 0 : 0)
-    : sort === 'distance' ? a.distanceKm - b.distanceKm : b.popularity - a.popularity) || a.id.localeCompare(b.id));
+    : sort === 'distance' ? a.distanceKm - b.distanceKm
+      : sort === 'newest' ? String(b.createdAt || '').localeCompare(String(a.createdAt || ''))
+        : b.popularity - a.popularity) || a.id.localeCompare(b.id));
   return { items, totalCount: items.length, sellerCount, inStockCount, noCoordinateCount,
     products: suggestions.map((p) => ({ id: p.id, name: p.name, workTitle: p.work_title, characterName: p.character_name, thumbnailUrl: image(p.thumbnail_url) })),
-    regions: data.regions, product: productId && products.has(productId)
+    regions: data.regions, districts, product: productId && products.has(productId)
       ? { ...products.get(productId), thumbnailUrl: image(products.get(productId).thumbnail_url) } : null };
 }
 
