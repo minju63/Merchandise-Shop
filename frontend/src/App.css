@@ -6,6 +6,36 @@
   box-shadow: 0 0 24px #dce0e526;
   padding-bottom: calc(74px + env(safe-area-inset-bottom));
 }
+.store-map-fab {
+  position: fixed;
+  right: max(18px, calc((100vw - 480px) / 2 + 18px));
+  bottom: calc(83px + env(safe-area-inset-bottom));
+  z-index: 19;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 46px;
+  padding: 11px 19px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #b34df5, #7839f4);
+  box-shadow: 0 5px 13px rgb(113 55 205 / 32%), inset 0 1px 2px rgb(255 255 255 / 24%);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+}
+.store-map-fab:hover {
+  background: linear-gradient(135deg, #a441e7, #6c2de6);
+}
+.store-map-fab:focus-visible {
+  outline: 3px solid #bfa2f7;
+  outline-offset: 4px;
+}
+.store-map-fab svg {
+  flex-shrink: 0;
+}
 .store-header {
   height: 68px;
   padding: 13px 19px 8px;

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { storeApi } from '../../api/store.api.js';
 import { PageState, StoreHeader, TabBar } from './components/StoreShell.jsx';
@@ -7,6 +7,7 @@ import StoreCard from './components/StoreCard.jsx';
 import StoreFilter from './components/StoreFilter.jsx';
 import StoreSort from './components/StoreSort.jsx';
 import StoreDistance from './components/StoreDistance.jsx';
+import Icon from './components/Icon.jsx';
 import { sortOptions, useStoreLocation } from './storeListTools.js';
 
 export default function StoreListPage() {
@@ -137,6 +138,14 @@ export default function StoreListPage() {
           )}
         </div>
       </main>
+      <Link
+        className="store-map-fab"
+        to={`/stores/map?${new URLSearchParams(Object.entries(filters).map(([key, value]) => [key, String(value)]))}`}
+        aria-label="지도에서 굿즈샵과 상품 재고 찾기"
+      >
+        <Icon name="pin" size={25} />
+        <span>지도</span>
+      </Link>
       <TabBar />
     </div>
   );

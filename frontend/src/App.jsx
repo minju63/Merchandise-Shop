@@ -17,6 +17,7 @@ import { parseRegionalQuery } from './pages/search/searchQuery.js';
 import { searchMockData } from './pages/search/searchMockData.js';
 import { EMPTY_FILTERS, filterParams } from './pages/search/searchFilters.js';
 import StoreListPage from './pages/stores/StoreListPage.jsx';
+import StoreMapPage from './pages/stores/StoreMapPage.jsx';
 import StoreDetailPage from './pages/stores/StoreDetailPage.jsx';
 import StoreReviewPage from './pages/stores/StoreReviewPage.jsx';
 import StoreReviewWritePage from './pages/stores/StoreReviewWritePage.jsx';
@@ -690,6 +691,7 @@ export default function App() {
 
         {/* 여경 — 굿즈샵 */}
         <Route path="/stores" element={<StoreListPage />} />
+        <Route path="/stores/map" element={<StoreMapPage />} />
         <Route path="/stores/:storeId" element={<StoreDetailPage />} />
         <Route path="/stores/:storeId/reviews" element={<StoreReviewPage />} />
         <Route path="/stores/:storeId/reviews/write" element={<StoreReviewWritePage />} />

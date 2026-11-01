@@ -15,6 +15,8 @@ async function optionalAuthHeaders() {
 }
 
 export const storeApi = {
+  map: (params) => client.get('/stores/map', { params }),
+  productStores: (productId, params) => client.get(`/products/${productId}/stores`, { params }),
   list: (params) => client.get('/stores', { params }),
   detail: (storeId) => client.get(`/stores/${storeId}`),
   products: (storeId, params) => client.get(`/stores/${storeId}/products`, { params }),
