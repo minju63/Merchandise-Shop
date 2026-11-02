@@ -176,13 +176,13 @@ function MemberView({ data, provider, onNavigate }) {
             </span>
             <strong>{formatBadgeCount(activity?.availableCoupons ?? 0) || 0}</strong>
           </button>
-          <button type="button" className="mt-wallet__col" onClick={() => onNavigate('/wishlist')}>
+          <button type="button" className="mt-wallet__col" onClick={() => onNavigate('/wish')}>
             <span className="mt-wallet__label">
               찜한 상품 <ChevronIcon width={14} height={14} />
             </span>
             <strong>{activity?.wishlistProducts ?? 0}</strong>
           </button>
-          <button type="button" className="mt-wallet__col" onClick={() => onNavigate('/wishlist?tab=shops')}>
+          <button type="button" className="mt-wallet__col" onClick={() => onNavigate('/wish/shops')}>
             <span className="mt-wallet__label">
               찜한 굿즈샵 <ChevronIcon width={14} height={14} />
             </span>
