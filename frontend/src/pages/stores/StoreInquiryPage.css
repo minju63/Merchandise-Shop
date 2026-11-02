@@ -42,17 +42,21 @@
 .store-inquiry-page .pi-item__body {
   padding: 0 16px 16px;
 }
+.store-inquiry-page .pi-item__body .si-title {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
 .store-inquiry-page .category-prewrap {
   white-space: pre-wrap;
 }
-.store-inquiry-page .si-author,
 .store-inquiry-page .si-no-answer {
   margin-top: 12px;
   color: #93879f;
   font-size: 12px;
-}
-.store-inquiry-page .si-author {
-  margin: 0 0 8px;
 }
 .store-inquiry-page .pi-item__body time {
   display: block;

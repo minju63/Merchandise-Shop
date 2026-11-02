@@ -26,7 +26,7 @@ export function InquiryList({ items, label, showStatus = true, storeInquiry = fa
           <svg className={`pi-item__arrow${open ? ' is-open' : ''}`} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
         </button>
         {open && <div className="pi-item__body">
-          {storeInquiry && <p className="si-author">{inquiry.authorName}</p>}
+          {storeInquiry && <h3 className="si-title">{inquiry.title}</h3>}
           <p className="category-prewrap">{storeInquiry ? inquiry.content : stripSample(inquiry.content)}</p>
           {inquiry.inquiry_images?.length > 0 && <ProductImageGallery images={inquiry.inquiry_images} productName="문의 첨부 이미지" />}
           {inquiry.answer_content && <blockquote><strong>매장 답변</strong><p className="category-prewrap">{storeInquiry ? inquiry.answer_content : stripSample(inquiry.answer_content)}</p>{storeInquiry && inquiry.answered_at && <time dateTime={inquiry.answered_at}>{new Date(inquiry.answered_at).toLocaleDateString('ko-KR')}</time>}</blockquote>}
