@@ -50,6 +50,17 @@
   font-weight: 600;
 }
 
+/* 응원권 사용 범위 고지 (스테이지 포인트와 별개) */
+.fan-ticket-scope {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: #4b3c8f;
+  background: #f1eefe;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
 .fan-error {
   margin: 8px 0 0;
   color: #e5484d;

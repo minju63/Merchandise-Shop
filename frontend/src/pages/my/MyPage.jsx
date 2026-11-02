@@ -279,14 +279,12 @@ function MemberView({ data, provider, onNavigate }) {
           accent
           onClick={() => onNavigate(MY_ROUTES.coupons)}
         />
-        {/* 당첨된 응원 전광판 꾸미기는 응원 결과 화면에서 시작한다 */}
-        <Row icon={GiftIcon} label="전광판 신청 · 꾸미기" onClick={() => onNavigate(MY_ROUTES.fanBillboard)} />
-        <Row icon={GiftIcon} label="응원 결과 · 기념일 전광판 꾸미기" onClick={() => onNavigate(MY_ROUTES.fanResult)} />
         <Row icon={TicketIcon} label="응원권 구매" onClick={() => onNavigate(MY_ROUTES.fanTickets)} />
       </Section>
 
       <Section title="이벤트">
-        <Row icon={MegaphoneIcon} label="기념일 전광판" onClick={() => onNavigate(MY_ROUTES.fanGuide)} />
+        {/* 기념일·자유 전광판 신청, 내 응원 결과, 내 전광판 꾸미기는 응원 전광판 안내에서 모두 들어간다 */}
+        <Row icon={MegaphoneIcon} label="응원 전광판" value="기념일 · 자유" onClick={() => onNavigate(MY_ROUTES.fanGuide)} />
         <Row icon={GiftIcon} label="최애 스테이지" onClick={() => onNavigate(MY_ROUTES.stage)} />
         <Row icon={TicketIcon} label="굿즈픽 쿠지" onClick={() => onNavigate(MY_ROUTES.kuji)} />
       </Section>

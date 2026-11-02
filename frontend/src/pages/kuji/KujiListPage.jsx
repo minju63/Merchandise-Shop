@@ -19,7 +19,7 @@ export default function KujiListPage() {
   const onSale = events.filter((event) => event.status === 'ON_SALE');
   const upcoming = events.filter((event) => event.status === 'UPCOMING');
   const featured = onSale[0];
-  const banners = onSale.filter((event) => event.bannerUrl);
+  const banners = [...onSale, ...upcoming].filter((event) => event.bannerUrl);
   const open = (event) => navigate(`/kuji/${event.id}`);
 
   // 홈 화면 배너와 같은 방식: 한 장씩 보여주고 5초마다 넘기며, 좌우로 끌면 넘어간다.
@@ -215,9 +215,9 @@ export default function KujiListPage() {
             {upcoming.map((event, index) => {
               const tile = TILE_COLORS[(index + 2) % TILE_COLORS.length];
               return (
-                <div key={event.id} className={s.lrow}>
+                <button type="button" key={event.id} className={s.lrow} onClick={() => open(event)}>
                   <div className={s.th} style={{ background: tile.bg, color: tile.fg }}>
-                    {GRADES[(index + 2) % GRADES.length]}
+                    {event.coverUrl ? <img src={event.coverUrl} alt="" /> : GRADES[(index + 2) % GRADES.length]}
                   </div>
                   <div>
                     <p className={s.shop}>{event.shopName}</p>
@@ -227,7 +227,7 @@ export default function KujiListPage() {
                       <span className={s.bellOff}>오픈 예정</span>
                     </div>
                   </div>
-                </div>
+                </button>
               );
             })}
           </>

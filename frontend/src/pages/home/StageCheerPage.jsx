@@ -4,6 +4,7 @@ import { CharacterFace } from './StageSection.jsx';
 import { BOX_TIERS, BOXES, openBoxes } from './boxMockData.js';
 import { STAGE_CHARACTERS, STAGE_SERIES } from './stageMockData.js';
 import { addCheer, useLiveStage } from './stageLive.js';
+import EventCheckout from './EventCheckout.jsx';
 import './StageCheer.css';
 import './BoxShop.css';
 
@@ -36,7 +37,7 @@ function readFreeCheerDate() {
 }
 
 // 최애 스테이지의 "응원하기" 화면 (/stage/cheer?character=gojo) — 결제 연동 전 시연용
-export default function StageCheerPage({ initialCharacterId, initialOptionId, onBack, onHome }) {
+export default function StageCheerPage({ initialCharacterId, initialOptionId, onBack, onHome, onAddPaymentMethod }) {
   const [characterId, setCharacterId] = useState(
     STAGE_CHARACTERS.some((character) => character.id === initialCharacterId) ? initialCharacterId : STAGE_CHARACTERS[0].id,
   );
@@ -44,6 +45,8 @@ export default function StageCheerPage({ initialCharacterId, initialOptionId, on
   const [quantity, setQuantity] = useState(1);
   const [freeUsedToday, setFreeUsedToday] = useState(() => readFreeCheerDate() === todayKey());
   const [done, setDone] = useState(null);
+  // 박스(유료)는 결제 화면을 거친 뒤 응원이 반영된다
+  const [checkout, setCheckout] = useState(false);
   const { ranked } = useLiveStage();
 
   // 포인트·순위는 홈 배너·스테이지 화면과 같은 실시간 값을 쓴다.
@@ -55,8 +58,7 @@ export default function StageCheerPage({ initialCharacterId, initialOptionId, on
   const totalPoints = option.points * count;
   const freeBlocked = option.id === 'free' && freeUsedToday;
 
-  const handleSubmit = () => {
-    if (freeBlocked) return;
+  const complete = () => {
     if (option.id === 'free') {
       try {
         window.localStorage.setItem(FREE_CHEER_KEY, todayKey());
@@ -73,7 +75,40 @@ export default function StageCheerPage({ initialCharacterId, initialOptionId, on
       count,
       items: option.price ? openBoxes(option.id, count, character.id) : [],
     });
+    setCheckout(false);
   };
+
+  const handleSubmit = () => {
+    if (freeBlocked) return;
+    if (option.price) {
+      setCheckout(true);
+      return;
+    }
+    complete();
+  };
+
+  if (checkout && option.price) {
+    return (
+      <EventCheckout
+        title="박스 결제"
+        heading={option.title}
+        lines={[
+          { label: '상품', value: `${option.title} · ${option.price.toLocaleString()}원` },
+          { label: '수량', value: `${count}개` },
+          { label: '응원할 최애', value: `${character.name} (+${totalPoints.toLocaleString()}P)` },
+        ]}
+        total={totalPrice}
+        notices={[
+          '지금은 시연용 모의 결제라 실제로 돈이 나가지 않아요.',
+          '결제하면 박스가 바로 열리고, 응원 포인트가 고른 최애에게 들어가요.',
+          '박스는 개봉 전 7일 이내 청약철회할 수 있어요. 개봉 후 단순 변심 환불은 어려워요.',
+        ]}
+        onBack={() => setCheckout(false)}
+        onPay={complete}
+        onAddPaymentMethod={onAddPaymentMethod}
+      />
+    );
+  }
 
   if (done) {
     return (
@@ -131,7 +166,7 @@ export default function StageCheerPage({ initialCharacterId, initialOptionId, on
           {freeBlocked
             ? '오늘 무료 응원을 이미 했어요'
             : option.price
-              ? `${totalPrice.toLocaleString()}원 결제하고 ${totalPoints.toLocaleString()}P 응원`
+              ? `${totalPrice.toLocaleString()}원 결제하러 가기 (+${totalPoints.toLocaleString()}P)`
               : `무료로 ${totalPoints}P 응원`}
         </button>
       )}

@@ -7,6 +7,9 @@ export const listPlans = () => http.get('/memberships/plans').then(data);
 export const getMyMembership = () => http.get('/memberships/me').then(data);
 export const subscribeMembership = (body) => http.post('/memberships', body).then(data);
 export const cancelMembership = () => http.post('/memberships/me/cancel', {}).then(data);
+// 이번 달 멤버십 쿠폰팩 (플랜별 · 매달 1번)
+export const getMembershipCouponPack = () => http.get('/memberships/me/coupon-pack').then(data);
+export const claimMembershipCouponPack = () => http.post('/memberships/me/coupon-pack', {}).then(data);
 
 // 작성 가능한 후기 개수 (리뷰 API의 WRITABLE 목록 totalCount)
 export const getWritableReviewCount = () =>

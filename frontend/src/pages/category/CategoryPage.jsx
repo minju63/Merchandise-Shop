@@ -1,6 +1,6 @@
 import CategoryLayout from './components/CategoryLayout.jsx';
 import sharedClient from '../../api/client.js';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import * as categoryApi from '../../api/category.api';
 import * as defaultProductApi from '../../api/product.api';
@@ -12,6 +12,7 @@ import ProductEmptyState from './components/ProductEmptyState';
 import useCategoryRequest from './components/useCategoryRequest';
 import './components/category.css';
 import { buildGoodsTypes } from './components/goodsTypes';
+import { forgetListFromHome } from './listFromHome.js';
 
 // Route owner supplies the shared Axios client; render inside BrowserRouter.
 function CategoryPageContent({ client = sharedClient, api = categoryApi, productApi = defaultProductApi }) {
@@ -19,6 +20,8 @@ function CategoryPageContent({ client = sharedClient, api = categoryApi, product
   const [params, setParams] = useSearchParams();
   const selectedId = params.get('contentCategoryId') || '';
   const selectedBrand = params.get('brand') || '';
+  // 카테고리에서 고른 목록은 뒤로가기가 다시 카테고리로 와야 하므로 홈 진입 기억을 지운다.
+  useEffect(() => forgetListFromHome(), []);
   const load = useCallback(
     async (signal) => {
       const [content, goods] = await Promise.all([

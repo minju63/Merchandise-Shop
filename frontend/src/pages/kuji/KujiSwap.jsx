@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { kujiApi } from './kuji.api.js';
+import KujiPaySheet from './KujiPay.jsx';
 import { GradeBadge, Sheet } from './KujiParts.jsx';
 import { SWAP_FEE, agoText, cx, pad, won } from './kujiUi.js';
 import s from './kuji.module.css';
@@ -211,16 +212,33 @@ export default function KujiSwap({ kuji, tickets, listings, signedIn, onLogin, o
             <button
               type="button"
               className={s.pri}
-              disabled={accept.isPending}
               onClick={() => {
                 setError('');
-                accept.mutate({ ticket: sheet.ticket, listing: sheet.listing });
+                setSheet({ ...sheet, type: 'pay' });
               }}
             >
-              {won(SWAP_FEE)} 결제하고 교환
+              {won(SWAP_FEE)} 결제하기
             </button>
           </div>
         </Sheet>
+      ) : null}
+      {sheet?.type === 'pay' ? (
+        <KujiPaySheet
+          title="교환 수수료 결제"
+          lines={[
+            ['교환', `${sheet.ticket.grade}상 ${sheet.ticket.variantLabel} → ${sheet.listing.haveLabel}`],
+            ['상대', sheet.listing.nick],
+            ['교환 수수료', won(SWAP_FEE)],
+          ]}
+          amount={SWAP_FEE}
+          pending={accept.isPending}
+          error={error}
+          onClose={close}
+          onPay={() => {
+            setError('');
+            accept.mutate({ ticket: sheet.ticket, listing: sheet.listing });
+          }}
+        />
       ) : null}
       {sheet?.type === 'done' ? (
         <Sheet label="교환 완료" onClose={close}>

@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   cancelMembership,
+  claimMembershipCouponPack,
+  getMembershipCouponPack,
   getMyMembership,
   listPaymentMethods,
   listPlans,
@@ -15,9 +17,60 @@ import { formatWon } from './orderFormat.js';
 import { MY_ROUTES } from './routes.js';
 import './orders.css';
 import './account.css';
+import './mytab.css';
 import { useDialog } from '../../components/useDialog.jsx';
 
-const HERO_POINTS = ['배달비 1,000원 할인', '매달 쿠폰 팩 3장', '재입고 알림 우선 발송'];
+const HERO_POINTS = ['배달비 1,000원 할인', '매달 멤버십 쿠폰팩 (최대 3장)', '재입고 알림 우선 발송'];
+
+// 이번 달 멤버십 쿠폰팩: 베이직 1장, 플러스 3장. 등급 쿠폰팩과는 따로 받는다.
+function MembershipCouponPack() {
+  const pack = useRequest(true, 'membership-coupon-pack', getMembershipCouponPack);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
+  const data = pack.data;
+  if (!data?.available) return null;
+
+  const claim = async () => {
+    setBusy(true);
+    setError('');
+    try {
+      const result = await claimMembershipCouponPack();
+      setMessage(
+        result.issuedCount
+          ? `쿠폰 ${result.issuedCount}장을 받았어요. 쿠폰함에서 확인하세요.`
+          : '이번 달 멤버십 쿠폰을 이미 받았어요.'
+      );
+      pack.reload();
+    } catch (cause) {
+      setError(cause.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section className="gr-pack mbr-coupons">
+      <div className="gr-pack__head">
+        <strong>{data.plan.name} 멤버십 · {data.month} 쿠폰</strong>
+        <span>{formatFullDate(data.validUntil)}까지 사용</span>
+      </div>
+      <ul>
+        {data.items.map((item, index) => (
+          <li key={`${item.label}-${index}`}>
+            {item.label}
+            {item.minOrder ? <small>{formatWon(item.minOrder)} 이상 주문 시</small> : null}
+          </li>
+        ))}
+      </ul>
+      <button type="button" className="ord-btn ord-btn--primary ord-btn--block" disabled={busy || data.claimed} onClick={claim}>
+        {data.claimed ? '이번 달 멤버십 쿠폰 받음' : `쿠폰 ${data.items.length}장 받기`}
+      </button>
+      {message ? <p className="gr-pack__done">{message}</p> : null}
+      {error ? <p className="mt-error">{error}</p> : null}
+    </section>
+  );
+}
 
 function ActiveMembership({ membership, onChanged }) {
   const { confirm, dialog } = useDialog();
@@ -60,6 +113,7 @@ function ActiveMembership({ membership, onChanged }) {
           </li>
         </ul>
       </section>
+      <MembershipCouponPack />
       <p className="mbr-note">
         월 {formatWon(plan.monthly_price)} · 시연용 결제라 실제 청구는 없어요.
       </p>

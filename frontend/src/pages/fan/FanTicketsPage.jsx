@@ -125,6 +125,11 @@ function PaymentBenefitGuide({ tab }) {
   );
 }
 
+// 고른 결제수단 이름 (다른 결제 화면용)
+export function PaymentOptionName({ option, methodId, methods }) {
+  return selectedPaymentName(option, methodId, methods);
+}
+
 function selectedPaymentName(option, methodId, methods) {
   if (option === 'GOODSPICK_PAY') {
     const account = methods?.find((item) => item.id === methodId);
@@ -137,7 +142,8 @@ function selectedPaymentName(option, methodId, methods) {
   return PAYMENT_OPTION_LABELS[option] ?? '결제수단을 선택해 주세요';
 }
 
-function PaymentMethodSheet({ currentOption, currentMethodId, methods, onAdd, onClose, onConfirm }) {
+// 결제수단 고르기 시트 — 랜덤박스·쿠지 결제 화면에서도 같이 쓴다.
+export function PaymentMethodSheet({ currentOption, currentMethodId, methods, onAdd, onClose, onConfirm }) {
   const [tab, setTab] = useState(paymentTab(currentOption));
   const [draftOption, setDraftOption] = useState(currentOption);
   const [draftMethodId, setDraftMethodId] = useState(currentMethodId);
@@ -413,6 +419,7 @@ export default function FanTicketsPage({
             <p className="bd__caption">
               보유 적립금 {won(credit)}원
             </p>
+            <p className="fan-ticket-scope">응원권은 <b>응원 전광판 응원 전용</b>이에요. 최애 스테이지 응원포인트와는 별개예요.</p>
             {notice ? <p className="fan-notice" role="status">{notice}</p> : null}
             {error && me ? <p className="fan-error" role="alert">{error}</p> : null}
           </DetailSection>
@@ -466,6 +473,7 @@ export default function FanTicketsPage({
           <DetailSection title="구매 전에 확인해 주세요">
             <NoticeList
               items={[
+                '응원권은 응원 전광판(기념일·자유) 응원에만 쓸 수 있어요. 최애 스테이지 응원포인트와는 별개라 스테이지 순위에는 반영되지 않아요.',
                 `한 사람이 하루에 최대 응원포인트 ${won(cheerPoints(DAILY_CHEER_LIMIT))}점까지 보낼 수 있어요 (무료 응원권 포함).`,
                 `응원한 최애가 지면 현금으로 산 응원권은 적립금 ${CREDIT_RETURN_RATE}%, 적립금으로 산 응원권은 100%를 돌려드려요.`,
                 '이긴 최애에 쓴 응원권과 무료 응원권으로 한 응원은 반환되지 않아요.',
