@@ -8,6 +8,10 @@ export const getMyMembership = () => http.get('/memberships/me').then(data);
 export const subscribeMembership = (body) => http.post('/memberships', body).then(data);
 export const cancelMembership = () => http.post('/memberships/me/cancel', {}).then(data);
 
+// 회원 등급 (최근 6개월 구매 확정 금액 기준)
+export const getMyGrade = () => http.get('/users/me/grade').then(data);
+export const claimGradeCouponPack = () => http.post('/users/me/grade/coupon-pack', {}).then(data);
+
 // 쿠폰
 export const listCoupons = () => http.get('/coupons').then(data);
 export const getCoupon = (id) => http.get(`/coupons/${id}`).then(data);

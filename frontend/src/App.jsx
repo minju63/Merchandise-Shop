@@ -54,6 +54,7 @@ import TermsBodyPage from './pages/my/TermsBodyPage.jsx';
 import SellerApplyPage from './pages/my/SellerApplyPage.jsx';
 import SellerCenterPage from './pages/my/SellerCenterPage.jsx';
 import PointsPage from './pages/my/PointsPage.jsx';
+import GradePage from './pages/my/GradePage.jsx';
 import ClaimsPage from './pages/my/ClaimsPage.jsx';
 import ClaimFormPage from './pages/my/ClaimFormPage.jsx';
 import RecentProductsPage from './pages/my/RecentProductsPage.jsx';
@@ -780,6 +781,7 @@ export default function App() {
         <Route path="/my/seller-apply" element={<SellerApplyPage />} />
         <Route path="/my/seller-center" element={<SellerCenterPage />} />
         <Route path="/my/points" element={<PointsPage />} />
+        <Route path="/my/grade" element={<GradePage />} />
         <Route path="/my/claims" element={<ClaimsPage />} />
         <Route path="/my/orders/:orderId/claim" element={<ClaimFormPage />} />
         <Route path="/my/recent" element={<RecentProductsPage />} />

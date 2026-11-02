@@ -38,6 +38,7 @@ export const MY_ROUTES = {
   sellerApply: '/my/seller-apply',
   sellerCenter: '/my/seller-center',
   points: '/my/points',
+  grade: '/my/grade',
   claims: '/my/claims',
   claimNew: (orderId) => `/my/orders/${orderId}/claim`,
   recentProducts: '/my/recent',

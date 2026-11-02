@@ -22,6 +22,8 @@ async function requireAuthentication(req, res, next) {
 
 router.get('/me/agreements', requireAuthentication, controller.getMyAgreements);
 router.get('/me/points', requireAuthentication, controller.getMyPoints);
+router.get('/me/grade', requireAuthentication, controller.getMyGrade);
+router.post('/me/grade/coupon-pack', requireAuthentication, controller.claimGradeCouponPack);
 router.post('/me/recent-products', requireAuthentication, controller.recordProductView);
 router.get('/me/recent-products', requireAuthentication, controller.getRecentProducts);
 router.get('/me/open-alerts', requireAuthentication, controller.listMyOpenAlerts);
