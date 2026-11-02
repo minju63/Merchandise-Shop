@@ -119,16 +119,21 @@ export async function listItems(orderId) {
 export async function findReviewedItemIds(userId, itemIds) {
   if (!itemIds.length) return [];
   const db = await database();
-  const rows = check(
-    await db
-      .from("reviews")
-      .select("order_item_id")
-      .eq("user_id", userId)
-      .in("order_item_id", itemIds)
-      .eq("is_hidden", false)
-      .is("deleted_at", null),
-  );
-  return (rows ?? []).map((row) => row.order_item_id);
+  // 주문 상품이 많으면 IN 조건이 너무 길어져 요청이 거절되므로 나눠서 조회한다.
+  const found = [];
+  for (let start = 0; start < itemIds.length; start += 100) {
+    const rows = check(
+      await db
+        .from("reviews")
+        .select("order_item_id")
+        .eq("user_id", userId)
+        .in("order_item_id", itemIds.slice(start, start + 100))
+        .eq("is_hidden", false)
+        .is("deleted_at", null),
+    );
+    found.push(...(rows ?? []).map((row) => row.order_item_id));
+  }
+  return found;
 }
 export async function listHistories(orderId) {
   return all(
