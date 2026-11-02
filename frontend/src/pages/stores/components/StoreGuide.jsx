@@ -12,13 +12,14 @@ const titles = {
   hours: '영업시간',
   pickup: '픽업 안내',
   delivery: '배달 안내',
+  fulfillment: '배송·픽업 안내',
 };
 
 export default function StoreGuide({ type, store, onClose }) {
   const { data, isPending, isError, error, refetch } = useQuery({
     queryKey: ['store-guide', store.id, type],
     queryFn: () => storeApi.guide(store.id, type),
-    enabled: Boolean(type && type !== 'location'),
+    enabled: Boolean(type && !['location', 'fulfillment'].includes(type)),
     refetchInterval: type === 'hours' ? 60000 : false,
   });
   useEffect(() => {
@@ -57,7 +58,11 @@ export default function StoreGuide({ type, store, onClose }) {
             )}
           </div>
         )}
-        {type !== 'location' &&
+        {type === 'fulfillment' && <>
+          <section className="guide-content" aria-label="배송 안내"><h3>배송 안내</h3><StoreDeliveryInfo data={{ available: store.deliveryAvailable, info: store.deliveryInfo, areas: store.deliveryAreas }} /></section>
+          <section className="guide-content" aria-label="픽업 안내"><h3>픽업 안내</h3><StorePickupInfo data={{ available: store.pickupAvailable, info: store.pickupInfo }} /></section>
+        </>}
+        {!['location', 'fulfillment'].includes(type) &&
           (isPending ? (
             <div className="guide-content">
               <p>안내 정보를 불러오는 중입니다.</p>

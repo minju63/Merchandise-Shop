@@ -4,14 +4,14 @@ export default function StoreDeliveryInfo({ data }) {
   if (!data.available)
     return (
       <div className="guide-content">
-        <p>현재 배달을 지원하지 않습니다.</p>
+        <p>현재 배송을 지원하지 않습니다.</p>
       </div>
     );
   const info = data.info;
   if (!info)
     return (
       <div className="guide-content">
-        <p>배달 안내 정보가 없습니다.</p>
+        <p>배송 안내 정보가 없습니다.</p>
       </div>
     );
   return (
@@ -47,8 +47,8 @@ export default function StoreDeliveryInfo({ data }) {
         </div>
       )}
       <div className="guide-line">
-        <strong>배달 가능 지역</strong>
-        <span>전국</span>
+        <strong>등록된 배송 지역</strong>
+        <span>{data.areas?.length ? data.areas.map((area) => area.regionName).filter(Boolean).join(', ') || '지역 정보가 없습니다.' : '지역 정보가 없습니다.'}</span>
       </div>
       {info.guide_text && <p>{info.guide_text}</p>}
     </div>

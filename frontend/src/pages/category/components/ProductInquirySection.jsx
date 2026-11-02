@@ -45,7 +45,7 @@ function EditForm({ inquiry, onSave, onCancel }) {
 }
 
 // 세로로 쌓은 접이식 목록. 질문을 누르면 내용과 매장 답변이 펼쳐진다. onEdit·onDelete 가 있으면 내 문의로 보고 수정·삭제를 붙인다.
-function InquiryList({ items, label, showStatus = true, onEdit, onDelete }) {
+export function InquiryList({ items, label, showStatus = true, storeInquiry = false, renderActions, onEdit, onDelete }) {
   const [openId, setOpenId] = useState(null);
   const [editingId, setEditingId] = useState(null);
   return <ul className="pi-list" aria-label={label}>
@@ -54,18 +54,22 @@ function InquiryList({ items, label, showStatus = true, onEdit, onDelete }) {
       return <li className="pi-item" key={inquiry.id}>
         <button type="button" className="pi-item__head" aria-expanded={open} onClick={() => setOpenId(open ? null : inquiry.id)}>
           {showStatus && <span className={`pi-status${inquiry.status === 'ANSWERED' ? ' is-answered' : ''}`}>{STATUS_LABEL[inquiry.status] || '문의 접수'}</span>}
-          <strong>{stripSample(inquiry.title) || '상품 문의'}</strong>
+          <strong>{(storeInquiry ? inquiry.title : stripSample(inquiry.title)) || '상품 문의'}</strong>
+          {storeInquiry && <span className="si-list-author">{inquiry.authorName}</span>}
           {showStatus && inquiry.created_at && <time dateTime={inquiry.created_at}>{new Date(inquiry.created_at).toLocaleDateString('ko-KR')}</time>}
           <svg className={`pi-item__arrow${open ? ' is-open' : ''}`} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
         </button>
         {open && <div className="pi-item__body">
+          {storeInquiry && <h3 className="si-title">{inquiry.title}</h3>}
           {editingId === inquiry.id ? <EditForm
             inquiry={inquiry}
             onCancel={() => setEditingId(null)}
             onSave={async (input) => { await onEdit(inquiry, input); setEditingId(null); }}
-          /> : <p className="category-prewrap">{stripSample(inquiry.content)}</p>}
+          /> : <p className="category-prewrap">{storeInquiry ? inquiry.content : stripSample(inquiry.content)}</p>}
           {inquiry.inquiry_images?.length > 0 && <ProductImageGallery images={inquiry.inquiry_images} productName="문의 첨부 이미지" />}
-          {inquiry.answer_content && <blockquote><strong>매장 답변</strong><p className="category-prewrap">{stripSample(inquiry.answer_content)}</p></blockquote>}
+          {inquiry.answer_content && <blockquote><strong>매장 답변</strong><p className="category-prewrap">{storeInquiry ? inquiry.answer_content : stripSample(inquiry.answer_content)}</p>{storeInquiry && inquiry.answered_at && <time dateTime={inquiry.answered_at}>{new Date(inquiry.answered_at).toLocaleDateString('ko-KR')}</time>}</blockquote>}
+          {storeInquiry && !inquiry.answer_content && <p className="si-no-answer">아직 답변이 등록되지 않았습니다.</p>}
+          {storeInquiry && renderActions?.(inquiry)}
           {onEdit && onDelete && editingId !== inquiry.id && <div className="pi-item__actions">
             {inquiry.status === 'PENDING' && <button type="button" onClick={() => setEditingId(inquiry.id)}>수정</button>}
             <button type="button" onClick={() => onDelete(inquiry)}>삭제</button>

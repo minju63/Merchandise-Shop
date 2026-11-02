@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Icon from './Icon.jsx';
 import { AvailabilityBadges } from './StoreShell.jsx';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import StoreCouponButton from './StoreCouponButton.jsx';
 
 function todayLabel(hour, temporaryClosed) {
@@ -12,6 +12,7 @@ function todayLabel(hour, temporaryClosed) {
 }
 
 export default function StoreInfo({ store, onGuide }) {
+  const navigate = useNavigate();
   const [expanded, setExpanded] = useState(false);
   const description = store.description || '';
   return (
@@ -60,10 +61,10 @@ export default function StoreInfo({ store, onGuide }) {
         {[
           ['pin', '찾아가기', 'location'],
           ['clock', '영업시간', 'hours'],
-          ['bag', '픽업 안내', 'pickup'],
-          ['truck', '배달 안내', 'delivery'],
+          ['truck', '배송·픽업 안내', 'fulfillment'],
+          ['chat', 'Q&A', 'inquiries'],
         ].map(([icon, label, key]) => (
-          <button key={key} onClick={() => onGuide(key)}>
+          <button key={key} onClick={() => key === 'inquiries' ? navigate(`/stores/${store.id}/inquiries`, { state: { fromStoreDetail: true } }) : onGuide(key)}>
             <Icon name={icon} size={23} />
             <span>{label}</span>
           </button>
