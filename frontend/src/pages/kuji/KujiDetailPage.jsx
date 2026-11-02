@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useSession } from '../my/hooks.js';
 import { kujiApi } from './kuji.api.js';
+import KujiPaySheet from './KujiPay.jsx';
 import KujiSwap from './KujiSwap.jsx';
 import { GradeBadge, KujiHeader, KujiPage, StateBox, Toast } from './KujiParts.jsx';
 import { SWAP_FEE, cx, formatOpenAt, pad, won } from './kujiUi.js';
@@ -38,6 +39,7 @@ export default function KujiDetailPage() {
   });
   const [sel, setSel] = useState([]);
   const [toast, setToast] = useState('');
+  const [paying, setPaying] = useState(false);
 
   const detail = useQuery({ queryKey: ['kuji', kujiId, 'detail'], queryFn: () => kujiApi.detail(kujiId), retry: false });
   const board = useQuery({ queryKey: ['kuji', kujiId, 'board'], queryFn: () => kujiApi.board(kujiId), retry: false });
@@ -64,11 +66,13 @@ export default function KujiDetailPage() {
   const buy = useMutation({
     mutationFn: (numbers) => kujiApi.buy(kujiId, numbers),
     onSuccess: (_result, numbers) => {
+      setPaying(false);
       setSel([]);
       refresh();
       navigate(`/kuji/${kujiId}/draw`, { state: { numbers } });
     },
     onError: (error) => {
+      setPaying(false);
       setToast(error.message);
       setSel([]);
       refresh();
@@ -114,7 +118,7 @@ export default function KujiDetailPage() {
       goLogin();
       return;
     }
-    if (sel.length) buy.mutate(sel);
+    if (sel.length) setPaying(true);
   };
 
   return (
@@ -311,10 +315,24 @@ export default function KujiDetailPage() {
             <small>선택 {sel.length}장</small>
             <b>{won(sel.length * kuji.ticketPrice)}</b>
           </div>
-          <button type="button" className={s.cta} disabled={!onSale || buy.isPending || (signedIn && sel.length === 0)} onClick={submit}>
-            {!onSale ? (upcoming ? `${formatOpenAt(kuji.opensAt)} 오픈 예정` : '판매가 끝났어요') : buy.isPending ? '결제 중…' : !signedIn ? '로그인하고 뽑기' : sel.length ? `${sel.length}장 뽑기` : '번호를 골라주세요'}
+          <button type="button" className={s.cta} disabled={!onSale || (signedIn && sel.length === 0)} onClick={submit}>
+            {!onSale ? (upcoming ? `${formatOpenAt(kuji.opensAt)} 오픈 예정` : '판매가 끝났어요') : !signedIn ? '로그인하고 뽑기' : sel.length ? `${sel.length}장 결제하기` : '번호를 골라주세요'}
           </button>
         </div>
+      ) : null}
+      {paying ? (
+        <KujiPaySheet
+          title="결제하기"
+          lines={[
+            ['쿠지', kuji.title],
+            ['티켓', `${[...sel].sort((a, b) => a - b).map(pad).join(', ')}번 · ${sel.length}장`],
+            ['티켓 1장', won(kuji.ticketPrice)],
+          ]}
+          amount={sel.length * kuji.ticketPrice}
+          pending={buy.isPending}
+          onClose={() => setPaying(false)}
+          onPay={() => buy.mutate(sel)}
+        />
       ) : null}
       <Toast message={toast} />
     </KujiPage>
