@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { DetailSection, DetailShell, NoticeList } from './BannerDetailParts.jsx';
 import { CharacterFace } from './StageSection.jsx';
+import { BOX_TIERS, BOXES, openBoxes } from './boxMockData.js';
 import { STAGE_CHARACTERS, STAGE_SERIES } from './stageMockData.js';
 import './StageCheer.css';
+import './BoxShop.css';
 
 const FREE_CHEER_KEY = 'goodspick.stage.freeCheerDate';
 const MAX_QUANTITY = 10;
 
 const OPTIONS = [
   { id: 'free', title: '무료 응원', desc: '하루 한 번, 구매 없이 응원해요', price: 0, points: 100 },
-  { id: 'random', title: '랜덤박스', desc: '여러 작품 굿즈가 랜덤 구성 · 응모권 포함', price: 10000, points: 1000 },
-  { id: 'pick', title: '최애박스', desc: '고른 최애의 굿즈로만 구성 · 응모권 포함', price: 50000, points: 7500, badge: '최애 굿즈 확정' },
+  ...BOXES.map((box) => ({ ...box, desc: `${box.desc} · 한정판 피규어 확률 있음` })),
 ];
 
 const NOTICES = [
@@ -34,11 +35,11 @@ function readFreeCheerDate() {
 }
 
 // 최애 스테이지의 "응원하기" 화면 (/stage/cheer?character=gojo) — 결제 연동 전 시연용
-export default function StageCheerPage({ initialCharacterId, onBack, onHome }) {
+export default function StageCheerPage({ initialCharacterId, initialOptionId, onBack, onHome }) {
   const [characterId, setCharacterId] = useState(
     STAGE_CHARACTERS.some((character) => character.id === initialCharacterId) ? initialCharacterId : STAGE_CHARACTERS[0].id,
   );
-  const [optionId, setOptionId] = useState('pick');
+  const [optionId, setOptionId] = useState(OPTIONS.some((option) => option.id === initialOptionId) ? initialOptionId : 'pick');
   const [quantity, setQuantity] = useState(1);
   const [freeUsedToday, setFreeUsedToday] = useState(() => readFreeCheerDate() === todayKey());
   const [done, setDone] = useState(null);
@@ -60,7 +61,13 @@ export default function StageCheerPage({ initialCharacterId, onBack, onHome }) {
       }
       setFreeUsedToday(true);
     }
-    setDone({ name: character.name, points: totalPoints, title: option.title, count });
+    setDone({
+      name: character.name,
+      points: totalPoints,
+      title: option.title,
+      count,
+      items: option.price ? openBoxes(option.id, count, character.id) : [],
+    });
   };
 
   if (done) {
@@ -70,6 +77,23 @@ export default function StageCheerPage({ initialCharacterId, onBack, onHome }) {
           <CharacterFace character={character} size={96} />
           <h2>{done.name}에게<br />{done.points.toLocaleString()}P를 응원했어요</h2>
           <p>{done.title}{done.count > 1 ? ` ${done.count}개` : ''} · 시연용 화면이라 실제 결제는 진행되지 않았어요.</p>
+          {done.items.length ? (
+            <ul className="box-results" aria-label="박스에서 나온 굿즈">
+              {done.items.map((result, index) => (
+                <li
+                  key={result.key}
+                  className={result.tier === 'SPECIAL' || result.tier === 'SECRET' ? 'box-results--limited' : ''}
+                  style={{ animationDelay: `${index * 90}ms` }}
+                >
+                  <span className="box-shop__tier" style={{ background: BOX_TIERS[result.tier].color }}>{BOX_TIERS[result.tier].name}</span>
+                  <span>
+                    <b>{result.character.name} {result.item}</b>
+                    <small>{STAGE_SERIES[result.character.series].name}</small>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : null}
           <div className="stage-cheer__done-actions">
             <button className="bd__btn" type="button" onClick={onHome}>최애 스테이지 보기</button>
             <button className="bd__btn bd__btn--secondary" type="button" onClick={() => setDone(null)}>더 응원하기</button>

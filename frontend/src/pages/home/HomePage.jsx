@@ -117,6 +117,7 @@ export default function HomePage({
   onOpenInterestSettings,
   onOpenProduct,
   onOpenStageCheer,
+  onOpenStageGuide,
   onOpenCategory,
   onOpenTrending,
   onOpenUpcoming,
@@ -341,7 +342,7 @@ export default function HomePage({
           ))}
         </nav>
 
-        <StageSection onCheer={onOpenStageCheer} />
+        <StageSection onCheer={onOpenStageCheer} onOpenGuide={onOpenStageGuide} />
 
         <section className="home-section trending-section">
           <div className="home-section-heading">

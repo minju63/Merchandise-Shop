@@ -44,8 +44,8 @@ export function CharacterFace({ character, size }) {
   );
 }
 
-// onCheer(characterId): 응원하기(랜덤박스·최애박스) 화면으로 이동
-export default function StageSection({ onCheer }) {
+// onCheer(characterId): 응원하기(랜덤박스·최애박스) 화면으로 이동, onOpenGuide: 최애 스테이지 안내 화면으로 이동
+export default function StageSection({ onCheer, onOpenGuide }) {
   const [characters, setCharacters] = useState(() => STAGE_CHARACTERS.map((character) => ({ ...character })));
   const [previousRanks, setPreviousRanks] = useState({});
   const [feed, setFeed] = useState(null);
@@ -82,22 +82,30 @@ export default function StageSection({ onCheer }) {
           <h2><span className="stage-live">LIVE</span> 최애 스테이지</h2>
           <p>이번 주 무대의 주인공은? · 정산까지 {formatRemaining(nextDeadline(now) - now)}</p>
         </div>
+        {onOpenGuide ? (
+          <button type="button" onClick={onOpenGuide}>자세히 <span aria-hidden="true">›</span></button>
+        ) : null}
       </div>
 
+      {/* 홈에서 굿즈가 첫 화면에 같이 보이도록 1위 무대는 가로형으로 낮게 둔다 */}
       <div className="stage">
-        <div className="stage__hero" key={leader.id}>
-          <span className="stage__crown" aria-hidden="true">👑</span>
-          <div className="stage__figure"><CharacterFace character={leader} size={124} /></div>
+        <div className="stage__podium">
+          <div className="stage__hero" key={leader.id}>
+            <span className="stage__crown" aria-hidden="true">👑</span>
+            <div className="stage__figure"><CharacterFace character={leader} size={72} /></div>
+          </div>
+          <div className="stage__floor" aria-hidden="true" />
         </div>
-        <div className="stage__floor" aria-hidden="true" />
-        <p className="stage__series">{STAGE_SERIES[leader.series].name}</p>
-        <p className="stage__name">{leader.name}</p>
-        <p className="stage__points">{leader.points.toLocaleString()}P</p>
-        {onCheer ? (
-          <button className="stage__cheer" type="button" onClick={() => onCheer(leader.id)}>
-            {leader.name} 응원하기 <span aria-hidden="true">›</span>
-          </button>
-        ) : null}
+        <div className="stage__info">
+          <p className="stage__series">1위 · {STAGE_SERIES[leader.series].name}</p>
+          <p className="stage__name">{leader.name}</p>
+          <p className="stage__points">{leader.points.toLocaleString()}P</p>
+          {onCheer ? (
+            <button className="stage__cheer" type="button" onClick={() => onCheer(leader.id)}>
+              응원하기 <span aria-hidden="true">›</span>
+            </button>
+          ) : null}
+        </div>
       </div>
 
       <p className="stage-feed" aria-live="polite">

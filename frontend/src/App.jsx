@@ -11,6 +11,8 @@ import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from '@tan
 import { useCallback, useEffect, useState } from 'react';
 import HomePage from './pages/home/HomePage.jsx';
 import StageCheerPage from './pages/home/StageCheerPage.jsx';
+import BoxShopPage from './pages/home/BoxShopPage.jsx';
+import StageGuidePage from './pages/home/StageGuidePage.jsx';
 import { homeMockData } from './pages/home/homeMockData.js';
 import { useSession } from './pages/my/hooks.js';
 import SearchPage, { SearchResultsPage } from './pages/search/SearchPage.jsx';
@@ -136,6 +138,7 @@ const BANNER_DETAIL_PATHS = {
 
 function bannerPath({ bannerId, bannerType }) {
   if (bannerType === 'FAN_PROMO') return '/fan/guide';
+  if (bannerType === 'BOX_PROMO') return '/box';
   const base = BANNER_DETAIL_PATHS[bannerType];
   return base ? `${base}/${bannerId}` : null;
 }
@@ -224,6 +227,7 @@ function HomeRoute() {
       onOpenCart={() => navigate('/cart')}
       onOpenProduct={(product) => navigate(`/products/${product.storeProductId}`)}
       onOpenStageCheer={(characterId) => navigate(`/stage/cheer?character=${characterId}`)}
+      onOpenStageGuide={() => navigate('/stage')}
       onOpenCategory={openCategory}
       onOpenTrending={(tab) => navigate(trendingPath(tab))}
       onOpenUpcoming={() => navigate(UPCOMING_PATH, fromHome)}
@@ -362,10 +366,31 @@ function StageCheerRoute() {
   const [searchParams] = useSearchParams();
   return (
     <StageCheerPage
-      key={searchParams.get('character') ?? ''}
+      key={`${searchParams.get('character') ?? ''}-${searchParams.get('option') ?? ''}`}
       initialCharacterId={searchParams.get('character')}
+      initialOptionId={searchParams.get('option')}
       onBack={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))}
       onHome={() => navigate('/')}
+    />
+  );
+}
+
+function StageGuideRoute() {
+  const navigate = useNavigate();
+  return (
+    <StageGuidePage
+      onBack={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))}
+      onCheer={(characterId) => navigate(`/stage/cheer?character=${characterId}`)}
+    />
+  );
+}
+
+function BoxShopRoute() {
+  const navigate = useNavigate();
+  return (
+    <BoxShopPage
+      onBack={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))}
+      onBuy={(boxId) => navigate(`/stage/cheer?option=${boxId}`)}
     />
   );
 }
@@ -696,7 +721,9 @@ export default function App() {
         <Route path="/ads/:bannerId" element={<AdDetailRoute />} />
         <Route path="/ads/:bannerId/products" element={<AdProductsRoute />} />
         <Route path="/exhibitions/:bannerId" element={<ExhibitionRoute />} />
+        <Route path="/stage" element={<StageGuideRoute />} />
         <Route path="/stage/cheer" element={<StageCheerRoute />} />
+        <Route path="/box" element={<BoxShopRoute />} />
         <Route path="/fan/guide" element={<FanGuideRoute />} />
         <Route path="/fan/cheer" element={<FanCheerRoute />} />
         <Route path="/fan/tickets" element={<FanTicketsRoute />} />

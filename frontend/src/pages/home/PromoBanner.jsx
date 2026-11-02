@@ -5,6 +5,7 @@ const DEFAULT_TITLES = {
   SERVICE_INTRO: '내 주변 굿즈샵 재고,\n픽업까지 한 번에',
   EXHIBITION: '12월 생일 최애,\n굿즈로 축하해요',
   FAN_PROMO: '내 최애를\n메인 배너에 올려요',
+  BOX_PROMO: '박스를 열면\n한정판 피규어가 나올 수도!',
 };
 
 function Cta({ onOpen }) {
@@ -42,7 +43,11 @@ export default function PromoBanner({ banner, position, dragProps, onOpen }) {
               <span className="promo-banner__live">응원 중 · 이번 주 목요일 마감</span>
             </p>
           ) : null}
+          {type === 'BOX_PROMO' ? (
+            <p className="promo-banner__eyebrow">랜덤박스 · 최애박스 · 확률 공개</p>
+          ) : null}
           <h2>{banner.title || DEFAULT_TITLES[type]}</h2>
+          {type === 'BOX_PROMO' ? <span className="promo-banner__box-art" aria-hidden="true">🎁</span> : null}
           <Cta onOpen={onOpen} />
         </div>
       )}

@@ -134,7 +134,7 @@
 .promo-banner {
   position: relative;
   width: 100%;
-  aspect-ratio: 10 / 7; /* 배너 종류와 상관없이 같은 비율 (팬 전광판 꾸미기 미리보기도 같은 비율) */
+  aspect-ratio: 16 / 9; /* 배너 종류와 상관없이 같은 비율 (팬 전광판 꾸미기 미리보기도 같은 비율) */
   padding: 24px 22px;
   overflow: hidden;
   color: #fff;
@@ -311,6 +311,25 @@
 .promo-banner--fan-promo .promo-banner__cta {
   color: #fff;
   background: #6f5be7;
+}
+
+/* 7 랜덤박스·최애박스 */
+.promo-banner--box-promo {
+  background: linear-gradient(135deg, #2c1f5e, #6b3fa0 65%, #a35a8c);
+}
+
+.promo-banner--box-promo .promo-banner__eyebrow {
+  color: #fac775;
+  opacity: 1;
+}
+
+.promo-banner__box-art {
+  position: absolute;
+  right: 76px;
+  bottom: 14px;
+  font-size: 48px;
+  line-height: 1;
+  transform: rotate(8deg);
 }
 
 .promo-banner__live {
