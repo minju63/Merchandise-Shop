@@ -16,7 +16,17 @@ function DeliveryFee({ store }) {
   return <span>{won(store.deliveryFee)}</span>;
 }
 
-export default function CartStoreGroup({ store, type, disabled, onToggle, onQuantity, onRemove }) {
+export default function CartStoreGroup({
+  store,
+  type,
+  disabled,
+  couponAssignment,
+  couponCount,
+  onCoupon,
+  onToggle,
+  onQuantity,
+  onRemove,
+}) {
   const isDelivery = type === 'DELIVERY';
   return (
     <section className="cart-store">
@@ -45,6 +55,26 @@ export default function CartStoreGroup({ store, type, disabled, onToggle, onQuan
           />
         ))}
       </ul>
+      <button
+        type="button"
+        className="cart-store-coupon"
+        disabled={disabled || store.itemsTotal <= 0}
+        onClick={onCoupon}
+      >
+        <span className="cart-store-coupon__text">
+          <strong>쿠폰</strong>
+          <small>
+            {store.itemsTotal <= 0
+              ? '상품을 선택하면 쿠폰을 사용할 수 있어요'
+              : couponAssignment?.couponName ?? `사용 가능 ${couponCount}장`}
+          </small>
+        </span>
+        <span className="cart-store-coupon__action">
+          {couponAssignment ? <em>-{won(couponAssignment.discountAmount)}</em> : null}
+          <span className="cart-store-coupon__pick">{couponAssignment ? '변경' : '선택'}</span>
+          <b aria-hidden="true">›</b>
+        </span>
+      </button>
       {isDelivery && store.amountToFreeShipping > 0 && (
         <p className="cart-free-hint">{won(store.amountToFreeShipping)} 더 담으면 무료배송</p>
       )}
@@ -61,9 +91,15 @@ export default function CartStoreGroup({ store, type, disabled, onToggle, onQuan
             </dd>
           </div>
         )}
+        <div>
+          <dt>쿠폰 할인</dt>
+          <dd className={couponAssignment ? 'cart-store-summary__discount' : ''}>
+            {couponAssignment ? `-${won(couponAssignment.discountAmount)}` : won(0)}
+          </dd>
+        </div>
         <div className="cart-store-total">
-          <dt>매장 합계</dt>
-          <dd>{won(store.storeTotal)}</dd>
+          <dt>샵 주문 결제 금액</dt>
+          <dd>{won(Math.max(store.storeTotal - (couponAssignment?.discountAmount ?? 0), 0))}</dd>
         </div>
       </dl>
     </section>

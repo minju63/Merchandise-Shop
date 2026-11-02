@@ -10,6 +10,7 @@ export const cancelMembership = () => http.post('/memberships/me/cancel', {}).th
 
 // 쿠폰
 export const listCoupons = () => http.get('/coupons').then(data);
+export const listCheckoutCoupons = (params) => http.get('/coupons/usable', { params }).then(data);
 export const getCoupon = (id) => http.get(`/coupons/${id}`).then(data);
 export const registerCoupon = (code) => http.post('/coupons/register', { code }).then(data);
 

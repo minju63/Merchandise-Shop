@@ -1,0 +1,27 @@
+.cart-icon-badge {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+
+.cart-icon-badge__count {
+  position: absolute;
+  top: -7px;
+  right: -9px;
+  display: inline-flex;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: #7353e6;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+  box-sizing: border-box;
+  pointer-events: none;
+}

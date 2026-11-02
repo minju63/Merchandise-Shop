@@ -31,6 +31,7 @@
 .co-seg button { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 11px 0; border-radius: 9px; color: var(--co-faint); font-size: 14px; text-align: center !important; }
 .co-seg button.is-on { background: #fff; color: var(--co-text); font-weight: 700; box-shadow: 0 1px 4px rgba(28, 27, 34, 0.1); }
 .co-seg button:disabled { opacity: 0.4; cursor: default; }
+.co-seg button.is-on:disabled { opacity: 1; }
 .co-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .co-chip { padding: 11px 14px; border: 1px solid var(--co-line); border-radius: 8px; background: #fff; font-size: 13px; }
 .co-chip--round { padding: 8px 14px; border-radius: 18px; border-color: transparent; background: var(--co-soft); color: var(--co-sub); }
@@ -51,6 +52,9 @@
 .co-coupon__text span { color: var(--co-sub); font-size: 12px; }
 .co-coupon__amount { color: var(--co-primary); font-style: normal; font-weight: 700; }
 .co-coupon__pick { color: var(--co-faint); font-size: 13px; }
+.co-coupon-title { display: flex; align-items: center; gap: 6px; margin: 0 0 10px; }
+.co-coupon-title > strong { font-size: 16px; }
+.co-coupon-title > button { display: grid; place-items: center; width: 26px; height: 26px; color: var(--co-sub); }
 .co-radio { display: flex; align-items: center; gap: 12px; padding: 10px 0; cursor: pointer; }
 .co-radio input { position: absolute; opacity: 0; }
 .co-radio__dot { flex: none; width: 22px; height: 22px; box-sizing: border-box; border: 2px solid #cfcdd9; border-radius: 50%; }
@@ -70,6 +74,15 @@
 .co-pay:disabled { opacity: 0.5; cursor: default; }
 .co-sheet__body { margin-top: 12px; }
 .co-sheet .ord-btn { margin-top: 12px; }
+.co-sheet { transition: transform 180ms ease-out; will-change: transform; }
+.co-sheet.is-dragging { transition: none; }
+.co-sheet > button.ord-sheet__grip { position: relative; display: block; width: 72px; height: 24px; margin: -8px auto 4px; padding: 0; border: 0; background: transparent; cursor: grab; touch-action: none; }
+.co-sheet.is-dragging > button.ord-sheet__grip { cursor: grabbing; }
+.co-sheet > button.ord-sheet__grip::after { position: absolute; top: 10px; left: 18px; width: 36px; height: 4px; border-radius: 2px; background: #dedce6; content: ''; }
+.co-sheet__heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.co-sheet__close { flex: none; width: 36px; height: 36px; padding: 0; border: 0; background: transparent; color: var(--co-text); font-size: 34px; font-weight: 300; line-height: 1; text-align: center !important; }
+.co-coupon-guide { margin: 8px 0 12px; padding-left: 22px; color: var(--co-sub); font-size: 14px; line-height: 1.65; }
+.co-coupon-guide li + li { margin-top: 12px; }
 
 /* 쿠폰 선택 시트 (C-02) */
 .co-sheet .ord-sheet__sub { margin: 6px 0 16px; }

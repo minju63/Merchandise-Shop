@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import Icon from './Icon.jsx';
 import NotificationBell from '../../../components/NotificationBell.jsx';
+import CartIconBadge from '../../../components/CartIconBadge.jsx';
 
 export { default as TabBar } from '../../../components/BottomNavigation.jsx';
 
@@ -25,7 +26,7 @@ export function StoreHeader({ back = false, searchContext = null }) {
             </Link>
             <NotificationBell className="store-list-header__action" iconSize={21} />
             <Link className="store-list-header__action" to="/cart" aria-label="장바구니">
-              <Icon name="cart" size={22} />
+              <CartIconBadge size={22} />
             </Link>
           </div>
         </div>
@@ -56,7 +57,7 @@ export function StoreHeader({ back = false, searchContext = null }) {
         )}
         <NotificationBell className="icon-button" iconSize={24} />
         <Link className="icon-button" to="/cart" aria-label="장바구니">
-          <Icon name="cart" />
+          <CartIconBadge size={24} />
         </Link>
       </div>
     </header>

@@ -3,6 +3,7 @@ import ProductCard from '../../components/ProductCard.jsx';
 import UpcomingProductCard from '../../components/UpcomingProductCard.jsx';
 import Icon from '../../components/Icon.jsx';
 import NotificationBell from '../../components/NotificationBell.jsx';
+import CartIconBadge from '../../components/CartIconBadge.jsx';
 import PromoBanner from './PromoBanner.jsx';
 import { fanBoardDesign, isFanBoardType } from '../fan/fanBoardPresets.js';
 import { brandGroupFor, hasPickedBrands, matchesInterests } from './interestMatch.js';
@@ -302,8 +303,7 @@ export default function HomePage({
           <div className="header-actions">
             <NotificationBell iconSize={21} count={data.badges.notifications} />
             <button type="button" aria-label="장바구니" onClick={onOpenCart} disabled={!onOpenCart}>
-              <Icon name="cart" size={22} />
-              {data.badges.cart > 0 && <span className="action-badge">{data.badges.cart}</span>}
+              <CartIconBadge size={22} />
             </button>
           </div>
         </div>

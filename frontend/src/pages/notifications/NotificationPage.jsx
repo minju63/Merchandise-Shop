@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import Icon from '../../components/Icon.jsx';
+import CartIconBadge from '../../components/CartIconBadge.jsx';
 import { notificationApi } from '../../api/notification.api.js';
 import { useRequireLogin, useSession } from '../my/hooks.js';
 import './NotificationPage.css';
@@ -62,7 +63,7 @@ export default function NotificationPage() {
             <Icon name="search" size={25} />
           </Link>
           <Link to="/cart" aria-label="장바구니">
-            <Icon name="cart" size={26} />
+            <CartIconBadge size={26} />
           </Link>
         </div>
       </header>

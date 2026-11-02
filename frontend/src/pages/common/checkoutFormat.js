@@ -48,8 +48,6 @@ const ISSUE_TEXT = {
   PICKUP_TIME_UNAVAILABLE: '선택한 날짜에는 픽업 가능한 시간이 없어요',
   ADDRESS_REQUIRED: '배송지를 등록해 주세요',
   DELIVERY_POLICY_MISSING: '매장 배달 정보가 아직 없어요',
-  DELIVERY_AREAS_MISSING: '이 매장은 배달 지역이 없어요',
-  DELIVERY_AREA_NOT_MATCHED: '선택한 배송지는 배달 가능 지역이 아니에요',
   MIN_DELIVERY_ORDER_AMOUNT: '최소 주문 금액을 채워 주세요',
 };
 
@@ -60,6 +58,7 @@ const COUPON_REASON_TEXT = {
 export function issueText(code) {
   if (ISSUE_TEXT[code]) return ISSUE_TEXT[code];
   if (COUPON_REASON_TEXT[code]) return COUPON_REASON_TEXT[code];
+  if (code.startsWith('CART_COUPON_')) return '선택한 장바구니 쿠폰은 이 주문에 사용할 수 없어요';
   if (code.startsWith('COUPON_')) return '선택한 쿠폰은 이 주문에 쓸 수 없어요';
   return '주문 조건을 확인해 주세요';
 }

@@ -8,11 +8,12 @@ function goodsPickRate(amount) {
   return 0;
 }
 
-export default function CartOrderSummary({ cart, items, type, onCoupon }) {
+export default function CartOrderSummary({ cart, items, type, couponDiscount }) {
   const selected = items.filter((item) => item.available && item.isSelected);
   const originalAmount = selected.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const productDiscount = Math.max(originalAmount - cart.itemsTotal, 0);
-  const basicReward = Math.floor(cart.grandTotal * 0.01);
+  const finalAmount = Math.max(cart.grandTotal - couponDiscount, 0);
+  const basicReward = Math.floor(finalAmount * 0.01);
   const accountRate = goodsPickRate(cart.itemsTotal);
   const accountExtra = Math.floor(cart.itemsTotal * accountRate * 0.01);
   const isFreeDelivery = type === 'PICKUP' || cart.deliveryFeeTotal === 0;
@@ -31,7 +32,9 @@ export default function CartOrderSummary({ cart, items, type, onCoupon }) {
         </div>
         <div>
           <dt>쿠폰할인</dt>
-          <dd><button type="button" onClick={onCoupon}>결제 화면에서 선택</button></dd>
+          <dd className={couponDiscount > 0 ? 'cart-order-summary__discount' : ''}>
+            {couponDiscount > 0 ? `-${won(couponDiscount)}` : won(0)}
+          </dd>
         </div>
         <div>
           <dt>배송비</dt>
@@ -61,7 +64,7 @@ export default function CartOrderSummary({ cart, items, type, onCoupon }) {
 
       <div className="cart-order-summary__total">
         <span>예상 결제금액</span>
-        <strong>{won(cart.grandTotal)}</strong>
+        <strong>{won(finalAmount)}</strong>
       </div>
     </section>
   );

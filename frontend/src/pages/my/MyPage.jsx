@@ -1,4 +1,5 @@
 import BottomNavigation from '../../components/BottomNavigation.jsx';
+import CartIconBadge from '../../components/CartIconBadge.jsx';
 import { useNavigate } from 'react-router-dom';
 import {
   BagIcon,
@@ -6,7 +7,6 @@ import {
   BankIcon,
   BoxIcon,
   CardIcon,
-  CartIcon,
   ChevronIcon,
   ClockIcon,
   DocIcon,
@@ -98,8 +98,7 @@ function Header({ header, guest, onNavigate }) {
           </HeaderButton>
         )}
         <HeaderButton label="장바구니" to={MY_ROUTES.cart} onNavigate={onNavigate}>
-          <CartIcon />
-          <Badge count={header?.cartItems} />
+          <CartIconBadge size={24} />
         </HeaderButton>
       </div>
     </header>

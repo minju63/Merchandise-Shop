@@ -48,31 +48,8 @@ export default function StoreDeliveryInfo({ data }) {
       )}
       <div className="guide-line">
         <strong>배달 가능 지역</strong>
-        <span>
-          {data.areas?.length
-            ? data.areas
-                .map((area) => area.regionName)
-                .filter(Boolean)
-                .join(', ') || '지역 정보 없음'
-            : '등록된 지역 정보 없음'}
-        </span>
+        <span>전국</span>
       </div>
-      {(data.areas || [])
-        .filter((area) => area.regionName)
-        .map((area) => (
-          <div className="guide-line" key={area.id ?? area.region_id}>
-            <strong>
-              {(area.additional_fee ?? area.extra_fee ?? area.extra_delivery_fee) != null
-                ? `${area.regionName} 추가 배송비`
-                : area.regionName}
-            </strong>
-            <span>
-              {(area.additional_fee ?? area.extra_fee ?? area.extra_delivery_fee) != null
-                ? won(area.additional_fee ?? area.extra_fee ?? area.extra_delivery_fee)
-                : '추가 배송비 정보 없음'}
-            </span>
-          </div>
-        ))}
       {info.guide_text && <p>{info.guide_text}</p>}
     </div>
   );
