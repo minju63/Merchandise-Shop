@@ -9,7 +9,7 @@ const PRODUCT_FIELDS = `
   popularity_score, alert_count, created_at,
   store_products (
     id, store_id, price, discount_rate, stock, status, restock_expected_at,
-    pickup_available, delivery_available, stores ( name, status )
+    pickup_available, delivery_available, preorder_available, stores ( name, status )
   ),
   product_categories ( categories ( id, code, name, type ) )
 `;

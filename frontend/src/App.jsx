@@ -91,6 +91,7 @@ import { supabase } from './lib/supabase.js';
 import FulfillmentSheet from './pages/wish/components/FulfillmentSheet.jsx';
 import GoodsPassSheet from './pages/wish/components/GoodsPassSheet.jsx';
 import PreorderSheet from './pages/wish/components/PreorderSheet.jsx';
+import PreorderFlow from './pages/wish/components/PreorderFlow.jsx';
 import CartAddedToast from './components/CartAddedToast.jsx';
 import { searchApi } from './api/search.api.js';
 import { bannerApi, homeApi } from './api/home.api.js';
@@ -221,6 +222,7 @@ function HomeRoute() {
   // 로그인한 경우에만 관심사를 적용한다. 비회원은 관심사가 비어 있는 처음 상태로 둘러본다.
   const { status: sessionStatus, session } = useSession();
   const alertQueryKey = ['home-alerts', session?.user?.id];
+  const [preorderFlow, setPreorderFlow] = useState(null);
   const goLogin = () => navigate('/login?returnTo=%2F');
   // 홈에서 바로 들어온 목록은 뒤로가기를 카테고리가 아니라 홈으로 되돌린다.
   const fromHome = { state: { fromHome: true } };
@@ -276,6 +278,35 @@ function HomeRoute() {
     }
   };
 
+  // 입고 예정 카드의 사전예약: 상품 상세와 같은 순서(견적 확인 → 패스 안내 → 예약금 결제 시트)로 이어 준다.
+  const preorderProduct = async (product) => {
+    try {
+      await new Promise((resolve, reject) => {
+        preorderApi.quote({ storeProductId: product.storeProductId, qty: 1 }).then((response) => {
+          if (response.data.alreadyPreordered) {
+            reject(Object.assign(new Error('이미 예약한 상품이에요.'), { code: 'ALREADY_PREORDERED' }));
+            return;
+          }
+          setPreorderFlow({
+            resolve,
+            reject,
+            step: response.data.isSubscribed ? 'preorder' : 'pass',
+            item: {
+              storeProductId: product.storeProductId,
+              productName: product.name,
+              storeName: product.shop,
+              thumbnailUrl: product.imageUrl,
+            },
+          });
+        }, reject);
+      });
+      return { preordered: true };
+    } catch (error) {
+      if (!error.cancelled) showAlert(error.message || '사전예약을 처리하지 못했어요. 다시 시도해 주세요.');
+      return null;
+    }
+  };
+
   if (homeQuery.isPending) return <p className="home-status">불러오는 중...</p>;
   if (homeQuery.isError) {
     return (
@@ -314,6 +345,7 @@ function HomeRoute() {
       onOpenLowStock={() => navigate(LOW_STOCK_PATH, fromHome)}
       alertedProductIds={sessionStatus === 'in' ? (alertQuery.data ?? []) : []}
       onToggleOpenAlert={toggleProductAlert}
+      onPreorder={preorderProduct}
       onBannerClick={(bannerId) => {
         // 서버가 항상 붙이는 배너(스테이지·박스·쿠지)는 banners 행이 없어 클릭을 기록하지 않는다.
         if (BUILT_IN_BANNER_IDS.has(bannerId) || bannerId.startsWith('kuji-')) return;
@@ -327,6 +359,7 @@ function HomeRoute() {
       }}
     />
     {dialog}
+    <PreorderFlow flow={preorderFlow} onChange={setPreorderFlow} />
     </>
   );
 }

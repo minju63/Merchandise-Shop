@@ -105,22 +105,22 @@ export default function LoginPage() {
     if (cause) setError(loginErrorMessage(cause));
   };
 
-  // 구글 로그인: Supabase가 구글 화면으로 보냈다가 /login 으로 돌려보내고, 위 effect가 가입 여부를 보고 이동시킨다.
-  const signInWithGoogle = async () => {
+  // 소셜 로그인: Supabase가 해당 서비스 화면으로 보냈다가 /login 으로 돌려보내고, 위 effect가 가입 여부를 보고 이동시킨다.
+  const signInWithProvider = async (provider, name) => {
     if (busy) return;
     setError('');
     setNotice('');
     setBusy(true);
     const { error: cause } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
+      provider,
       options: { redirectTo: `${window.location.origin}${AUTH_ROUTES.login}` },
     });
     if (cause) {
       setBusy(false);
-      setError('구글 로그인을 시작하지 못했어요. 잠시 후 다시 시도해 주세요.');
+      setError(`${name} 로그인을 시작하지 못했어요. 잠시 후 다시 시도해 주세요.`);
     }
   };
-  // 카카오·네이버는 아직 연결 전이라 모양만 보여 준다.
+  // 네이버는 아직 연결 전이라 모양만 보여 준다.
   const comingSoon = (name) => {
     setError('');
     setNotice(`${name} 로그인은 준비 중이에요.`);
@@ -171,10 +171,10 @@ export default function LoginPage() {
       <div className="lg-social">
         <p className="lg-social__title">SNS 계정으로 로그인</p>
         <div className="lg-social__row">
-          <button type="button" className="lg-social__btn is-google" aria-label="구글로 로그인" disabled={busy} onClick={signInWithGoogle}>
+          <button type="button" className="lg-social__btn is-google" aria-label="구글로 로그인" disabled={busy} onClick={() => signInWithProvider('google', '구글')}>
             <GoogleMark />
           </button>
-          <button type="button" className="lg-social__btn is-kakao" aria-label="카카오톡으로 로그인" onClick={() => comingSoon('카카오톡')}>
+          <button type="button" className="lg-social__btn is-kakao" aria-label="카카오톡으로 로그인" disabled={busy} onClick={() => signInWithProvider('kakao', '카카오톡')}>
             <KakaoMark />
           </button>
           <button type="button" className="lg-social__btn is-naver" aria-label="네이버로 로그인" onClick={() => comingSoon('네이버')}>

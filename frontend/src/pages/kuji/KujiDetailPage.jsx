@@ -64,8 +64,8 @@ export default function KujiDetailPage() {
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: ['kuji', kujiId] });
   const buy = useMutation({
-    mutationFn: (numbers) => kujiApi.buy(kujiId, numbers),
-    onSuccess: (_result, numbers) => {
+    mutationFn: ({ numbers, points }) => kujiApi.buy(kujiId, numbers, points),
+    onSuccess: (_result, { numbers }) => {
       setPaying(false);
       setSel([]);
       refresh();
@@ -331,7 +331,8 @@ export default function KujiDetailPage() {
           amount={sel.length * kuji.ticketPrice}
           pending={buy.isPending}
           onClose={() => setPaying(false)}
-          onPay={() => buy.mutate(sel)}
+          points
+          onPay={({ points }) => buy.mutate({ numbers: sel, points })}
         />
       ) : null}
       <Toast message={toast} />

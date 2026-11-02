@@ -232,6 +232,7 @@ function buildUpcoming(products, now) {
         openType: 'NEW',
         openAt: product.open_at,
         alertCount: product.alert_count,
+        preorderAvailable: representativeListing(product)?.preorder_available === true,
         stockText: null,
         shipping: null,
       });
@@ -249,6 +250,7 @@ function buildUpcoming(products, now) {
           openType: 'RESTOCK',
           openAt: listing.restock_expected_at,
           alertCount: product.alert_count,
+          preorderAvailable: listing.preorder_available === true,
           stockText: null,
           shipping: null,
         });

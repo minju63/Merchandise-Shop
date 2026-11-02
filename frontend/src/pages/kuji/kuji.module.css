@@ -321,6 +321,18 @@
 .rcard .plines div { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
 .rcard .plines span { flex: none; color: var(--sub); }
 .rcard .plines b { text-align: right; font-weight: 700; word-break: keep-all; }
+.rcard .pts { margin: 12px 0 0; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; }
+.rcard .pts .ptshd { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; }
+.rcard .pts .ptshd span { color: var(--sub); }
+.rcard .pts .ptshd span b { color: var(--primary-deep); }
+.rcard .pts .ptsrow { display: flex; gap: 8px; margin-top: 10px; }
+.rcard .pts input { flex: 1; min-width: 0; height: 40px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); font: inherit; font-size: 14px; text-align: right; font-variant-numeric: tabular-nums; }
+.rcard .pts input:disabled { background: #f4f3f7; color: var(--faint); }
+.rcard .pts .ptsrow button { flex: none; height: 40px; padding: 0 12px; border: 1px solid var(--btn); border-radius: 10px; color: var(--primary-deep); font-size: 12px; font-weight: 800; }
+.rcard .pts .ptsrow button:disabled { opacity: .4; cursor: default; }
+.rcard .pts small { display: block; margin-top: 8px; color: var(--faint); font-size: 11px; }
+.rcard .pts small.bad { color: #d23b3b; }
+.rcard .price .minus { display: block; color: var(--sub); font-size: 11px; font-weight: 400; text-align: right; }
 .rcard .pnote { margin-top: 10px; color: var(--faint); font-size: 11px; text-align: center; }
 .rcard .btns { display: flex; gap: 8px; }
 .rcard .btns button { flex: 1; height: 44px; border-radius: 12px; font-size: 14px; font-weight: 800; }

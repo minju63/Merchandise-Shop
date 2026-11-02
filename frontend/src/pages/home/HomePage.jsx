@@ -133,6 +133,7 @@ export default function HomePage({
   onOpenLowStock,
   onOpenCart,
   onToggleOpenAlert,
+  onPreorder,
 }) {
   const [activeBannerIndex, setActiveBannerIndex] = useState(0);
   const [activeProductTab, setActiveProductTab] = useState('popular');
@@ -299,6 +300,15 @@ export default function HomePage({
           : '입고 알림을 신청했어요. 마이 > 알림 신청에서 확인할 수 있어요.'
         : '알림 신청을 취소했어요.'
     );
+  };
+
+  const handlePreorder = async (product) => {
+    if (!isAuthenticated) {
+      onRequestLogin?.();
+      return;
+    }
+    const result = await onPreorder?.(product);
+    if (result?.preordered) setAlertNotice('사전예약을 신청했어요.');
   };
 
   const alertActionAvailable = isAuthenticated
@@ -489,6 +499,7 @@ export default function HomePage({
                 isAlerted={alertedProductIds.includes(product.id)}
                 alertActionAvailable={alertActionAvailable}
                 onAlertClick={handleOpenAlert}
+                onPreorderClick={onPreorder ? handlePreorder : undefined}
                 onClick={onOpenProduct && product.storeProductId ? () => onOpenProduct(product) : undefined}
               />
             ))}
