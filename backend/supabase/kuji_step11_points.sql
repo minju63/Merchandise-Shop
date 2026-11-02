@@ -12,9 +12,11 @@ alter table kuji_purchases add column if not exists points_used integer not null
 alter table point_transactions
   add column if not exists kuji_purchase_id uuid references kuji_purchases(id) on delete set null;
 
+-- 응원 적립금 통합(fan_credit_unify_points.sql)의 CHEER_* 종류도 함께 유지한다.
 alter table point_transactions drop constraint if exists point_transactions_type_check;
 alter table point_transactions add constraint point_transactions_type_check
-  check (type in ('EARN', 'USE', 'USE_CANCEL', 'REVIEW_REWARD', 'KUJI_RESALE', 'KUJI_USE'));
+  check (type in ('EARN', 'USE', 'USE_CANCEL', 'REVIEW_REWARD', 'KUJI_RESALE', 'KUJI_USE',
+                  'CHEER_RETURN', 'CHEER_TICKET_BUY', 'CHEER_TICKET_REFUND'));
 
 drop function if exists kuji_buy(uuid, integer[]);
 
