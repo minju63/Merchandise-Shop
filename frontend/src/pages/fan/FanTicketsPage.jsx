@@ -425,8 +425,6 @@ export default function FanTicketsPage({
               <div><span>현금 구매</span><strong>{me.cashTickets}장</strong><em>{won(cheerPoints(me.cashTickets))}점</em></div>
             </div>
             <p className="bd__caption">
-              응원할 때는 무료 → 적립금 구매 → 현금 구매 순서로 써요.
-              <br />
               보유 적립금 {won(credit)}원
             </p>
             {notice ? <p className="fan-notice" role="status">{notice}</p> : null}

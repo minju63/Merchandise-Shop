@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { storeApi } from '../../api/store.api.js';
@@ -10,7 +10,8 @@ import Icon from './components/Icon.jsx';
 import InventoryMap from './components/InventoryMap.jsx';
 import { sortOptions, useStoreLocation } from './storeListTools.js';
 import { searchApi } from '../../api/search.api.js';
-import { AutocompleteList, getAutocompleteSuggestions } from '../search/SearchPage.jsx';
+import { AutocompleteList } from '../search/SearchPage.jsx';
+import { getAutocompleteSuggestions, withAreaSuggestion } from '../search/searchAutocomplete.js';
 import useWishlist from '../../hooks/useWishlist.js';
 import './StoreMapPage.css';
 
@@ -81,21 +82,29 @@ export default function StoreMapPage() {
   });
   const result = data?.data;
   const items = result?.items || EMPTY;
+  const { latitude: areaLat, longitude: areaLng, name: areaName } = result?.area ?? {};
+  // 30초마다 다시 불러와도 지도가 다시 맞춰지지 않게 값이 같으면 같은 객체를 쓴다.
+  const focus = useMemo(() => areaName ? { lat: areaLat, lng: areaLng, name: areaName } : null, [areaLat, areaLng, areaName]);
+  // 자동완성의 굿즈샵·지역은 지금 지도에 보이는 매장이 아니라 전체 굿즈샵에서 찾는다.
+  const allShops = useQuery({ queryKey: ['search-stores'], queryFn: searchApi.stores, staleTime: 60000, retry: false }).data ?? EMPTY;
   // 홈 검색처럼 입력 중에 굿즈·작품·캐릭터·굿즈샵 자동완성을 보여준다(최근·인기 검색어는 없다).
   useEffect(() => {
     const text = draft.trim();
-    if (!typing || !text) { setSuggestions([]); return undefined; }
+    if (!typing || !text) return undefined;
     let cancelled = false;
     const timer = window.setTimeout(async () => {
       try {
-        const response = await searchApi.products({ q: text, size: 100, includeSoldOut: false, includeUpcoming: false });
-        if (!cancelled) setSuggestions(getAutocompleteSuggestions(text, { regions: [] }, response.data.items, items, undefined));
+        const [response, area] = await Promise.all([
+          searchApi.products({ q: text, size: 100, includeSoldOut: false, includeUpcoming: false }),
+          searchApi.area(text).catch(() => null),
+        ]);
+        if (!cancelled) setSuggestions(withAreaSuggestion(getAutocompleteSuggestions(text, { regions: [] }, response.data.items, allShops, undefined), text, area));
       } catch {
         if (!cancelled) setSuggestions([]);
       }
     }, 300);
     return () => { cancelled = true; window.clearTimeout(timer); };
-  }, [draft, typing, items]);
+  }, [draft, typing, allShops]);
   const activeId = items.some((s) => s.id === selectedId) ? selectedId : items[0]?.id;
   const selectStore = (id) => {
     setSelectedId(id);
@@ -221,10 +230,11 @@ export default function StoreMapPage() {
         onChange={(value) => value === 'distance' ? locateStores() : update({ sort: value })} />
     </div>
     {message && <p role="status">{message} 지역을 선택하거나 검색해서 찾아보세요.</p>}
-    <div className="inventory-result-count" role="status">{!locationReady ? '현재 위치 확인 중…' : isFetching ? '재고 확인 중…' : isError ? '조회 실패' : items.length ? `${items.length}개 매장` : '검색 결과가 없습니다'}{dataUpdatedAt > 0 && <small> · {new Date(dataUpdatedAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })} 조회</small>}</div>
+    <div className="inventory-result-count" role="status">{!locationReady ? '현재 위치 확인 중…' : isFetching ? '재고 확인 중…' : isError ? '조회 실패' : items.length ? `${items.length}개 매장` : result?.area ? '주변 매장이 없습니다' : '검색 결과가 없습니다'}{dataUpdatedAt > 0 && <small> · {new Date(dataUpdatedAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })} 조회</small>}</div>
+    {result?.area && <p className="inventory-area-note" role="status">‘{search.get('keyword')}’은(는) 장소로 찾았어요. {items.length ? <><strong>{result.area.name}</strong> 주변 {result.area.radius}km 매장이에요.</> : <><strong>{result.area.name}</strong> 주변 {result.area.radius}km에는 등록된 굿즈샵이 없어요.</>}</p>}
     {isPending ? <PageState>{!locationReady ? '현재 위치를 확인하는 중입니다.' : '매장과 재고를 불러오는 중입니다.'}</PageState> : isError ? <PageState onRetry={refetch}>{error.message}</PageState> : <>
       {productId && items.length > 0 && result.inStockCount === 0 && <p role="status">현재 재고가 있는 매장이 없습니다.</p>}
-      <div className="inventory-map-wrap"><InventoryMap items={items} productMode={Boolean(productId)} selectedId={activeId} onSelect={selectStore} onBounds={setViewport} center={search.has('radius') ? center : null} />
+      <div className="inventory-map-wrap"><InventoryMap items={items} productMode={Boolean(productId)} selectedId={activeId} onSelect={selectStore} onBounds={setViewport} center={search.has('radius') ? center : null} focus={focus} />
         <button className="inventory-area-button" disabled={!viewport} onClick={() => update({ ...viewport, radius: null })}>이 지도 영역에서 검색</button></div>
       <p className="inventory-legend">● 재고 있음 <span>● 품절</span> · 카드를 옆으로 넘겨 매장을 확인하세요</p>
       {items.length > 0 && <section className="inventory-carousel" aria-label="굿즈샵 카드">

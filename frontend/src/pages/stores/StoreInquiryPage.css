@@ -1,0 +1,147 @@
+.store-inquiry-page .si-main {
+  padding-bottom: calc(85px + env(safe-area-inset-bottom));
+}
+.store-inquiry-page .review-summary h2 {
+  overflow-wrap: anywhere;
+}
+.store-inquiry-page .review-write-button {
+  cursor: pointer;
+}
+.store-inquiry-page .review-write-button:disabled {
+  opacity: 0.5;
+}
+.si-list-section {
+  padding: 18px 17px;
+}
+.store-inquiry-page .pi-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+.store-inquiry-page .pi-item {
+  overflow: hidden;
+  border: 1px solid #e3e1ea;
+  border-radius: 12px;
+}
+.store-inquiry-page .pi-item__head {
+  padding: 16px;
+  flex-wrap: wrap;
+}
+.store-inquiry-page .pi-item__head strong {
+  overflow-wrap: anywhere;
+}
+.store-inquiry-page .si-list-author {
+  max-width: 72px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #93879f;
+  font-size: 11px;
+}
+.store-inquiry-page .pi-item__body {
+  padding: 0 16px 16px;
+}
+.store-inquiry-page .pi-item__body .si-title {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.store-inquiry-page .category-prewrap {
+  white-space: pre-wrap;
+}
+.store-inquiry-page .si-no-answer {
+  margin-top: 12px;
+  color: #93879f;
+  font-size: 12px;
+}
+.store-inquiry-page .pi-item__body time {
+  display: block;
+  margin-top: 8px;
+  font-size: 11px;
+}
+.store-inquiry-page .si-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+}
+.store-inquiry-page .si-actions button {
+  padding: 6px 12px;
+  border: 1px solid #e3e1ea;
+  border-radius: 8px;
+  background: #fff;
+  color: #7444c2;
+  font-size: 12px;
+  cursor: pointer;
+}
+.store-inquiry-page .si-actions button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.si-note {
+  color: #93879f;
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.si-main > .si-note {
+  padding: 0 17px;
+}
+.si-pagination {
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+}
+.si-overlay {
+  z-index: 100;
+}
+.si-sheet {
+  overscroll-behavior: contain;
+  outline: none;
+}
+.si-sheet .category-inquiry-form {
+  display: grid;
+  gap: 12px;
+}
+.si-sheet .category-inquiry-form label {
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.si-sheet input,
+.si-sheet textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e3e1ea;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 16px;
+}
+.si-sheet textarea {
+  resize: vertical;
+  min-height: 120px;
+  max-height: 35dvh;
+}
+.si-sheet .category-inquiry-form > button,
+.si-sheet .category-inquiry-login button {
+  padding: 12px 18px;
+  border: 1px solid #7444c2;
+  border-radius: 20px;
+  background: #7444c2;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+}
+.si-sheet .category-inquiry-form > button:disabled {
+  opacity: 0.45;
+}
+.si-sheet small,
+.si-sheet [role='status'] {
+  color: #93879f;
+  font-size: 12px;
+}

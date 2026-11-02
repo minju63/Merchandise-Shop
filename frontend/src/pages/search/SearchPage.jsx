@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { parseRegionalQuery } from './searchQuery.js';
 import { searchApi } from '../../api/search.api.js';
 import Icon from '../../components/Icon.jsx';
@@ -8,6 +9,7 @@ import SearchShopList from './SearchShopList.jsx';
 import useWishlist from '../../hooks/useWishlist.js';
 import GoodsListCard from '../../components/GoodsListCard.jsx';
 import IntegratedSearchFilters from './IntegratedSearchFilters.jsx';
+import { escapeRegExp, getAutocompleteSuggestions, matchesRegion, matchesTokens, withAreaSuggestion } from './searchAutocomplete.js';
 import './SearchPage.css';
 
 const RECENT_SEARCH_KEY = 'goodzpick.recentSearches';
@@ -21,71 +23,6 @@ const PRODUCT_SORT_OPTIONS = [
   ['priceLow', '낮은 가격 순'],
   ['priceHigh', '높은 가격 순'],
 ];
-
-const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-function matchesTokens(values, tokens) {
-  const target = values.filter(Boolean).join(' ').toLocaleLowerCase('ko-KR');
-  return tokens.every((token) => target.includes(token));
-}
-
-export function getAutocompleteSuggestions(query, data, products, shops, storeId) {
-  const tokens = query.trim().toLocaleLowerCase('ko-KR').split(/\s+/).filter(Boolean);
-  if (!tokens.length) return [];
-
-  const regionItems = storeId ? [] : data.regions
-    .filter((region) => {
-      const names = [region.label, region.displayName, ...region.aliases]
-        .map((name) => name.toLocaleLowerCase('ko-KR'));
-      const matchesQuery = tokens.some((token) => names.some((name) => name.includes(token)));
-      const hasResults = shops.some((shop) => matchesRegion(shop, region));
-      return matchesQuery && hasResults;
-    })
-    .map((region) => ({
-      id: `region-${region.id}`,
-      type: '지역',
-      label: region.displayName,
-      subtitle: region.label === region.displayName ? '지역 검색' : region.label,
-      regionId: region.id,
-      searchValue: region.label,
-    }));
-
-  const entityItems = [
-    ...products.map((product) => ({
-      id: `product-${product.storeProductId}`,
-      type: '굿즈',
-      label: product.name,
-      subtitle: product.storeName,
-      searchValue: product.name,
-    })),
-    ...products.filter((product) => product.workTitle && matchesTokens([product.workTitle], tokens))
-      .map((product) => ({
-        id: `work-${product.workTitle}`,
-        type: '작품',
-        label: product.workTitle,
-        subtitle: product.storeName,
-        searchValue: product.workTitle,
-      })),
-    ...products.filter((product) => product.characterName && matchesTokens([product.characterName], tokens))
-      .map((product) => ({
-        id: `character-${product.characterName}`,
-        type: '캐릭터',
-        label: product.characterName,
-        subtitle: product.workTitle || product.storeName,
-        searchValue: product.characterName,
-      })),
-    ...(storeId ? [] : shops.filter((shop) => matchesTokens([shop.name, shop.address], tokens))
-      .map((shop) => ({
-        id: `shop-${shop.id}`,
-        type: '굿즈샵',
-        label: shop.name,
-        subtitle: shop.address,
-        searchValue: shop.name,
-      }))),
-  ];
-
-  return [...regionItems, ...new Map(entityItems.map((item) => [item.id, item])).values()].slice(0, 8);
-}
 
 function HighlightText({ text, query }) {
   const tokens = query.trim().split(/\s+/).filter(Boolean);
@@ -129,7 +66,7 @@ function SearchHeader({ query, setQuery, onBack, onSubmit, autoFocus = false, st
         <input
           type="search"
           value={query}
-          placeholder={storeId ? '매장 상품 검색' : '굿즈, 작품, 캐릭터, 굿즈샵 검색'}
+          placeholder={storeId ? '매장 상품 검색' : '굿즈, 작품, 캐릭터, 굿즈샵, 지역 검색'}
           aria-label="통합 검색어"
           autoFocus={autoFocus}
           onChange={(event) => setQuery(event.target.value)}
@@ -257,14 +194,17 @@ export default function SearchPage({
       }
       try {
         // 결과 화면이 기본으로 품절·입고 예정을 빼므로, 눌렀을 때 결과가 없는 상품이 뜨지 않게 같은 조건으로 찾는다
-        const response = await searchApi.products({
-          storeId: storeId || undefined,
-          q: query.trim(),
-          size: 100,
-          includeSoldOut: false,
-          includeUpcoming: false,
-        });
-        if (!cancelled) setSuggestions(getAutocompleteSuggestions(query, data, response.data.items, shops, storeId));
+        const [response, area] = await Promise.all([
+          searchApi.products({
+            storeId: storeId || undefined,
+            q: query.trim(),
+            size: 100,
+            includeSoldOut: false,
+            includeUpcoming: false,
+          }),
+          storeId ? null : searchApi.area(query.trim()).catch(() => null),
+        ]);
+        if (!cancelled) setSuggestions(withAreaSuggestion(getAutocompleteSuggestions(query, data, response.data.items, shops, storeId), query, area));
       } catch {
         if (!cancelled) setSuggestions([]);
       } finally {
@@ -351,18 +291,6 @@ export default function SearchPage({
   );
 }
 
-function matchesRegion(location, region) {
-  if (!location || !region) return false;
-  if (location.address) {
-    const address = location.address.toLocaleLowerCase('ko-KR');
-    return (!region.sido || address.includes(region.sido.slice(0, 2).toLocaleLowerCase('ko-KR')))
-      && (!region.sigungu || address.includes(region.sigungu.toLocaleLowerCase('ko-KR')))
-      && (!region.area || address.includes(region.area.toLocaleLowerCase('ko-KR')));
-  }
-  return (!region.sido || location.sido === region.sido)
-    && (!region.sigungu || location.sigungu === region.sigungu)
-    && (!region.area || location.area === region.area);
-}
 
 // 카테고리·굿즈샵 상세와 같은 상품 카드. 샵 이름을 누르면 매장으로 이동한다.
 function ResultProductCard({ product, currentShopId }) {
@@ -498,9 +426,21 @@ export function SearchResultsPage({
   const regionalShops = parsedQuery.region
     ? nationwideShops.filter((shop) => matchesRegion(shop, parsedQuery.region))
     : nationwideShops;
+  // 이름·주소로 찾은 굿즈샵이 없고 지역도 아니면, 홍대·광안리 같은 장소 이름으로 보고 그 주변 굿즈샵을 보여준다.
+  const areaQuery = useQuery({
+    queryKey: ['search-area', initialQuery.trim()],
+    queryFn: () => searchApi.area(initialQuery.trim()),
+    enabled: !storeId && !similarShopIds && Boolean(initialQuery.trim()) && !nationwideShops.length && !parsedQuery.region,
+    staleTime: 60 * 60 * 1000,
+    retry: false,
+  });
+  const area = areaQuery.data;
+  const areaShops = areaQuery.data ? shops.filter((shop) => areaQuery.data.storeIds.includes(shop.id)) : [];
   const matchedShops = similarShopIds
     ? shops.filter((shop) => similarShopIds.includes(shop.id))
-    : regionEnabled && parsedQuery.region && !useNationwideFallback
+    : areaShops.length
+      ? areaShops
+      : regionEnabled && parsedQuery.region && !useNationwideFallback
       ? regionalShops
       : nationwideShops;
   const totalResultCount = storeId ? scopedTotalCount : productTotalCount + matchedShops.length;
@@ -529,14 +469,17 @@ export function SearchResultsPage({
       }
       try {
         // 결과 화면이 기본으로 품절·입고 예정을 빼므로, 눌렀을 때 결과가 없는 상품이 뜨지 않게 같은 조건으로 찾는다
-        const response = await searchApi.products({
-          storeId: storeId || undefined,
-          q: query.trim(),
-          size: 100,
-          includeSoldOut: false,
-          includeUpcoming: false,
-        });
-        if (!cancelled) setSuggestions(getAutocompleteSuggestions(query, data, response.data.items, shops, storeId));
+        const [response, area] = await Promise.all([
+          searchApi.products({
+            storeId: storeId || undefined,
+            q: query.trim(),
+            size: 100,
+            includeSoldOut: false,
+            includeUpcoming: false,
+          }),
+          storeId ? null : searchApi.area(query.trim()).catch(() => null),
+        ]);
+        if (!cancelled) setSuggestions(withAreaSuggestion(getAutocompleteSuggestions(query, data, response.data.items, shops, storeId), query, area));
       } catch {
         if (!cancelled) setSuggestions([]);
       } finally {
@@ -670,11 +613,17 @@ export function SearchResultsPage({
           </div>
         ) : null}
 
+        {area ? (
+          <p className="area-note" role="status">
+            ‘{initialQuery.trim()}’은(는) 장소로 찾았어요. <strong>{area.name}</strong> 주변 {area.radius}km{areaShops.length ? ' 굿즈샵이에요.' : '에는 등록된 굿즈샵이 없어요.'}
+          </p>
+        ) : null}
+
         {hasNoResults && !hasActiveFilters ? (
           <section className="no-search-results">
             <div className="no-search-results__icon" aria-hidden="true"><SearchIcon /></div>
             <h2>‘{initialQuery}’에 대한<br />검색 결과가 없어요</h2>
-            <p>띄어쓰기나 철자를 확인해 보세요<br />더 짧은 단어로 검색해 보세요</p>
+            <p>{area ? '다른 지역이나 더 짧은 단어로 검색해 보세요' : <>띄어쓰기나 철자를 확인해 보세요<br />더 짧은 단어로 검색해 보세요</>}</p>
             {data.popularKeywords.length ? <div className="no-search-results__popular">
               <h3>인기 검색어로 다시 찾아보세요</h3>
               <div>

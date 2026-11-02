@@ -6,6 +6,7 @@ import {
   getPopularSearches,
   getRecentSearches,
   getSearch,
+  getSearchArea,
   getSearchProducts,
   getSearchSuggest,
   postSearchLog,
@@ -15,6 +16,7 @@ import { optionalAuth } from '../middlewares/auth.middleware.js';
 const router = Router();
 
 router.get('/', getSearch); // 통합 검색
+router.get('/area', getSearchArea); // 장소 이름 주변 매장
 router.get('/products', getSearchProducts); // 상품 검색 (구현됨)
 router.get('/suggest', getSearchSuggest); // 자동완성
 router.get('/popular', getPopularSearches); // 인기 검색어

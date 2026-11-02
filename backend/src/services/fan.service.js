@@ -81,12 +81,18 @@ const DB_ERRORS = {
   FAN_DESIGN_LOCKED: [409, '지금은 수정할 수 없어요. 제출 기한이 지났거나 이미 검수 중이에요.'],
   FAN_DESIGN_INVALID: [400, '디자인 값이 올바르지 않아요.'],
   FAN_DESIGN_INVALID_MESSAGE: [400, '메인 문구는 1~16자로 입력해 주세요.'],
+  FAN_DESIGN_INVALID_TEXT: [400, '날짜 줄과 from. 닉네임은 20자 이내로 입력해 주세요.'],
+  FAN_DESIGN_INCOMPLETE: [400, '날짜 줄과 from. 닉네임을 모두 입력한 뒤 검수를 요청해 주세요.'],
   FAN_DESIGN_INVALID_PATH: [400, '이미지 경로가 올바르지 않아요.'],
   FAN_DESIGN_EMPTY: [400, '메인 문구를 입력한 뒤 검수를 요청해 주세요.'],
   FAN_WEEK_NOT_FOUND: [404, '주차를 찾을 수 없어요.'],
   FAN_DAY_CHARACTER_NOT_FOUND: [404, '그날 기념일인 최애가 아니에요.'],
   FAN_DAY_INVALID_MESSAGE: [400, '축하 한마디는 1~50자로 입력해 주세요.'],
   FAN_DAY_CONGRATS_LIMIT: [409, '축하 한마디는 하루에 최대 5개까지 남길 수 있어요.'],
+  FAN_BILLBOARD_INVALID_DATES: [400, '게시할 날짜를 1~31일 사이로 골라 주세요.'],
+  FAN_BILLBOARD_PAST_DATE: [400, '게시 7일 전까지 꾸며야 해서, 오늘부터 8일 뒤 날짜부터 신청할 수 있어요.'],
+  FAN_BILLBOARD_ANNIVERSARY_DATE: [409, '기념일이 있는 날은 자유 응원 전광판을 신청할 수 없어요.'],
+  FAN_BILLBOARD_DATE_TAKEN: [409, '이미 다른 분이 신청한 날짜가 있어요. 날짜를 다시 확인해 주세요.'],
   FAN_DAY_CONGRATS_NOT_FOUND: [404, '수정하거나 삭제할 축하 한마디를 찾을 수 없어요.'],
 };
 
@@ -142,11 +148,8 @@ export async function getTickets(userId) {
 }
 
 // 현금 구매: 결제 모듈(모의) 승인 → payments 행 → 응원권 묶음
-export async function buyWithCash(userId, body = {}) {
-  const amount = Number(body.amount);
-  if (!CHARGE_AMOUNTS.includes(amount)) {
-    throw failure(400, 'FAN_INVALID_CHARGE_AMOUNT', DB_ERRORS.FAN_INVALID_CHARGE_AMOUNT[1]);
-  }
+// 결제수단을 확인하고 결제(모의)를 승인한 뒤 payments 행을 만든다.
+async function chargeFan(userId, body, amount, purpose) {
   if (body.paymentAgreed !== true) {
     throw failure(400, 'FAN_PAYMENT_NOT_AGREED', '결제에 동의해 주세요.');
   }
@@ -172,7 +175,17 @@ export async function buyWithCash(userId, body = {}) {
     ...approval,
     methodLabel,
     paymentMethodId: method?.id ?? null,
+    purpose,
   });
+  return { paymentId, transactionId: approval.transactionId };
+}
+
+export async function buyWithCash(userId, body = {}) {
+  const amount = Number(body.amount);
+  if (!CHARGE_AMOUNTS.includes(amount)) {
+    throw failure(400, 'FAN_INVALID_CHARGE_AMOUNT', DB_ERRORS.FAN_INVALID_CHARGE_AMOUNT[1]);
+  }
+  const { paymentId } = await chargeFan(userId, body, amount, 'CHEER_CHARGE');
   return repository.buyWithCash(userId, paymentId).catch(translate);
 }
 
@@ -409,4 +422,60 @@ export async function deleteDayCongrats(userId, date, congratsId) {
     if (bad) throw bad;
     return translate(error);
   }
+}
+
+// ── 유료 전광판 게시: 하루 500,000원, 연속·분할 선택 가능
+export const BILLBOARD_PRICE_PER_DAY = 500000;
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+const isoDate = (date) => date.toISOString().slice(0, 10);
+
+// 기간 안에서 살 수 없는 날짜와 이유
+export async function getBillboardAvailability({ from, to }) {
+  if (!DATE_PATTERN.test(String(from)) || !DATE_PATTERN.test(String(to)) || from > to) {
+    throw failure(400, 'FAN_INVALID_DATE', '날짜를 확인해 주세요.');
+  }
+  const { anniversaries, sold, slots } = await repository.findBillboardBlocked({ from, to });
+  const blocked = {};
+  anniversaries.forEach((row) => { blocked[row.event_date] = { reason: 'ANNIVERSARY', label: row.label }; });
+  sold.forEach((row) => { blocked[row.day] ??= { reason: 'BOOKED' }; });
+  slots.forEach((slot) => {
+    for (let i = 0; i < slot.publish_days; i += 1) {
+      const day = isoDate(new Date(Date.parse(slot.publish_date) + i * 86400000));
+      if (day >= from && day <= to) blocked[day] ??= { reason: 'BOOKED' };
+    }
+  });
+  return { pricePerDay: BILLBOARD_PRICE_PER_DAY, blocked };
+}
+
+export async function bookBillboard(userId, body = {}) {
+  const dates = [...new Set(Array.isArray(body.dates) ? body.dates : [])];
+  if (!dates.length || dates.length > 31 || !dates.every((date) => DATE_PATTERN.test(String(date)))) {
+    throw failure(400, 'FAN_BILLBOARD_INVALID_DATES', DB_ERRORS.FAN_BILLBOARD_INVALID_DATES[1]);
+  }
+  if (!body.characterId) throw failure(404, 'FAN_CHARACTER_NOT_FOUND', DB_ERRORS.FAN_CHARACTER_NOT_FOUND[1]);
+  const amount = BILLBOARD_PRICE_PER_DAY * dates.length;
+  const { paymentId, transactionId } = await chargeFan(userId, body, amount, 'FAN_BANNER');
+  try {
+    return await repository.billboardBook(userId, body.characterId, dates, paymentId, BILLBOARD_PRICE_PER_DAY);
+  } catch (error) {
+    // 날짜 확정에 실패하면 방금 한 결제는 바로 취소한다.
+    await getPaymentProvider().cancel({ transactionId }).catch(() => {});
+    await repository.markPaymentCanceled(paymentId).catch(() => {});
+    if (error.code === '22P02') throw failure(400, 'FAN_BILLBOARD_INVALID_DATES', DB_ERRORS.FAN_BILLBOARD_INVALID_DATES[1]);
+    return translate(error);
+  }
+}
+
+export async function listMyBillboards(userId) {
+  const rows = await repository.findMyBillboards(userId);
+  return rows
+    .map((row) => ({
+      designId: row.id,
+      reviewStatus: row.review_status,
+      dueAt: row.due_at,
+      startDate: row.slot.publish_date,
+      days: row.slot.publish_days,
+      characterName: row.slot.character?.name ?? null,
+    }))
+    .sort((a, b) => a.startDate.localeCompare(b.startDate));
 }

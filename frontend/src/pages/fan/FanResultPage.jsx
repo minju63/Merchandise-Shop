@@ -1,8 +1,6 @@
 import { DetailSection, DetailShell } from '../home/BannerDetailParts.jsx';
 import './FanCheer.css';
 
-const SLOT_LABELS = { ANNIV: '기념일 응원', FREE: '자유 응원' };
-
 const formatDate = (value) => {
   const date = new Date(value);
   return `${date.getMonth() + 1}월 ${date.getDate()}일`;
@@ -44,7 +42,7 @@ export default function FanResultPage({ result, error, onBack, onDesign, onCheer
 
       {pastWeeks.map((week) => (
         <div key={week.weekId}>
-          <h2 className="fan-result__week">지난 응모{week.weekStart ? ` · ${formatDate(week.weekStart)} 주` : ''}</h2>
+          <h2 className="fan-result__week">지난 응원{week.weekStart ? ` · ${formatDate(week.weekStart)} 주` : ''}</h2>
           {week.items.map((item) => renderItem(item, { onDesign, onTickets }))}
         </div>
       ))}
@@ -57,7 +55,7 @@ function renderItem(item, { onDesign, onTickets }) {
   const unestablished = item.returnReason === 'NOT_ESTABLISHED';
 
   return (
-    <DetailSection key={key} title={`${SLOT_LABELS[item.slotType]} · ${item.name}`}>
+    <DetailSection key={key} title={`기념일 응원 · ${item.name}`}>
       <p className="fan-result__meta">
         내 응원 {item.myCount}회 · 전체 {item.rank}위 ({item.totalCount}회)
         {item.publishDate ? ` · 게시 ${formatDate(item.publishDate)}${item.publishDays > 1 ? ` (${item.publishDays}일)` : ''}` : ''}

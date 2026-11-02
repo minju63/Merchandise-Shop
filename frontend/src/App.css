@@ -839,6 +839,8 @@
   gap: 7px;
 }
 .guide-grid button {
+  min-width: 0;
+  padding-inline: 2px;
   height: 68px;
   background: #fff;
   border: 1px solid #e5e8ed;
@@ -851,6 +853,7 @@
   color: #303841;
   font-size: 11px;
 }
+.guide-grid button span { max-width: 100%; overflow-wrap: anywhere; }
 .guide-grid button:hover {
   background: #f8f9fa;
 }

@@ -51,3 +51,10 @@ export const getDesign = handle((req, res) => service.getDesign(userId(res), req
 export const saveDesign = handle((req, res) => service.saveDesign(userId(res), req.params.designId, req.body));
 // POST /api/v1/fan/designs/:designId/submit — 검수 요청 🔒
 export const submitDesign = handle((req, res) => service.submitDesign(userId(res), req.params.designId));
+
+// GET /api/v1/fan/billboard/availability?from=&to= — 살 수 없는 날짜 🔒
+export const getBillboardAvailability = handle((req) => service.getBillboardAvailability(req.query));
+// POST /api/v1/fan/billboard/bookings — 날짜를 골라 결제하고 전광판 게시 🔒
+export const bookBillboard = handle((req, res) => service.bookBillboard(userId(res), req.body), 201);
+// GET /api/v1/fan/billboard/bookings — 내가 산 전광판 🔒
+export const listMyBillboards = handle((req, res) => service.listMyBillboards(userId(res)));

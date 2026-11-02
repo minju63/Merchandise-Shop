@@ -1,5 +1,6 @@
 const paths = {
   gift: <><rect x="3" y="8" width="18" height="4" rx="1" /><path d="M5 12v9h14v-9M12 8v13M12 8H8a3 3 0 1 1 3-3l1 3Zm0 0h4a3 3 0 1 0-3-3l-1 3Z" /></>,
+  chat: <><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5 9 9 0 0 1-4-.9L3 21l1.9-5.5A9 9 0 0 1 4 11.5a8.5 8.5 0 0 1 17 0Z" /><path d="M8 10h9M8 14h6" /></>,
   search: <><circle cx="11" cy="11" r="7" /><path d="m16 16 5 5" /></>,
   bell: <><path d="M18 8a6 6 0 0 0-12 0c0 7-2 8-2 8h16s-2-1-2-8Z" /><path d="M10 20h4" /></>,
   cart: <><path d="M2 4h2l2.3 11h12.5l2.2-8H5" /><circle cx="9" cy="20" r="1" /><circle cx="18" cy="20" r="1" /></>,

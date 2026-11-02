@@ -93,12 +93,12 @@ export const send = (userId, input) => rpc('cheer_send', {
   p_agreed_image_rights: input.agreedImageRights === true,
 });
 
-export async function insertChargePayment(userId, { amount, transactionId, methodLabel, approvedAt, isMock, paymentMethodId = null }) {
+export async function insertChargePayment(userId, { amount, transactionId, methodLabel, approvedAt, isMock, paymentMethodId = null, purpose = 'CHEER_CHARGE' }) {
   const { data, error } = await getSupabase()
     .from('payments')
     .insert({
       user_id: userId,
-      purpose: 'CHEER_CHARGE',
+      purpose,
       payment_method_id: paymentMethodId,
       method_label: methodLabel,
       amount,
@@ -181,5 +181,39 @@ export async function searchCharacters(query) {
   if (query) request = request.or(`name.ilike.%${query}%,work_title.ilike.%${query}%`);
   const { data, error } = await request;
   throwOnError(error);
+  return data;
+}
+
+// ── 유료 전광판 게시 (날짜별 판매)
+export const billboardBook = (userId, characterId, dates, paymentId, price) => rpc('fan_billboard_book', {
+  p_user: userId, p_character: characterId, p_dates: dates, p_payment: paymentId, p_price: price,
+});
+
+// 기간 안에서 살 수 없는 날짜: 기념일이 있는 날, 이미 팔린 날, 예전 방식으로 확정된 게시일
+export async function findBillboardBlocked({ from, to }) {
+  const db = getSupabase();
+  const [anniversaries, sold, slots] = await Promise.all([
+    db.from('anniversaries').select('event_date, label').eq('is_active', true).gte('event_date', from).lte('event_date', to),
+    db.from('fan_billboard_days').select('day').gte('day', from).lte('day', to),
+    db.from('fan_banner_slots').select('publish_date, publish_days').eq('slot_type', 'FREE').in('status', ['DECIDED', 'PUBLISHED']).lte('publish_date', to),
+  ]);
+  [anniversaries, sold, slots].forEach((result) => throwOnError(result.error));
+  return { anniversaries: anniversaries.data, sold: sold.data, slots: slots.data };
+}
+
+// 내가 산 게시: 구간마다 꾸미기(디자인) 한 건
+export async function findMyBillboards(userId) {
+  const db = getSupabase();
+  const { data: bookings, error } = await db.from('fan_billboard_bookings').select('id').eq('user_id', userId).eq('status', 'PAID');
+  throwOnError(error);
+  if (!bookings.length) return [];
+  const { data: days, error: dayError } = await db.from('fan_billboard_days').select('slot_id').in('booking_id', bookings.map((row) => row.id));
+  throwOnError(dayError);
+  const { data, error: designError } = await db
+    .from('fan_banner_designs')
+    .select('id, review_status, due_at, slot:fan_banner_slots!inner ( publish_date, publish_days, character:characters!winner_character_id ( name ) )')
+    .eq('user_id', userId)
+    .in('slot_id', [...new Set(days.map((row) => row.slot_id))]);
+  throwOnError(designError);
   return data;
 }

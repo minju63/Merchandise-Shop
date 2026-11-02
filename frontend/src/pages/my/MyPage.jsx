@@ -206,13 +206,13 @@ function MemberView({ data, provider, onNavigate }) {
             </span>
             <strong>{formatBadgeCount(activity?.availableCoupons ?? 0) || 0}</strong>
           </button>
-          <button type="button" className="mt-wallet__col" onClick={() => onNavigate('/wishlist')}>
+          <button type="button" className="mt-wallet__col" onClick={() => onNavigate('/wish')}>
             <span className="mt-wallet__label">
               찜한 상품 <ChevronIcon width={14} height={14} />
             </span>
             <strong>{activity?.wishlistProducts ?? 0}</strong>
           </button>
-          <button type="button" className="mt-wallet__col" onClick={() => onNavigate('/wishlist?tab=shops')}>
+          <button type="button" className="mt-wallet__col" onClick={() => onNavigate('/wish/shops')}>
             <span className="mt-wallet__label">
               찜한 굿즈샵 <ChevronIcon width={14} height={14} />
             </span>
@@ -280,7 +280,8 @@ function MemberView({ data, provider, onNavigate }) {
           onClick={() => onNavigate(MY_ROUTES.coupons)}
         />
         {/* 당첨된 응원 전광판 꾸미기는 응원 결과 화면에서 시작한다 */}
-        <Row icon={GiftIcon} label="응원 결과 · 전광판 꾸미기" onClick={() => onNavigate(MY_ROUTES.fanResult)} />
+        <Row icon={GiftIcon} label="전광판 신청 · 꾸미기" onClick={() => onNavigate(MY_ROUTES.fanBillboard)} />
+        <Row icon={GiftIcon} label="응원 결과 · 기념일 전광판 꾸미기" onClick={() => onNavigate(MY_ROUTES.fanResult)} />
         <Row icon={TicketIcon} label="응원권 구매" onClick={() => onNavigate(MY_ROUTES.fanTickets)} />
       </Section>
 

@@ -66,6 +66,7 @@ function ProductDetailPageContent({
   const reviews = useCategoryRequest(reviewsLoad, user?.id);
   useEffect(() => {
     if (!['#product-feedback', '#product-description'].includes(location.hash) || request.loading) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- 주소의 해시에 맞춰 탭을 맞춘다
     setFeedbackTab(location.hash === '#product-description' ? 'description' : 'reviews');
     requestAnimationFrame(() => document.getElementById('product-feedback')?.scrollIntoView());
   }, [location.hash, request.loading]);

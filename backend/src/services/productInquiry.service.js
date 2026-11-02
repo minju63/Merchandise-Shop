@@ -59,7 +59,40 @@ export function createProductInquiryService({ repository, products }) {
     return repository.create(input);
   }
 
-  return { getProductInquiries, createProductInquiry, validateInquiryTarget };
+  function checkText(title, content) {
+    if (
+      typeof content !== 'string' ||
+      !content.trim() ||
+      typeof title !== 'string' ||
+      !title.trim() ||
+      Array.from(title.trim()).length > 100
+    ) {
+      throw failure('문의 제목(100자 이내)과 내용을 확인해 주세요.', 400, 'INVALID_REQUEST');
+    }
+  }
+
+  async function updateProductInquiry({ storeProductId, inquiryId, userId, content, title } = {}) {
+    if (!userId) throw failure('로그인이 필요합니다.', 401, 'UNAUTHORIZED');
+    checkText(title, content);
+    const target = await validateInquiryTarget(storeProductId);
+    requireMethod('update');
+    const updated = await repository.update({ id: inquiryId, store_id: target.storeId, user_id: userId, title, content });
+    if (!updated) {
+      throw failure('수정할 수 없는 문의예요. 매장이 답변했거나 이미 삭제된 문의일 수 있어요.', 409, 'INQUIRY_NOT_EDITABLE');
+    }
+    return updated;
+  }
+
+  async function deleteProductInquiry({ storeProductId, inquiryId, userId } = {}) {
+    if (!userId) throw failure('로그인이 필요합니다.', 401, 'UNAUTHORIZED');
+    const target = await validateInquiryTarget(storeProductId);
+    requireMethod('remove');
+    const removed = await repository.remove({ id: inquiryId, store_id: target.storeId, user_id: userId });
+    if (!removed) throw failure('삭제할 문의를 찾을 수 없어요.', 404, 'INQUIRY_NOT_FOUND');
+    return { id: inquiryId };
+  }
+
+  return { getProductInquiries, createProductInquiry, updateProductInquiry, deleteProductInquiry, validateInquiryTarget };
 }
 
 const service = createProductInquiryService({
@@ -68,4 +101,6 @@ const service = createProductInquiryService({
 });
 export const getProductInquiries = service.getProductInquiries;
 export const createProductInquiry = service.createProductInquiry;
+export const updateProductInquiry = service.updateProductInquiry;
+export const deleteProductInquiry = service.deleteProductInquiry;
 export const validateInquiryTarget = service.validateInquiryTarget;

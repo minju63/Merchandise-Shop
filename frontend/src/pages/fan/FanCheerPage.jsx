@@ -4,11 +4,6 @@ import { ANNIVERSARY_KINDS } from './fanBoardPresets.js';
 import { cheerPoints, splitTickets } from './fanGuideData.js';
 import './FanCheer.css';
 
-const SLOTS = [
-  { type: 'ANNIV', title: '기념일 응원', desc: '기념일 날짜별 1위 최애가 당일 게시' },
-  { type: 'FREE', title: '자유 응원', desc: '순위 상위 최애가 하루씩 게시' },
-];
-
 const QUICK_COUNTS = [1, 10, 50, 100];
 
 // 응원 진행도 목록: [지급 사유, 이름, 한도]
@@ -34,7 +29,6 @@ export default function FanCheerPage({
   sending,
   error,
   onBack,
-  onChangeSlot,
   onChangeQuery,
   onSubmit,
   onCharge,
@@ -66,11 +60,6 @@ export default function FanCheerPage({
     && agreedRules
     && agreedImageRights;
 
-  const chooseSlot = (next) => {
-    onChangeSlot(next);
-    setCharacter(null);
-    setKind('');
-  };
 
   const chooseCharacter = (next) => {
     setCharacter(next);
@@ -104,24 +93,6 @@ export default function FanCheerPage({
       {me && !me.open ? (
         <p className="fan-closed">이번 주 응원은 마감됐어요. 다음 주 월요일부터 다시 응원할 수 있어요.</p>
       ) : null}
-
-      <DetailSection title="응원 유형">
-        <div className="fan-pick" role="radiogroup" aria-label="응원 유형">
-          {SLOTS.map((item) => (
-            <button
-              key={item.type}
-              type="button"
-              role="radio"
-              aria-checked={slot === item.type}
-              className={slot === item.type ? 'is-on' : ''}
-              onClick={() => chooseSlot(item.type)}
-            >
-              <strong>{item.title}</strong>
-              <span>{item.desc}</span>
-            </button>
-          ))}
-        </div>
-      </DetailSection>
 
       <DetailSection
         title="최애 선택"

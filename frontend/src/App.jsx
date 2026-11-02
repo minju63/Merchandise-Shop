@@ -24,6 +24,7 @@ import { EMPTY_FILTERS, filterParams } from './pages/search/searchFilters.js';
 import StoreListPage from './pages/stores/StoreListPage.jsx';
 import StoreMapPage from './pages/stores/StoreMapPage.jsx';
 import StoreDetailPage from './pages/stores/StoreDetailPage.jsx';
+import StoreInquiryPage from './pages/stores/StoreInquiryPage.jsx';
 import ShowcaseEditorPage from './pages/showcases/ShowcaseEditorPage.jsx';
 import { ShowcaseGalleryPage, ShowcaseDetailPage, ShowcaseManagePage } from './pages/showcases/ShowcasePages.jsx';
 import StoreReviewPage from './pages/stores/StoreReviewPage.jsx';
@@ -105,8 +106,8 @@ import AdDetailPage from './pages/home/AdDetailPage.jsx';
 import AdProductsPage from './pages/home/AdProductsPage.jsx';
 import ExhibitionPage from './pages/home/ExhibitionPage.jsx';
 import FanGuidePage from './pages/home/FanGuidePage.jsx';
-import { fanApi } from './api/fan.api.js';
 import { FanCheerRoute, FanDayRoute, FanDesignRoute, FanRankingRoute, FanResultRoute, FanTicketsRoute } from './pages/fan/FanRoutes.jsx';
+import FanBillboardRoute from './pages/fan/FanBillboardPage.jsx';
 import './App.css';
 import { useDialog } from './components/useDialog.jsx';
 
@@ -495,32 +496,15 @@ function BoxShopRoute() {
 function FanGuideRoute() {
   const navigate = useNavigate();
   const { status: sessionStatus } = useSession();
-  const week = useQuery({ queryKey: ['fan-week'], queryFn: fanApi.week, retry: false, refetchInterval: 15000 });
-  const ranking = useQuery({
-    queryKey: ['fan-ranking', 'FREE', '', false],
-    queryFn: () => fanApi.ranking({ slot: 'FREE' }),
-    retry: false,
-    refetchInterval: 15000,
-  });
-  const me = useQuery({ queryKey: ['fan-me'], queryFn: fanApi.me, enabled: sessionStatus === 'in', retry: false });
-  const topRanks = (ranking.data?.data.items ?? []).slice(0, 3).map((item) => ({
-    rank: item.rank,
-    name: item.name,
-    count: item.cheerCount,
-  }));
-
+  const go = (path) => navigate(sessionStatus === 'in' ? path : `/login?returnTo=${encodeURIComponent(path)}`);
   return (
     <FanGuidePage
-      status={{
-        totalCheers: week.data?.data.totalCheers ?? 0,
-        freeTickets: me.data?.data.freeTickets ?? null,
-      }}
-      ranking={topRanks}
       onBack={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))}
-      onCheer={() => navigate(sessionStatus === 'in' ? '/fan/cheer' : '/login?returnTo=%2Ffan%2Fcheer')}
-      onShowRanking={() => navigate('/fan/ranking?slot=FREE')}
-      onShowResult={() => navigate(sessionStatus === 'in' ? '/fan/result' : '/login?returnTo=%2Ffan%2Fresult')}
-      onShowTickets={() => navigate(sessionStatus === 'in' ? '/fan/tickets' : '/login?returnTo=%2Ffan%2Ftickets')}
+      onApplyAnniversary={() => go('/fan/cheer')}
+      onApplyFree={() => go('/fan/billboard')}
+      onShowRanking={() => navigate('/fan/ranking')}
+      onShowResult={() => go('/fan/result')}
+      onShowTickets={() => go('/fan/tickets')}
     />
   );
 }
@@ -911,6 +895,7 @@ export default function App() {
         <Route path="/fan/tickets" element={<FanTicketsRoute />} />
         <Route path="/fan/ranking" element={<FanRankingRoute />} />
         <Route path="/fan/result" element={<FanResultRoute />} />
+        <Route path="/fan/billboard" element={<FanBillboardRoute />} />
         <Route path="/fan-banner/day/:date" element={<FanDayRoute />} />
         <Route path="/fan/design/:designId" element={<FanDesignRoute />} />
 
@@ -918,6 +903,7 @@ export default function App() {
         <Route path="/stores" element={<StoreListPage />} />
         <Route path="/stores/map" element={<StoreMapPage />} />
         <Route path="/stores/:storeId" element={<StoreDetailPage />} />
+        <Route path="/stores/:storeId/inquiries" element={<StoreInquiryPage />} />
         <Route path="/stores/:storeId/reviews" element={<StoreReviewPage />} />
         <Route path="/stores/:storeId/reviews/write" element={<StoreReviewWritePage />} />
         <Route path="/showcases" element={<ShowcaseGalleryPage />} />

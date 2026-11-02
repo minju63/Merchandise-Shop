@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { deleteReview, getMyPoints, listMyReviews, updateReview } from './account.api.js';
+import { confirmPurchase } from './my.api.js';
+import { useDialog } from '../../components/useDialog.jsx';
 import { uploadReviewImages } from '../../api/reviewImage.api.js';
 import { daysLeft, formatFullDate } from './accountFormat.js';
 import Dialog from '../../components/Dialog.jsx';
@@ -36,7 +38,7 @@ function rewardNotice(deadline) {
   return { text: left === 0 ? '오늘 적립 종료' : `포인트 적립 종료 D-${left}`, expired: false };
 }
 
-function WritableCard({ item, reward, onWrite }) {
+function WritableCard({ item, reward, onWrite, onConfirm }) {
   const notice = rewardNotice(item.reward_deadline);
   return (
     <article className="mr-card">
@@ -50,9 +52,15 @@ function WritableCard({ item, reward, onWrite }) {
       <p className={notice.expired ? 'mr-dday is-expired' : 'mr-dday'}>
         {notice.expired ? notice.text : `${notice.text} · ${formatWon(reward)} 적립`}
       </p>
-      <button type="button" className="mr-btn" onClick={onWrite}>
-        리뷰 남기기
-      </button>
+      {item.purchase_confirmed_at ? (
+        <button type="button" className="mr-btn" onClick={onWrite}>
+          리뷰 남기기
+        </button>
+      ) : (
+        <button type="button" className="mr-btn" onClick={onConfirm}>
+          구매 확정
+        </button>
+      )}
     </article>
   );
 }
@@ -244,6 +252,7 @@ function WrittenCard({ review, onOpenProduct, onChanged }) {
 
 export default function MyReviewsPage() {
   const navigate = useNavigate();
+  const { alert: showAlert, confirm, dialog } = useDialog();
   const signedIn = useRequireLogin(MY_ROUTES.login);
   const [tab, setTab] = useState('WRITABLE');
   const writable = useRequest(signedIn, 'my-reviews:writable', () => listMyReviews('WRITABLE'));
@@ -254,6 +263,18 @@ export default function MyReviewsPage() {
   const refreshAll = () => {
     writable.reload();
     written.reload();
+  };
+
+  const confirmOrder = async (item) => {
+    const message =
+      '구매를 확정할까요?\n구매확정 후에는 반품·교환이 불가능해요.\n확정하면 적립금이 지급되고 리뷰를 쓸 수 있어요.';
+    if (!(await confirm(message, { confirmLabel: '구매확정' }))) return;
+    try {
+      await confirmPurchase(item.order_id);
+      writable.reload();
+    } catch (error) {
+      await showAlert(error.message);
+    }
   };
 
   const reward = points.data?.policy?.reviewReward ?? 500;
@@ -282,6 +303,7 @@ export default function MyReviewsPage() {
         item={item}
         reward={reward}
         onWrite={() => navigate(`${MY_ROUTES.reviewWrite(item.order_id)}?item=${item.id}`)}
+        onConfirm={() => confirmOrder(item)}
       />
     ));
   else
@@ -329,6 +351,7 @@ export default function MyReviewsPage() {
         ))}
       </div>
       <div className="mr-list">{list}</div>
+      {dialog}
     </main>
   );
 }

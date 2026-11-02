@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-export default function InventoryMap({ items, productMode, selectedId, onSelect, onBounds, center }) {
+export default function InventoryMap({ items, productMode, selectedId, onSelect, onBounds, center, focus }) {
   const host = useRef(null);
   const map = useRef(null);
   const layer = useRef(null);
@@ -28,6 +28,14 @@ export default function InventoryMap({ items, productMode, selectedId, onSelect,
     }).addTo(map.current).bindTooltip('내 위치');
     return () => { point.remove(); };
   }, [center]);
+  // 장소 이름으로 찾았을 때 그 장소를 표시한다.
+  useEffect(() => {
+    if (!focus) return;
+    const point = L.circleMarker([focus.lat, focus.lng], {
+      radius: 8, color: '#fff', weight: 3, fillColor: '#8047ca', fillOpacity: 1,
+    }).addTo(map.current).bindTooltip(focus.name, { permanent: true, direction: 'top', offset: [0, -8] });
+    return () => { point.remove(); };
+  }, [focus]);
   useEffect(() => {
     layer.current.clearLayers();
     for (const store of items) {
@@ -74,8 +82,9 @@ export default function InventoryMap({ items, productMode, selectedId, onSelect,
   useEffect(() => {
     const points = items.map((s) => [s.latitude, s.longitude]);
     if (center) points.push([center.lat, center.lng]);
+    if (focus) points.push([focus.lat, focus.lng]);
     if (points.length) map.current.fitBounds(points, { paddingTopLeft: [70, 60], paddingBottomRight: [70, 105], maxZoom: 15 });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [membership, center]);
+  }, [membership, center, focus]);
   return <div className="inventory-map" ref={host} aria-label="굿즈샵 위치와 상품 재고 지도" />;
 }

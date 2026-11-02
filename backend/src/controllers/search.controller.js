@@ -1,4 +1,5 @@
 import { getPopularKeywords, logSearch, searchProducts } from '../services/search.service.js';
+import { getAreaStoreIds } from '../services/storeMap.service.js';
 import { fail } from '../utils/response.js';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -132,4 +133,11 @@ export async function getRecentSearches(req, res) {
 export async function deleteRecentSearches(req, res) {
   // TODO
   notImplemented(res);
+}
+
+// 장소 이름(홍대·광안리 등) 주변 매장 — 카카오 로컬로 좌표를 찾는다.
+export async function getSearchArea(req, res) {
+  const keyword = String(req.query.q ?? '').trim().slice(0, 50);
+  const area = keyword ? await getAreaStoreIds(keyword) : null;
+  res.json({ success: true, data: area });
 }

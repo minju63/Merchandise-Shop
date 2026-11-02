@@ -34,6 +34,10 @@ export const fanApi = {
   design: async (designId) => client.get(`/fan/designs/${designId}`, { headers: await authHeaders() }),
   saveDesign: async (designId, body) => client.put(`/fan/designs/${designId}`, body, { headers: await authHeaders() }),
   submitDesign: async (designId) => client.post(`/fan/designs/${designId}/submit`, {}, { headers: await authHeaders() }),
+  // 유료 전광판 게시: 살 수 없는 날짜 · 날짜 결제 · 내가 산 게시
+  billboardAvailability: async (params) => client.get('/fan/billboard/availability', { params, headers: await authHeaders() }),
+  bookBillboard: async (body) => client.post('/fan/billboard/bookings', body, { headers: await authHeaders() }),
+  myBillboards: async () => client.get('/fan/billboard/bookings', { headers: await authHeaders() }),
   sendCheers: async (body) => client.post('/fan/cheers', body, { headers: await authHeaders() }),
   // 오늘 기념일인 최애 모아보기 (로그인 없이 볼 수 있고, 로그인하면 내 축하하기 표시가 함께 온다)
   day: async (date) => client.get(`/fan/day/${date}`, { headers: await optionalHeaders() }),

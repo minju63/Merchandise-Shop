@@ -1,0 +1,7 @@
+.fan-choice { position: fixed; inset: 0; z-index: 60; display: flex; align-items: flex-end; justify-content: center; }
+.fan-choice__dim { position: absolute; inset: 0; border: 0; background: rgba(20, 12, 32, 0.45); cursor: default; }
+.fan-choice__sheet { position: relative; width: 100%; max-width: 480px; box-sizing: border-box; padding: 22px 20px 28px; border-radius: 20px 20px 0 0; background: #fff; display: grid; gap: 10px; }
+.fan-choice__sheet h3 { margin: 0 0 6px; font-size: 17px; }
+.fan-choice__sheet button { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 14px 16px; border: 1px solid #e3dcef; border-radius: 14px; background: #fff; text-align: left; font: inherit; cursor: pointer; }
+.fan-choice__sheet button:hover { border-color: #8047ca; background: #f8f3fd; }
+.fan-choice__sheet span { color: #7a7487; font-size: 13px; line-height: 1.4; }

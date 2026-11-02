@@ -12,7 +12,7 @@ import {
   TEXT_COLORS,
   defaultDesign,
 } from './fanBoardPresets.js';
-import { defaultPosFor, fillYears, initialMessage, mergeDesign, messageTabs, toPayload } from './fanDesignUtils.js';
+import { FREE_TEXT_MAX_LENGTH, defaultPosFor, fillYears, initialMessage, mergeDesign, messageTabs, toPayload } from './fanDesignUtils.js';
 import './FanCheer.css';
 import './FanDesign.css';
 import { useDialog } from '../../components/useDialog.jsx';
@@ -79,7 +79,7 @@ function FanDesignEditor({ data, saveState, error, onBack, onSave, onSubmit, onU
     if (version === 0 || locked) return undefined;
     const timer = window.setTimeout(() => {
       const { design: current, paths: currentPaths } = latest.current;
-      onSave(toPayload(current), { backgroundPath: currentPaths.background, photoPath: currentPaths.photo });
+      onSave(toPayload(current, type), { backgroundPath: currentPaths.background, photoPath: currentPaths.photo });
     }, AUTOSAVE_MS);
     return () => window.clearTimeout(timer);
   }, [version]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -156,9 +156,12 @@ function FanDesignEditor({ data, saveState, error, onBack, onSave, onSubmit, onU
     setVersion((value) => value + 1);
   };
 
+  // 자유 응원은 날짜 줄과 from. 닉네임을 직접 채워야 검수를 요청할 수 있다.
+  const missingText = type === 'FREE' && (!design.dateLine?.trim() || !design.nickname?.trim());
+
   const submit = async () => {
     if (await confirm('검수를 요청할까요? 요청한 뒤에는 수정할 수 없어요.', { confirmLabel: '요청' })) {
-      onSubmit(toPayload(design), { backgroundPath: paths.background, photoPath: paths.photo });
+      onSubmit(toPayload(design, type), { backgroundPath: paths.background, photoPath: paths.photo });
     }
   };
 
@@ -177,7 +180,7 @@ function FanDesignEditor({ data, saveState, error, onBack, onSave, onSubmit, onU
       footer={(
         <>
           <button className="bd__btn bd__btn--secondary" type="button" disabled={locked} onClick={reset}>처음으로</button>
-          <button className="bd__btn" type="button" disabled={locked || saveState === 'saving'} onClick={submit}>검수 요청하기</button>
+          <button className="bd__btn" type="button" disabled={locked || saveState === 'saving' || missingText} onClick={submit}>검수 요청하기</button>
         </>
       )}
     >
@@ -306,8 +309,38 @@ function FanDesignEditor({ data, saveState, error, onBack, onSave, onSubmit, onU
             ))}
           </div>
           <button type="button" className="fan-design__btn" onClick={() => update({ pos: defaultPosFor(design.photoLayout), lineOffsets: {}, lineScales: {} })}>글자 위치·크기 처음으로</button>
-          <p className="bd__caption">날짜 줄, 캐릭터 이름, from. 닉네임은 자동으로 붙어서 글자는 바꿀 수 없지만 위치는 옮길 수 있어요.</p>
+          <p className="bd__caption">{type === 'FREE'
+            ? '캐릭터 이름은 자동으로 붙어요. 날짜 줄과 from. 닉네임은 아래에서 직접 쓸 수 있고, 위치는 옮길 수 있어요.'
+            : '날짜 줄, 캐릭터 이름, from. 닉네임은 자동으로 붙어서 글자는 바꿀 수 없지만 위치는 옮길 수 있어요.'}</p>
         </DetailSection>
+
+        {type === 'FREE' ? (
+          <DetailSection title="날짜 줄 · from. 닉네임" description="전광판에 보이는 글자예요. 두 칸을 모두 채워야 검수를 요청할 수 있어요.">
+            <label className="fan-field">
+              <span>날짜 줄 <em>{(design.dateLine ?? '').length}/{FREE_TEXT_MAX_LENGTH}</em></span>
+              <input
+                className="fan-input"
+                type="text"
+                maxLength={FREE_TEXT_MAX_LENGTH}
+                value={design.dateLine ?? ''}
+                placeholder="예: TODAY'S FAVE"
+                onChange={(event) => update({ dateLine: event.target.value })}
+              />
+            </label>
+            <label className="fan-field">
+              <span>from. 닉네임 <em>{(design.nickname ?? '').length}/{FREE_TEXT_MAX_LENGTH}</em></span>
+              <input
+                className="fan-input"
+                type="text"
+                maxLength={FREE_TEXT_MAX_LENGTH}
+                value={design.nickname ?? ''}
+                placeholder="전광판에 보일 닉네임"
+                onChange={(event) => update({ nickname: event.target.value })}
+              />
+            </label>
+            {missingText ? <p className="fan-error" role="status">날짜 줄과 닉네임을 모두 입력해 주세요.</p> : null}
+          </DetailSection>
+        ) : null}
 
         <DetailSection title="메인 문구">
           <div className="fan-chips">

@@ -76,3 +76,40 @@ export async function createProductInquiry(req, res, next) {
     return next(error);
   }
 }
+
+function readText(body) {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return null;
+  if (typeof body.content !== 'string' || !body.content.trim()) return null;
+  if (typeof body.title !== 'string' || !body.title.trim() || Array.from(body.title.trim()).length > 100) return null;
+  return { title: body.title.trim(), content: body.content.trim() };
+}
+
+// PATCH /products/:storeProductId/inquiries/:inquiryId — 내 문의 수정
+export async function updateProductInquiry(req, res, next) {
+  const userId = req.user?.id;
+  if (!validId(userId)) return reject(res, '로그인이 필요합니다.', 401, 'UNAUTHORIZED');
+  const { storeProductId, inquiryId } = req.params;
+  if (!validId(storeProductId) || !validId(inquiryId)) return reject(res, '요청 주소를 확인해 주세요.');
+  const text = readText(req.body);
+  if (!text) return reject(res, '문의 제목(100자 이내)과 내용을 입력해 주세요.');
+  try {
+    const data = await productInquiryService.updateProductInquiry({ storeProductId, inquiryId, userId, ...text });
+    return res.status(200).json({ success: true, data, message: null });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+// DELETE /products/:storeProductId/inquiries/:inquiryId — 내 문의 삭제
+export async function deleteProductInquiry(req, res, next) {
+  const userId = req.user?.id;
+  if (!validId(userId)) return reject(res, '로그인이 필요합니다.', 401, 'UNAUTHORIZED');
+  const { storeProductId, inquiryId } = req.params;
+  if (!validId(storeProductId) || !validId(inquiryId)) return reject(res, '요청 주소를 확인해 주세요.');
+  try {
+    const data = await productInquiryService.deleteProductInquiry({ storeProductId, inquiryId, userId });
+    return res.status(200).json({ success: true, data, message: null });
+  } catch (error) {
+    return next(error);
+  }
+}

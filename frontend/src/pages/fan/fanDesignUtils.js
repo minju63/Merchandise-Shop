@@ -52,9 +52,11 @@ export function mergeDesign(type, server, years, kind) {
   return merged;
 }
 
-// 서버에 보낼 값만 골라낸다 (날짜 줄 · 이름 · 닉네임 · 이미지 URL 은 보내지 않는다)
-export function toPayload(design) {
+// 서버에 보낼 값만 골라낸다 (이름 · 이미지 URL 은 보내지 않는다). 자유 응원만 날짜 줄과 닉네임을 직접 써서 함께 보낸다.
+export const FREE_TEXT_MAX_LENGTH = 20;
+export function toPayload(design, type) {
   return {
+    ...(type === 'FREE' ? { dateLine: design.dateLine ?? '', nickname: design.nickname ?? '' } : {}),
     bg: { kind: design.bg.kind, presetId: design.bg.presetId ?? null, colors: design.bg.colors },
     photoLayout: design.photoLayout,
     fontId: design.fontId,
