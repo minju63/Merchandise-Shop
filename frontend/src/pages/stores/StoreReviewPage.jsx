@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import RatingStars from '../../components/RatingStars.jsx';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { storeApi } from '../../api/store.api.js';
@@ -96,13 +97,7 @@ export default function StoreReviewPage() {
                   <strong>평점 없음</strong>
                 ) : (
                   <>
-                    <span
-                      className="review-stars"
-                      aria-label={`평균 별점 ${reviews.rating.toFixed(1)}점`}
-                    >
-                      {'★'.repeat(Math.round(reviews.rating))}
-                      {'☆'.repeat(5 - Math.round(reviews.rating))}
-                    </span>
+                    <RatingStars value={reviews.rating} size={26} />
                     <strong>{reviews.rating.toFixed(1)}</strong>
                   </>
                 )}

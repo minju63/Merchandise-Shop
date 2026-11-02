@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import RatingStars from '../../../components/RatingStars.jsx';
 
 function dateLabel(value) {
   if (!value) return '';
@@ -38,10 +39,7 @@ export default function StoreReviewCard({ review, onEdit, onDelete, onLike, onLo
         <time dateTime={review.createdAt}>{dateLabel(review.createdAt)}</time>
       </div>
       <div className="review-stars" aria-label={`별점 ${review.rating}점`}>
-        <span aria-hidden="true">
-          {'★'.repeat(review.rating)}
-          {'☆'.repeat(5 - review.rating)}
-        </span>
+        <RatingStars value={review.rating} size={18} />
         <span>{review.rating}점</span>
       </div>
       {review.products?.length > 0 && (
