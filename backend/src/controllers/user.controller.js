@@ -1,4 +1,5 @@
 import * as userService from '../services/user.service.js';
+import * as gradeService from '../services/grade.service.js';
 import { ok } from '../utils/response.js';
 
 export async function getMySummary(req, res, next) {
@@ -48,6 +49,8 @@ function handle(action) {
 }
 
 export const getMyPoints = handle((userId, req) => userService.getMyPoints(userId, req.query));
+export const getMyGrade = handle((userId) => gradeService.getMyGrade(userId));
+export const claimGradeCouponPack = handle((userId) => gradeService.claimCouponPack(userId));
 export const recordProductView = handle((userId, req) =>
   userService.recordProductView(userId, req.body)
 );

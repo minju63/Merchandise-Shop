@@ -105,8 +105,20 @@ function buildInterestCategories(categories) {
     .map((category) => ({ id: categorySlug(category.code), name: category.name, type: category.type }));
 }
 
-// 홈 캐러셀 순서: 서비스 소개 → 광고 → 기획전 → 기념일 전광판 → 자유 응원 전광판 → 응모 홍보
-const BANNER_ORDER = ['SERVICE_INTRO', 'AD', 'EXHIBITION', 'FAN_ANNIV', 'FAN', 'FAN_FREE', 'FAN_PROMO'];
+// 홈 캐러셀 순서: 서비스 소개 → 광고 → 기획전 → 랜덤박스 → 기념일 전광판 → 자유 응원 전광판 → 응모 홍보
+const BANNER_ORDER = ['SERVICE_INTRO', 'AD', 'EXHIBITION', 'BOX_PROMO', 'FAN_ANNIV', 'FAN', 'FAN_FREE', 'FAN_PROMO'];
+
+// 랜덤박스·최애박스 배너도 banners 행 없이 항상 붙는다.
+const BOX_BANNER = {
+  id: 'box-promo',
+  bannerType: 'BOX_PROMO',
+  title: '박스를 열면\n한정판 피규어가 나올 수도!',
+  imageUrl: null,
+  advertiserName: null,
+  startAt: '1970-01-01T00:00:00Z',
+  endAt: '9999-12-31T23:59:59Z',
+  clickCount: 0,
+};
 
 // 응모 홍보 배너는 banners 행이 없어도 항상 마지막에 붙는다.
 const PROMO_BANNER = {
@@ -156,6 +168,7 @@ function buildBanners(rows, boards = [], legacyDays = new Map()) {
 
   banners.push(...boardBanners(boards));
   if (!banners.some((banner) => banner.bannerType === 'FAN_PROMO')) banners.push(PROMO_BANNER);
+  if (!banners.some((banner) => banner.bannerType === 'BOX_PROMO')) banners.push(BOX_BANNER);
   const rank = (banner) => BANNER_ORDER.indexOf(banner.bannerType);
   // 같은 종류 안에서는 기존 sort_order 순서를 유지한다(정렬은 안정 정렬).
   return banners.sort((a, b) => rank(a) - rank(b));

@@ -55,6 +55,7 @@ test('매장 쿠폰 SQL: 발급, 주문 원자성, 취소, 접근 제어', async
     await db.exec(await readFile(new URL('../supabase/migrations/20261102052039_store_coupon_order_number_fix.sql', import.meta.url), 'utf8'));
     await db.exec(await readFile(new URL('../supabase/migrations/20261102055025_store_coupon_exception_safety.sql', import.meta.url), 'utf8'));
     await db.exec(await readFile(new URL('../supabase/migrations/20261102055905_store_coupon_cancellation_clock.sql', import.meta.url), 'utf8'));
+    await db.exec(await readFile(new URL('../supabase/migrations/20261102180000_grade_discount_checkout.sql', import.meta.url), 'utf8'));
     const seed = await readFile(new URL('../supabase/store_coupons_seed.sql', import.meta.url), 'utf8');
     await db.exec(seed);
     await db.exec(seed);
@@ -132,6 +133,16 @@ test('매장 쿠폰 SQL: 발급, 주문 원자성, 취소, 접근 제어', async
     await t.test('기존 음수 적립금 계정도 적립금 0원 주문 가능', async () => {
       await db.query("insert into point_transactions(user_id,type,status,amount) values($1,'USE','CONFIRMED',-100)", [uid]);
       await commit([makeOrder(stores[0], null)]);
+    });
+    await t.test('회원 등급 할인은 discountAmount에 포함돼 저장되고, 결제금액이 안 맞으면 거절', async () => {
+      const graded = { ...makeOrder(stores[0], null), discountAmount: 600, gradeDiscountAmount: 600, payAmount: 19400 };
+      const before = await scalar('select count(*) from orders');
+      await assert.rejects(commit([{ ...graded, payAmount: 20000 }]));
+      await assert.rejects(commit([{ ...graded, gradeDiscountAmount: 30000, discountAmount: 30000, payAmount: -10000 }]));
+      assert.equal(await scalar('select count(*) from orders'), before);
+      const group = await commit([graded]);
+      assert.equal(await scalar('select discount_amount from orders where checkout_group_id=$1', [group]), 600);
+      assert.equal(await scalar('select total_amount from orders where checkout_group_id=$1', [group]), 19400);
     });
     await t.test('선택한 장바구니 수량이 바뀌면 주문 전체 거절', async () => {
       const cartId = randomUUID();

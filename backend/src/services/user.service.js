@@ -1,5 +1,6 @@
 import * as userRepository from '../repositories/user.repository.js';
 import { normalizeNickname } from './auth.service.js';
+import { getUserGrade } from './grade.service.js';
 
 function failure(status, code, message) {
   return Object.assign(new Error(message), { status, code });
@@ -299,10 +300,13 @@ export async function getMyPoints(userId, input = {}) {
   validateObject(input, [], '적립금 조회');
   await requireActiveProfile(userId);
   const { balance, pending, rows } = await getPointBalance(userId);
+  const { grade } = await getUserGrade(userId);
   return {
     balance,
     pendingAmount: pending,
-    policy: POINT_POLICY,
+    // 구매 적립율은 회원 등급에 따라 달라진다.
+    policy: { ...POINT_POLICY, earnRatePercent: grade.earnRate },
+    grade: { code: grade.code, name: grade.name },
     items: rows
       .filter((row) => row.status !== 'CANCELED')
       .slice(0, 100)

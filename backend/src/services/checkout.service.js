@@ -14,6 +14,7 @@ import {
 import { couponRpc } from "../repositories/couponRpc.js";
 import * as couponRepository from "../repositories/coupon.repository.js";
 import { evaluateCouponEligibility } from "./coupon.service.js";
+import { calculateGradeDiscount, getUserGrade } from "./grade.service.js";
 
 const CHECKOUT_PAYMENT_OPTIONS = Object.freeze({
   GOODSPICK_PAY: "굿즈픽페이",
@@ -686,6 +687,7 @@ export function calculateStoreQuote(
   userId,
   hasPreviousOrder,
   now,
+  gradeDiscountRate = 0,
 ) {
   const unavailable = new Set(buildStockIssues(group.items, now).map((item) => item.storeProductId));
   const orderableItemsAmount = group.items.filter((item) => !unavailable.has(item.storeProductId)).reduce((sum, item) => sum + item.lineAmount, 0);
@@ -720,6 +722,17 @@ export function calculateStoreQuote(
     };
     discountAmount = eligibility.discountAmount;
   }
+  // 회원 등급 할인은 쿠폰과 중복 적용된다 (상품 금액 기준).
+  const couponDiscountAmount = discountAmount;
+  const gradeDiscountAmount =
+    fulfillment.deliveryFee === null
+      ? 0
+      : calculateGradeDiscount(
+          group.itemsAmount,
+          gradeDiscountRate,
+          group.itemsAmount + fulfillment.deliveryFee - couponDiscountAmount,
+        );
+  discountAmount += gradeDiscountAmount;
   const totalAmount =
     fulfillment.deliveryFee === null
       ? null
@@ -733,15 +746,17 @@ export function calculateStoreQuote(
     itemsAmount: group.itemsAmount,
     deliveryFee: fulfillment.deliveryFee,
     discountAmount,
+    couponDiscountAmount,
+    gradeDiscountAmount,
     totalAmount,
     coupon,
   };
 }
-export function quotePoints(balance, orders, input) {
+export function quotePoints(balance, orders, input, earnRatePercent = POINT_POLICY.earnRatePercent) {
   const payable = orders.every((row) => row.totalAmount !== null)
     ? orders.reduce((total, row) => total + row.totalAmount, 0)
     : null;
-  const rate = POINT_POLICY.earnRatePercent;
+  const rate = earnRatePercent;
   const expectedAmount = payable === null ? 0 : Math.floor((payable * rate) / 100);
   const issues = [];
   const none = {
@@ -831,6 +846,7 @@ export async function previewCheckout(userId, rawInput) {
     ? await couponRepository.hasPreviousOrder(userId)
     : false;
   const stockIssues = buildStockIssues(items, now);
+  const { grade } = await getUserGrade(userId, now);
   const orders = [];
   for (let index = 0; index < groups.length; index++) {
     const group = groups[index];
@@ -855,6 +871,7 @@ export async function previewCheckout(userId, rawInput) {
       userId,
       hasPreviousOrder,
       now,
+      grade.discountRate,
     );
     const issues = [...fulfillment.issues];
     if (amounts.coupon && !amounts.coupon.usable)
@@ -931,7 +948,12 @@ export async function previewCheckout(userId, rawInput) {
   orders.forEach((order) => {
     order.cartCouponDiscountAmount ??= 0;
   });
-  const points = quotePoints((await getPointBalance(userId)).balance, orders, input);
+  const points = quotePoints(
+    (await getPointBalance(userId)).balance,
+    orders,
+    input,
+    grade.earnRate,
+  );
   orders.forEach((row, index) => {
     const { used, earn } = points.allocations[index];
     row.pointsUsedAmount = used;
@@ -955,6 +977,12 @@ export async function previewCheckout(userId, rawInput) {
     paymentMethod,
     paymentOption: input.paymentOption,
     cartCoupon,
+    grade: {
+      code: grade.code,
+      name: grade.name,
+      discountRate: grade.discountRate,
+      earnRate: grade.earnRate,
+    },
     issues: [...(paymentMethod ? [] : ["PAYMENT_METHOD_REQUIRED"]), ...points.issues],
     points: {
       balance: points.balance,
@@ -972,6 +1000,8 @@ export async function previewCheckout(userId, rawInput) {
         : sum("deliveryFee"),
       discountAmount: sum("discountAmount") + sum("cartCouponDiscountAmount"),
       cartCouponDiscountAmount: sum("cartCouponDiscountAmount"),
+      couponDiscountAmount: sum("couponDiscountAmount"),
+      gradeDiscountAmount: sum("gradeDiscountAmount"),
       totalAmount: orders.some((row) => row.totalAmount === null)
         ? null
         : sum("totalAmount"),
@@ -1124,7 +1154,7 @@ export async function submitCheckout(userId, raw, requestId = randomUUID()) {
       rate: policy.commission_rate,
       amount: calculateCommission(
         order.itemsAmount,
-        order.discountAmount,
+        order.couponDiscountAmount,
         order.coupon?.discountScope,
         policy.commission_rate,
       ),

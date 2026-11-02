@@ -108,8 +108,9 @@
   text-align: left;
 }
 
+/* 무신사처럼 화면 끝까지 꽉 채운 큰 배너 */
 .banner-section {
-  padding: 0 18px 10px;
+  padding: 0 0 10px;
 }
 
 .banner-rail,
@@ -138,10 +139,9 @@
 .promo-banner {
   position: relative;
   width: 100%;
-  height: 131px; /* 배너 종류와 상관없이 팬 응원 전광판 높이로 통일 */
-  padding: 16px 18px;
+  aspect-ratio: 16 / 9; /* 배너 종류와 상관없이 같은 비율 (팬 전광판 꾸미기 미리보기도 같은 비율) */
+  padding: 24px 22px;
   overflow: hidden;
-  border-radius: 16px;
   color: #fff;
   scroll-snap-align: start;
   touch-action: pan-y;
@@ -150,11 +150,35 @@
   animation: banner-fade 320ms ease-out;
 }
 
-/* 서비스 소개·광고·기획전 배너는 글이 위에 붙지 않게 세로 가운데에 둔다 (팬 전광판은 자체 레이아웃) */
+/* 서비스 소개·광고·기획전 배너는 글을 왼쪽 위에 둔다 (팬 전광판은 자체 레이아웃) */
 .promo-banner:not(.promo-banner--fan) {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
+}
+
+/* 배너 이미지가 있으면 꽉 채우고, 글이 읽히게 위쪽을 어둡게 깐다 */
+.promo-banner__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.promo-banner--has-image::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgb(0 0 0 / 55%), rgb(0 0 0 / 0%) 60%);
+  content: '';
+}
+
+.promo-banner--has-image,
+.promo-banner--has-image.promo-banner--ad,
+.promo-banner--has-image.promo-banner--exhibition,
+.promo-banner--has-image.promo-banner--fan-promo {
+  color: #fff;
 }
 
 .promo-banner.is-dragging {
@@ -168,10 +192,10 @@
 
 .promo-banner__eyebrow {
   display: flex;
-  margin: 0 0 5px;
+  margin: 0 0 8px;
   align-items: center;
   gap: 6px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   opacity: 0.8;
 }
@@ -181,7 +205,7 @@
   border-radius: 4px;
   color: #312317;
   background: rgb(255 255 255 / 85%);
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 900;
 }
 
@@ -190,24 +214,36 @@
   z-index: 1;
 }
 
+/* 제목은 위, 자세히 보기는 배너 아래쪽에 붙인다 */
+.promo-banner:not(.promo-banner--fan) .promo-banner__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.promo-banner:not(.promo-banner--fan) .promo-banner__cta {
+  margin-top: auto;
+}
+
 .promo-banner h2 {
-  max-width: 210px;
-  margin: 0 0 8px;
+  max-width: 85%;
+  margin: 0 0 14px;
   white-space: pre-line;
-  font-size: 18px;
-  line-height: 1.25;
-  letter-spacing: -0.7px;
+  font-size: 27px;
+  line-height: 1.22;
+  letter-spacing: -1px;
 }
 
 .promo-banner__cta {
   display: inline-flex;
-  padding: 5px 9px;
+  padding: 8px 14px;
   align-items: center;
   gap: 4px;
   border-radius: 999px;
   color: #2a1d4d;
   background: #fff;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
   border: 0;
 }
@@ -219,14 +255,14 @@
 
 .promo-banner__count {
   position: absolute;
-  right: 10px;
-  bottom: 9px;
+  right: 16px;
+  bottom: 16px;
   z-index: 2;
-  padding: 3px 7px;
+  padding: 4px 10px;
   border-radius: 99px;
   color: #fff;
   background: rgb(20 16 29 / 55%);
-  font-size: 9px;
+  font-size: 11px;
 }
 
 /* 1 서비스 소개 */
@@ -302,12 +338,31 @@
   background: #6f5be7;
 }
 
+/* 7 랜덤박스·최애박스 */
+.promo-banner--box-promo {
+  background: linear-gradient(135deg, #2c1f5e, #6b3fa0 65%, #a35a8c);
+}
+
+.promo-banner--box-promo .promo-banner__eyebrow {
+  color: #fac775;
+  opacity: 1;
+}
+
+.promo-banner__box-art {
+  position: absolute;
+  right: 76px;
+  bottom: 14px;
+  font-size: 48px;
+  line-height: 1;
+  transform: rotate(8deg);
+}
+
 .promo-banner__live {
   padding: 2px 7px;
   border-radius: 99px;
   color: #fff;
   background: #e5484d;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 800;
 }
 
@@ -998,7 +1053,6 @@
 @media (max-width: 359px) {
   .category-shortcuts__icon { width: 39px; height: 39px; }
   .category-shortcuts button { font-size: 9px; }
-  .promo-banner { flex-basis: calc(100% - 10px); }
 }
 
 .upcoming-card--clickable {
