@@ -693,15 +693,17 @@
 }
 .store-slider {
   position: relative;
-  height: 185px;
+  min-height: 185px;
+  touch-action: pan-y;
+  user-select: none;
 }
 .slider-image {
   width: 100%;
-  height: 100%;
+  height: 185px;
 }
 .slider-arrow {
   position: absolute;
-  top: 50%;
+  top: 92px;
   transform: translateY(-50%);
   border: 0;
   background: #fff9;
@@ -721,15 +723,28 @@
 .slider-arrow.right svg {
   transform: rotate(180deg);
 }
-.slide-count {
-  position: absolute;
-  right: 13px;
-  bottom: 11px;
-  color: white;
-  background: #202329b0;
-  border-radius: 14px;
-  padding: 4px 9px;
-  font-size: 12px;
+.slider-dots {
+  display: flex;
+  min-height: 27px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  background: #fff;
+}
+.slider-dot {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #d8d4df;
+  cursor: pointer;
+  transition: width 160ms ease, background-color 160ms ease;
+}
+.slider-dot.is-active {
+  width: 18px;
+  border-radius: 999px;
+  background: #6c4adf;
 }
 .store-info {
   padding: 15px 17px 18px;

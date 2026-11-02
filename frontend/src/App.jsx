@@ -290,7 +290,7 @@ function HomeRoute() {
       onOpenCart={() => navigate('/cart')}
       onOpenProduct={(product) => navigate(`/products/${product.storeProductId}`)}
       onOpenCategory={openCategory}
-      onOpenTrending={(tab) => navigate(trendingPath(tab))}
+      onOpenTrending={(tab) => navigate(trendingPath(tab), fromHome)}
       onOpenUpcoming={() => navigate(UPCOMING_PATH, fromHome)}
       onOpenLowStock={() => navigate(LOW_STOCK_PATH, fromHome)}
       alertedProductIds={sessionStatus === 'in' ? (alertQuery.data ?? []) : []}

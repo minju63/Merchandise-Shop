@@ -7,7 +7,7 @@ export default function StoreConditions({ filters, onChange }) {
   const root = useRef(null);
   const selected = CONDITIONS.filter(([key]) => filters[key]);
   const count = selected.length;
-  const label = count ? selected.map(([, name]) => name).join(' + ') : '조건';
+  const label = count ? selected.map(([, name]) => name).join(' + ') : '필터';
   useEffect(() => {
     if (!open) return;
     const outside = (event) => { if (!root.current?.contains(event.target)) setOpen(false); };
@@ -22,8 +22,8 @@ export default function StoreConditions({ filters, onChange }) {
   return <div className="sort-control inventory-conditions" ref={root}>
     <button type="button" className={`sort-trigger inventory-conditions-trigger${count ? ' has-conditions' : ''}`}
       aria-expanded={open} aria-controls="store-conditions-panel"
-      aria-label={`매장 조건: ${label}`} title={label} onClick={() => setOpen(!open)}>
-      {label}
+      aria-label={`매장 필터: ${label}`} title={label} onClick={() => setOpen(!open)}>
+      <span aria-hidden="true">☷</span>{count > 0 && <b>{count}</b>}
     </button>
     {open && <div className="sort-menu inventory-conditions-panel" id="store-conditions-panel" role="group" aria-label="매장 조건 선택">
       {CONDITIONS.map(([key, label]) => <label key={key} className={filters[key] ? 'is-selected' : ''}>

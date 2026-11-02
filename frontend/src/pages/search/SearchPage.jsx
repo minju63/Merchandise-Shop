@@ -29,7 +29,7 @@ function matchesTokens(values, tokens) {
   return tokens.every((token) => target.includes(token));
 }
 
-function getAutocompleteSuggestions(query, data, products, shops, storeId) {
+export function getAutocompleteSuggestions(query, data, products, shops, storeId) {
   const tokens = query.trim().toLocaleLowerCase('ko-KR').split(/\s+/).filter(Boolean);
   if (!tokens.length) return [];
 
@@ -154,7 +154,7 @@ function Trend({ item }) {
   );
 }
 
-function AutocompleteList({ query, suggestions, isLoading, onSelect }) {
+export function AutocompleteList({ query, suggestions, isLoading, onSelect }) {
   if (isLoading) return <p className="autocomplete-status">검색어를 확인하고 있어요.</p>;
   if (!suggestions.length) return <p className="autocomplete-status">일치하는 검색어가 없습니다.</p>;
 

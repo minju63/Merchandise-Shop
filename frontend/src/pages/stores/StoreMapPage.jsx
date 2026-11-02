@@ -9,6 +9,9 @@ import StoreConditions from './components/StoreConditions.jsx';
 import Icon from './components/Icon.jsx';
 import InventoryMap from './components/InventoryMap.jsx';
 import { sortOptions, useStoreLocation } from './storeListTools.js';
+import { searchApi } from '../../api/search.api.js';
+import { AutocompleteList, getAutocompleteSuggestions } from '../search/SearchPage.jsx';
+import useWishlist from '../../hooks/useWishlist.js';
 import './StoreMapPage.css';
 
 const EMPTY = [];
@@ -16,6 +19,7 @@ export default function StoreMapPage() {
   const cardRail = useRef(null);
   const cardDrag = useRef({ pointerId: null, moved: false });
   const navigate = useNavigate();
+  const wish = useWishlist();
   const goBack = () => {
     navigate('/stores', { replace: true });
   };
@@ -26,6 +30,8 @@ export default function StoreMapPage() {
   const [center, setCenter] = useState(() => search.has('latitude') && search.has('longitude')
     ? { lat: Number(search.get('latitude')), lng: Number(search.get('longitude')) } : null);
   const [locationReady, setLocationReady] = useState(() => search.has('latitude') || search.has('region') || search.has('regionId') || search.has('south'));
+  const [typing, setTyping] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
   const { locate, message } = useStoreLocation();
   useEffect(() => {
     if (locationReady) return;
@@ -63,6 +69,10 @@ export default function StoreMapPage() {
     setSearch(next);
     setSelectedId(null);
   };
+  const runKeyword = (value) => {
+    setTyping(false);
+    update({ keyword: value.trim(), productId: null, productName: null, inStock: null, south: null, north: null, west: null, east: null });
+  };
   const params = Object.fromEntries([...search].filter(([k]) => !['view', 'productName'].includes(k)));
   if (params.sort === 'newest') params.sort = 'popular';
   const { data, isPending, isError, error, refetch, isFetching, dataUpdatedAt } = useQuery({
@@ -71,6 +81,21 @@ export default function StoreMapPage() {
   });
   const result = data?.data;
   const items = result?.items || EMPTY;
+  // 홈 검색처럼 입력 중에 굿즈·작품·캐릭터·굿즈샵 자동완성을 보여준다(최근·인기 검색어는 없다).
+  useEffect(() => {
+    const text = draft.trim();
+    if (!typing || !text) { setSuggestions([]); return undefined; }
+    let cancelled = false;
+    const timer = window.setTimeout(async () => {
+      try {
+        const response = await searchApi.products({ q: text, size: 100, includeSoldOut: false, includeUpcoming: false });
+        if (!cancelled) setSuggestions(getAutocompleteSuggestions(text, { regions: [] }, response.data.items, items, undefined));
+      } catch {
+        if (!cancelled) setSuggestions([]);
+      }
+    }, 300);
+    return () => { cancelled = true; window.clearTimeout(timer); };
+  }, [draft, typing, items]);
   const activeId = items.some((s) => s.id === selectedId) ? selectedId : items[0]?.id;
   const selectStore = (id) => {
     setSelectedId(id);
@@ -149,16 +174,26 @@ export default function StoreMapPage() {
         <span>{productId && store.storeProductId ? '이 매장의 상품 상세 보기 →' : '매장 상세 보기 →'}</span></div>
     </Link>
     {productId && store.storeProductId && <Link className="inventory-product-link" to={`/products/${store.storeProductId}`}>선택 상품 상세 보기</Link>}
+    <button className={`card-heart${wish.isShopWished(store.id) ? ' is-wished' : ''}`} type="button"
+      aria-pressed={wish.isShopWished(store.id)}
+      aria-label={wish.isShopWished(store.id) ? `${store.name} 찜 해제` : `${store.name} 찜하기`}
+      onClick={() => wish.toggleShop(store.id)}><Icon name="heart" size={21} /></button>
   </article>;
   return <div className="app-shell"><StoreHeader /><main className="store-main inventory-main">
     <div className="inventory-title">
-      <button type="button" className="inventory-back" onClick={goBack} aria-label="굿즈샵 목록으로 돌아가기"><Icon name="back" size={26} /></button>
-      <div><h1>지도에서 찾기</h1><p>원하는 굿즈와 가까운 매장을 찾아보세요</p></div>
+      <div className="inventory-title-row">
+        <button type="button" className="inventory-back" onClick={goBack} aria-label="굿즈샵 목록으로 돌아가기"><Icon name="back" size={26} /></button>
+        <h1>지도에서 찾기</h1>
+      </div>
+      <p>원하는 굿즈와 가까운 매장을 찾아보세요</p>
     </div>
-    <form className="inventory-search" onSubmit={(event) => { event.preventDefault(); update({ keyword: draft.trim(), productId: null, productName: null, inStock: null, south: null, north: null, west: null, east: null }); }}>
-      <input aria-label="매장·지역·상품·작품·캐릭터 검색" value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="지역, 매장, 상품, 작품, 캐릭터 검색" />
+    <form className="inventory-search" onSubmit={(event) => { event.preventDefault(); runKeyword(draft); }}>
+      <input aria-label="매장·지역·상품·작품·캐릭터 검색" value={draft} onChange={(e) => { setDraft(e.target.value); setTyping(true); }} placeholder="지역, 매장, 상품, 작품, 캐릭터 검색" />
       <button type="submit">검색</button>
     </form>
+    {typing && draft.trim() && suggestions.length > 0 && <div className="inventory-autocomplete">
+      <AutocompleteList query={draft} suggestions={suggestions} isLoading={false} onSelect={(item) => { setDraft(item.searchValue ?? item.label); runKeyword(item.searchValue ?? item.label); }} />
+    </div>}
     {!productId && search.get('keyword') && result?.products.length > 0 && <div className="inventory-suggestions" aria-label="상품 검색 결과">
       {result.products.map((p) => <button type="button" key={p.id} onClick={() => update({ productId: p.id, productName: p.name, keyword: null, south: null, north: null, west: null, east: null })}>
         <ImageWithFallback src={p.thumbnailUrl} alt={p.name} className="inventory-suggestion-image" />
@@ -176,6 +211,7 @@ export default function StoreMapPage() {
     </section>}
     <div className="inventory-controls">
       {productId && <button type="button" className={`filter-chip ${search.get('inStock') === 'true' ? 'selected' : ''}`} aria-pressed={search.get('inStock') === 'true'} onClick={() => update({ inStock: search.get('inStock') !== 'true' })}>재고 있는 매장만</button>}
+      <StoreConditions filters={filters} onChange={(key) => update({ [key]: filters[key] ? null : true })} />
       <StoreRegionSelect region={search.get('region') || result?.regions.find((region) => region.id === search.get('regionId'))?.name || ''}
         district={search.get('district') || ''}
         onChange={(region, district) => update({ region, district, regionId: null, south: null, north: null, west: null, east: null, radius: null })} />
@@ -183,7 +219,6 @@ export default function StoreMapPage() {
         options={sortOptions.filter((option) => ['popular', 'distance'].includes(option.value))
           .map((option) => ({ ...option, label: option.value === 'popular' ? '인기 매장' : '가까운 매장' }))}
         onChange={(value) => value === 'distance' ? locateStores() : update({ sort: value })} />
-      <StoreConditions filters={filters} onChange={(key) => update({ [key]: filters[key] ? null : true })} />
     </div>
     {message && <p role="status">{message} 지역을 선택하거나 검색해서 찾아보세요.</p>}
     <div className="inventory-result-count" role="status">{!locationReady ? '현재 위치 확인 중…' : isFetching ? '재고 확인 중…' : isError ? '조회 실패' : items.length ? `${items.length}개 매장` : '검색 결과가 없습니다'}{dataUpdatedAt > 0 && <small> · {new Date(dataUpdatedAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })} 조회</small>}</div>
