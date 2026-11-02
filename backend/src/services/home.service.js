@@ -156,7 +156,7 @@ const KUJI_BANNERS = [
 const BOX_BANNER = {
   id: 'box-promo',
   bannerType: 'BOX_PROMO',
-  title: '박스를 열면\n한정판 피규어가 나올 수도!',
+  title: '박스를 열면\n한정판 피규어가\n나올수도!',
   imageUrl: null,
   advertiserName: null,
   startAt: '1970-01-01T00:00:00Z',

@@ -22,11 +22,13 @@ export default function StageBanner() {
 
   return (
     <div className="stage-banner">
-      <div className="stage-banner__left">
+      <div className="stage-banner__heading">
         <p className="stage-banner__title">
           <span className="stage-live">LIVE</span> 최애 스테이지
         </p>
         <p className="stage-banner__sub">정산까지 {formatRemaining(nextDeadline(now) - now)}</p>
+      </div>
+      <div className="stage-banner__left">
         <div className="stage-banner__stage" aria-hidden="true">
           <span className="stage-banner__light" />
           <span className="stage-banner__hero" key={leader.id}>

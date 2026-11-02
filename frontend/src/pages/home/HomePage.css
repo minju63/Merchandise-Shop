@@ -230,9 +230,11 @@
   max-width: 85%;
   margin: 0 0 14px;
   white-space: pre-line;
-  font-size: 27px;
-  line-height: 1.22;
-  letter-spacing: -1px;
+  font-size: clamp(26px, 6.4vw, 32px);
+  font-weight: 900;
+  line-height: 1.25;
+  letter-spacing: -1.5px;
+  word-break: keep-all;
 }
 
 .promo-banner__cta {
@@ -266,6 +268,44 @@
 }
 
 /* 1 서비스 소개 */
+.fan-board--home-anniversary .fan-board__text {
+  max-width: 88%;
+}
+
+.fan-board--home-anniversary .fan-board__photo--left {
+  mask-image: linear-gradient(to right, #000 65%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, #000 65%, transparent 100%);
+}
+
+.fan-board--home-anniversary .fan-board__text p {
+  font-weight: 900;
+  transform: none !important;
+  letter-spacing: -0.08cqw;
+}
+
+.fan-board--home-anniversary .fan-board__date {
+  font-size: clamp(10px, 2.5cqw, 13px);
+}
+
+.promo-banner .fan-board--home-anniversary .fan-board__message {
+  font-size: clamp(23px, 5.6vw, 28px);
+  line-height: 1.1;
+}
+
+.promo-banner .fan-board--home-anniversary .fan-board__name {
+  font-size: clamp(21px, 5.2vw, 27px);
+  line-height: 1.1;
+}
+
+.fan-board--home-anniversary .fan-board__day {
+  font-size: clamp(10px, 2.4cqw, 12px);
+  font-weight: 700;
+}
+
+.fan-board--home-anniversary .fan-board__from {
+  font-size: clamp(11px, 2.8cqw, 14px);
+}
+
 .promo-banner--service-intro {
   background: linear-gradient(135deg, #2c1f5e, #43327e);
 }
@@ -1224,9 +1264,6 @@
 .promo-banner--kuji-promo h2 {
   max-width: none;
   margin: 0 0 8px;
-  font-size: 21px;
-  line-height: 1.24;
-  letter-spacing: -0.8px;
   white-space: pre-line;
 }
 
@@ -1283,7 +1320,30 @@
 
 .promo-banner--with-art h2 {
   max-width: 62%;
-  font-size: 24px;
+}
+
+.promo-banner--service-intro h2 {
+  max-width: 100%;
+}
+
+.promo-banner--box-promo h2 {
+  max-width: 100%;
+}
+
+.promo-banner--box-promo .promo-banner__title-line {
+  white-space: nowrap;
+}
+
+.promo-banner__title-line {
+  display: block;
+}
+
+.promo-banner__title-line + .promo-banner__title-line {
+  margin-top: 4px;
+}
+
+.promo-banner--service-intro .promo-banner__title-line + .promo-banner__title-line {
+  color: #d4c5ff;
 }
 
 .promo-banner--with-art .promo-banner__eyebrow {
@@ -1292,11 +1352,11 @@
 
 .promo-art {
   position: absolute;
-  right: 24px;
-  bottom: 48px;
+  right: 64px;
+  bottom: 72px;
   z-index: 1;
-  width: 96px;
-  height: 96px;
+  width: 112px;
+  height: 112px;
   pointer-events: none;
 }
 
@@ -1316,8 +1376,8 @@
 }
 
 .promo-art__tile svg {
-  width: 54px;
-  height: 54px;
+  width: 68px;
+  height: 68px;
 }
 
 .promo-art__badge {

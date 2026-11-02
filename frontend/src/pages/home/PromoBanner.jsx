@@ -11,12 +11,17 @@ const DEFAULT_TITLES = {
   SERVICE_INTRO: '내 주변 굿즈샵 재고,\n픽업까지 한 번에',
   EXHIBITION: '12월 생일 최애,\n굿즈로 축하해요',
   FAN_PROMO: '내 최애를\n메인 배너에 올려요',
-  BOX_PROMO: '박스를 열면\n한정판 피규어가 나올 수도!',
+  BOX_PROMO: '박스를 열면\n한정판 피규어가\n나올수도!',
   KUJI_PROMO: '번호를 뜯으면\nA상 피규어가 내 손에',
 };
 
 export default function PromoBanner({ banner, position, dragProps, onOpen, onOpenFanDay }) {
   const type = banner.bannerType;
+  const boardDesign = isFanBoardType(type) ? fanBoardDesign(banner) : null;
+  const rawTitle = banner.title || DEFAULT_TITLES[type] || '';
+  const title = type === 'BOX_PROMO'
+    ? rawTitle.replace(/피규어가\s*나올\s*수도!/g, '피규어가\n나올수도!')
+    : rawTitle;
   const modifier = isFanBoardType(type) ? 'fan' : type.toLowerCase().replaceAll('_', '-');
   // 기념일 전광판(FAN_ANNIV)만 눌러서 "그날 기념일인 최애" 화면으로 갈 수 있다. 자유 응원 전광판은 보기 전용이다.
   const dayLink = (type === 'FAN_ANNIV' || type === 'FAN') && banner.fanDay?.count > 0 ? onOpenFanDay : undefined;
@@ -53,8 +58,13 @@ export default function PromoBanner({ banner, position, dragProps, onOpen, onOpe
       ) : isFanBoardType(type) ? (
         // 배너 디자인(당첨자가 꾸민 것)은 그대로 둔다.
         <FanBoard
-          design={fanBoardDesign(banner)}
+          design={boardDesign}
           footnote={dayLink ? `${dayChipLabel(banner.fanDay.date, banner.fanDay.count, banner.fanDay.birthdayOnly)} ›` : null}
+          className={type !== 'FAN_FREE' ? 'fan-board--home-anniversary' : ''}
+          textPosition={type !== 'FAN_FREE' ? {
+            left: boardDesign?.photoUrl && boardDesign.photoLayout === 'left' ? '44%' : '6%',
+            right: '5%', top: '8%', transform: 'none', textAlign: 'left', fontWeight: 900,
+          } : undefined}
         />
       ) : (
         <div className="promo-banner__body">
@@ -72,7 +82,9 @@ export default function PromoBanner({ banner, position, dragProps, onOpen, onOpe
           {type === 'BOX_PROMO' ? (
             <p className="promo-banner__eyebrow">랜덤박스 · 최애박스 · 확률 공개</p>
           ) : null}
-          <h2>{banner.title || DEFAULT_TITLES[type]}</h2>
+          <h2>{title.split('\n').map((line, index) => (
+            <span className="promo-banner__title-line" key={index}>{line}</span>
+          ))}</h2>
           {kuji ? (
             <>
               <p className="promo-banner__kuji-sub">{kuji.subtitle}</p>

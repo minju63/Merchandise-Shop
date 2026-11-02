@@ -5,10 +5,10 @@ import './FanBoard.css';
 const CORNERS = ['nw', 'ne', 'sw', 'se'];
 const ALL_HANDLES = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
 
+// footnote: 홈 배너에서 문구 아래에 덧붙이는 한 줄(예: 그날 기념일인 최애 수). 꾸미기 화면에서는 쓰지 않는다.
 // 팬 응원 전광판 렌더러. 홈 4·5번 배너와 꾸미기 미리보기가 이 컴포넌트 하나로 그려진다.
 // 글자 크기는 배너 너비(cqw) 기준이라 어떤 크기에서도 같은 모양이고, 위치(pos)는 배너 기준 %다.
-// footnote: 홈 배너에서 문구 아래에 덧붙이는 한 줄(예: 그날 기념일인 최애 수). 꾸미기 화면에서는 쓰지 않는다.
-export default function FanBoard({ design, className = '', children, editable = false, selected = null, footnote = null, ...rest }) {
+export default function FanBoard({ design, className = '', children, editable = false, selected = null, textPosition, footnote = null, ...rest }) {
   useEffect(() => { ensureFanFonts(); }, []);
 
   const font = FONTS.find((item) => item.id === design.fontId) ?? FONTS[0];
@@ -29,7 +29,7 @@ export default function FanBoard({ design, className = '', children, editable = 
     const sized = scale !== 1 ? ` scale(${scale})` : '';
     return {
       'data-fan-line': key,
-      className: editable && selected === key ? 'is-selected' : undefined,
+      className: `fan-board__${key}${editable && selected === key ? ' is-selected' : ''}`,
       style: { transform: `${moved}${sized}`.trim() || undefined, '--line-scale': scale },
     };
   };
@@ -67,12 +67,13 @@ export default function FanBoard({ design, className = '', children, editable = 
           textAlign: design.align,
           fontFamily: `${font.family}, sans-serif`,
           fontWeight: font.weight,
+          ...textPosition,
         }}
       >
-        {design.dateLine ? <p className="fan-board__date" {...lineProps('date')}>{design.dateLine}{handles('date', CORNERS)}</p> : null}
-        <p className="fan-board__message" {...lineProps('message')}>{design.message}{handles('message', CORNERS)}</p>
-        {design.name ? <p className="fan-board__name" {...lineProps('name')}>{design.name}{handles('name', CORNERS)}</p> : null}
-        {design.nickname ? <p className="fan-board__from" {...lineProps('from')}>from. {design.nickname}{handles('from', CORNERS)}</p> : null}
+        {design.dateLine ? <p {...lineProps('date')}>{design.dateLine}{handles('date', CORNERS)}</p> : null}
+        <p {...lineProps('message')}>{design.message}{handles('message', CORNERS)}</p>
+        {design.name ? <p {...lineProps('name')}>{design.name}{handles('name', CORNERS)}</p> : null}
+        {design.nickname ? <p {...lineProps('from')}>from. {design.nickname}{handles('from', CORNERS)}</p> : null}
         {footnote ? <p className="fan-board__day">{footnote}</p> : null}
       </div>
       {children}
