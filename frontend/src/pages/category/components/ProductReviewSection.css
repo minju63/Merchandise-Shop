@@ -49,9 +49,9 @@
 .pr-full-review time { font-size:11px; color:#9a90a4; }
 .pr-stars { margin-top:8px; letter-spacing:2px; color:#8650d2; }
 .pr-full-review p { margin:10px 0 0; white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.7; font-size:14px; }
-.pr-like-button { display:inline-flex; align-items:center; gap:4px; margin-top:10px; padding:4px 8px; border:1px solid #e8e2ed; border-radius:999px; background:#fff; color:#746d7d; font:inherit; font-size:11px; cursor:pointer; }
-.pr-like-button.is-liked { border-color:#e8c9d4; background:#fff5f7; color:#d64e70; }
-.pr-like-button:disabled { opacity:.55; cursor:default; }
+.category-page .pr-like-button { display:inline-flex; align-items:center; gap:5px; margin-top:16px; padding:6px 10px; border:1px solid #e8e4ed; border-radius:99px; background:#fff; color:#686272; font:inherit; font-size:12px; cursor:pointer; }
+.category-page .pr-like-button.is-liked { border-color:#f1d5dd; background:#fff7f9; color:#d34b70; }
+.category-page .pr-like-button:disabled { opacity:.55; cursor:default; }
 .pr-like-error { color:#c43d50; font-size:12px !important; }
 
 .pr-review-photos { display:flex; gap:8px; overflow-x:auto; margin-top:12px; }

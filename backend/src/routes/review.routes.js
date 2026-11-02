@@ -20,6 +20,8 @@ router.post("/images", requireAuthentication, controller.uploadReviewImages);
 router.post("/", requireAuthentication, controller.createReview);
 router.patch("/store/:reviewId", requireAuthentication, controller.updateStoreReview);
 router.delete("/store/:reviewId", requireAuthentication, controller.deleteStoreReview);
+router.put("/store/:reviewId/like", requireAuthentication, controller.toggleStoreReviewLike);
+router.delete("/store/:reviewId/like", requireAuthentication, controller.toggleStoreReviewLike);
 router.put("/:reviewId/like", requireAuthentication, controller.toggleProductReviewLike);
 router.delete("/:reviewId/like", requireAuthentication, controller.toggleProductReviewLike);
 router.patch("/:reviewId", requireAuthentication, controller.updateReview);

@@ -65,7 +65,7 @@ function ReviewItem({ review, api, client, user, onLogin, onLikeChanged }) {
     {review.images?.length > 0 && <div className="pr-review-photos">{review.images.map((url, i) => <ReviewPhoto key={url} src={url} alt={`${aiPhoto ? 'AI로 제작한 샘플' : '리뷰'} 사진 ${i + 1}`} />)}</div>}
     {aiPhoto && <small className="pr-ai-disclosure">AI로 제작한 샘플 사진입니다. 실제 구매자의 촬영 사진이 아닙니다.</small>}
     <button type="button" className={`pr-like-button${liked ? ' is-liked' : ''}`} aria-pressed={liked} disabled={likePending || review.isMine} onClick={toggleLike}>
-      <span aria-hidden="true">{'\u2665'}</span> {'\uC88B\uC544\uC694'} {likeCount.toLocaleString('ko-KR')}
+      <span aria-hidden="true">{liked ? '♥' : '♡'}</span> {'\uC88B\uC544\uC694'} {likeCount.toLocaleString('ko-KR')}
     </button>
     {likeError && <p className="pr-like-error" role="alert">{likeError}</p>}
   </article>;

@@ -122,6 +122,12 @@ export async function setProductReviewLike(userId, reviewId, liked) {
   return repository.setProductReviewLike(uuid(reviewId), userId, liked);
 }
 
+export async function setStoreReviewLike(userId, reviewId, liked) {
+  const id = uuid(reviewId);
+  await active(userId);
+  return repository.setStoreReviewLike(id, userId, liked);
+}
+
 export async function listProductReviews(storeProductId, { sort = "latest", page = 1, size = 20, userId } = {}) {
   uuid(storeProductId);
   if (!["latest", "high", "low", "likes"].includes(sort))
@@ -517,7 +523,10 @@ export async function listStoreReviews(storeId, options, viewerUserId = null) {
       : Promise.resolve(null),
   ]);
   const resultCount = options.mineOnly ? mineCount : summary.reviewCount;
-  const relations = await repo.getStoreReviewRelations(rows);
+  const [relations, likedReviewIds] = await Promise.all([
+    repo.getStoreReviewRelations(rows),
+    repo.getStoreReviewLikeIds(rows.map((row) => row.id), viewerUserId),
+  ]);
   const users = new Map(relations.users.map((row) => [row.id, row.nickname]));
   const products = new Map(relations.items.map((row) => [row.id, row.product_name]));
   return {
@@ -532,6 +541,8 @@ export async function listStoreReviews(storeId, options, viewerUserId = null) {
       content: row.content || '',
       images: row.image_urls || [],
       products: (row.selected_order_item_ids || []).map((id) => products.get(id)).filter(Boolean),
+      likeCount: row.like_count ?? 0,
+      liked: likedReviewIds.has(row.id),
     })),
     page: options.page,
     size: options.size,

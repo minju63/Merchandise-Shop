@@ -483,8 +483,44 @@ export async function getStoreReviewSummary(storeId) {
 
 // 여경 — 굿즈샵 상세에서 사용 (store.service.js / store.routes.js)
 // 연수님 리뷰 작성 로직과는 독립. 읽기 전용.
+export async function getStoreReviewLikeIds(reviewIds, userId) {
+  if (!reviewIds.length || !userId) return new Set();
+  const { data, error } = await supabase
+    .from('store_review_likes')
+    .select('review_id')
+    .eq('user_id', userId)
+    .in('review_id', reviewIds);
+  if (error) throw error;
+  return new Set((data || []).map((row) => row.review_id));
+}
+
+export async function setStoreReviewLike(reviewId, userId, liked) {
+  const reviewResult = await supabase
+    .from('store_reviews')
+    .select('id,user_id,like_count')
+    .eq('id', reviewId)
+    .eq('is_hidden', false)
+    .is('deleted_at', null)
+    .maybeSingle();
+  if (reviewResult.error) throw reviewResult.error;
+  if (!reviewResult.data)
+    throw Object.assign(new Error('Review not found.'), { status: 404, code: 'REVIEW_NOT_FOUND' });
+  if (reviewResult.data.user_id === userId)
+    throw Object.assign(new Error('You cannot like your own review.'), { status: 403, code: 'LIKE_OWN_REVIEW' });
+  const result = liked
+    ? await supabase.from('store_review_likes').upsert(
+      { review_id: reviewId, user_id: userId },
+      { onConflict: 'review_id,user_id', ignoreDuplicates: true },
+    )
+    : await supabase.from('store_review_likes').delete().eq('review_id', reviewId).eq('user_id', userId);
+  if (result.error) throw result.error;
+  const countResult = await supabase.from('store_reviews').select('like_count').eq('id', reviewId).single();
+  if (countResult.error) throw countResult.error;
+  return { liked, likeCount: countResult.data.like_count ?? 0 };
+}
+
 export async function getPublicStoreReviews(storeId, { sort, page, size, userId = null }) {
-  const column = sort === 'latest' ? 'created_at' : 'rating';
+  const column = sort === 'latest' ? 'created_at' : sort === 'high' || sort === 'low' ? 'rating' : 'like_count';
   const ascending = sort === 'low';
   let query = supabase
     .from('store_reviews')

@@ -50,4 +50,12 @@ export const storeApi = {
     }),
   deleteStoreReview: async (reviewId) =>
     client.delete(`/reviews/store/${reviewId}`, { headers: await authHeaders() }),
+  toggleStoreReviewLike: async (reviewId, liked) => {
+    const headers = await authHeaders();
+    const response = liked
+      ? await client.put(`/reviews/store/${encodeURIComponent(reviewId)}/like`, {}, { headers })
+      : await client.delete(`/reviews/store/${encodeURIComponent(reviewId)}/like`, { headers });
+    if (!response.success) throw new Error(response.message || '좋아요를 처리하지 못했습니다.');
+    return response.data;
+  },
 };
