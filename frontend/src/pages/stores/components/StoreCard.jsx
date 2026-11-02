@@ -27,8 +27,8 @@ export default function StoreCard({ store }) {
             {store.categoryNames.length ? store.categoryNames.join(' · ') : '굿즈샵'}
           </p>
           <p className="store-meta">
-            <span className="star">★</span> {store.rating ? store.rating.toFixed(1) : '–'}{' '}
-            <span className="meta-separator">·</span> 재고 있는 굿즈 {store.availableProductCount}개
+            {store.rating == null ? '가게 리뷰 없음' : <><span className="star">★</span> {store.rating.toFixed(1)} · 가게 리뷰 {store.reviewCount}개</>}
+            <span className="meta-separator"> · </span>재고 있는 굿즈 {store.availableProductCount}개
           </p>
           <AvailabilityBadges pickup={store.pickupAvailable} delivery={store.deliveryAvailable} />
         </div>

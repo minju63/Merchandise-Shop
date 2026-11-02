@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { createReview } from './account.api.js';
 import { uploadReviewImages } from '../../api/reviewImage.api.js';
@@ -35,6 +36,7 @@ function Star({ on }) {
 }
 
 export default function ReviewWritePage() {
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { orderId } = useParams();
   const [params] = useSearchParams();
@@ -77,6 +79,11 @@ export default function ReviewWritePage() {
         content: content.trim(),
         ...(imageUrls.length ? { imageUrls } : {}),
       });
+      await Promise.allSettled([
+        queryClient.invalidateQueries({ queryKey: ['store-reviews'] }),
+        queryClient.invalidateQueries({ queryKey: ['store'] }),
+        queryClient.invalidateQueries({ queryKey: ['stores'] }),
+      ]);
       const reward = created?.pointReward;
       const to = `/products/${item.store_product_id}#product-feedback`;
       if (reward?.granted)

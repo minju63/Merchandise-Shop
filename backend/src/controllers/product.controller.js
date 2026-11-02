@@ -138,6 +138,7 @@ export async function getProductReviews(req, res, next) {
     sort: req.query.sort ?? 'latest',
     page: req.query.page === undefined ? 1 : integer(req.query.page, 'page', 1),
     size: req.query.size === undefined ? 20 : integer(req.query.size, 'size', 1, 100),
+    mineOnly: req.query.mineOnly === undefined ? false : boolean(req.query.mineOnly, 'mineOnly'),
   }));
   if (!input) return;
   try {
@@ -145,6 +146,7 @@ export async function getProductReviews(req, res, next) {
       sort: input.sort,
       page: input.page,
       size: input.size,
+      mineOnly: input.mineOnly,
       userId: req.user?.id,
     });
     return res.status(200).json({ success: true, data, message: null });

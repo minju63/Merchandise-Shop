@@ -248,7 +248,7 @@ export default function StoreReviewWritePage() {
         content: content.trim(),
         imageUrls,
       });
-      await Promise.all([
+      await Promise.allSettled([
         queryClient.invalidateQueries({ queryKey: ['store-reviews', storeId] }),
         queryClient.invalidateQueries({ queryKey: ['store', storeId] }),
         queryClient.invalidateQueries({ queryKey: ['stores'] }),

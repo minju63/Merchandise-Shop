@@ -24,11 +24,11 @@ export default function StoreInfo({ store, onGuide }) {
           className="detail-review-link"
           to={`/stores/${store.id}/reviews`}
           state={{ fromStoreDetail: true }}
-          aria-label={`${store.name} 리뷰 ${store.reviewCount}개 보기`}
+          aria-label={`${store.name} 전체 리뷰 ${store.reviewSummary?.totalReviewCount ?? store.reviewCount}개 보기`}
         >
           {store.rating != null && <span className="star">★</span>}
-          <strong>{store.rating != null ? store.rating.toFixed(1) : '평점 없음'}</strong>
-          <span className="review-count">리뷰 {store.reviewCount}개</span>
+          <strong>가게 평점 {store.rating != null ? store.rating.toFixed(1) : '없음'}</strong>
+          <span className="review-count">전체 리뷰 {store.reviewSummary?.totalReviewCount ?? store.reviewCount}개</span>
           <Icon name="right" size={14} />
         </Link>
         <span>재고 있는 굿즈 {store.availableProductCount}개</span>

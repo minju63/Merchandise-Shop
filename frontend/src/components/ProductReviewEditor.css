@@ -1,0 +1,19 @@
+.product-review-edit { margin-top: 12px; }
+.product-review-edit__stars { display: flex; gap: 4px; }
+.product-review-edit__stars button { padding: 0; border: 0; background: transparent; color: #e2dfe6; font-size: 28px; line-height: 1; cursor: pointer; }
+.product-review-edit__stars button.is-on { color: #f5a623; }
+.product-review-edit textarea { box-sizing: border-box; width: 100%; min-height: 90px; margin-top: 12px; padding: 12px; border: 1px solid #e4dfea; border-radius: 12px; color: #25232a; font: inherit; resize: vertical; }
+.product-review-edit__count, .pr-full-review .product-review-edit__count { margin: 6px 0 0; color: #a39ba9; font-size: 12px; text-align: right; }
+.product-review-edit__photos { display: flex; gap: 6px; margin-top: 12px; }
+.product-review-edit__photo { position: relative; display: grid; place-items: center; width: 76px; height: 76px; border-radius: 10px; background: #f7f6fa center / cover; }
+.product-review-edit__photo > button { position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; padding: 0; border: 0; border-radius: 50%; background: #0009; color: #fff; font-size: 14px; cursor: pointer; }
+.product-review-edit__photo--add { align-content: center; gap: 2px; border: 1px dashed #e4dfea; color: #82788e; font-size: 12px; cursor: pointer; }
+.product-review-edit__photo--add input { display: none; }
+.product-review-edit__actions { display: flex; justify-content: flex-end; gap: 16px; margin-top: 16px; }
+.product-review-edit__actions button { padding: 0; border: 0; background: transparent; color: #82788e; font: inherit; font-size: 13px; cursor: pointer; }
+.product-review-edit__actions button.is-strong { color: #7444d4; font-weight: 700; }
+.product-review-edit__actions button:disabled { opacity: .4; cursor: default; }
+.review-card .product-review-edit__store-actions { margin-top: 16px; }
+.review-card .review-card-actions.product-review-edit__store-actions button:first-child { border-color: #e8e4ed; color: #5f5968; background: #fff; }
+.review-card .review-card-actions.product-review-edit__store-actions button.is-strong { border-color: #e5defa; color: #6846d8; background: #f8f5ff; }
+.product-review-edit__error, .pr-full-review .product-review-edit__error { margin: 8px 0 0; color: #c43d50; font-size: 12px; }

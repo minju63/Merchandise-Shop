@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import RatingStars from '../../components/RatingStars.jsx';
 import { useNavigate } from 'react-router-dom';
 import { deleteReview, getMyPoints, listMyReviews, updateReview } from './account.api.js';
@@ -249,6 +250,7 @@ function WrittenCard({ review, onOpenProduct, onChanged }) {
 }
 
 export default function MyReviewsPage() {
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { alert: showAlert, confirm, dialog } = useDialog();
   const signedIn = useRequireLogin(MY_ROUTES.login);
@@ -258,9 +260,14 @@ export default function MyReviewsPage() {
   const points = useRequest(signedIn, 'my-reviews:points', getMyPoints);
 
   // 삭제하면 같은 상품이 '작성 가능'에 다시 나타나므로 두 목록을 함께 새로고침한다.
-  const refreshAll = () => {
+  const refreshAll = async () => {
     writable.reload();
     written.reload();
+    await Promise.allSettled([
+      queryClient.invalidateQueries({ queryKey: ['store-reviews'] }),
+      queryClient.invalidateQueries({ queryKey: ['store'] }),
+      queryClient.invalidateQueries({ queryKey: ['stores'] }),
+    ]);
   };
 
   const confirmOrder = async (item) => {

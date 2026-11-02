@@ -1,6 +1,7 @@
 .pr-section { padding:22px 0 8px; }
 .pr-section--all-reviews { padding-top:0; }
 .pr-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.pr-heading-actions { display:flex; align-items:center; justify-content:flex-end; gap:8px; min-width:0; }
 .category-detail .pr-heading { width:100%; align-items:center; justify-content:space-between; }
 .category-detail .pr-heading h2 { margin:0; line-height:1.2; }
 .pr-heading h2 { flex-shrink:0; margin:0; color:#25232a; font-size:21px; font-weight:800; white-space:nowrap; }
@@ -10,6 +11,9 @@
 .pr-view-all span { display:inline-flex; align-items:center; justify-content:center; font-size:24px; line-height:1; transform:translateY(-2px); }
 .pr-satisfaction { margin:9px 0 0; color:#657084; font-size:16px; line-height:1.5; }
 .pr-satisfaction strong { font-weight:700; }
+.pr-mine-filter { margin-top:8px; }
+.category-page .review-mine-toggle { flex:none; padding:6px 10px; border:1px solid #e8e4ed; border-radius:99px; background:#fff; color:#686272; font:inherit; font-size:11px; font-weight:700; line-height:1.2; cursor:pointer; }
+.category-page .review-mine-toggle.is-active { border-color:#6846d8; background:#6846d8; color:#fff; }
 .pr-preview-rail { display:flex; gap:12px; overflow-x:auto; scroll-snap-type:x mandatory; overscroll-behavior-x:contain; padding:8px 2px 12px; margin-top:18px; scrollbar-width:thin; scrollbar-color:#ded4ec transparent; }
 .pr-preview-rail .pr-preview-card { display:flex; align-items:center; flex:0 0 88%; gap:13px; min-height:125px; padding:17px; border:1px solid #eeeaf1; border-radius:14px; background:#fff; box-shadow:0 3px 7px #21182c1a; text-align:left; scroll-snap-align:start; cursor:pointer; color:#25232a; font:inherit; }
 .pr-preview-photo { position:relative; flex:0 0 70px; width:70px; height:78px; border-radius:8px; overflow:hidden; background:#f4f1f7; }
@@ -19,7 +23,7 @@
 .pr-preview-content { flex:1; min-width:0; }
 .pr-preview-title { display:flex; align-items:center; gap:8px; }
 .pr-preview-title>strong { font-size:15px; white-space:nowrap; }
-.pr-preview-rating { padding:3px 5px; border-radius:4px; background:#f3edff; color:#7444d4; font-size:11px; font-weight:700; white-space:nowrap; }
+.pr-preview-rating { display:inline-flex; align-items:center; }
 .pr-preview-content p { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin:8px 0; font-size:13px; line-height:1.5; overflow-wrap:anywhere; }
 .pr-preview-content small { font-size:11px; color:#aaa2b1; }
 .pr-preview-rail { position:relative; cursor:grab; user-select:none; }
