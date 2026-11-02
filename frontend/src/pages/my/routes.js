@@ -18,6 +18,7 @@ export const MY_ROUTES = {
   membership: '/my/membership',
   fanResult: '/fan/result',
   fanTickets: '/fan/tickets',
+  fanBillboard: '/fan/billboard',
   coupons: '/my/coupons',
   couponDetail: (id) => `/my/coupons/${id}`,
   addresses: '/my/addresses',

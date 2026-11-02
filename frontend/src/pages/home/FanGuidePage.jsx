@@ -1,137 +1,108 @@
+import { useState } from 'react';
 import { DetailSection, DetailShell, NoticeList } from './BannerDetailParts.jsx';
 import FanBoard from '../fan/FanBoard.jsx';
 import { defaultDesign } from '../fan/fanBoardPresets.js';
-import {
-  CHEER_STEPS,
-  FREE_TICKET_RULES,
-  GUIDE_NOTICES,
-  MOCK_RANKING,
-  RETURN_RULES,
-  SCHEDULE,
-  currentScheduleIndex,
-  thisWeekDeadline,
-} from '../fan/fanGuideData.js';
+import './FanGuideChoice.css';
+
+const PRICE_PER_DAY = 500000;
+const won = (value) => value.toLocaleString('ko-KR');
 
 const SLOTS = [
   {
     type: 'ANNIV',
     title: '기념일 전광판',
-    desc: '다음 주에 기념일이 있는 최애끼리 겨뤄요. 기념일 날짜별로 응원 수 1위 최애가 그날 당일 게시돼요.',
+    desc: '생일 같은 기념일 당일에 게시돼요. 같은 날 기념일인 최애가 여러 명이면 응원 포인트를 가장 많이 받은 1위 최애가 올라가요.',
     design: { ...defaultDesign('ANNIV'), dateLine: '2026. 12. 07 · BIRTHDAY', message: 'HAPPY BIRTHDAY', name: '내 최애', nickname: '닉네임' },
   },
   {
     type: 'FREE',
     title: '자유 응원 전광판',
-    desc: '특별한 날이 아니어도 괜찮아요. 이번 주 자유 응원 순위 상위 최애가 기념일 없는 날짜에 하루씩 게시돼요.',
+    desc: `기념일이 없는 날에 원하는 날짜를 골라 신청해요. 하루 ${won(PRICE_PER_DAY)}원이며 연속으로도, 나눠서도 고를 수 있어요.`,
     design: { ...defaultDesign('FREE'), name: '내 최애', nickname: '닉네임' },
   },
 ];
 
-// 응원 홍보 배너의 "자세히 보기" 화면 (/fan/guide)
-export default function FanGuidePage({ status, ranking, onBack, onCheer, onShowRanking, onShowResult, onShowTickets }) {
-  const deadline = thisWeekDeadline();
-  const stage = currentScheduleIndex();
-  const rows = ranking?.length ? ranking : MOCK_RANKING;
-  const isExample = !ranking?.length;
-  const topCount = rows[0].count;
+const STEPS = {
+  ANNIV: [
+    '다음 주에 기념일이 있는 최애를 골라 응원권으로 응원해요.',
+    '같은 날 기념일인 최애끼리 응원 수로 겨뤄 1위가 정해져요.',
+    '1위 최애를 응원한 분이 전광판을 꾸미고 검수를 요청해요.',
+    '승인되면 기념일 당일 홈에 게시돼요.',
+  ],
+  FREE: [
+    '최애와 게시하고 싶은 날짜를 골라요. 기념일이 있는 날과 이미 신청된 날은 고를 수 없어요.',
+    `선택한 날짜 수 × ${won(PRICE_PER_DAY)}원을 결제하면 날짜가 확정돼요.`,
+    '게시 7일 전 23:59까지 문구와 이미지를 꾸미고 검수를 요청해요.',
+    '승인되면 선택한 날짜에 홈에 게시돼요.',
+  ],
+};
+
+const NOTICES = [
+  '기념일 전광판은 응원 포인트 1위 최애가 올라가요. 응원 방법과 마감 일정은 응원 화면에서 확인해 주세요.',
+  `자유 응원 전광판은 하루 ${won(PRICE_PER_DAY)}원이에요. 3일을 고르면 ${won(PRICE_PER_DAY * 3)}원이 결제돼요.`,
+  '자유 응원 날짜는 먼저 결제한 분이 우선이고, 같은 날짜는 한 분만 신청할 수 있어요.',
+  '게시 7일 전 23:59까지 꾸미기와 검수 요청을 마치지 않으면 그날은 비어 있을 수 있어요.',
+  '부적절한 문구나 이미지는 검수에서 반려될 수 있어요.',
+];
+
+// 전광판 안내 (/fan/guide): 기념일 전광판(응원 순위)과 자유 응원 전광판(날짜 결제) 중 골라 신청한다
+export default function FanGuidePage({ onBack, onApplyAnniversary, onApplyFree, onShowRanking, onShowResult, onShowTickets }) {
+  const [choosing, setChoosing] = useState(false);
 
   return (
     <DetailShell
-      title="응원 안내"
+      title="전광판 안내"
       ready
       onBack={onBack}
       hero={(
         <section className="bd__hero bd__hero--fan">
-          <p className="bd__eyebrow">이번 주 메인은 내 최애</p>
-          <h2>{'내 최애를\n메인 배너에 올려요'}</h2>
-          <p className="bd__hero-desc">
-            <span className="bd__pill">마감 {deadline.label} · 목 23:59</span>
-          </p>
+          <p className="bd__eyebrow">내 최애를 홈 전광판에</p>
+          <h2>{'내 최애를\n전광판에 올려요'}</h2>
         </section>
       )}
-      footer={<button className="bd__btn" type="button" onClick={onCheer}>내 최애 응원하기</button>}
+      footer={<button className="bd__btn" type="button" onClick={() => setChoosing(true)}>전광판 신청하기</button>}
     >
-      <DetailSection title="두 가지 응원 자리">
-        <ul className="bd__slots">
-          {SLOTS.map((slot) => (
-            <li key={slot.type}>
-              <div className="bd__slot-preview"><FanBoard design={slot.design} /></div>
-              <strong>{slot.title}</strong>
-              <p>{slot.desc}</p>
-            </li>
-          ))}
-        </ul>
-      </DetailSection>
-
-      <DetailSection title="이렇게 응원해요">
-        <ol className="bd__steps">
-          {CHEER_STEPS.map((step, index) => (
-            <li key={step.title}>
-              <span className="bd__step-no">{index + 1}</span>
-              <div><strong>{step.title}</strong><p>{step.desc}</p></div>
-            </li>
-          ))}
-        </ol>
-      </DetailSection>
-
-      <DetailSection title="무료 응원권 받는 방법" description="무료 응원권 1장 = 응원 1회 (포인트 대신 사용)">
-        <table className="bd__table">
-          <thead><tr><th>방법</th><th>지급</th><th>한도</th></tr></thead>
-          <tbody>
-            {FREE_TICKET_RULES.map((rule) => (
-              <tr key={rule.reason}><td>{rule.reason}</td><td>{rule.amount}</td><td>{rule.limit}</td></tr>
+      {SLOTS.map((slot) => (
+        <DetailSection key={slot.type} title={slot.title}>
+          <div className="bd__slot-preview"><FanBoard design={slot.design} /></div>
+          <p>{slot.desc}</p>
+          <ol className="bd__steps">
+            {STEPS[slot.type].map((step, index) => (
+              <li key={step}>
+                <span className="bd__step-no">{index + 1}</span>
+                <div><p>{step}</p></div>
+              </li>
             ))}
-          </tbody>
-        </table>
-      </DetailSection>
+          </ol>
+        </DetailSection>
+      ))}
 
-      <DetailSection title="진행 일정">
-        <ol className="bd__timeline">
-          {SCHEDULE.map((step, index) => (
-            <li key={step.key} className={index === stage ? 'is-current' : ''} aria-current={index === stage ? 'step' : undefined}>
-              <span className="bd__timeline-day">{step.day}</span>
-              <div>
-                <strong>{step.title}{index === stage ? <em>진행 중</em> : null}</strong>
-                <p>{step.desc}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
-      </DetailSection>
-
-      <DetailSection title="실시간 응원 순위" description={isExample ? '아직 응원이 없어서 예시 순위를 보여드려요' : '이번 주 자유 응원 순위예요'}>
-        <ol className="bd__rank">
-          {rows.map((item) => (
-            <li key={item.rank}>
-              <span className="bd__rank-no">{item.rank}</span>
-              <div className="bd__rank-body">
-                <strong>{item.name}</strong>
-                <i style={{ width: `${Math.round((item.count / topCount) * 100)}%` }} />
-              </div>
-              <b>{item.count.toLocaleString('ko-KR')}회</b>
-            </li>
-          ))}
-        </ol>
-        <button className="bd__link-btn" type="button" onClick={onShowRanking}>실시간 순위 전체 보기 ›</button>
-        <button className="bd__link-btn" type="button" onClick={onShowResult}>지난 주 내 응원 결과 보기 ›</button>
+      <DetailSection title="기념일 전광판 바로가기">
+        <button className="bd__link-btn" type="button" onClick={onShowRanking}>실시간 응원 순위 보기 ›</button>
+        <button className="bd__link-btn" type="button" onClick={onShowResult}>내 응원 결과 · 전광판 꾸미기 ›</button>
         <button className="bd__link-btn" type="button" onClick={onShowTickets}>응원권 구매하기 ›</button>
-        <p className="bd__caption">
-          이번 주 전체 응원 {status.totalCheers.toLocaleString('ko-KR')}회
-          {status.freeTickets === null ? '' : ` · 내 무료 응원권 ${status.freeTickets}장`}
-        </p>
-      </DetailSection>
-
-      <DetailSection title="떨어졌을 때는 반환돼요" description="진 최애에 쓴 유료 응원은 적립금으로 바로 돌려드려요">
-        <ul className="bd__returns">
-          {RETURN_RULES.map((rule) => (
-            <li key={rule.title}><strong>{rule.title}</strong><p>{rule.desc}</p></li>
-          ))}
-        </ul>
       </DetailSection>
 
       <DetailSection title="유의사항">
-        <NoticeList items={GUIDE_NOTICES} />
+        <NoticeList items={NOTICES} />
       </DetailSection>
+
+      {choosing ? (
+        <div className="fan-choice" role="dialog" aria-modal="true" aria-label="전광판 종류 선택">
+          <button type="button" className="fan-choice__dim" aria-label="닫기" onClick={() => setChoosing(false)} />
+          <div className="fan-choice__sheet">
+            <h3>어떤 전광판을 신청할까요?</h3>
+            <button type="button" onClick={onApplyAnniversary}>
+              <strong>기념일 전광판</strong>
+              <span>기념일인 최애를 응원해요. 응원 1위가 당일 게시돼요.</span>
+            </button>
+            <button type="button" onClick={onApplyFree}>
+              <strong>자유 응원 전광판</strong>
+              <span>날짜를 골라 결제해요. 하루 {won(PRICE_PER_DAY)}원.</span>
+            </button>
+          </div>
+        </div>
+      ) : null}
     </DetailShell>
   );
 }

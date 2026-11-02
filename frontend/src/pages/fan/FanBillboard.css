@@ -1,0 +1,27 @@
+.fan-cal__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.fan-cal__head button { width: 36px; height: 36px; border: 0; border-radius: 50%; background: #f3eefa; color: #54228c; font-size: 20px; cursor: pointer; }
+.fan-cal__head button:disabled { opacity: 0.35; cursor: default; }
+.fan-cal__grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.fan-cal__week { text-align: center; color: #8a8494; font-size: 12px; padding: 4px 0; }
+.fan-cal__day { position: relative; min-height: 46px; border: 1px solid #ece6f4; border-radius: 10px; background: #fff; font: inherit; font-size: 14px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.fan-cal__day small { font-size: 9px; color: #8a8494; }
+.fan-cal__day:disabled { background: #f6f4f9; color: #b9b3c4; cursor: default; }
+.fan-cal__day.is-anniversary:disabled { background: #fdeef3; color: #c4527a; }
+.fan-cal__day.is-anniversary small { color: #c4527a; }
+.fan-cal__day.is-picked { background: #8047ca; border-color: #8047ca; color: #fff; font-weight: 700; }
+.fan-cal__legend { margin: 10px 0 0; color: #8a8494; font-size: 12px; line-height: 1.6; }
+.fan-cal__legend span { margin-right: 4px; font-weight: 700; }
+.fan-cal__legend .is-anniversary { color: #c4527a; }
+.fan-cal__summary { margin: 12px 0 0; padding: 12px; border-radius: 12px; background: #f6f0fc; color: #54228c; font-size: 14px; line-height: 1.5; }
+
+.fan-billboard__error { margin: 10px 0 0; color: #c0392b; font-size: 13px; }
+.fan-billboard__done { margin: 10px 0 0; color: #2f7d4f; font-size: 13px; }
+
+.fan-mine { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.fan-mine li { display: flex; align-items: center; gap: 10px; padding: 12px; border: 1px solid #ece6f4; border-radius: 12px; }
+.fan-mine li > div { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.fan-mine small { color: #8a8494; font-size: 12px; }
+.fan-mine__status { font-size: 12px; color: #54228c; background: #f3eefa; padding: 4px 8px; border-radius: 999px; }
+.fan-mine__status.is-approved { color: #2f7d4f; background: #e8f5ed; }
+.fan-mine__status.is-rejected { color: #c0392b; background: #fdecea; }
+.fan-mine button { border: 1px solid #8047ca; border-radius: 999px; padding: 6px 12px; background: #fff; color: #8047ca; font: inherit; font-size: 13px; cursor: pointer; }

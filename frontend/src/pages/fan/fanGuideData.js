@@ -21,7 +21,7 @@ export const CHEER_PRICE = 1000;
 export const CHEER_POINTS_PER_TICKET = 1000;
 export const cheerPoints = (ticketCount) => Number(ticketCount ?? 0) * CHEER_POINTS_PER_TICKET;
 export const DAILY_CHEER_LIMIT = 100;
-export const MIN_PAID_AMOUNT = 30000;
+export const MIN_PAID_AMOUNT = 300000;
 export const CREDIT_RETURN_RATE = 105;
 
 // 이번 주 응원 마감(목 23:59 KST)까지 남은 일수. 마감 후면 다음 주 목요일 기준.
@@ -78,7 +78,7 @@ export const RETURN_RULES = [
 
 export const GUIDE_NOTICES = [
   '이긴 최애에 쓴 유료 응원은 배너 자리 비용으로 확정돼 반환되지 않아요.',
-  `이긴 최애의 현금 구매 응원권 합계가 ${MIN_PAID_AMOUNT.toLocaleString('ko-KR')}원보다 적으면 배너를 게시하지 않고 전액 반환해요.`,
+  `이긴 최애의 현금 구매 응원권 합계가 ${MIN_PAID_AMOUNT.toLocaleString('ko-KR')}P보다 적으면 배너를 게시하지 않고 전액 반환해요.`,
   '무료 응원권으로 한 응원은 반환되지 않아요.',
   '구매한 응원권은 구매 후 30일 안에만 환불할 수 있어요. 현금 구매분은 한 장도 사용하지 않아야 해요.',
   '비방·광고·홍보성·응원과 무관한 내용의 전광판은 검수에서 반려될 수 있어요.',

@@ -119,7 +119,7 @@ export function FanCheerRoute() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const loggedIn = useRequireLogin('/fan/cheer');
-  const [slot, setSlot] = useState('ANNIV');
+  const slot = 'ANNIV';
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
 
@@ -157,7 +157,6 @@ export function FanCheerRoute() {
       sending={send.isPending}
       error={send.error?.message ?? me.error?.message}
       onBack={goBack(navigate, '/fan/guide')}
-      onChangeSlot={(next) => { setSlot(next); setQuery(''); send.reset(); }}
       onChangeQuery={setQuery}
       onSubmit={(body, eventDate) => send.mutate({ body, eventDate })}
       onCharge={() => navigate('/fan/tickets')}
@@ -169,7 +168,7 @@ export function FanCheerRoute() {
 export function FanRankingRoute() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const slot = searchParams.get('slot') === 'FREE' ? 'FREE' : 'ANNIV';
+  const slot = 'ANNIV';
   const loggedIn = useSession().status === 'in';
   const dates = useQuery({
     queryKey: ['fan-anniversary-dates'],
@@ -197,7 +196,6 @@ export function FanRankingRoute() {
       loading={ranking.isFetching}
       error={ranking.error?.message}
       onBack={goBack(navigate, '/fan/guide')}
-      onChangeSlot={(next) => setSearchParams({ slot: next }, { replace: true })}
       onChangeDate={(next) => setSearchParams({ slot, date: next }, { replace: true })}
       onCheer={() => navigate(loggedIn ? '/fan/cheer' : '/login?returnTo=%2Ffan%2Fcheer')}
     />
@@ -264,7 +262,7 @@ export function FanDesignRoute() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['fan-design', designId] });
       queryClient.invalidateQueries({ queryKey: ['fan-results'] });
-      navigate('/fan/result', { replace: true });
+      navigate(design.data?.data?.slotType === 'FREE' ? '/fan/billboard' : '/fan/result', { replace: true });
     },
     onError: (error) => setSaveError(error.message),
   });
@@ -274,7 +272,7 @@ export function FanDesignRoute() {
       data={design.data?.data}
       saveState={saveState}
       error={design.error?.message ?? saveError}
-      onBack={goBack(navigate, '/fan/result')}
+      onBack={goBack(navigate, design.data?.data?.slotType === 'FREE' ? '/fan/billboard' : '/fan/result')}
       onSave={(payload, paths) => save.mutate({ payload, paths })}
       onSubmit={(payload, paths) => submit.mutate({ payload, paths })}
       onUpload={(file, target) => uploadDesignImage(designId, file, target)}

@@ -1,12 +1,7 @@
 import { useEffect, useState } from 'react';
 import { DetailSection, DetailShell } from '../home/BannerDetailParts.jsx';
-import { MOCK_RANKING } from './fanGuideData.js';
+import { MIN_PAID_AMOUNT, MOCK_RANKING } from './fanGuideData.js';
 import './FanCheer.css';
-
-const SLOTS = [
-  ['ANNIV', '기념일'],
-  ['FREE', '자유'],
-];
 
 const formatDay = (value) => {
   const date = new Date(`${value}T00:00:00`);
@@ -15,7 +10,7 @@ const formatDay = (value) => {
 
 function countdown(endAt, now) {
   const left = new Date(endAt).getTime() - now;
-  if (left <= 0) return '마감됐어요';
+  if (left <= 0) return null;
   const hours = Math.floor(left / 3600000);
   const minutes = Math.floor((left % 3600000) / 60000);
   const seconds = Math.floor((left % 60000) / 1000);
@@ -28,7 +23,7 @@ const EXAMPLE_ITEMS = MOCK_RANKING.map((item, index) => ({
   rank: item.rank,
   name: item.name,
   cheerCount: item.count,
-  paidAmount: [24000, 15000, 9000][index] ?? 0,
+  paidAmount: [240000, 150000, 90000][index] ?? 0,
   myCount: 0,
 }));
 
@@ -41,7 +36,6 @@ export default function FanRankingPage({
   loading,
   error,
   onBack,
-  onChangeSlot,
   onChangeDate,
   onCheer,
 }) {
@@ -55,7 +49,8 @@ export default function FanRankingPage({
   const isExample = Boolean(ranking) && !(ranking.items?.length > 0);
   const items = isExample ? EXAMPLE_ITEMS : ranking?.items ?? [];
   const top = items[0]?.cheerCount ?? 0;
-  const minPaid = ranking?.minPaidAmount || (isExample ? 30000 : 0);
+  const remaining = ranking ? countdown(ranking.applyEndAt, now) : null;
+  const minPaid = ranking?.minPaidAmount || (isExample ? MIN_PAID_AMOUNT : 0);
   const leaderPaid = items[0]?.paidAmount ?? 0;
   const progress = minPaid ? Math.min(100, Math.round((leaderPaid / minPaid) * 100)) : 0;
   const freeSlots = ranking?.freeSlotCount || (isExample ? 2 : 0);
@@ -69,11 +64,6 @@ export default function FanRankingPage({
       footer={<button className="bd__btn" type="button" onClick={onCheer}>더 응원하기</button>}
     >
       <DetailSection>
-        <div className="fan-tabs" role="tablist" aria-label="응원 자리">
-          {SLOTS.map(([type, label]) => (
-            <button key={type} type="button" role="tab" aria-selected={slot === type} className={slot === type ? 'is-on' : ''} onClick={() => onChangeSlot(type)}>{label}</button>
-          ))}
-        </div>
         {slot === 'ANNIV' ? (
           dates.length ? (
             <div className="fan-chips">
@@ -89,7 +79,7 @@ export default function FanRankingPage({
         ) : null}
         {ranking ? (
           <p className="fan-count" aria-live="off">
-            {ranking.open ? <>마감까지 <b>{countdown(ranking.applyEndAt, now)}</b></> : <b>이번 주 응원이 마감됐어요</b>}
+            {ranking.open && remaining ? <>마감까지 <b>{remaining}</b></> : <b>마감됐습니다</b>}
             {loading ? <span> · 갱신 중</span> : null}
           </p>
         ) : null}
@@ -122,13 +112,16 @@ export default function FanRankingPage({
       </DetailSection>
 
       {items.length > 0 ? (
-        <DetailSection title="게시 최소 성립 금액" description="1위 최애의 유료 응원 합계가 이 금액을 넘어야 배너가 게시돼요">
+        <DetailSection title="게시 목표 포인트" description="1위 최애의 유료 응원 합계가 이 포인트를 넘어야 배너가 게시돼요">
           <div className="fan-progress" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
             <i style={{ width: `${progress}%` }} />
           </div>
           <p className="bd__caption">
             1위 유료 응원 {leaderPaid.toLocaleString('ko-KR')}P / {minPaid.toLocaleString('ko-KR')}P
-            {leaderPaid >= minPaid ? ' · 성립했어요' : ''}
+            {leaderPaid >= minPaid ? ' · 목표를 채웠어요' : ''}
+          </p>
+          <p className="bd__caption">
+            목표 포인트를 채우지 못하면 배너는 게시되지 않아요. 이 최애에 쓴 유료 응원은 적립금으로 돌려드려요. (현금으로 산 응원권은 105%, 적립금으로 산 응원권은 100%)
           </p>
         </DetailSection>
       ) : null}

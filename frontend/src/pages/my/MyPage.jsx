@@ -244,7 +244,8 @@ function MemberView({ data, provider, onNavigate }) {
           onClick={() => onNavigate(MY_ROUTES.coupons)}
         />
         {/* 당첨된 응원 전광판 꾸미기는 응원 결과 화면에서 시작한다 */}
-        <Row icon={GiftIcon} label="응원 결과 · 전광판 꾸미기" onClick={() => onNavigate(MY_ROUTES.fanResult)} />
+        <Row icon={GiftIcon} label="전광판 신청 · 꾸미기" onClick={() => onNavigate(MY_ROUTES.fanBillboard)} />
+        <Row icon={GiftIcon} label="응원 결과 · 기념일 전광판 꾸미기" onClick={() => onNavigate(MY_ROUTES.fanResult)} />
         <Row icon={TicketIcon} label="응원권 구매" onClick={() => onNavigate(MY_ROUTES.fanTickets)} />
       </Section>
 
