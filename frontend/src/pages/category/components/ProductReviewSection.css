@@ -51,6 +51,11 @@
 .pr-full-review { padding:20px 0; border-bottom:1px solid #eee9f3; }
 .pr-full-review header { display:flex; justify-content:space-between; align-items:center; gap:12px; font-size:13px; }
 .pr-full-review time { font-size:11px; color:#9a90a4; }
+.category-detail .pr-full-review .product-review-edit__stars button { padding:0; border:0; border-radius:0; background:transparent; color:#e2dfe6; font-size:28px; line-height:1; }
+.category-detail .pr-full-review .product-review-edit__stars button.is-on { color:#f5a623; }
+.category-detail .pr-full-review .product-review-edit textarea { padding:12px; border:1px solid #e4dfea; border-radius:12px; background:#fff; color:#25232a; }
+.category-detail .pr-full-review .product-review-edit__actions button { padding:0; border:0; border-radius:0; background:transparent; color:#82788e; font-size:13px; }
+.category-detail .pr-full-review .product-review-edit__actions button.is-strong { color:#7444d4; font-weight:700; }
 .pr-stars { margin-top:8px; letter-spacing:2px; color:#8650d2; }
 .pr-full-review p { margin:10px 0 0; white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.7; font-size:14px; }
 .category-page .pr-like-button { display:inline-flex; align-items:center; gap:5px; margin-top:16px; padding:6px 10px; border:1px solid #e8e4ed; border-radius:99px; background:#fff; color:#686272; font:inherit; font-size:12px; cursor:pointer; }
