@@ -20,6 +20,7 @@ import { EMPTY_FILTERS, filterParams } from './pages/search/searchFilters.js';
 import StoreListPage from './pages/stores/StoreListPage.jsx';
 import StoreMapPage from './pages/stores/StoreMapPage.jsx';
 import StoreDetailPage from './pages/stores/StoreDetailPage.jsx';
+import StoreInquiryPage from './pages/stores/StoreInquiryPage.jsx';
 import ShowcaseEditorPage from './pages/showcases/ShowcaseEditorPage.jsx';
 import { ShowcaseGalleryPage, ShowcaseDetailPage, ShowcaseManagePage } from './pages/showcases/ShowcasePages.jsx';
 import StoreReviewPage from './pages/stores/StoreReviewPage.jsx';
@@ -849,6 +850,7 @@ export default function App() {
         <Route path="/stores" element={<StoreListPage />} />
         <Route path="/stores/map" element={<StoreMapPage />} />
         <Route path="/stores/:storeId" element={<StoreDetailPage />} />
+        <Route path="/stores/:storeId/inquiries" element={<StoreInquiryPage />} />
         <Route path="/stores/:storeId/reviews" element={<StoreReviewPage />} />
         <Route path="/stores/:storeId/reviews/write" element={<StoreReviewWritePage />} />
         <Route path="/showcases" element={<ShowcaseGalleryPage />} />
