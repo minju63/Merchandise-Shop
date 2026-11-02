@@ -5,12 +5,18 @@ import Icon from '../../components/Icon.jsx';
 import NotificationBell from '../../components/NotificationBell.jsx';
 import CartIconBadge from '../../components/CartIconBadge.jsx';
 import PromoBanner from './PromoBanner.jsx';
-import StageSection from './StageSection.jsx';
 import { fanBoardDesign, isFanBoardType } from '../fan/fanBoardPresets.js';
 import { brandGroupFor, hasPickedBrands, matchesInterests } from './interestMatch.js';
 import BottomNavigation from '../../components/BottomNavigation.jsx';
 import { ShowcaseGallery } from '../showcases/ShowcasePages.jsx';
 import './HomePage.css';
+
+// 검색창 아래 바로가기 (무신사 상단 탭처럼 눌러서 바로 이동)
+const QUICK_LINKS = [
+  { label: '최애 스테이지', path: '/stage', live: true },
+  { label: '쿠지뽑기', path: '/kuji' },
+  { label: '랜덤박스', path: '/box' },
+];
 
 function HorizontalRail({ children, className, ariaLabel }) {
   const rail = useRef(null);
@@ -119,8 +125,7 @@ export default function HomePage({
   interestBrands = [],
   onOpenInterestSettings,
   onOpenProduct,
-  onOpenStageCheer,
-  onOpenStageGuide,
+  onOpenPath,
   onOpenCategory,
   onOpenTrending,
   onOpenUpcoming,
@@ -217,7 +222,7 @@ export default function HomePage({
   const handleBannerAction = () => {
     if (!activeBanner || !onNavigate) return;
     onBannerClick?.(activeBanner.id);
-    onNavigate({ bannerId: activeBanner.id, bannerType: activeBanner.bannerType });
+    onNavigate({ bannerId: activeBanner.id, bannerType: activeBanner.bannerType, kujiId: activeBanner.kuji?.id });
   };
 
   const showBanner = (index) => {
@@ -315,6 +320,14 @@ export default function HomePage({
           <Icon name="search" size={17} />
           <span>굿즈명, 작품명, 캐릭터, 굿즈샵 검색</span>
         </button>
+        <nav className="home-quick" aria-label="이벤트 바로가기">
+          {QUICK_LINKS.map((link) => (
+            <button key={link.path} type="button" onClick={() => onOpenPath?.(link.path)} disabled={!onOpenPath}>
+              {link.live ? <span className="home-quick__live" aria-hidden="true" /> : null}
+              {link.label}
+            </button>
+          ))}
+        </nav>
       </header>
 
       <main>
@@ -362,8 +375,6 @@ export default function HomePage({
             </button>
           ))}
         </nav>
-
-        <StageSection onCheer={onOpenStageCheer} onOpenGuide={onOpenStageGuide} />
 
         <section className="home-section trending-section">
           <div className="home-section-heading">

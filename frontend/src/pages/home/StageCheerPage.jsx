@@ -3,6 +3,7 @@ import { DetailSection, DetailShell, NoticeList } from './BannerDetailParts.jsx'
 import { CharacterFace } from './StageSection.jsx';
 import { BOX_TIERS, BOXES, openBoxes } from './boxMockData.js';
 import { STAGE_CHARACTERS, STAGE_SERIES } from './stageMockData.js';
+import { addCheer, useLiveStage } from './stageLive.js';
 import './StageCheer.css';
 import './BoxShop.css';
 
@@ -43,8 +44,11 @@ export default function StageCheerPage({ initialCharacterId, initialOptionId, on
   const [quantity, setQuantity] = useState(1);
   const [freeUsedToday, setFreeUsedToday] = useState(() => readFreeCheerDate() === todayKey());
   const [done, setDone] = useState(null);
+  const { ranked } = useLiveStage();
 
-  const character = STAGE_CHARACTERS.find((item) => item.id === characterId);
+  // 포인트·순위는 홈 배너·스테이지 화면과 같은 실시간 값을 쓴다.
+  const character = ranked.find((item) => item.id === characterId);
+  const rank = ranked.findIndex((item) => item.id === characterId) + 1;
   const option = OPTIONS.find((item) => item.id === optionId);
   const count = option.price ? quantity : 1;
   const totalPrice = option.price * count;
@@ -61,6 +65,7 @@ export default function StageCheerPage({ initialCharacterId, initialOptionId, on
       }
       setFreeUsedToday(true);
     }
+    addCheer(character.id, totalPoints, option.price ? `${option.title} 구매` : '무료 응원');
     setDone({
       name: character.name,
       points: totalPoints,
@@ -76,6 +81,9 @@ export default function StageCheerPage({ initialCharacterId, initialOptionId, on
         <div className="stage-cheer__done">
           <CharacterFace character={character} size={96} />
           <h2>{done.name}에게<br />{done.points.toLocaleString()}P를 응원했어요</h2>
+          <p className="stage-cheer__done-rank">
+            지금 {rank}위 · 이번 주 {character.points.toLocaleString()}P
+          </p>
           <p>{done.title}{done.count > 1 ? ` ${done.count}개` : ''} · 시연용 화면이라 실제 결제는 진행되지 않았어요.</p>
           {done.items.length ? (
             <ul className="box-results" aria-label="박스에서 나온 굿즈">
@@ -114,7 +122,7 @@ export default function StageCheerPage({ initialCharacterId, initialOptionId, on
           <div>
             <small>{STAGE_SERIES[character.series].name}</small>
             <strong>{character.name}</strong>
-            <span>이번 주 {character.points.toLocaleString()}P</span>
+            <span>지금 {rank}위 · 이번 주 {character.points.toLocaleString()}P</span>
           </div>
         </div>
       )}

@@ -339,3 +339,10 @@
   font-size: 11px;
   font-weight: 500;
 }
+
+.stage-cheer__done-rank {
+  margin: 4px 0 0;
+  color: var(--bd-primary, #6f5be7);
+  font-size: 14px;
+  font-weight: 800;
+}

@@ -18,27 +18,24 @@
 .stage {
   display: flex;
   margin: 0 18px;
-  padding: 12px 18px 16px;
+  padding: 18px 0 16px;
+  flex-direction: column;
   align-items: center;
-  gap: 18px;
   border-radius: 16px;
-  background: linear-gradient(135deg, #2c1f5e, #4a3590);
+  background: linear-gradient(180deg, #2c1f5e, #4a3590);
   color: #fff;
 }
 
 .stage__podium {
   display: flex;
-  flex: none;
   flex-direction: column;
   align-items: center;
 }
 
 .stage__info {
   display: flex;
-  min-width: 0;
-  flex: 1;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
 }
 
 .stage__hero {
@@ -51,31 +48,31 @@
 }
 
 .stage__crown {
-  font-size: 16px;
+  font-size: 24px;
   line-height: 1;
 }
 
 .stage__figure {
-  margin-bottom: -14px;
+  margin-bottom: -22px;
   animation: stage-hop 1.6s ease-in-out infinite;
 }
 
 .stage__figure .stage-face {
-  border: 3px solid #fac775;
+  border: 4px solid #fac775;
 }
 
 .stage__floor {
-  width: 104px;
-  height: 24px;
-  border: 2px solid #ba7517;
+  width: 220px;
+  height: 46px;
+  border: 3px solid #ba7517;
   border-radius: 50%;
   background: #fac775;
-  box-shadow: 0 5px 0 #ef9f27;
+  box-shadow: 0 10px 0 #ef9f27;
 }
 
 @keyframes stage-hop {
   0%, 100% { transform: translateY(0) rotate(-4deg); }
-  50% { transform: translateY(-5px) rotate(4deg); }
+  50% { transform: translateY(-10px) rotate(4deg); }
 }
 
 @keyframes stage-enter {
@@ -84,37 +81,33 @@
 }
 
 .stage__series {
-  margin: 0;
+  margin: 20px 0 0;
   font-size: 11px;
   opacity: 0.75;
 }
 
 .stage__name {
-  max-width: 100%;
   margin: 2px 0 0;
-  overflow: hidden;
-  font-size: 17px;
+  font-size: 19px;
   font-weight: 800;
   letter-spacing: -0.6px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .stage__points {
-  margin: 1px 0 0;
+  margin: 2px 0 0;
   color: #fac775;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 800;
 }
 
 .stage__cheer {
-  margin-top: 8px;
-  padding: 7px 16px;
+  margin-top: 14px;
+  padding: 10px 22px;
   border: 0;
   border-radius: 999px;
   color: #2c1f5e;
   background: #fac775;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 800;
   cursor: pointer;
 }
@@ -275,3 +268,242 @@
 
 .stage-row__move.up { color: #e5484d; }
 .stage-row__move.down { color: #3b82f6; }
+
+/* 홈 배너용 LIVE 최애 스테이지: 왼쪽 조명 무대 + 오른쪽 1위 · 2~3위 실시간 순위 */
+.promo-banner--stage {
+  padding: 14px 14px 12px 16px;
+  background:
+    radial-gradient(120% 90% at 25% 100%, rgb(111 91 231 / 35%), transparent 60%),
+    linear-gradient(160deg, #1b1338, #2c1f5e 60%, #3a2878);
+}
+
+.stage-banner {
+  display: grid;
+  height: 100%;
+  grid-template-columns: 35% 1fr;
+  gap: 6px;
+}
+
+.stage-banner__left {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.stage-banner__title {
+  display: flex;
+  margin: 0;
+  align-items: center;
+  gap: 4px;
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: -0.6px;
+  white-space: nowrap;
+}
+
+.stage-banner__sub {
+  margin: 2px 0 0;
+  font-size: 9px;
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+.stage-banner__stage {
+  position: relative;
+  display: flex;
+  flex: 1;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.stage-banner__title .stage-live {
+  margin-right: 0;
+  padding: 1px 4px;
+  font-size: 9px;
+}
+
+/* 위에서 내려오는 조명 */
+.stage-banner__light {
+  position: absolute;
+  inset: 4px 6% 10px;
+  background: linear-gradient(180deg, rgb(255 255 255 / 0%), rgb(255 255 255 / 16%));
+  clip-path: polygon(38% 0, 62% 0, 100% 100%, 0 100%);
+}
+
+.stage-banner__hero {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 6px;
+  animation: stage-enter 420ms ease-out;
+}
+
+/* 굿즈 사진은 배경이 있어서 금색 테두리 액자처럼 보여 준다 */
+.stage-banner__figure {
+  display: block;
+  width: 96px;
+  height: 96px;
+  border: 3px solid #fac775;
+  border-radius: 16px;
+  background: #fff;
+  object-fit: cover;
+  box-shadow: 0 0 0 4px rgb(250 199 117 / 18%), 0 10px 18px rgb(0 0 0 / 45%);
+  animation: stage-bob 2s ease-in-out infinite;
+}
+
+.stage-banner__hero .stage-face--initial {
+  border: 3px solid #fac775;
+  animation: stage-bob 2s ease-in-out infinite;
+}
+
+@keyframes stage-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.stage-banner__floor {
+  position: absolute;
+  right: 4%;
+  bottom: 0;
+  left: 4%;
+  height: 14px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #8f84b8, #5d5287);
+  box-shadow: 0 0 12px rgb(111 91 231 / 50%);
+}
+
+.stage-banner__right {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.stage-banner__list-head {
+  display: flex;
+  margin-bottom: 5px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.stage-banner__label {
+  margin: 0;
+  overflow: hidden;
+  font-size: 10px;
+  opacity: 0.65;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stage-banner__cta {
+  flex: none;
+  padding: 4px 9px;
+  border: 0;
+  border-radius: 999px;
+  color: #1b1338;
+  background: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.stage-banner__ranks {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  gap: 3px;
+  list-style: none;
+}
+
+.stage-banner__ranks li {
+  display: flex;
+  height: 28px;
+  min-width: 0;
+  padding: 0 4px 0 3px;
+  align-items: center;
+  gap: 5px;
+  border-radius: 8px;
+  background: rgb(255 255 255 / 6%);
+  font-size: 13px;
+}
+
+.stage-banner__ranks li.is-first {
+  background: rgb(250 199 117 / 16%);
+  box-shadow: inset 0 0 0 1px rgb(250 199 117 / 45%);
+}
+
+.stage-banner__rank {
+  width: 12px;
+  color: #fac775;
+  font-size: 13px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.stage-banner__who {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.stage-banner__who b {
+  overflow: hidden;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stage-banner__who small {
+  font-size: 9px;
+  opacity: 0.7;
+}
+
+.stage-banner__score {
+  color: #fac775;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.stage-banner__ranks .stage-row__move {
+  width: 16px;
+  font-size: 9px;
+}
+
+.stage-banner__ranks .stage-row__move.up { color: #ff8a8d; }
+.stage-banner__ranks .stage-row__move.down { color: #8ab4ff; }
+
+/* 순위 5줄과 무대를 가리지 않도록 무대 배너에서는 장수 표시를 숨긴다 (아래 점 표시로 위치를 알 수 있다) */
+.promo-banner--stage .promo-banner__count {
+  display: none;
+}
+
+/* 스테이지 화면(/stage): 1~10위를 펼쳐서 보여 준다 */
+.stage-section--page {
+  border-bottom: 0;
+}
+
+/* 누끼(투명 배경) 캐릭터 이미지 */
+.stage-face--cutout {
+  background: radial-gradient(circle at 50% 40%, #f1eeff, #ddd6ff);
+  object-fit: contain;
+}
+
+.stage__cutout {
+  display: block;
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 10px rgb(0 0 0 / 35%));
+}
+
+.stage-banner__cutout {
+  display: block;
+  width: auto;
+  height: 120px;
+  max-width: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 10px rgb(0 0 0 / 50%));
+  animation: stage-bob 2s ease-in-out infinite;
+}

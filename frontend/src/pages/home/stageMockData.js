@@ -21,7 +21,8 @@ export const STAGE_CHARACTERS = [
   { id: 'shinobu', name: '코쵸우 시노부', series: 'KNY', points: 10260, imageUrl: `${IMAGE_BASE}/shinobu-pigure-bc925b9fdb24.png` },
   { id: 'zoro', name: '롤로노아 조로', series: 'OP', points: 9870 },
   { id: 'eren', name: '에렌 예거', series: 'AOT', points: 9120 },
-];
+  // 무대에는 투명 배경(누끼) 캐릭터 이미지를 쓴다 (frontend/public/assets-nukki).
+].map((character) => ({ ...character, cutoutUrl: `/assets-nukki/${character.id}-cutout.png` }));
 
 // 실시간 피드에 흘러갈 기여 방법 (무료 응원 100P, 랜덤박스 1,000P, 최애박스 7,500P)
 export const STAGE_ACTIONS = [

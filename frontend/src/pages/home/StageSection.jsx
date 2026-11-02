@@ -1,39 +1,23 @@
-import { useEffect, useState } from 'react';
-import { STAGE_ACTIONS, STAGE_CHARACTERS, STAGE_SERIES } from './stageMockData.js';
+import { useState } from 'react';
+import { STAGE_SERIES } from './stageMockData.js';
+import { formatRemaining, nextDeadline, rankMove, useLiveStage, useNow } from './stageLive.js';
 import './StageSection.css';
 
 const ROW_HEIGHT = 56;
-const TICK_MS = 1600;
-
-function pickAction() {
-  const total = STAGE_ACTIONS.reduce((sum, action) => sum + action.weight, 0);
-  let roll = Math.random() * total;
-  return STAGE_ACTIONS.find((action) => (roll -= action.weight) < 0) ?? STAGE_ACTIONS[0];
-}
-
-// 이번 주 목요일 23:59:59 (한국 시간) 마감
-function nextDeadline(now) {
-  const kst = new Date(now + 9 * 3600 * 1000);
-  const daysUntilThursday = (4 - kst.getUTCDay() + 7) % 7;
-  const deadline = Date.UTC(kst.getUTCFullYear(), kst.getUTCMonth(), kst.getUTCDate() + daysUntilThursday, 23, 59, 59);
-  return deadline - 9 * 3600 * 1000;
-}
-
-function formatRemaining(ms) {
-  const total = Math.max(0, Math.floor(ms / 1000));
-  const days = Math.floor(total / 86400);
-  const time = [Math.floor((total % 86400) / 3600), Math.floor((total % 3600) / 60), total % 60]
-    .map((value) => String(value).padStart(2, '0'))
-    .join(':');
-  return `${days}일 ${time}`;
-}
-
-function rankCharacters(characters) {
-  return [...characters].sort((a, b) => b.points - a.points);
-}
 
 export function CharacterFace({ character, size }) {
   const series = STAGE_SERIES[character.series];
+  if (character.cutoutUrl) {
+    return (
+      <img
+        className="stage-face stage-face--cutout"
+        src={character.cutoutUrl}
+        alt=""
+        style={{ width: size, height: size }}
+        draggable={false}
+      />
+    );
+  }
   if (character.imageUrl) {
     return <img className="stage-face" src={character.imageUrl} alt="" style={{ width: size, height: size }} draggable={false} />;
   }
@@ -44,39 +28,25 @@ export function CharacterFace({ character, size }) {
   );
 }
 
-// onCheer(characterId): 응원하기(랜덤박스·최애박스) 화면으로 이동, onOpenGuide: 최애 스테이지 안내 화면으로 이동
-export default function StageSection({ onCheer, onOpenGuide }) {
-  const [characters, setCharacters] = useState(() => STAGE_CHARACTERS.map((character) => ({ ...character })));
-  const [previousRanks, setPreviousRanks] = useState({});
-  const [feed, setFeed] = useState(null);
-  const [now, setNow] = useState(() => Date.now());
-  const [rankingOpen, setRankingOpen] = useState(false); // 섹션이 길어서 2~10위는 기본으로 접어 둔다
+export function MoveBadge({ moved }) {
+  return (
+    <span className={`stage-row__move${moved > 0 ? ' up' : moved < 0 ? ' down' : ''}`}>
+      {moved > 0 ? `▲${moved}` : moved < 0 ? `▼${-moved}` : '-'}
+    </span>
+  );
+}
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const target = STAGE_CHARACTERS[Math.floor(Math.random() * STAGE_CHARACTERS.length)];
-      const action = pickAction();
-      setCharacters((current) => {
-        setPreviousRanks(Object.fromEntries(rankCharacters(current).map((character, index) => [character.id, index])));
-        return current.map((character) => (
-          character.id === target.id ? { ...character, points: character.points + action.points } : character
-        ));
-      });
-      setFeed({ key: Date.now(), id: target.id, text: `${action.label} → ${target.name} +${action.points.toLocaleString()}P` });
-    }, TICK_MS);
-    return () => clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
-    const timer = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const ranked = rankCharacters(characters);
+// onCheer(characterId): 랜덤박스 구매(응원) 화면으로 이동, onOpenGuide: 최애 스테이지 안내 화면으로 이동
+// expanded: 스테이지 화면에서는 1~10위를 접지 않고 모두 보여 준다.
+export default function StageSection({ onCheer, onOpenGuide, expanded = false }) {
+  const { characters, ranked, feed } = useLiveStage();
+  const now = useNow();
+  const [toggledOpen, setToggledOpen] = useState(false);
+  const rankingOpen = expanded || toggledOpen;
   const [leader, ...others] = ranked;
 
   return (
-    <section className="home-section stage-section" aria-label="LIVE 최애 스테이지">
+    <section className={`home-section stage-section${expanded ? ' stage-section--page' : ''}`} aria-label="LIVE 최애 스테이지">
       <div className="home-section-heading">
         <div>
           <h2><span className="stage-live">LIVE</span> 최애 스테이지</h2>
@@ -87,12 +57,17 @@ export default function StageSection({ onCheer, onOpenGuide }) {
         ) : null}
       </div>
 
-      {/* 홈에서 굿즈가 첫 화면에 같이 보이도록 1위 무대는 가로형으로 낮게 둔다 */}
       <div className="stage">
         <div className="stage__podium">
           <div className="stage__hero" key={leader.id}>
             <span className="stage__crown" aria-hidden="true">👑</span>
-            <div className="stage__figure"><CharacterFace character={leader} size={72} /></div>
+            <div className="stage__figure">
+              {leader.cutoutUrl ? (
+                <img className="stage__cutout" src={leader.cutoutUrl} alt="" draggable={false} />
+              ) : (
+                <CharacterFace character={leader} size={124} />
+              )}
+            </div>
           </div>
           <div className="stage__floor" aria-hidden="true" />
         </div>
@@ -112,16 +87,18 @@ export default function StageSection({ onCheer, onOpenGuide }) {
         {feed ? <span key={feed.key}>{feed.text}</span> : '응원이 들어오면 여기에 표시돼요'}
       </p>
 
-      <button
-        className="stage-toggle"
-        type="button"
-        aria-expanded={rankingOpen}
-        aria-controls="stage-ranking"
-        onClick={() => setRankingOpen((open) => !open)}
-      >
-        {rankingOpen ? '순위 접기' : `2~${ranked.length}위 순위 보기`}
-        <span className={`stage-toggle__arrow${rankingOpen ? ' open' : ''}`} aria-hidden="true">⌄</span>
-      </button>
+      {expanded ? null : (
+        <button
+          className="stage-toggle"
+          type="button"
+          aria-expanded={rankingOpen}
+          aria-controls="stage-ranking"
+          onClick={() => setToggledOpen((open) => !open)}
+        >
+          {rankingOpen ? '순위 접기' : `2~${ranked.length}위 순위 보기`}
+          <span className={`stage-toggle__arrow${rankingOpen ? ' open' : ''}`} aria-hidden="true">⌄</span>
+        </button>
+      )}
 
       <ol
         id="stage-ranking"
@@ -132,7 +109,6 @@ export default function StageSection({ onCheer, onOpenGuide }) {
         {characters.map((character) => {
           const rank = ranked.findIndex((item) => item.id === character.id);
           if (rank === 0) return null;
-          const moved = character.id in previousRanks ? previousRanks[character.id] - rank : 0;
           return (
             <li
               key={character.id}
@@ -155,9 +131,7 @@ export default function StageSection({ onCheer, onOpenGuide }) {
                   onClick={() => onCheer(character.id)}
                 >응원</button>
               ) : null}
-              <span className={`stage-row__move${moved > 0 ? ' up' : moved < 0 ? ' down' : ''}`}>
-                {moved > 0 ? `▲${moved}` : moved < 0 ? `▼${-moved}` : '-'}
-              </span>
+              <MoveBadge moved={rankMove(character.id, rank)} />
             </li>
           );
         })}

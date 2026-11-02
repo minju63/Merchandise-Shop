@@ -45,8 +45,9 @@ export const MY_ROUTES = {
   claimNew: (orderId) => `/my/orders/${orderId}/claim`,
   recentProducts: '/my/recent',
   refundAccounts: '/my/refund-accounts',
-  // 이벤트 상세는 민주 담당. 라우트가 확정되면 이 경로만 맞춘다.
-  weeklyPickEvent: '/events/weekly-pick',
+  // 이벤트: 기념일 전광판 응원 안내, 최애 스테이지 안내
+  fanGuide: '/fan/guide',
+  stage: '/stage',
   kuji: '/kuji',
   alerts: '/my/alerts',
   product: (storeProductId) => `/products/${storeProductId}`,

@@ -285,11 +285,8 @@ function MemberView({ data, provider, onNavigate }) {
       </Section>
 
       <Section title="이벤트">
-        <Row
-          icon={MegaphoneIcon}
-          label="이번 주 메인은 내 최애"
-          onClick={() => onNavigate(MY_ROUTES.weeklyPickEvent)}
-        />
+        <Row icon={MegaphoneIcon} label="기념일 전광판" onClick={() => onNavigate(MY_ROUTES.fanGuide)} />
+        <Row icon={GiftIcon} label="최애 스테이지" onClick={() => onNavigate(MY_ROUTES.stage)} />
         <Row icon={TicketIcon} label="굿즈픽 쿠지" onClick={() => onNavigate(MY_ROUTES.kuji)} />
       </Section>
 

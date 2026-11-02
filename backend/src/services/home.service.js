@@ -105,8 +105,52 @@ function buildInterestCategories(categories) {
     .map((category) => ({ id: categorySlug(category.code), name: category.name, type: category.type }));
 }
 
-// 홈 캐러셀 순서: 서비스 소개 → 광고 → 기획전 → 랜덤박스 → 기념일 전광판 → 자유 응원 전광판 → 응모 홍보
-const BANNER_ORDER = ['SERVICE_INTRO', 'AD', 'EXHIBITION', 'BOX_PROMO', 'FAN_ANNIV', 'FAN', 'FAN_FREE', 'FAN_PROMO'];
+// 홈 캐러셀 순서: 이벤트(최애 스테이지 → 쿠지 → 랜덤박스 → 전광판 → 응모 홍보)를 앞에, 광고 → 기획전 → 서비스 소개는 뒤에
+const BANNER_ORDER = ['STAGE', 'KUJI_PROMO', 'BOX_PROMO', 'FAN_ANNIV', 'FAN', 'FAN_FREE', 'FAN_PROMO', 'AD', 'EXHIBITION', 'SERVICE_INTRO'];
+
+// LIVE 최애 스테이지(1~5위)와 쿠지 배너도 banners 행 없이 항상 붙는다. 순위는 화면이 그린다.
+const STAGE_BANNER = {
+  id: 'stage-live',
+  bannerType: 'STAGE',
+  title: 'LIVE 최애 스테이지',
+  imageUrl: null,
+  advertiserName: null,
+  startAt: '1970-01-01T00:00:00Z',
+  endAt: '9999-12-31T23:59:59Z',
+  clickCount: 0,
+};
+
+// 판매 중인 굿즈픽 쿠지 기획전 배너. 누르면 그 쿠지 상세(/kuji/:kujiId)로 간다.
+const kujiBanner = ({ slug, kujiId, title, subtitle, price, theme }) => ({
+  id: `kuji-${slug}`,
+  bannerType: 'KUJI_PROMO',
+  title,
+  imageUrl: null,
+  advertiserName: null,
+  kuji: { id: kujiId, subtitle, price, theme, art: `/kuji/${slug}/banner.jpg` },
+  startAt: '1970-01-01T00:00:00Z',
+  endAt: '9999-12-31T23:59:59Z',
+  clickCount: 0,
+});
+
+const KUJI_BANNERS = [
+  kujiBanner({
+    slug: 'starlight-theater',
+    kujiId: '0298388f-b53c-4ca7-895c-4eac07a7ab86',
+    title: '나의 히어로\n아카데미아 특집',
+    subtitle: '11월 첫째주 히로아카 기획전',
+    price: 9500,
+    theme: 'hero',
+  }),
+  kujiBanner({
+    slug: 'moonlight-station',
+    kujiId: '732db59e-bf60-4514-b93a-7a3aaf751edc',
+    title: '먼가 작고 귀여운\n친구들 쿠지',
+    subtitle: '11월 첫째주 먼작귀 기획전',
+    price: 8500,
+    theme: 'chiikawa',
+  }),
+];
 
 // 랜덤박스·최애박스 배너도 banners 행 없이 항상 붙는다.
 const BOX_BANNER = {
@@ -169,6 +213,8 @@ function buildBanners(rows, boards = [], legacyDays = new Map()) {
   banners.push(...boardBanners(boards));
   if (!banners.some((banner) => banner.bannerType === 'FAN_PROMO')) banners.push(PROMO_BANNER);
   if (!banners.some((banner) => banner.bannerType === 'BOX_PROMO')) banners.push(BOX_BANNER);
+  if (!banners.some((banner) => banner.bannerType === 'STAGE')) banners.push(STAGE_BANNER);
+  if (!banners.some((banner) => banner.bannerType === 'KUJI_PROMO')) banners.push(...KUJI_BANNERS);
   const rank = (banner) => BANNER_ORDER.indexOf(banner.bannerType);
   // 같은 종류 안에서는 기존 sort_order 순서를 유지한다(정렬은 안정 정렬).
   return banners.sort((a, b) => rank(a) - rank(b));

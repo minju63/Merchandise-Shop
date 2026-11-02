@@ -14,6 +14,7 @@ import NotificationPage from './pages/notifications/NotificationPage.jsx';
 import StageCheerPage from './pages/home/StageCheerPage.jsx';
 import BoxShopPage from './pages/home/BoxShopPage.jsx';
 import StageGuidePage from './pages/home/StageGuidePage.jsx';
+import StagePage from './pages/home/StagePage.jsx';
 import { homeMockData } from './pages/home/homeMockData.js';
 import { useSession } from './pages/my/hooks.js';
 import SearchPage, { SearchResultsPage } from './pages/search/SearchPage.jsx';
@@ -152,10 +153,14 @@ const BANNER_DETAIL_PATHS = {
   EXHIBITION: '/exhibitions',
 };
 
-function bannerPath({ bannerId, bannerType, fanDate }) {
+const BUILT_IN_BANNER_IDS = new Set(['stage-live', 'box-promo']);
+
+function bannerPath({ bannerId, bannerType, fanDate, kujiId }) {
   if (bannerType === 'FAN_PROMO') return '/fan/guide';
   if (bannerType === 'FAN_ANNIV') return fanDate ? `/fan-banner/day/${fanDate}` : null;
   if (bannerType === 'BOX_PROMO') return '/box';
+  if (bannerType === 'STAGE') return '/stage';
+  if (bannerType === 'KUJI_PROMO') return kujiId ? `/kuji/${kujiId}` : '/kuji';
   const base = BANNER_DETAIL_PATHS[bannerType];
   return base ? `${base}/${bannerId}` : null;
 }
@@ -298,8 +303,7 @@ function HomeRoute() {
       onSearch={() => navigate('/search')}
       onOpenCart={() => navigate('/cart')}
       onOpenProduct={(product) => navigate(`/products/${product.storeProductId}`)}
-      onOpenStageCheer={(characterId) => navigate(`/stage/cheer?character=${characterId}`)}
-      onOpenStageGuide={() => navigate('/stage')}
+      onOpenPath={(path) => navigate(path)}
       onOpenCategory={openCategory}
       onOpenTrending={(tab) => navigate(trendingPath(tab), fromHome)}
       onOpenUpcoming={() => navigate(UPCOMING_PATH, fromHome)}
@@ -307,6 +311,8 @@ function HomeRoute() {
       alertedProductIds={sessionStatus === 'in' ? (alertQuery.data ?? []) : []}
       onToggleOpenAlert={toggleProductAlert}
       onBannerClick={(bannerId) => {
+        // 서버가 항상 붙이는 배너(스테이지·박스·쿠지)는 banners 행이 없어 클릭을 기록하지 않는다.
+        if (BUILT_IN_BANNER_IDS.has(bannerId) || bannerId.startsWith('kuji-')) return;
         bannerApi.click(bannerId).catch(() => {
           // 클릭 기록 실패가 화면 이동을 막지 않는다.
         });
@@ -447,7 +453,21 @@ function StageCheerRoute() {
       initialCharacterId={searchParams.get('character')}
       initialOptionId={searchParams.get('option')}
       onBack={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))}
-      onHome={() => navigate('/')}
+      onHome={() => navigate('/stage')}
+    />
+  );
+}
+
+// 스테이지의 응원 버튼은 고른 최애로 랜덤박스 구매(응원) 화면을 바로 연다.
+const stageCheerPath = (characterId) => `/stage/cheer?character=${characterId}&option=random`;
+
+function StageRoute() {
+  const navigate = useNavigate();
+  return (
+    <StagePage
+      onBack={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))}
+      onCheer={(characterId) => navigate(stageCheerPath(characterId))}
+      onOpenGuide={() => navigate('/stage/guide')}
     />
   );
 }
@@ -457,7 +477,7 @@ function StageGuideRoute() {
   return (
     <StageGuidePage
       onBack={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))}
-      onCheer={(characterId) => navigate(`/stage/cheer?character=${characterId}`)}
+      onCheer={(characterId) => navigate(stageCheerPath(characterId))}
     />
   );
 }
@@ -882,7 +902,8 @@ export default function App() {
         <Route path="/ads/:bannerId" element={<AdDetailRoute />} />
         <Route path="/ads/:bannerId/products" element={<AdProductsRoute />} />
         <Route path="/exhibitions/:bannerId" element={<ExhibitionRoute />} />
-        <Route path="/stage" element={<StageGuideRoute />} />
+        <Route path="/stage" element={<StageRoute />} />
+        <Route path="/stage/guide" element={<StageGuideRoute />} />
         <Route path="/stage/cheer" element={<StageCheerRoute />} />
         <Route path="/box" element={<BoxShopRoute />} />
         <Route path="/fan/guide" element={<FanGuideRoute />} />
