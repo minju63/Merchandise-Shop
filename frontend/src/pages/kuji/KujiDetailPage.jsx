@@ -7,7 +7,7 @@ import { useSession } from '../my/hooks.js';
 import { kujiApi } from './kuji.api.js';
 import KujiSwap from './KujiSwap.jsx';
 import { GradeBadge, KujiHeader, KujiPage, StateBox, Toast } from './KujiParts.jsx';
-import { SWAP_FEE, cx, pad, won } from './kujiUi.js';
+import { SWAP_FEE, cx, formatOpenAt, pad, won } from './kujiUi.js';
 import s from './kuji.module.css';
 
 const TABS = [
@@ -100,6 +100,7 @@ export default function KujiDetailPage() {
 
   const kuji = detail.data;
   const onSale = kuji.status === 'ON_SALE';
+  const upcoming = kuji.status === 'UPCOMING';
   const max = kuji.maxPerPurchase;
   const cells = board.data ?? [];
   const toggle = (number) =>
@@ -122,14 +123,20 @@ export default function KujiDetailPage() {
       <div className={s.body} id="kuji-detail">
         <div className={s.sum}>
           <div className={s.pills}>
-            <span className={cx(s.pill, onSale && s.live)}>{onSale ? '판매 중' : '판매 종료'}</span>
+            <span className={cx(s.pill, onSale && s.live)}>{onSale ? '판매 중' : upcoming ? '오픈 예정' : '판매 종료'}</span>
             <span className={s.pill}>1인 최대 {max}장</span>
           </div>
           <h3>{kuji.title}</h3>
           <div className={s.sub}>
-            <span>
-              남은 티켓 <b>{kuji.leftTickets}</b>장 / {kuji.totalTickets}장
-            </span>
+            {upcoming ? (
+              <span>
+                <b>{formatOpenAt(kuji.opensAt)}</b> 오픈 예정 · 총 {kuji.totalTickets}장
+              </span>
+            ) : (
+              <span>
+                남은 티켓 <b>{kuji.leftTickets}</b>장 / {kuji.totalTickets}장
+              </span>
+            )}
             <strong>1장 {won(kuji.ticketPrice)}</strong>
           </div>
         </div>
@@ -162,7 +169,7 @@ export default function KujiDetailPage() {
             <div className={s['left-chips']}>
               {kuji.prizes.map((prize) => (
                 <div key={prize.grade}>
-                  {prize.grade}상<b>{prize.leftCount}</b>
+                  {prize.grade}상<b>{upcoming ? prize.totalCount : prize.leftCount}</b>
                 </div>
               ))}
             </div>
@@ -184,7 +191,7 @@ export default function KujiDetailPage() {
                   <button
                     type="button"
                     key={cell.number}
-                    className={cx(s.no, cell.sold ? (cell.mine ? s.mine : s.sold) : sel.includes(cell.number) && s.sel)}
+                    className={cx(s.no, cell.sold && !upcoming ? (cell.mine ? s.mine : s.sold) : sel.includes(cell.number) && s.sel)}
                     disabled={cell.sold || !onSale}
                     aria-label={`${cell.number}번 티켓`}
                     onClick={() => toggle(cell.number)}
@@ -305,7 +312,7 @@ export default function KujiDetailPage() {
             <b>{won(sel.length * kuji.ticketPrice)}</b>
           </div>
           <button type="button" className={s.cta} disabled={!onSale || buy.isPending || (signedIn && sel.length === 0)} onClick={submit}>
-            {!onSale ? '판매가 끝났어요' : buy.isPending ? '결제 중…' : !signedIn ? '로그인하고 뽑기' : sel.length ? `${sel.length}장 뽑기` : '번호를 골라주세요'}
+            {!onSale ? (upcoming ? `${formatOpenAt(kuji.opensAt)} 오픈 예정` : '판매가 끝났어요') : buy.isPending ? '결제 중…' : !signedIn ? '로그인하고 뽑기' : sel.length ? `${sel.length}장 뽑기` : '번호를 골라주세요'}
           </button>
         </div>
       ) : null}
