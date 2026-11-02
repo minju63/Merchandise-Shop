@@ -222,7 +222,7 @@ export default function KujiDetailPage() {
             ) : null}
             {mine.data?.length ? (
               <div className={s.note}>
-                내가 뽑은 티켓 {mine.data.length}장 ·{' '}
+                내가 뽑은 티켓 {mine.data.filter((t) => !t.resoldAt).length}장 ·{' '}
                 <button type="button" style={{ color: 'var(--primary)', fontWeight: 800 }} onClick={() => navigate(`/kuji/${kujiId}/result`)}>
                   결과 보기
                 </button>

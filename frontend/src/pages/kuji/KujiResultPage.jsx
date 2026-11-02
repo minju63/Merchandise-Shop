@@ -1,5 +1,5 @@
 // 담당: 연수
-// 쿠지 결과: 등급 컬렉션 · 내 진열장(되팔기) · 금액 요약
+// 쿠지 결과: 등급 컬렉션 · 내 보관함(되팔기) · 금액 요약
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -15,6 +15,10 @@ export default function KujiResultPage() {
   const queryClient = useQueryClient();
   const signedIn = useRequireLogin('/login');
   const [sale, setSale] = useState(null);
+  const [selecting, setSelecting] = useState(false);
+  const [picked, setPicked] = useState([]);
+  const [soldNow, setSoldNow] = useState([]);
+  const [bulk, setBulk] = useState(false);
   const [error, setError] = useState('');
   const [toast, setToast] = useState('');
 
@@ -22,14 +26,46 @@ export default function KujiResultPage() {
   const mine = useQuery({ queryKey: ['kuji', kujiId, 'mine'], queryFn: () => kujiApi.myTickets(kujiId), enabled: signedIn, retry: false });
 
   const resale = useMutation({
-    mutationFn: (number) => kujiApi.resale(kujiId, number),
+    mutationFn: (number) => kujiApi.resale(kujiId, number).then((result) => ({ ...result, number })),
     onSuccess: (result) => {
+      setSoldNow((list) => [...list, result.number]);
       queryClient.invalidateQueries({ queryKey: ['kuji', kujiId] });
       setSale(null);
       setToast(`${won(result.amount)}이 적립금으로 들어왔어요.`);
       setTimeout(() => setToast(''), 2600);
     },
     onError: (e) => setError(e.message),
+  });
+
+  const bulkResale = useMutation({
+    mutationFn: async (numbers) => {
+      let amount = 0;
+      let done = 0;
+      let failed = '';
+      const doneNumbers = [];
+      for (const number of numbers) {
+        try {
+          const result = await kujiApi.resale(kujiId, number);
+          amount += result.amount;
+          done += 1;
+          doneNumbers.push(number);
+        } catch (e) {
+          failed = e.message;
+          break;
+        }
+      }
+      return { amount, done, failed, doneNumbers };
+    },
+    onSuccess: ({ amount, done, failed, doneNumbers }) => {
+      setSoldNow((list) => [...list, ...doneNumbers]);
+      queryClient.invalidateQueries({ queryKey: ['kuji', kujiId] });
+      setBulk(false);
+      setPicked([]);
+      setSelecting(false);
+      if (failed) setError(failed);
+      setToast(done ? `${done}개를 되팔아 ${won(amount)}이 적립금으로 들어왔어요.` : failed);
+      setTimeout(() => setToast(''), 3200);
+    },
   });
 
   const tickets = mine.data ?? [];
@@ -44,10 +80,16 @@ export default function KujiResultPage() {
   const got = Object.keys(counts).length;
   const sorted = [...opened].sort((a, b) => GRADES.indexOf(a.grade) - GRADES.indexOf(b.grade) || a.number - b.number);
   const topGrade = sorted[0]?.grade;
+  // 이전에 되판 상품은 보관함에서 숨기고, 지금 되판 상품만 "적립" 표시로 잠깐 남겨 둔다
+  const shelf = sorted.filter((t) => !t.resoldAt || soldNow.includes(t.number));
   const resoldTotal = opened.filter((t) => t.resoldAt).reduce((sum, t) => sum + t.buybackPrice, 0);
   const swaps = tickets.filter((t) => t.swapCount > 0).length;
   const hasVariants = (grade) => (prizes.find((p) => p.grade === grade)?.variants.length ?? 0) > 1;
   const expired = (t) => t.resaleUntil && new Date(t.resaleUntil) < new Date();
+  const sellable = (t) => !t.resoldAt && !t.listed && !expired(t);
+  const togglePick = (t) => setPicked((list) => (list.includes(t.number) ? list.filter((n) => n !== t.number) : [...list, t.number]));
+  const pickedTickets = sorted.filter((t) => picked.includes(t.number));
+  const pickedTotal = pickedTickets.reduce((sum, t) => sum + t.buybackPrice, 0);
 
   let body;
   if (mine.error || detail.error) body = <StateBox message={(mine.error ?? detail.error).message} onRetry={() => { mine.refetch(); detail.refetch(); }} />;
@@ -71,31 +113,43 @@ export default function KujiResultPage() {
           <p className={s.sub}>
             이번 쿠지의 등급 {got}개를 모았어요 · {opened.length}장 개봉
           </p>
-          <div className={s.slots}>
-            {GRADES.map((grade) =>
-              counts[grade] ? (
-                <div key={grade} style={gradeStyle(grade)}>
-                  {grade}
-                  {counts[grade] > 1 ? <span className={s.x}>×{counts[grade]}</span> : null}
-                  <small>{grade}상</small>
-                </div>
-              ) : (
-                <div key={grade} className={s.empty}>
-                  ?<small>{grade}상</small>
-                </div>
-              )
-            )}
+          <div className={s.gpills}>
+            {GRADES.map((grade) => (
+              <div key={grade} className={cx(s.gc, counts[grade] && s.on)}>
+                {grade}상<em>{counts[grade] ?? 0}</em>
+              </div>
+            ))}
           </div>
         </div>
 
         <div className={s.shelf}>
-          <h4>내 진열장</h4>
+          <div className={s.shelfhead}>
+            <h4>내 보관함</h4>
+            {shelf.some(sellable) ? (
+              <button
+                type="button"
+                className={s.pickmode}
+                onClick={() => {
+                  setSelecting((on) => !on);
+                  setPicked([]);
+                }}
+              >
+                {selecting ? '선택 취소' : '여러 개 선택'}
+              </button>
+            ) : null}
+          </div>
           <p className={s.hint2}>마음에 안 드는 상품은 수령 전에 되팔 수 있어요.</p>
+          {!shelf.length ? <p className={s.hint2}>보관함이 비었어요. 되판 상품은 적립금 내역에서 볼 수 있어요.</p> : null}
           <div className={s.items}>
-            {sorted.map((t) => (
-              <div key={t.ticketId} className={cx(s.item, t.resoldAt && s.resold)}>
+            {shelf.map((t) => (
+              <div
+                key={t.ticketId}
+                className={cx(s.item, t.resoldAt && s.resold, selecting && sellable(t) && s.pickable, picked.includes(t.number) && s.picked)}
+                onClick={selecting && sellable(t) ? () => togglePick(t) : undefined}
+              >
                 <div className={s.im} style={gradeStyle(t.grade)}>
-                  {t.grade}
+                  {t.imageUrl ? <img src={t.imageUrl} alt="" /> : t.grade}
+                  {selecting && sellable(t) ? <span className={s.chk}>{picked.includes(t.number) ? '✓' : ''}</span> : null}
                 </div>
                 <b>{t.name}</b>
                 <small>
@@ -106,7 +160,7 @@ export default function KujiResultPage() {
                   <span className={s.rsold}>+{won(t.buybackPrice)} 적립</span>
                 ) : t.listed ? (
                   <span className={s.rsold}>교환 대기 중</span>
-                ) : (
+                ) : selecting ? null : (
                   <button type="button" className={s.rs} onClick={() => { setError(''); setSale(t); }}>
                     되팔기<em>{won(t.buybackPrice)}</em>
                   </button>
@@ -114,6 +168,21 @@ export default function KujiResultPage() {
               </div>
             ))}
           </div>
+          {selecting ? (
+            <div className={s.bulkbar}>
+              <button
+                type="button"
+                className={s.pri}
+                disabled={!picked.length}
+                onClick={() => {
+                  setError('');
+                  setBulk(true);
+                }}
+              >
+                {picked.length ? `${picked.length}개 되팔기 · ${won(pickedTotal)}` : '되팔 상품을 골라 주세요'}
+              </button>
+            </div>
+          ) : null}
         </div>
 
         {closed ? (
@@ -195,6 +264,41 @@ export default function KujiResultPage() {
             </button>
             <button type="button" className={s.pri} disabled={resale.isPending || expired(sale)} onClick={() => resale.mutate(sale.number)}>
               적립금으로 받기
+            </button>
+          </div>
+        </Sheet>
+      ) : null}
+      {bulk ? (
+        <Sheet label="여러 개 되팔기" onClose={() => setBulk(false)}>
+          <h3>선택한 {pickedTickets.length}개를 되팔까요?</h3>
+          <ul className={s.bulklist}>
+            {pickedTickets.map((t) => (
+              <li key={t.ticketId}>
+                <span>
+                  No.{pad(t.number)} · {t.grade}상{hasVariants(t.grade) ? ` · ${t.variantLabel}` : ''}
+                </span>
+                <b>{won(t.buybackPrice)}</b>
+              </li>
+            ))}
+          </ul>
+          <div className={s.price}>
+            <span>적립금으로 받기</span>
+            <div>
+              <b>{won(pickedTotal)}</b>
+              <small>합계</small>
+            </div>
+          </div>
+          <ul>
+            <li>적립금은 굿즈픽에서만 쓸 수 있고 현금으로 바꿀 수 없어요.</li>
+            <li>한 번 되팔면 취소할 수 없어요.</li>
+          </ul>
+          {error ? <p className={s.err}>{error}</p> : null}
+          <div className={s.btns}>
+            <button type="button" className={s.sec} onClick={() => setBulk(false)}>
+              취소
+            </button>
+            <button type="button" className={s.pri} disabled={bulkResale.isPending} onClick={() => bulkResale.mutate(pickedTickets.map((t) => t.number))}>
+              {bulkResale.isPending ? '되파는 중…' : '적립금으로 받기'}
             </button>
           </div>
         </Sheet>

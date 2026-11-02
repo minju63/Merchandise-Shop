@@ -205,11 +205,11 @@ export default function TicketDeck({ ticket, torn, onTorn }) {
         <div className={s.snum}>{serial}</div>
       </div>
       {torn ? (
-        <div className={cx(s.piece, big && s.big)}>
+        <div key="piece" className={cx(s.piece, big && s.big)}>
           <StubArt ticket={ticket} serial={serial} left={0} />
         </div>
       ) : (
-        <div className={s.flap} ref={flapRef}>
+        <div key="flap" className={s.flap} ref={flapRef}>
           <Strip u={N - 1} serial={serial} ticket={ticket} />
         </div>
       )}

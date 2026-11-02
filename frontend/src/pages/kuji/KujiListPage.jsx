@@ -1,5 +1,6 @@
 // 담당: 연수
 // 쿠지 목록: 추천 1장 + 진행 중 · 오픈 예정 가로형 목록
+import { useEffect, useRef, useState } from 'react';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useSession } from '../my/hooks.js';
@@ -20,6 +21,54 @@ export default function KujiListPage() {
   const featured = onSale[0];
   const banners = onSale.filter((event) => event.bannerUrl);
   const open = (event) => navigate(`/kuji/${event.id}`);
+
+  // 홈 화면 배너와 같은 방식: 한 장씩 보여주고 5초마다 넘기며, 좌우로 끌면 넘어간다.
+  const [bannerIndex, setBannerIndex] = useState(0);
+  const [slideVersion, setSlideVersion] = useState(0);
+  const bannerDrag = useRef({ active: false, moved: false, startX: 0 });
+  const bannerCount = banners.length;
+  const shownBanner = bannerCount ? banners[bannerIndex % bannerCount] : null;
+  useEffect(() => {
+    if (bannerCount <= 1) return undefined;
+    const timer = window.setInterval(() => setBannerIndex((current) => (current + 1) % bannerCount), 5000);
+    return () => window.clearInterval(timer);
+  }, [bannerCount, slideVersion]);
+  const showBanner = (index) => {
+    if (!bannerCount) return;
+    setBannerIndex((index + bannerCount) % bannerCount);
+    setSlideVersion((version) => version + 1);
+  };
+  const resetDrag = (event) => {
+    bannerDrag.current.active = false;
+    event.currentTarget.style.transform = '';
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+  };
+  const dragProps = {
+    onPointerDown: (event) => {
+      if (event.pointerType === 'mouse' && event.button !== 0) return;
+      bannerDrag.current = { active: true, moved: false, startX: event.clientX };
+      event.currentTarget.setPointerCapture(event.pointerId);
+    },
+    onPointerMove: (event) => {
+      if (!bannerDrag.current.active) return;
+      const distance = event.clientX - bannerDrag.current.startX;
+      if (Math.abs(distance) > 3) bannerDrag.current.moved = true;
+      event.currentTarget.style.transform = `translateX(${distance * 0.35}px)`;
+    },
+    onPointerUp: (event) => {
+      if (!bannerDrag.current.active) return;
+      const distance = event.clientX - bannerDrag.current.startX;
+      resetDrag(event);
+      if (Math.abs(distance) >= 40) showBanner(bannerIndex + (distance < 0 ? 1 : -1));
+    },
+    onPointerCancel: resetDrag,
+    onClickCapture: (event) => {
+      if (!bannerDrag.current.moved) return;
+      event.preventDefault();
+      event.stopPropagation();
+      bannerDrag.current.moved = false;
+    },
+  };
 
   const { status } = useSession();
   const signedIn = status === 'in';
@@ -49,7 +98,7 @@ export default function KujiListPage() {
       const sellable = tickets.filter(
         (t) => t.openedAt && !t.resoldAt && !t.listed && new Date(t.resaleUntil).getTime() > Date.now()
       ).length;
-      return { event, count: tickets.length, sellable };
+      return { event, count: tickets.filter((t) => !t.resoldAt).length, sellable };
     })
     .filter((row) => row.count > 0);
 
@@ -67,14 +116,23 @@ export default function KujiListPage() {
               <span>실시간</span>
             </div>
             <div className={s.banners}>
-              {banners.map((event, index) => (
-                <button type="button" key={event.id} className={s.banner} onClick={() => open(event)}>
-                  <img src={event.bannerUrl} alt={event.title} />
-                  <span className={s.bcount}>
-                    {index + 1}/{banners.length}
-                  </span>
-                </button>
-              ))}
+              <button type="button" key={shownBanner.id} className={s.banner} onClick={() => open(shownBanner)} {...dragProps}>
+                <img src={shownBanner.bannerUrl} alt={shownBanner.title} draggable={false} />
+                <span className={s.bcount}>
+                  {bannerIndex % bannerCount + 1} / {bannerCount}
+                </span>
+              </button>
+              <div className={s.bdots} aria-label="배너 선택">
+                {banners.map((event, index) => (
+                  <button
+                    type="button"
+                    key={event.id}
+                    className={index === bannerIndex % bannerCount ? s.active : ''}
+                    aria-label={`${index + 1}번째 배너 보기`}
+                    onClick={() => showBanner(index)}
+                  />
+                ))}
+              </div>
             </div>
           </>
         ) : featured ? (
@@ -226,7 +284,7 @@ export default function KujiListPage() {
 
   return (
     <KujiPage>
-      <KujiHeader title="쿠지" onBack={() => navigate(-1)} />
+      <KujiHeader title="쿠지" onBack={() => navigate('/')} />
       <div className={s.body}>{body}</div>
       <BottomNavigation />
     </KujiPage>
