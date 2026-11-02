@@ -328,7 +328,7 @@
 }
 
 .cart-store-summary dd.cart-store-summary__discount {
-  color: #e4525e;
+  color: #5b45d6;
   font-weight: 800;
 }
 
@@ -365,7 +365,7 @@
 }
 
 .cart-order-summary__discount {
-  color: #e4525e;
+  color: #5b45d6;
   font-size: 14px;
 }
 

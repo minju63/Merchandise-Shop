@@ -52,7 +52,10 @@ export default function PromoBanner({ banner, position, dragProps, onOpen, onOpe
         <StageBanner />
       ) : isFanBoardType(type) ? (
         // 배너 디자인(당첨자가 꾸민 것)은 그대로 둔다.
-        <FanBoard design={fanBoardDesign(banner)} />
+        <FanBoard
+          design={fanBoardDesign(banner)}
+          footnote={dayLink ? `${dayChipLabel(banner.fanDay.date, banner.fanDay.count, banner.fanDay.birthdayOnly)} ›` : null}
+        />
       ) : (
         <div className="promo-banner__body">
           {type === 'AD' ? (
@@ -82,11 +85,6 @@ export default function PromoBanner({ banner, position, dragProps, onOpen, onOpe
       )}
       {art ? <BannerArt type={type} /> : null}
       {kuji ? <span className="kuji-art" style={{ backgroundImage: `url(${kuji.art})` }} aria-hidden="true" /> : null}
-      {dayLink ? (
-        <span className="promo-banner__day">
-          {dayChipLabel(banner.fanDay.date, banner.fanDay.count, banner.fanDay.birthdayOnly)} <b aria-hidden="true">›</b>
-        </span>
-      ) : null}
       <span className="promo-banner__count">{position}</span>
     </article>
   );

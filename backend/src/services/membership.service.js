@@ -1,4 +1,5 @@
 import * as repository from "../repositories/membership.repository.js";
+import { fanPaymentOptionLabel } from './fan.service.js';
 import * as payments from "../repositories/payment.repository.js";
 import { resolvePaymentMethodSelection } from "./paymentMethod.service.js";
 import { paymentMethodLabel } from "./checkout.service.js";
@@ -106,7 +107,7 @@ export async function getMyMembership(userId, input = {}) {
   };
 }
 export function validateMembershipInput(input) {
-  object(input, ["planCode", "paymentMethodId", "autoRenew", "paymentAgreed"]);
+  object(input, ["planCode", "paymentOption", "paymentMethodId", "autoRenew", "paymentAgreed"]);
   if (input.paymentAgreed !== true)
     throw failure(
       400,
@@ -115,9 +116,14 @@ export function validateMembershipInput(input) {
     );
   if (input.autoRenew !== undefined && typeof input.autoRenew !== "boolean")
     throw failure(400, "INVALID_AUTO_RENEW", "자동 갱신 설정을 확인해 주세요.");
+  // 결제수단 종류를 고른 경우(굿즈픽페이·카드·가상계좌·휴대폰 등)와, 저장한 결제수단만 보내는 예전 방식 둘 다 받는다.
+  const paymentOption = input.paymentOption === undefined ? null : text(input.paymentOption, 30);
+  if (paymentOption) fanPaymentOptionLabel(paymentOption);
+  const needsMethod = !paymentOption || ["GOODSPICK_PAY", "REGISTERED_ACCOUNT"].includes(paymentOption);
   return {
     planCode: text(input.planCode, 30),
-    paymentMethodId: uuid(input.paymentMethodId),
+    paymentOption,
+    paymentMethodId: needsMethod ? uuid(input.paymentMethodId) : null,
     autoRenew: input.autoRenew ?? true,
   };
 }
@@ -151,16 +157,31 @@ export async function subscribeMembership(userId, input) {
       "MEMBERSHIP_ALREADY_ACTIVE",
       "현재 사용 중인 소비자 구독이 있어요.",
     );
-  const method = await resolvePaymentMethodSelection(
-    userId,
-    fields.paymentMethodId,
-  );
+  let method = null;
+  let methodLabel;
+  if (fields.paymentMethodId) {
+    method = await resolvePaymentMethodSelection(userId, fields.paymentMethodId);
+    if (fields.paymentOption) {
+      if (method.method_type !== "BANK_ACCOUNT")
+        throw failure(400, "INVALID_PAYMENT_OPTION", "등록된 은행 계좌를 선택해 주세요.");
+      if (fields.paymentOption === "GOODSPICK_PAY" && method.is_default !== true)
+        throw failure(400, "INVALID_PAYMENT_OPTION", "굿즈픽페이 기본 계좌를 확인해 주세요.");
+      methodLabel =
+        fields.paymentOption === "GOODSPICK_PAY"
+          ? `굿즈픽페이 · ${paymentMethodLabel(method)}`
+          : `등록 계좌 · ${paymentMethodLabel(method)}`;
+    } else {
+      methodLabel = paymentMethodLabel(method);
+    }
+  } else {
+    methodLabel = fanPaymentOptionLabel(fields.paymentOption);
+  }
   const period = calculateMembershipPeriod(now);
   const payment = await payments.createMockPayment(userId, {
     purpose: "MEMBERSHIP",
     order_id: null,
-    payment_method_id: method.id,
-    method_label: paymentMethodLabel(method),
+    payment_method_id: method?.id ?? null,
+    method_label: methodLabel,
     amount: plan.monthly_price,
   });
   let membership;

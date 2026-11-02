@@ -215,7 +215,13 @@ function OrderCard({
         {isDelivery ? (
           <div>
             <dt>배달비</dt>
-            <dd>{order.deliveryFee === null ? '-' : formatWon(order.deliveryFee)}</dd>
+            <dd>{order.grossDeliveryFee == null ? '-' : formatWon(order.grossDeliveryFee)}</dd>
+          </div>
+        ) : null}
+        {order.membershipDeliveryDiscountAmount ? (
+          <div>
+            <dt>멤버십 배달비 할인</dt>
+            <dd className="is-discount">-{formatWon(order.membershipDeliveryDiscountAmount)}</dd>
           </div>
         ) : null}
         <div className="co-sum__total">
@@ -714,8 +720,14 @@ export default function CheckoutPage() {
       ) : null}
       <div>
         <dt>배달비</dt>
-        <dd>{totals.deliveryFee === null ? '-' : formatWon(totals.deliveryFee)}</dd>
+        <dd>{totals.grossDeliveryFee == null ? '-' : formatWon(totals.grossDeliveryFee)}</dd>
       </div>
+      {totals.membershipDeliveryDiscountAmount ? (
+        <div>
+          <dt>멤버십 배달비 할인</dt>
+          <dd className="is-discount">-{formatWon(totals.membershipDeliveryDiscountAmount)}</dd>
+        </div>
+      ) : null}
       {totals.pointsUsedAmount ? (
         <div>
           <dt>적립금 사용</dt>

@@ -81,6 +81,19 @@
   opacity: 0.85;
 }
 
+/* 홈 배너: 그날 기념일인 최애 수 (문구 아래, 누르면 모아보기로 간다는 표시) */
+.fan-board__day {
+  display: inline-block;
+  margin-top: 2cqw !important;
+  padding: 0.5cqw 1.8cqw;
+  border-radius: 99px;
+  background: rgb(20 16 29 / 45%);
+  font-size: 2.2cqw;
+  font-weight: 700;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
 /* PPT처럼 선택한 줄·사진에 보이는 네모 점 */
 .fan-handle {
   position: absolute;

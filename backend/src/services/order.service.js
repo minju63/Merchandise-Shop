@@ -1,4 +1,5 @@
 import { threeMonthsAgo, restoreOrderPoints, syncPointEarnings, grantPurchasePoints } from "./user.service.js";
+import { applyDeliveryDiscount, getMembershipDeliveryDiscount } from "./membershipDelivery.service.js";
 import { listMyPaymentMethods } from "./paymentMethod.service.js";
 import * as repository from "../repositories/order.repository.js";
 import * as payments from "../repositories/payment.repository.js";
@@ -356,7 +357,11 @@ export async function changeOrderAddress(userId, orderId, input) {
   const result = (
     await validateFulfillmentOptions(userId, groups, normalized, new Date())
   )[0];
-  if (result.issues.length || result.deliveryFee !== row.delivery_fee)
+  const memberFee =
+    result.deliveryFee === null
+      ? null
+      : result.deliveryFee - applyDeliveryDiscount(result.deliveryFee, await getMembershipDeliveryDiscount(userId));
+  if (result.issues.length || (result.deliveryFee !== row.delivery_fee && memberFee !== row.delivery_fee))
     throw failure(
       409,
       "DELIVERY_REQUOTE_REQUIRED",

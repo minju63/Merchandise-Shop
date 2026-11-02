@@ -9,7 +9,7 @@ import {
   listPlans,
   subscribeMembership,
 } from './account.api.js';
-import { formatFullDate, paymentMethodName, planBenefitText } from './accountFormat.js';
+import { formatFullDate, planBenefitText } from './accountFormat.js';
 import { ErrorNotice, Loading, PageHeader } from './common.jsx';
 import { CheckIcon } from './icons.jsx';
 import { useRequest, useRequireLogin } from './hooks.js';
@@ -19,6 +19,9 @@ import './orders.css';
 import './account.css';
 import './mytab.css';
 import { useDialog } from '../../components/useDialog.jsx';
+import { PaymentMethodSheet } from '../fan/PaymentMethodPicker.jsx';
+import { selectedPaymentName } from '../fan/paymentMethodPickerFormat.js';
+import '../fan/FanCheer.css';
 
 const HERO_POINTS = ['배달비 1,000원 할인', '매달 멤버십 쿠폰팩 (최대 3장)', '재입고 알림 우선 발송'];
 
@@ -138,16 +141,17 @@ function Subscribe({ plans, onSubscribed }) {
   const methods = useRequest(true, 'membership-methods', listPaymentMethods);
   const [choice, setChoice] = useState(null);
   const [step, setStep] = useState('plan');
+  const [paymentOption, setPaymentOption] = useState(null);
   const [methodId, setMethodId] = useState(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
   const selectedCode = choice ?? plans[plans.length - 1]?.code;
   const plan = plans.find((item) => item.code === selectedCode);
-  const methodItems = methods.data?.items ?? [];
-  const activeMethodId =
-    methodId ?? methodItems.find((item) => item.is_default)?.id ?? methodItems[0]?.id ?? null;
+  // 굿즈픽페이·등록 계좌는 은행 계좌만 고를 수 있다 (응원권 결제와 같은 규칙)
+  const bankAccounts = (methods.data?.items ?? []).filter((item) => item.method_type === 'BANK_ACCOUNT');
 
   const subscribe = async () => {
     setBusy(true);
@@ -155,7 +159,8 @@ function Subscribe({ plans, onSubscribed }) {
     try {
       await subscribeMembership({
         planCode: plan.code,
-        paymentMethodId: activeMethodId,
+        paymentOption,
+        paymentMethodId: methodId,
         autoRenew: true,
         paymentAgreed: true,
       });
@@ -169,51 +174,32 @@ function Subscribe({ plans, onSubscribed }) {
   if (step === 'pay') {
     return (
       <>
-        <h2 className="mbr-section">결제수단 선택</h2>
+        <h2 className="mbr-section">결제 정보</h2>
+        <p className="fan-refund-sheet__to">
+          <b>{plan.name}</b> · 월 {formatWon(plan.monthly_price)}
+        </p>
+        <h2 className="mbr-section">결제수단</h2>
         {methods.error ? <ErrorNotice error={methods.error} onRetry={methods.reload} /> : null}
-        {methods.loading ? <Loading /> : null}
-        {methods.data && methodItems.length === 0 ? (
-          <p className="ord-empty">
-            등록된 결제수단이 없어요
-            <br />
-            <button
-              type="button"
-              className="adr-card__link"
-              onClick={() => navigate(MY_ROUTES.paymentMethods)}
-            >
-              결제수단 추가하러 가기
-            </button>
-          </p>
-        ) : null}
-        <div className="ord-list">
-          {methodItems.map((method) => (
-            <label
-              key={method.id}
-              className={activeMethodId === method.id ? 'mbr-plan is-on' : 'mbr-plan'}
-            >
-              <input
-                type="radio"
-                name="method"
-                checked={activeMethodId === method.id}
-                onChange={() => setMethodId(method.id)}
-              />
-              <span className="ord-reason__dot" />
-              <span className="mbr-plan__text">
-                <strong>{paymentMethodName(method)}</strong>
-              </span>
-            </label>
-          ))}
+        <div className={paymentOption ? 'fan-payment-summary is-selected' : 'fan-payment-summary'}>
+          <span className="fan-payment-summary__icon" aria-hidden="true">₩</span>
+          <div>
+            <strong>{selectedPaymentName(paymentOption, methodId, bankAccounts)}</strong>
+            <small>{paymentOption ? `월 ${formatWon(plan.monthly_price)} 결제 예정` : '결제 전에 수단을 선택해 주세요'}</small>
+          </div>
+          <button type="button" onClick={() => setSheetOpen(true)}>
+            {paymentOption ? '변경' : '선택'}
+          </button>
         </div>
-        <label className="frm__check mbr-agree">
+        <label className="fan-agree">
           <input
             type="checkbox"
             checked={agreed}
             onChange={(event) => setAgreed(event.target.checked)}
           />
-          시연용 구독 결제에 동의해요 (실제 결제는 이뤄지지 않아요)
+          선택한 결제수단으로 월 {formatWon(plan.monthly_price)}을 결제하는 데 동의해요
         </label>
         <p className="mbr-note">
-          매달 자동으로 갱신돼요. 멤버십 관리에서 언제든 자동 갱신을 끌 수 있어요.
+          지금은 시연용 모의 결제라 실제 결제는 일어나지 않아요. 매달 자동으로 갱신되고, 멤버십 관리에서 언제든 자동 갱신을 끌 수 있어요.
         </p>
         {error ? <p className="ord-sheet__error">{error}</p> : null}
         <footer className="ord-footer">
@@ -223,12 +209,26 @@ function Subscribe({ plans, onSubscribed }) {
           <button
             type="button"
             className="ord-btn ord-btn--primary ord-btn--grow"
-            disabled={!agreed || !activeMethodId || busy}
+            disabled={!agreed || !paymentOption || busy}
             onClick={subscribe}
           >
             월 {formatWon(plan.monthly_price)} 구독하기
           </button>
         </footer>
+        {sheetOpen ? (
+          <PaymentMethodSheet
+            currentOption={paymentOption}
+            currentMethodId={methodId}
+            methods={methods.data ? bankAccounts : undefined}
+            onAdd={() => navigate(MY_ROUTES.paymentMethods)}
+            onClose={() => setSheetOpen(false)}
+            onConfirm={(option, id = null) => {
+              setPaymentOption(option);
+              setMethodId(id);
+              setAgreed(false);
+            }}
+          />
+        ) : null}
       </>
     );
   }
