@@ -3,6 +3,7 @@ import { businessStatus } from './storeBusinessHours.service.js';
 import { supabase } from '../lib/supabase.js';
 import { matchesRegionName } from '../utils/regionNames.js';
 import { DISTRICTS } from '../../../shared/districts.js';
+import { geocodeKeyword } from './geocode.service.js';
 
 const normalize = (value) => String(value ?? '').toLocaleLowerCase().replace(/\s+/g, '');
 const matches = (values, keyword) => normalize(values.join(' ')).includes(normalize(keyword));
@@ -79,6 +80,28 @@ export function buildMapResult(data, options = {}) {
       ? { ...products.get(productId), thumbnailUrl: image(products.get(productId).thumbnail_url) } : null };
 }
 
+const AREA_RADIUS_KM = 3;
+
 export async function getMapStores(options) {
-  return buildMapResult(await storeMapRepository.load(options.productId), options);
+  const data = await storeMapRepository.load(options.productId);
+  const result = buildMapResult(data, options);
+  // 이름·주소·상품으로 못 찾은 검색어는 장소 이름으로 보고, 그 좌표 주변 매장을 보여준다.
+  if (!options.keyword || options.productId || result.items.length) return result;
+  const place = await geocodeKeyword(options.keyword);
+  if (!place) return result;
+  const nearby = buildMapResult(data, { ...options, keyword: '', origin: place, radius: AREA_RADIUS_KM, sort: 'distance' });
+  // 키워드 없이 다시 만든 결과라 상품 후보가 전부 딸려 오므로 비운다.
+  return { ...nearby, products: [], area: { ...place, radius: AREA_RADIUS_KM } };
+}
+
+// 통합 검색용: 장소 이름의 좌표 주변(AREA_RADIUS_KM) 매장 id 목록
+export async function getAreaStoreIds(keyword) {
+  const place = await geocodeKeyword(keyword);
+  if (!place) return null;
+  const data = await storeMapRepository.load();
+  const storeIds = data.stores
+    .filter((s) => s.status === 'ACTIVE' && s.latitude != null && s.longitude != null
+      && distanceKm(place, { latitude: s.latitude, longitude: s.longitude }) <= AREA_RADIUS_KM)
+    .map((s) => s.id);
+  return { name: place.name, radius: AREA_RADIUS_KM, storeIds };
 }

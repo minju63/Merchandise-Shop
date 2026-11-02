@@ -310,7 +310,7 @@ export default function HomePage({
         </div>
         <button className="search-field" type="button" onClick={onSearch} disabled={!onSearch}>
           <Icon name="search" size={17} />
-          <span>굿즈명, 작품명, 캐릭터, 굿즈샵 검색</span>
+          <span>굿즈명, 작품명, 캐릭터, 굿즈샵, 지역 검색</span>
         </button>
       </header>
 

@@ -2,6 +2,8 @@ import client from './client.js';
 
 export const searchApi = {
   products: (params) => client.get('/search/products', { params }),
+  // 장소 이름(홍대·광안리 등)의 좌표 주변 매장 id
+  area: (q) => client.get('/search/area', { params: { q } }).then((response) => response.data),
   // 최근 24시간 검색 기록으로 집계한 인기 검색어
   popular: () => client.get('/search/popular').then((response) => response.data),
   categories: (type) => client.get('/categories', { params: { type } }).then((response) => response.data),

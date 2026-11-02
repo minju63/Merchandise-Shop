@@ -49,7 +49,7 @@ export default function ProductInquirySection({
   const load = useCallback(
     (signal) =>
       api.getProductInquiries(storeProductId, { page, size, signal }, client),
-    [api, storeProductId, page, client, user?.id]
+    [api, storeProductId, page, client]
   );
   const request = useCategoryRequest(load, user?.id);
   async function submit(input) {
