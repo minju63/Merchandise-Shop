@@ -1,4 +1,4 @@
-import { threeMonthsAgo, restoreOrderPoints, syncPointEarnings, grantPurchasePoints } from "./user.service.js";
+import { threeMonthsAgo, syncPointEarnings, grantPurchasePoints } from "./user.service.js";
 import { applyDeliveryDiscount, getMembershipDeliveryDiscount } from "./membershipDelivery.service.js";
 import { listMyPaymentMethods } from "./paymentMethod.service.js";
 import * as repository from "../repositories/order.repository.js";
