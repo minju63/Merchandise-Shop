@@ -12,9 +12,14 @@
   background: rgb(33 29 43 / 88%);
   color: #fff;
   font-size: 13px;
-  white-space: nowrap;
+  max-width: calc(100vw - 32px);
+  box-sizing: border-box;
+  white-space: normal;
 }
+.cart-added-toast > span { min-width: 0; overflow-wrap: anywhere; }
 .cart-added-toast-action {
+  flex: none;
+  white-space: nowrap;
   padding: 0;
   border: 0;
   background: none;

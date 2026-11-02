@@ -1,6 +1,18 @@
 import * as service from '../services/coupon.service.js';
 import { ok } from '../utils/response.js';
 
+export async function listStoreCoupons(req, res, next) {
+  try {
+    res.json(ok(await service.listStoreCoupons(res.locals.authUser.id, req.params.storeId)));
+  } catch (error) { next(error); }
+}
+
+export async function issueStoreCoupons(req, res, next) {
+  try {
+    res.json(ok(await service.issueStoreCoupons(res.locals.authUser.id, req.params.storeId, req.body)));
+  } catch (error) { next(error); }
+}
+
 export async function listCheckoutCoupons(req, res, next) {
   try {
     const data = await service.listCheckoutCoupons(res.locals.authUser.id, req.query);

@@ -15,10 +15,14 @@ export async function submitCheckout(req, res, next) {
   try {
     res
       .status(201)
-      .json(ok(await service.submitCheckout(res.locals.authUser.id, req.body)));
+      .json(ok(await service.submitCheckout(res.locals.authUser.id, req.body, req.get('Idempotency-Key'))));
   } catch (error) {
     next(error);
   }
+}
+export async function findCheckoutRequest(req, res, next) {
+  try { res.json(ok(await service.findCheckoutRequest(res.locals.authUser.id, req.params.requestId))); }
+  catch (error) { next(error); }
 }
 export async function getCheckoutResult(req, res, next) {
   try {

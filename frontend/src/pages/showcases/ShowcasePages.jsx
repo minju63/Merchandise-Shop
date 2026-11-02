@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import BottomNavigation from '../../components/BottomNavigation.jsx';
@@ -31,6 +31,7 @@ export function ShowcaseCard({ showcase }) {
 }
 export function ShowcaseGallery({ type = 'PERSONAL', storeId, compact = false }) {
   const navigate = useNavigate();
+  const dragState = useRef({ active: false, moved: false, startX: 0, scrollLeft: 0 });
   const [sort, setSort] = useState('popular');
   const [page, setPage] = useState(1);
   const [categoryId, setCategoryId] = useState('');
@@ -39,6 +40,32 @@ export function ShowcaseGallery({ type = 'PERSONAL', storeId, compact = false })
   const query = useQuery({ queryKey: ['showcases', type, storeId, sort, page, categoryId, compact],
     queryFn: () => showcaseApi.list({ type, storeId, sort, page, categoryId: categoryId || undefined, size: pageSize }), retry: false, staleTime: 60_000, refetchInterval: 60000 });
   const totalPages = Math.ceil((query.data?.totalCount ?? 0) / pageSize);
+  const startRailDrag = (event) => {
+    if (!compact || event.pointerType !== 'mouse' || event.button !== 0) return;
+    dragState.current = { active: true, moved: false, startX: event.clientX, scrollLeft: event.currentTarget.scrollLeft };
+  };
+  const moveRailDrag = (event) => {
+    if (!dragState.current.active) return;
+    const distance = event.clientX - dragState.current.startX;
+    if (!dragState.current.moved && Math.abs(distance) > 3) {
+      dragState.current.moved = true;
+      event.currentTarget.classList.add('is-dragging');
+      event.currentTarget.setPointerCapture(event.pointerId);
+    }
+    if (dragState.current.moved) event.currentTarget.scrollLeft = dragState.current.scrollLeft - distance;
+  };
+  const stopRailDrag = (event) => {
+    if (!dragState.current.active) return;
+    dragState.current.active = false;
+    event.currentTarget.classList.remove('is-dragging');
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+  };
+  const preventClickAfterDrag = (event) => {
+    if (!dragState.current.moved) return;
+    event.preventDefault();
+    event.stopPropagation();
+    dragState.current.moved = false;
+  };
   return <section className={`showcase-gallery ${compact ? 'is-compact' : ''}`}>
     <div className="showcase-gallery__heading"><div><h2>{type === 'PERSONAL' ? '덕질 진열장' : '진열장 구경'}</h2>
       <p>{type === 'PERSONAL' ? '다른 팬들이 꾸민 진열장을 구경해 보세요' : '굿즈샵에서 꾸민 쇼핑 진열장을 둘러보세요'}</p></div>
@@ -47,7 +74,7 @@ export function ShowcaseGallery({ type = 'PERSONAL', storeId, compact = false })
     </div>
     {type === 'SHOP' && !compact && <div className="showcase-filter-chips"><button className={!categoryId ? 'active' : ''} onClick={() => { setCategoryId(''); setPage(1); }}>전체</button>{categories.data?.map((category) => <button key={category.id} className={categoryId === category.id ? 'active' : ''} onClick={() => { setCategoryId(category.id); setPage(1); }}>{category.name}</button>)}</div>}
     <State query={query} empty="아직 공개된 진열장이 없어요." />
-    {query.data?.items?.length > 0 && <div className="showcase-gallery__grid">{query.data.items.map((item) => <ShowcaseCard key={item.id} showcase={item} />)}</div>}
+    {query.data?.items?.length > 0 && <div className="showcase-gallery__grid" onPointerDown={startRailDrag} onPointerMove={moveRailDrag} onPointerUp={stopRailDrag} onPointerCancel={stopRailDrag} onClickCapture={preventClickAfterDrag}>{query.data.items.map((item) => <ShowcaseCard key={item.id} showcase={item} />)}</div>}
     {!compact && totalPages > 0 && <nav className="showcase-pages" aria-label="진열장 페이지"><button type="button" disabled={page === 1} onClick={() => setPage(page - 1)}>이전</button><span aria-current="page">{page} / {totalPages}</span><button type="button" disabled={page >= totalPages} onClick={() => setPage(page + 1)}>다음</button></nav>}
   </section>;
 }

@@ -27,6 +27,11 @@ export function useSession() {
 export function useMySummary(userId) {
   const [result, setResult] = useState(null);
   const [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    const refresh = () => setAttempt((value) => value + 1);
+    window.addEventListener('coupons-changed', refresh);
+    return () => window.removeEventListener('coupons-changed', refresh);
+  }, []);
   const key = userId ? `${userId}:${attempt}` : null;
 
   useEffect(() => {
@@ -54,6 +59,16 @@ export function useMySummary(userId) {
 export function useRequest(enabled, cacheKey, fetcher) {
   const [result, setResult] = useState(null);
   const [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    if (!cacheKey.includes('coupon')) return undefined;
+    const refresh = () => setAttempt((value) => value + 1);
+    window.addEventListener('coupons-changed', refresh);
+    window.addEventListener('focus', refresh);
+    return () => {
+      window.removeEventListener('coupons-changed', refresh);
+      window.removeEventListener('focus', refresh);
+    };
+  }, [cacheKey]);
   const key = enabled ? `${cacheKey}:${attempt}` : null;
   const latest = useRef(fetcher);
   useEffect(() => {

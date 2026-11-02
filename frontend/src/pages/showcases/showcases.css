@@ -18,8 +18,10 @@
 .showcase-gallery__sort .sort-menu button { padding: 12px; border: 0; border-radius: 0; background: transparent; font-size: 13px; }
 .showcase-gallery__sort .sort-menu button[aria-selected='true'], .showcase-gallery__sort .sort-menu button:hover { color: #6846d8; background: #f5f1ff; font-weight: 800; }
 .showcase-gallery__grid { position: relative; z-index: 0; display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
-.showcase-gallery.is-compact .showcase-gallery__grid { display: flex; overflow-x: auto; scrollbar-width: none; }
-.showcase-gallery.is-compact .showcase-card { flex: 0 0 150px; }
+.showcase-gallery.is-compact .showcase-gallery__grid { display: flex; overflow-x: auto; scrollbar-width: none; cursor: grab; touch-action: pan-x pan-y; user-select: none; }
+.showcase-gallery.is-compact .showcase-gallery__grid.is-dragging { cursor: grabbing; scroll-snap-type: none; }
+.showcase-gallery.is-compact .showcase-card { flex: 0 0 150px; cursor: grab; }
+.showcase-gallery.is-compact .showcase-gallery__grid.is-dragging .showcase-card { cursor: grabbing; }
 .detail-main > .showcase-gallery.is-compact { margin-top: 25px; border-top: 4px solid #f5f6f8; padding: 20px 0 19px; }
 .detail-main > .showcase-gallery.is-compact .showcase-gallery__heading { align-items: center; gap: 12px; margin: 0; padding: 0 18px 13px; }
 .detail-main > .showcase-gallery.is-compact .showcase-gallery__heading h2 { margin: 0; color: var(--text); font-size: 17px; line-height: 1.25; letter-spacing: -0.65px; }

@@ -204,7 +204,9 @@ export async function listCheckoutCoupons(userId, input) {
   const quote = validateCheckoutQuery(input);
   await requireActiveProfile(userId);
   const hasPreviousOrder = await repository.hasPreviousOrder(userId);
-  const rows = await repository.listOwnedWithPolicy(userId);
+  const rows = (await repository.listOwnedWithPolicy(userId)).filter(
+    (row) => row.coupon.store_id === null || row.coupon.store_id === quote.storeId,
+  );
   const now = new Date();
   const items = rows.map((row) => ({
     ...describeOwned(row, now),
@@ -241,6 +243,23 @@ export async function registerCouponCode(userId, input) {
     throw failure(409, 'COUPON_EXPIRED', '쿠폰 발급 기간이 끝났어요.');
   const result = await repository.registerCode(userId, coupon, now.toISOString());
   return { ...result, userCoupon: describeOwned(result.userCoupon, now) };
+}
+
+export async function listStoreCoupons(userId, storeId) {
+  validateCouponId(storeId);
+  await requireActiveProfile(userId);
+  return repository.listStoreCoupons(userId, storeId);
+}
+
+export async function issueStoreCoupons(userId, storeId, input) {
+  validateCouponId(storeId);
+  validateObject(input, ['couponId', 'couponIds']);
+  if (input.couponId != null) validateCouponId(input.couponId);
+  if (input.couponIds !== undefined && (!Array.isArray(input.couponIds) || !input.couponIds.length || input.couponIds.length > 100 || input.couponId != null))
+    throw failure(400, 'INVALID_COUPON_IDS', '발급할 쿠폰을 다시 확인해 주세요.');
+  if (input.couponIds) input.couponIds.forEach(validateCouponId);
+  await requireActiveProfile(userId);
+  return repository.issueStoreCoupons(userId, storeId, input.couponId ?? null, input.couponIds);
 }
 export async function issueSignupCoupons(userId, now = new Date()) {
   const time = currentTime(now);

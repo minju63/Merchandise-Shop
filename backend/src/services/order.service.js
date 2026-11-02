@@ -1,9 +1,8 @@
-import { threeMonthsAgo, restoreOrderPoints } from "./user.service.js";
+import { threeMonthsAgo } from "./user.service.js";
 import { listMyPaymentMethods } from "./paymentMethod.service.js";
 import * as repository from "../repositories/order.repository.js";
 import * as payments from "../repositories/payment.repository.js";
-import * as coupons from "../repositories/coupon.repository.js";
-import { getCancellationRestoreDecision } from "./coupon.service.js";
+import { couponRpc } from "../repositories/couponRpc.js";
 import {
   getPickupWindow,
   normalizeCheckoutInput,
@@ -407,52 +406,10 @@ export async function cancelMyOrder(userId, orderId, input) {
       "REAL_PAYMENT_UNSUPPORTED",
       "실제 결제는 시연 API에서 취소할 수 없어요.",
     );
-  const changed = await repository.cancelOwnedPaid(
-    userId,
-    row.id,
-    JSON.stringify(reason),
-  );
-  if (!changed) throw failure(409, "ORDER_CHANGED", "주문 상태가 변경됐어요.");
-  try {
-    for (const item of await repository.listItems(row.id))
-      await repository.adjustStock(
-        userId,
-        row.id,
-        item.store_product_id,
-        item.quantity,
-        "ORDER_CANCEL",
-      );
-    if (
-      row.used_coupon_id &&
-      !(await repository.hasCouponUsedByOtherOrder(
-        userId,
-        row.used_coupon_id,
-        row.id,
-      ))
-    ) {
-      const coupon = await coupons.findOwnedWithPolicy(
-        userId,
-        row.used_coupon_id,
-      );
-      if (coupon) {
-        const decision = getCancellationRestoreDecision(coupon, coupon.coupon);
-        if (decision.restore)
-          await coupons.restoreOwnedCoupon(userId, coupon.id, decision.status);
-      }
-    }
-    await payments.cancelMockOrderPayments(userId, row.id);
-    await restoreOrderPoints(userId, row.id);
-  } catch {
-    throw failure(
-      503,
-      "CANCELLATION_RECOVERY_REQUIRED",
-      "취소 상태는 기록됐지만 재고·쿠폰·시연 결제 중 일부 처리를 확인해야 해요.",
-    );
-  }
-  return {
-    ...(await getMyOrderDetail(userId, row.id)),
-    alreadyCanceled: false,
-  };
+  const changed = await couponRpc('cancel_coupon_order', {
+    p_user_id: userId, p_order_id: row.id, p_memo: JSON.stringify(reason),
+  });
+  return { ...(await getMyOrderDetail(userId, row.id)), alreadyCanceled: !changed };
 }
 
 // ---- 반품/교환 요청 ----

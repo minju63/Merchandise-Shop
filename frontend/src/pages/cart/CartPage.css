@@ -657,7 +657,9 @@
   background: rgb(33 29 43 / 88%);
   color: #fff;
   font-size: 13px;
-  white-space: nowrap;
+  max-width: calc(100vw - 32px);
+  box-sizing: border-box;
+  white-space: normal;
 }
 
 .cart-main a:focus-visible,

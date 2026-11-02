@@ -124,7 +124,8 @@ function OrderCard({ order, onCancel, onNavigate, onReorder }) {
           </span>
           <strong className="ord-card__title">{itemsTitle(order.items)}</strong>
           <span className="ord-card__sum">
-            총 {totalQuantity(order.items)}개 · {formatWon(order.total_amount)}
+            총 {totalQuantity(order.items)}개 · 최종 {formatWon(order.total_amount)}
+            {order.discount_amount > 0 && <span> · 쿠폰 할인 -{formatWon(order.discount_amount)}</span>}
           </span>
         </span>
       </button>

@@ -1,7 +1,8 @@
 // 4·6·7단계: 기존 coupons/user_coupons로 조회·발급·사용·취소 복원.
+import { couponRpc } from './couponRpc.js';
 const POLICY_COLUMNS =
   "id,store_id,code,name,discount_type,discount_value,max_discount,min_order_amount,applies_to,total_quantity,issued_count,valid_from,valid_until,is_active,created_at";
-const OWNED_COLUMNS = `id,user_id,coupon_id,status,expires_at,used_at,created_at,coupon:coupons!inner(${POLICY_COLUMNS},store:stores(id,name))`;
+const OWNED_COLUMNS = `id,user_id,coupon_id,status,expires_at,used_at,used_order_id,created_at,coupon:coupons!inner(${POLICY_COLUMNS},store:stores(id,name))`;
 
 async function getDatabase() {
   const { supabase } = await import("../lib/supabase.js");
@@ -118,44 +119,19 @@ export async function synchronizeIssuedCount(couponId) {
   return count;
 }
 
-export async function registerCode(userId, coupon, now) {
-  const existing = await findOwnedByCouponId(userId, coupon.id);
-  if (existing) {
-    await synchronizeIssuedCount(coupon.id);
-    return { userCoupon: existing, alreadyOwned: true };
-  }
-  const count = await countIssued(coupon.id);
-  if (coupon.total_quantity !== null && count >= coupon.total_quantity)
-    throw Object.assign(new Error("쿠폰 발급 수량이 모두 소진됐어요."), {
-      status: 409,
-      code: "COUPON_SOLD_OUT",
-    });
-  const db = await getDatabase();
-  const { data, error } = await db
-    .from("user_coupons")
-    .insert({
-      user_id: userId,
-      coupon_id: coupon.id,
-      status: "AVAILABLE",
-      expires_at: coupon.valid_until,
-      created_at: now,
-    })
-    .select("id")
-    .single();
-  // 실제 UNIQUE(user_id,coupon_id)로 같은 회원의 중복 요청을 처리한다.
-  if (error?.code === "23505") {
-    const duplicate = await findOwnedByCouponId(userId, coupon.id);
-    if (duplicate) {
-      await synchronizeIssuedCount(coupon.id);
-      return { userCoupon: duplicate, alreadyOwned: true };
-    }
-  }
-  databaseError(error);
-  if (!data?.id) databaseError({ code: "INVALID_DATABASE_RESPONSE" });
-  await synchronizeIssuedCount(coupon.id);
-  const saved = await findOwnedWithPolicy(userId, data.id);
+export async function registerCode(userId, coupon) {
+  const result = await couponRpc('issue_coupon_atomic', { p_user_id: userId, p_coupon_id: coupon.id });
+  const saved = await findOwnedWithPolicy(userId, result.id);
   if (!saved) databaseError({ code: "COUPON_NOT_SAVED" });
-  return { userCoupon: saved, alreadyOwned: false };
+  return { userCoupon: saved, alreadyOwned: result.alreadyOwned };
+}
+
+export function listStoreCoupons(userId, storeId) {
+  return couponRpc('list_store_coupons', { p_user_id: userId, p_store_id: storeId });
+}
+export function issueStoreCoupons(userId, storeId, couponId, couponIds) {
+  if (couponIds) return couponRpc('issue_store_coupons_checked', { p_user_id: userId, p_store_id: storeId, p_coupon_ids: [...new Set(couponIds)] });
+  return couponRpc('issue_store_coupons', { p_user_id: userId, p_store_id: storeId, p_coupon_id: couponId });
 }
 
 export async function issueByCodeRule() {

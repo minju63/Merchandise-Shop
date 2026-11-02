@@ -86,12 +86,8 @@ export function estimateCoupon(item, { itemsAmount, deliveryFee, fulfillmentType
     reason = '픽업 주문에만 쓸 수 있어요';
   else if (coupon.applies_to === 'DELIVERY' && fulfillmentType !== 'DELIVERY')
     reason = '배달 주문에만 쓸 수 있어요';
-  let amount;
-  if (rule?.deliveryFee) amount = deliveryFee ?? 0;
-  else if (coupon.discount_type === 'RATE') {
-    amount = Math.floor((itemsAmount * coupon.discount_value) / 100);
-    if (coupon.max_discount) amount = Math.min(amount, coupon.max_discount);
-  } else amount = coupon.discount_value;
-  amount = Math.min(amount, itemsAmount + (rule?.deliveryFee ? (deliveryFee ?? 0) : 0));
+  const base = rule?.deliveryFee ? (deliveryFee ?? 0) : itemsAmount;
+  const raw = coupon.discount_type === 'RATE' ? Math.floor((base * coupon.discount_value) / 100) : coupon.discount_value;
+  const amount = Math.min(raw, base, coupon.max_discount ?? base);
   return { usable: reason === null, reason, amount };
 }

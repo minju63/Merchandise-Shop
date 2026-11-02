@@ -74,7 +74,9 @@
 .co-pay:disabled { opacity: 0.5; cursor: default; }
 .co-sheet__body { margin-top: 12px; }
 .co-sheet .ord-btn { margin-top: 12px; }
-.co-sheet { transition: transform 180ms ease-out; will-change: transform; }
+.co-sheet { transition: transform 180ms ease-out; will-change: transform; padding-bottom: calc(20px + env(safe-area-inset-bottom)); overscroll-behavior: contain; max-height: 92dvh; animation: co-sheet-enter 180ms ease-out; }
+@keyframes co-sheet-enter { from { translate: 0 100%; } to { translate: 0 0; } }
+@media (prefers-reduced-motion: reduce) { .co-sheet { animation: none; transition: none; } }
 .co-sheet.is-dragging { transition: none; }
 .co-sheet > button.ord-sheet__grip { position: relative; display: block; width: 72px; height: 24px; margin: -8px auto 4px; padding: 0; border: 0; background: transparent; cursor: grab; touch-action: none; }
 .co-sheet.is-dragging > button.ord-sheet__grip { cursor: grabbing; }

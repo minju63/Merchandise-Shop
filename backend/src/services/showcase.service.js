@@ -123,6 +123,8 @@ export async function list({ type, storeId, categoryId, mine, sort = 'newest', p
     else query = query.eq('is_public', true);
     if (storeId) query = query.eq('store_id', storeId);
     query = query.order(sort === 'popular' ? 'like_count' : 'created_at', { ascending: false });
+    if (sort === 'popular') query = query.order('created_at', { ascending: false });
+    query = query.order('id', { ascending: false });
   }
   const { data, count, error } = await query.range((page - 1) * size, page * size - 1);
   check({ data, error });

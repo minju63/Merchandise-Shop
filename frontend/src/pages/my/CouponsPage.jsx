@@ -4,7 +4,7 @@ import { listCoupons, registerCoupon } from './account.api.js';
 import { couponConditions, couponHeadline, daysLeft, formatMonthDot } from './accountFormat.js';
 import { ErrorNotice, Loading, PageHeader } from './common.jsx';
 import { ChevronIcon } from './icons.jsx';
-import { useRequest, useRequireLogin } from './hooks.js';
+import { useRequest, useRequireLogin, useSession } from './hooks.js';
 import { MY_ROUTES } from './routes.js';
 import './orders.css';
 import './account.css';
@@ -51,7 +51,8 @@ function CouponCard({ item, usable, onUse, onOpen }) {
 export default function CouponsPage() {
   const navigate = useNavigate();
   const signedIn = useRequireLogin(MY_ROUTES.login);
-  const coupons = useRequest(signedIn, 'coupons', listCoupons);
+  const { session } = useSession();
+  const coupons = useRequest(signedIn, `coupons:${session?.user.id ?? ''}`, listCoupons);
   const [tab, setTab] = useState('AVAILABLE');
   const [code, setCode] = useState('');
   const [message, setMessage] = useState(null);
@@ -76,8 +77,7 @@ export default function CouponsPage() {
 
   const items = coupons.data?.items ?? [];
   const available = items.filter((item) => item.effectiveStatus === 'AVAILABLE');
-  const inactive = items.filter((item) => item.effectiveStatus !== 'AVAILABLE');
-  const shown = tab === 'AVAILABLE' ? available : inactive;
+  const shown = items.filter((item) => item.effectiveStatus === tab);
 
   let body;
   if (coupons.error) body = <ErrorNotice error={coupons.error} onRetry={coupons.reload} />;
@@ -85,7 +85,7 @@ export default function CouponsPage() {
   else if (shown.length === 0)
     body = (
       <p className="ord-empty">
-        {tab === 'AVAILABLE' ? '사용 가능한 쿠폰이 없어요' : '사용 완료·만료된 쿠폰이 없어요'}
+        {tab === 'AVAILABLE' ? '사용 가능한 쿠폰이 없어요' : tab === 'USED' ? '사용 완료한 쿠폰이 없어요' : '기간 만료된 쿠폰이 없어요'}
       </p>
     );
   else
@@ -117,7 +117,7 @@ export default function CouponsPage() {
         </button>
       </div>
       {message ? <p className={message.ok ? 'cpn-msg is-ok' : 'cpn-msg'}>{message.text}</p> : null}
-      <div className="ord-tabs ord-tabs--two" role="tablist">
+      <div className="ord-tabs" role="tablist">
         <button
           type="button"
           role="tab"
@@ -130,12 +130,13 @@ export default function CouponsPage() {
         <button
           type="button"
           role="tab"
-          aria-selected={tab === 'DONE'}
-          className={tab === 'DONE' ? 'ord-tab is-active' : 'ord-tab'}
-          onClick={() => setTab('DONE')}
+          aria-selected={tab === 'USED'}
+          className={tab === 'USED' ? 'ord-tab is-active' : 'ord-tab'}
+          onClick={() => setTab('USED')}
         >
-          사용 완료 · 만료
+          사용 완료
         </button>
+        <button type="button" role="tab" aria-selected={tab === 'EXPIRED'} className={tab === 'EXPIRED' ? 'ord-tab is-active' : 'ord-tab'} onClick={() => setTab('EXPIRED')}>기간 만료</button>
       </div>
       <div className="ord-list cpn-list">{body}</div>
     </main>

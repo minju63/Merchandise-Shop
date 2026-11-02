@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { listAddresses, listCoupons, listPaymentMethods } from '../my/account.api.js';
 import { formatPhone } from '../my/accountFormat.js';
 import { ErrorNotice, Loading, PageHeader, Thumb } from '../my/common.jsx';
-import { useRequest, useRequireLogin } from '../my/hooks.js';
+import { useRequest, useRequireLogin, useSession } from '../my/hooks.js';
 import {
   BagIcon,
   ChevronIcon,
@@ -20,7 +20,8 @@ import { Box } from '../auth/AuthParts.jsx';
 import { CouponSheet, Radio, Sheet, StockSheet } from './CheckoutParts.jsx';
 import { PaymentMethodSheet } from '../fan/PaymentMethodPicker.jsx';
 import { selectedPaymentName } from '../fan/paymentMethodPickerFormat.js';
-import { previewCheckout, submitCheckout } from './checkout.api.js';
+import { previewCheckout, submitCheckout, hasPendingCheckout, recoverPendingCheckout } from './checkout.api.js';
+import { COUPON_MESSAGES, invalidCheckoutCoupons, couponReasonMessage } from './couponSafety.js';
 import {
   DELIVERY_REQUESTS,
   issueText,
@@ -90,6 +91,7 @@ function StoreBlock({
   dates,
   texts,
   couponCount,
+  couponState,
   onOption,
   onText,
   onPickCoupon,
@@ -267,7 +269,7 @@ function StoreBlock({
             <strong>
               {order.coupon
                 ? `${order.coupon.name}${order.coupon.usable ? '' : ' · 사용 불가'}`
-                : `사용 가능 ${couponCount}장`}
+                : couponState === 'error' ? '쿠폰 조회 실패 · 다시 시도' : couponState === 'loading' ? '쿠폰 불러오는 중' : `사용 가능 ${couponCount}장`}
             </strong>
             <span>{order.coupon ? '상품 쿠폰 적용 중' : '쿠폰을 선택해 주세요'}</span>
           </div>
@@ -321,6 +323,7 @@ function OrderCard({
   index,
   dates,
   couponCount,
+  couponState,
   onPickCoupon,
   onPickDate,
 }) {
@@ -397,7 +400,7 @@ function OrderCard({
           <strong>
             {order.coupon
               ? `${order.coupon.name}${order.coupon.usable ? '' : ' · 사용 불가'}`
-              : `사용 가능 ${couponCount}장`}
+              : couponState === 'error' ? '쿠폰 조회 실패 · 다시 시도' : couponState === 'loading' ? '쿠폰 불러오는 중' : `사용 가능 ${couponCount}장`}
           </strong>
           <span>{order.coupon ? '상품 쿠폰 적용 중' : '쿠폰을 선택해 주세요'}</span>
         </div>
@@ -461,17 +464,24 @@ export default function CheckoutPage() {
   const [sheet, setSheet] = useState(null);
   const [result, setResult] = useState(null);
   const [busy, setBusy] = useState(false);
+  const payLock = useRef(false);
+  const request = useRef(null);
+  const lastQuotedAmount = useRef(null);
+  const [recoveryPending, setRecoveryPending] = useState(false);
+  const [recovering, setRecovering] = useState(false);
   const [error, setError] = useState('');
   const [attempt, setAttempt] = useState(0);
   const [pointsInput, setPointsInput] = useState('');
   const [pointsUse, setPointsUse] = useState(0);
   const [useExpected, setUseExpected] = useState(false);
 
-  const coupons = useRequest(signedIn, 'checkout-coupons', listCoupons);
-  const methods = useRequest(signedIn, 'checkout-methods', listPaymentMethods);
+  const { session } = useSession();
+  const accountId = session?.user.id;
+  const coupons = useRequest(signedIn, `checkout-coupons:${session?.user.id ?? ''}`, listCoupons);
+  const methods = useRequest(signedIn, `checkout-methods:${accountId}`, listPaymentMethods);
   const addresses = useRequest(
     signedIn && sheet?.type === 'address',
-    'checkout-addresses',
+    `checkout-addresses:${accountId}`,
     listAddresses,
   );
   const paymentMethods = methods.data?.items ?? [];
@@ -516,13 +526,60 @@ export default function CheckoutPage() {
   const key = signedIn && previewBody ? `${attempt}:${JSON.stringify(previewBody)}` : null;
 
   useEffect(() => {
+    if (!accountId) return undefined;
+    let active = true;
+    Promise.resolve().then(async () => {
+      if (!active || !hasPendingCheckout(accountId)) return;
+      setRecoveryPending(true); setAgree(false); setRecovering(true);
+      try {
+        const done = await recoverPendingCheckout(accountId);
+        if (active && done) {
+          saveSource(null);
+          window.dispatchEvent(new Event('coupons-changed'));
+          void queryClient.invalidateQueries({ queryKey: ['cart'] });
+          navigate(AUTH_ROUTES.checkoutComplete(done.checkoutGroupId), { replace: true, state: { result: done } });
+        }
+      } catch (cause) { if (active) setError(cause.message); }
+      finally { if (active) setRecovering(false); }
+    });
+    return () => { active = false; };
+  }, [accountId, navigate, queryClient]);
+
+  const retryPending = async () => {
+    if (payLock.current || !accountId) return;
+    payLock.current = true; setRecovering(true);
+    try {
+      const done = await recoverPendingCheckout(accountId, true);
+      if (!done) return;
+      saveSource(null);
+      window.dispatchEvent(new Event('coupons-changed'));
+      void queryClient.invalidateQueries({ queryKey: ['cart'] });
+      navigate(AUTH_ROUTES.checkoutComplete(done.checkoutGroupId), { replace: true, state: { result: done } });
+    } catch (cause) { setError(cause.message); }
+    finally { payLock.current = false; setRecovering(false); }
+  };
+
+  useEffect(() => {
     if (!key) return undefined;
     let active = true;
     const body = JSON.parse(key.slice(key.indexOf(':') + 1));
     previewCheckout(body).then(
       (data) => {
         if (!active) return;
-        setResult({ key, data, error: null });
+        const invalid = invalidCheckoutCoupons(data);
+        if (invalid.length) {
+          setOverrides((current) => {
+            const next = { ...current };
+            invalid.filter((row) => row.storeId).forEach((row) => { next[row.storeId] = { ...next[row.storeId], userCouponId: null }; });
+            return next;
+          });
+          if (invalid.some((row) => !row.storeId)) setCartCouponId(null);
+          setAgree(false);
+          setError(couponReasonMessage(invalid[0].reason));
+        }
+        if (lastQuotedAmount.current !== null && lastQuotedAmount.current !== data.totals.payAmount) setAgree(false);
+        lastQuotedAmount.current = data.totals.payAmount;
+        setResult({ key, accountId, data, error: null });
         setKnown(
           (prev) =>
             prev ??
@@ -538,18 +595,35 @@ export default function CheckoutPage() {
             }),
         );
       },
-      (cause) => active && setResult({ key, data: null, error: cause }),
+      (cause) => {
+        if (!active) return;
+        if (cause.code === 'COUPON_NOT_FOUND') {
+          setOverrides((current) => Object.fromEntries(Object.entries(current).map(([storeId, option]) => [storeId, { ...option, userCouponId: null }])));
+          setCartCouponId(null); setAgree(false); setError(COUPON_MESSAGES.COUPON_NOT_OWNED);
+        }
+        setResult({ key, accountId, data: null, error: cause });
+      },
     );
     return () => {
       active = false;
     };
-  }, [key, source, dates]);
+  }, [key, source, dates, accountId]);
+
+  useEffect(() => {
+    if (!signedIn || recoveryPending || busy) return undefined;
+    const refresh = () => setAttempt((value) => value + 1);
+    const timer = setInterval(refresh, 30000);
+    window.addEventListener('focus', refresh);
+    window.addEventListener('online', refresh);
+    return () => { clearInterval(timer); window.removeEventListener('focus', refresh); window.removeEventListener('online', refresh); };
+  }, [signedIn, recoveryPending, busy]);
 
   if (!source)
     return (
       <main className="co-page">
         <PageHeader title="주문 / 결제" />
         <p className="ord-empty">주문할 상품이 없어요</p>
+        {recoveryPending && <><p className="co-warn">{error || '이전 주문 처리 결과를 확인하고 있습니다.'}</p><button type="button" className="co-pay co-pay--ghost" disabled={recovering} onClick={retryPending}>이전 주문 상태 다시 확인</button></>}
         <div className="co-footer">
           <button type="button" className="co-pay" onClick={() => navigate(AUTH_ROUTES.home)}>
             쇼핑하러 가기
@@ -558,8 +632,8 @@ export default function CheckoutPage() {
       </main>
     );
 
-  const data = result?.data ?? null;
-  const loading = !result || result.key !== key;
+  const data = result?.accountId === accountId ? result.data : null;
+  const loading = !result || result.key !== key || result.accountId !== accountId;
   const setOption = (storeId) => (patch) =>
     setOverrides((prev) => ({ ...prev, [storeId]: { ...prev[storeId], ...patch } }));
   const setText = (storeId) => (patch) =>
@@ -611,7 +685,7 @@ export default function CheckoutPage() {
       ]
     : [];
   const canPay =
-    Boolean(data?.canSubmit) && Boolean(selectedPaymentOption) && agree && !loading && !busy;
+    Boolean(data?.canSubmit) && Boolean(selectedPaymentOption) && agree && !loading && !busy && !recoveryPending && !recovering;
   const deliveryOrders = data
     ? data.orders
         .map((order, index) => ({ order, index }))
@@ -653,10 +727,12 @@ export default function CheckoutPage() {
   };
 
   const pay = async () => {
+    if (payLock.current || !canPay) return;
+    payLock.current = true;
     setBusy(true);
     setError('');
     try {
-      const done = await submitCheckout({
+      const body = {
         ...previewBody,
         storeOptions: (previewBody.storeOptions ?? []).map((option) => {
           const text = texts[option.storeId] ?? {};
@@ -671,7 +747,12 @@ export default function CheckoutPage() {
           };
         }),
         paymentAgreed: true,
-      });
+        confirmationToken: data.confirmationToken,
+      };
+      const fingerprint = JSON.stringify(body);
+      if (request.current?.fingerprint !== fingerprint) request.current = { fingerprint, id: crypto.randomUUID() };
+      const done = await submitCheckout(body, request.current.id);
+      window.dispatchEvent(new Event('coupons-changed'));
       saveSource(null);
       await queryClient.invalidateQueries({ queryKey: ['cart'] });
       navigate(AUTH_ROUTES.checkoutComplete(done.checkoutGroupId), {
@@ -685,8 +766,20 @@ export default function CheckoutPage() {
       });
     } catch (cause) {
       setError(cause.message);
+      setAgree(false);
+      if (cause.pending) setRecoveryPending(true);
+      else if (cause.code?.startsWith('COUPON_') && COUPON_MESSAGES[cause.code]) {
+        const invalidId = cause.details?.userCouponId;
+        setOverrides((current) => Object.fromEntries(Object.entries(current).map(([storeId, option]) => [storeId,
+          !invalidId || option.userCouponId === invalidId ? { ...option, userCouponId: null } : option])));
+        if (!invalidId || cartCouponId === invalidId) setCartCouponId(null);
+        setError(COUPON_MESSAGES[cause.code] ?? cause.message);
+        coupons.reload();
+      }
+      void queryClient.invalidateQueries({ queryKey: ['cart'] });
       setAttempt((value) => value + 1);
     } finally {
+      payLock.current = false;
       setBusy(false);
     }
   };
@@ -838,7 +931,7 @@ export default function CheckoutPage() {
   else if (!data || !known) body = <Loading />;
   else if (multi)
     body = (
-      <div className={loading ? 'co-body is-loading' : 'co-body'}>
+      <div className={loading || recoveryPending ? 'co-body is-loading' : 'co-body'} inert={recoveryPending}>
         <div className="co-banner">
           <span className="co-banner__icon">
             <BagIcon width={20} height={20} />
@@ -858,6 +951,7 @@ export default function CheckoutPage() {
               index={index}
               dates={dates}
               couponCount={productCouponsFor(order.storeId).length}
+              couponState={coupons.error ? 'error' : coupons.loading ? 'loading' : 'ready'}
               onPickCoupon={() => setSheet({ type: 'coupon', storeId: order.storeId })}
               onPickDate={() => setSheet({ type: 'date', storeId: order.storeId })}
             />
@@ -898,7 +992,7 @@ export default function CheckoutPage() {
     );
   else
     body = (
-      <div className={loading ? 'co-body is-loading' : 'co-body'}>
+      <div className={loading || recoveryPending ? 'co-body is-loading' : 'co-body'} inert={recoveryPending}>
         <section className="co-section co-section--first">
           <h2 className="co-h co-h--big">주문 상품 {quantity}개</h2>
         </section>
@@ -912,6 +1006,7 @@ export default function CheckoutPage() {
               dates={dates}
               texts={texts[order.storeId] ?? {}}
               couponCount={productCouponsFor(order.storeId).length}
+              couponState={coupons.error ? 'error' : coupons.loading ? 'loading' : 'ready'}
               onOption={setOption(order.storeId)}
               onText={setText(order.storeId)}
               onPickCoupon={() => setSheet({ type: 'coupon', storeId: order.storeId })}
@@ -942,6 +1037,7 @@ export default function CheckoutPage() {
       <PageHeader title="주문 / 결제" />
       {body}
       {error ? <p className="co-warn co-warn--footer">{error}</p> : null}
+      {recoveryPending && <button type="button" className="co-pay co-pay--ghost" disabled={recovering} onClick={retryPending}>{recovering ? '주문 상태 확인 중…' : '이전 주문 상태 다시 확인'}</button>}
       <div className="co-footer">
         <button type="button" className="co-pay" disabled={!canPay} onClick={pay}>
           {totals?.payAmount != null
@@ -950,7 +1046,10 @@ export default function CheckoutPage() {
         </button>
       </div>
 
-      {couponOrder ? (
+      {['coupon', 'cartCoupon'].includes(sheet?.type) && (coupons.error || coupons.loading) ? <Sheet title="쿠폰 선택" onClose={() => setSheet(null)}>
+        {coupons.error ? <ErrorNotice error={coupons.error} onRetry={coupons.reload} /> : <Loading />}
+      </Sheet> : null}
+      {couponOrder && !coupons.error && !coupons.loading ? (
         <CouponSheet
           order={couponOrder}
           option={optionOf(known.find((entry) => entry.storeId === sheet.storeId))}
@@ -964,7 +1063,7 @@ export default function CheckoutPage() {
         />
       ) : null}
 
-      {sheet?.type === 'cartCoupon' && data ? (
+      {sheet?.type === 'cartCoupon' && data && !coupons.error && !coupons.loading ? (
         <CouponSheet
           order={{
             store: { name: '전체 주문' },

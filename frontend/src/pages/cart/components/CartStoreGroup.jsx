@@ -22,6 +22,7 @@ export default function CartStoreGroup({
   disabled,
   couponAssignment,
   couponCount,
+  couponState,
   onCoupon,
   onToggle,
   onQuantity,
@@ -66,7 +67,9 @@ export default function CartStoreGroup({
           <small>
             {store.itemsTotal <= 0
               ? '상품을 선택하면 쿠폰을 사용할 수 있어요'
-              : couponAssignment?.couponName ?? `사용 가능 ${couponCount}장`}
+              : couponState === 'error' ? '쿠폰 조회 실패 · 다시 시도'
+                : couponState === 'loading' ? '쿠폰 불러오는 중'
+                  : couponAssignment?.couponName ?? (couponCount ? `사용 가능 ${couponCount}장` : '사용 가능한 쿠폰 없음')}
           </small>
         </span>
         <span className="cart-store-coupon__action">
