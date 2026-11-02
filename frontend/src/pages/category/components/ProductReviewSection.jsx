@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
+import RatingStars from '../../../components/RatingStars.jsx';
 import ProductEmptyState from './ProductEmptyState.jsx';
 import StoreSort from '../../stores/components/StoreSort.jsx';
 import useCategoryRequest from './useCategoryRequest.js';
@@ -29,7 +30,7 @@ function ReviewPhoto({ src, alt }) {
 function AverageStars({ averageRating }) {
   if (averageRating == null) return null;
   return <div className="pr-average-stars" role="img" aria-label={`평균 별점 ${averageRating.toFixed(1)}점`}>
-    {Array.from({ length: 5 }, (_, index) => <span key={index}>{index < Math.round(averageRating) ? '★' : '☆'}</span>)}
+    <RatingStars value={averageRating} size={22} />
   </div>;
 }
 
@@ -60,7 +61,7 @@ function ReviewItem({ review, api, client, user, onLogin, onLikeChanged }) {
   };
   return <article className="pr-full-review">
     <header><strong>{review.nickname}</strong><time dateTime={review.createdAt}>{dateLabel(review.createdAt)}</time></header>
-    <div className="pr-stars" aria-label={`별점 ${review.rating}점`}>{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</div>
+    <div className="pr-stars"><RatingStars value={review.rating} size={18} /></div>
     <p>{review.content || '등록된 리뷰 내용이 없습니다.'}</p>
     {review.images?.length > 0 && <div className="pr-review-photos">{review.images.map((url, i) => <ReviewPhoto key={url} src={url} alt={`${aiPhoto ? 'AI로 제작한 샘플' : '리뷰'} 사진 ${i + 1}`} />)}</div>}
     {aiPhoto && <small className="pr-ai-disclosure">AI로 제작한 샘플 사진입니다. 실제 구매자의 촬영 사진이 아닙니다.</small>}
@@ -119,7 +120,7 @@ export default function ProductReviewSection({ reviews, loading, error, onRetry,
         <div className="pr-preview-rail" ref={rail} {...dragScroll} tabIndex={0} role="region" aria-label="잡아 끌어 상품 리뷰 넘기기">
           {items.slice(0, 8).map((review) => <button type="button" className="pr-preview-card" key={review.id} onClick={() => setShowAll(true)} aria-label={`${review.nickname}님의 리뷰 전체보기`}>
             {review.images?.[0] && <div className="pr-preview-photo"><ReviewPhoto src={review.images[0]} alt={review.images[0].includes('/reviews/ai-samples-v1/') ? 'AI로 제작한 샘플 리뷰 사진' : '구매자 리뷰 사진'} />{review.images[0].includes('/reviews/ai-samples-v1/') && <span className="pr-ai-badge">AI 샘플</span>}</div>}
-            <div className="pr-preview-content"><div className="pr-preview-title"><strong>{review.rating >= 4 ? '만족해요' : review.rating === 3 ? '괜찮아요' : '아쉬워요'}</strong><span className="pr-preview-rating">★ {review.rating}</span></div><p>{review.content || '내용 없이 별점을 남긴 리뷰예요.'}</p><small>{review.nickname}</small></div>
+            <div className="pr-preview-content"><div className="pr-preview-title"><strong>{review.rating >= 4 ? '만족해요' : review.rating === 3 ? '괜찮아요' : '아쉬워요'}</strong><span className="pr-preview-rating"><RatingStars value={review.rating} size={12} /></span></div><p>{review.content || '내용 없이 별점을 남긴 리뷰예요.'}</p><small>{review.nickname}</small></div>
           </button>)}
         </div>
         {items.length > 1 && <div className="pr-rail-controls"><button type="button" aria-label="이전 리뷰 카드" onClick={() => rail.current.scrollBy({ left: -rail.current.clientWidth * .88, behavior: 'smooth' })}>‹</button><button type="button" aria-label="다음 리뷰 카드" onClick={() => rail.current.scrollBy({ left: rail.current.clientWidth * .88, behavior: 'smooth' })}>›</button></div>}

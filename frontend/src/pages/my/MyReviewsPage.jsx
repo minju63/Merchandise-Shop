@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import RatingStars from '../../components/RatingStars.jsx';
 import { useNavigate } from 'react-router-dom';
 import { deleteReview, getMyPoints, listMyReviews, updateReview } from './account.api.js';
 import { confirmPurchase } from './my.api.js';
@@ -24,10 +25,7 @@ const TABS = [
 
 function Stars({ value }) {
   return (
-    <span className="mr-stars" role="img" aria-label={`별점 ${value}점`}>
-      {'★'.repeat(value)}
-      <span className="mr-stars__off">{'★'.repeat(5 - value)}</span>
-    </span>
+    <RatingStars className="mr-stars" value={value} size={18} />
   );
 }
 
