@@ -164,11 +164,12 @@ export async function listCompletedItems(userId) {
     ["eq", "status", "COMPLETED"],
   ]);
   const result = [];
-  for (const order of orders.filter((row) => row.purchase_confirmed_at)) {
+  // 구매확정 전 주문도 함께 돌려주고, 화면에서 '구매 확정' 버튼으로 먼저 확정하게 한다.
+  for (const order of orders) {
     const rows = await all("order_items", "*,sale:store_products(product_id)", [
       ["eq", "order_id", order.id],
     ]);
-    result.push(...rows);
+    result.push(...rows.map((row) => ({ ...row, purchase_confirmed_at: order.purchase_confirmed_at })));
   }
   return result;
 }
