@@ -18,9 +18,14 @@ function Cta({ onOpen }) {
 export default function PromoBanner({ banner, position, dragProps, onOpen }) {
   const type = banner.bannerType;
   const modifier = isFanBoardType(type) ? 'fan' : type.toLowerCase().replaceAll('_', '-');
+  const image = !isFanBoardType(type) && banner.imageUrl;
 
   return (
-    <article className={`promo-banner promo-banner--${modifier}`} {...dragProps}>
+    <article
+      className={`promo-banner promo-banner--${modifier}${image ? ' promo-banner--has-image' : ''}`}
+      {...dragProps}
+    >
+      {image ? <img className="promo-banner__image" src={image} alt="" draggable={false} /> : null}
       {isFanBoardType(type) ? (
         // 전광판은 보기 전용: 자세히 보기도 클릭 이동도 없다.
         <FanBoard design={fanBoardDesign(banner)} />

@@ -3,6 +3,7 @@ import ProductCard from '../../components/ProductCard.jsx';
 import UpcomingProductCard from '../../components/UpcomingProductCard.jsx';
 import Icon from '../../components/Icon.jsx';
 import PromoBanner from './PromoBanner.jsx';
+import StageSection from './StageSection.jsx';
 import { fanBoardDesign, isFanBoardType } from '../fan/fanBoardPresets.js';
 import { brandGroupFor, hasPickedBrands, matchesInterests } from './interestMatch.js';
 import BottomNavigation from '../../components/BottomNavigation.jsx';
@@ -115,6 +116,7 @@ export default function HomePage({
   interestBrands = [],
   onOpenInterestSettings,
   onOpenProduct,
+  onOpenStageCheer,
   onOpenCategory,
   onOpenTrending,
   onOpenUpcoming,
@@ -338,6 +340,8 @@ export default function HomePage({
             </button>
           ))}
         </nav>
+
+        <StageSection onCheer={onOpenStageCheer} />
 
         <section className="home-section trending-section">
           <div className="home-section-heading">

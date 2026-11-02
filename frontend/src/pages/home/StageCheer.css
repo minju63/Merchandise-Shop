@@ -1,0 +1,235 @@
+/* 최애 스테이지 응원하기 (랜덤박스·최애박스) */
+.stage-cheer__hero {
+  display: flex;
+  margin: 0 0 8px;
+  padding: 22px 20px;
+  align-items: center;
+  gap: 16px;
+  color: #fff;
+  background: linear-gradient(180deg, #2c1f5e, #4a3590);
+}
+
+.stage-cheer__hero .stage-face {
+  border: 3px solid #fac775;
+}
+
+.stage-cheer__hero div {
+  display: flex;
+  flex-direction: column;
+}
+
+.stage-cheer__hero small {
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.stage-cheer__hero strong {
+  font-size: 21px;
+  letter-spacing: -0.6px;
+}
+
+.stage-cheer__hero span {
+  color: #fac775;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.stage-cheer__characters {
+  display: flex;
+  margin: 0 -18px;
+  padding: 2px 18px 4px;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.stage-cheer__characters::-webkit-scrollbar {
+  display: none;
+}
+
+.stage-cheer__characters button {
+  display: flex;
+  width: 68px;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--bd-sub, #6b6676);
+  font-size: 11px;
+  line-height: 1.25;
+  text-align: center;
+  cursor: pointer;
+}
+
+.stage-cheer__characters .stage-face {
+  border: 3px solid transparent;
+}
+
+.stage-cheer__characters button.active {
+  color: var(--bd-primary, #6f5be7);
+  font-weight: 700;
+}
+
+.stage-cheer__characters button.active .stage-face {
+  border-color: var(--bd-primary, #6f5be7);
+}
+
+.stage-cheer__options {
+  display: grid;
+  gap: 10px;
+}
+
+.stage-cheer__option {
+  display: flex;
+  padding: 14px 16px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1.5px solid #e8e5ee;
+  border-radius: 14px;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.stage-cheer__option.active {
+  border-color: var(--bd-primary, #6f5be7);
+  background: #f6f4ff;
+}
+
+.stage-cheer__option-main,
+.stage-cheer__option-side {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.stage-cheer__option-side {
+  flex: none;
+  align-items: flex-end;
+}
+
+.stage-cheer__option b {
+  color: #1f1d24;
+  font-size: 15px;
+}
+
+.stage-cheer__option em {
+  margin-left: 6px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #fff;
+  background: #e5484d;
+  font-size: 10px;
+  font-style: normal;
+  vertical-align: 2px;
+}
+
+.stage-cheer__option small {
+  color: #8a8494;
+  font-size: 12px;
+}
+
+.stage-cheer__option-side small {
+  color: var(--bd-primary, #6f5be7);
+  font-weight: 700;
+}
+
+.stage-cheer__quantity {
+  display: flex;
+  margin-top: 16px;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.stage-cheer__quantity div {
+  display: flex;
+  align-items: center;
+  border: 1px solid #e8e5ee;
+  border-radius: 10px;
+}
+
+.stage-cheer__quantity button {
+  width: 38px;
+  height: 36px;
+  border: 0;
+  background: transparent;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.stage-cheer__quantity button:disabled {
+  color: #cfcbd6;
+  cursor: not-allowed;
+}
+
+.stage-cheer__quantity output {
+  min-width: 28px;
+  text-align: center;
+}
+
+.stage-cheer__summary {
+  display: grid;
+  margin: 18px 0 0;
+  padding: 14px 16px;
+  gap: 8px;
+  border-radius: 12px;
+  background: #f7f6f9;
+  font-size: 13px;
+}
+
+.stage-cheer__summary div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.stage-cheer__summary dt {
+  color: #6b6676;
+}
+
+.stage-cheer__summary dd {
+  margin: 0;
+  font-weight: 700;
+  text-align: right;
+}
+
+.stage-cheer__summary dd.points {
+  color: var(--bd-primary, #6f5be7);
+}
+
+.stage-cheer__done {
+  display: flex;
+  padding: 48px 24px;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.stage-cheer__done .stage-face {
+  border: 4px solid #fac775;
+}
+
+.stage-cheer__done h2 {
+  margin: 18px 0 8px;
+  font-size: 20px;
+  line-height: 1.35;
+}
+
+.stage-cheer__done p {
+  margin: 0;
+  color: #8a8494;
+  font-size: 13px;
+}
+
+.stage-cheer__done-actions {
+  display: grid;
+  width: 100%;
+  margin-top: 28px;
+  gap: 10px;
+}
