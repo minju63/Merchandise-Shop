@@ -121,7 +121,7 @@ export default function FanRankingPage({
             {leaderPaid >= minPaid ? ' · 목표를 채웠어요' : ''}
           </p>
           <p className="bd__caption">
-            목표 포인트를 채우지 못하면 배너는 게시되지 않아요. 이 최애에 쓴 유료 응원은 적립금으로 돌려드려요. (현금으로 산 응원권은 105%, 적립금으로 산 응원권은 100%)
+            목표 포인트를 채우지 못하면 배너는 게시되지 않아요. 이 최애에 쓴 유료 응원은 적립금 100%로 돌려드려요. (현금·계좌·카드로는 환불되지 않아요)
           </p>
         </DetailSection>
       ) : null}

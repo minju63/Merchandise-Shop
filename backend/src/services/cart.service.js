@@ -2,6 +2,7 @@
 // 장바구니 서비스 — 비즈니스 로직, DB 접근은 repositories/ 를 통해서만
 // 장바구니는 재고를 잡지 않는다. 재고 차감은 결제(checkout)에서만 일어난다.
 import * as cartItemRepository from '../repositories/cartItem.repository.js';
+import { applyDeliveryDiscount, getMembershipDeliveryDiscount } from './membershipDelivery.service.js';
 import * as storeProductRepository from '../repositories/storeProduct.repository.js';
 import * as storeDeliveryInfoRepository from '../repositories/storeDeliveryInfo.repository.js';
 import { calculateStockLabel } from './wishlist.service.js';
@@ -140,6 +141,7 @@ export async function getCart({ userId, type }) {
         )
       : new Map();
 
+  const memberDiscountMax = type === 'DELIVERY' ? await getMembershipDeliveryDiscount(userId) : 0;
   const stores = [...groups.values()].map(({ store, items: storeItems }) => {
     const itemsTotal = storeItems
       .filter((item) => item.isSelected)
@@ -155,12 +157,17 @@ export async function getCart({ userId, type }) {
       items: storeItems,
       itemsTotal,
       ...delivery,
-      storeTotal: itemsTotal + (delivery.deliveryFee ?? 0),
+      // 멤버십 배달비 할인: deliveryFee 는 할인 전 금액이고, 실제로 깎는 금액은 membershipDeliveryDiscount 다.
+      membershipDeliveryDiscountMax: memberDiscountMax,
+      membershipDeliveryDiscount: applyDeliveryDiscount(delivery.deliveryFee, memberDiscountMax),
+      storeTotal:
+        itemsTotal + (delivery.deliveryFee ?? 0) - applyDeliveryDiscount(delivery.deliveryFee, memberDiscountMax),
     };
   });
 
   const itemsTotal = stores.reduce((sum, store) => sum + store.itemsTotal, 0);
   const deliveryFeeTotal = stores.reduce((sum, store) => sum + (store.deliveryFee ?? 0), 0);
+  const membershipDeliveryDiscountTotal = stores.reduce((sum, store) => sum + store.membershipDeliveryDiscount, 0);
   return {
     type,
     stores,
@@ -168,7 +175,8 @@ export async function getCart({ userId, type }) {
     selectedCount: items.filter(({ item }) => item.isSelected).length,
     itemsTotal,
     deliveryFeeTotal,
-    grandTotal: itemsTotal + deliveryFeeTotal,
+    membershipDeliveryDiscountTotal,
+    grandTotal: itemsTotal + deliveryFeeTotal - membershipDeliveryDiscountTotal,
   };
 }
 

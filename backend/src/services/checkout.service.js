@@ -1,4 +1,5 @@
 import { randomUUID, createHash } from "node:crypto";
+import { applyDeliveryDiscount, getMembershipDeliveryDiscount } from "./membershipDelivery.service.js";
 import * as orderRepository from "../repositories/order.repository.js";
 import * as paymentRepository from "../repositories/payment.repository.js";
 import { findByAuthId } from "../repositories/user.repository.js";
@@ -688,14 +689,22 @@ export function calculateStoreQuote(
   hasPreviousOrder,
   now,
   gradeDiscountRate = 0,
+  membershipDeliveryDiscountMax = 0,
 ) {
+  // 멤버십 배달비 할인: 배달 주문의 배달비에서 매장마다 깎고, 이후 쿠폰·등급 할인·결제는 깎은 배달비를 기준으로 한다.
+  const grossDeliveryFee = fulfillment.deliveryFee;
+  const membershipDeliveryDiscountAmount =
+    fulfillment.option.fulfillmentType === "DELIVERY"
+      ? applyDeliveryDiscount(grossDeliveryFee, membershipDeliveryDiscountMax)
+      : 0;
+  const deliveryFee = grossDeliveryFee === null ? null : grossDeliveryFee - membershipDeliveryDiscountAmount;
   const unavailable = new Set(buildStockIssues(group.items, now).map((item) => item.storeProductId));
   const orderableItemsAmount = group.items.filter((item) => !unavailable.has(item.storeProductId)).reduce((sum, item) => sum + item.lineAmount, 0);
   let coupon = null;
   let discountAmount = 0;
   if (ownedCoupon) {
     const eligibility =
-      fulfillment.deliveryFee === null
+      deliveryFee === null
         ? {
             usable: false,
             reason: "QUOTE_NOT_READY",
@@ -708,7 +717,7 @@ export function calculateStoreQuote(
               userId,
               storeId: group.storeId,
               itemsAmount: orderableItemsAmount,
-              deliveryFee: fulfillment.deliveryFee,
+              deliveryFee: deliveryFee,
               fulfillmentType: fulfillment.option.fulfillmentType,
               hasPreviousOrder,
             },
@@ -725,26 +734,28 @@ export function calculateStoreQuote(
   // 회원 등급 할인은 쿠폰과 중복 적용된다 (상품 금액 기준).
   const couponDiscountAmount = discountAmount;
   const gradeDiscountAmount =
-    fulfillment.deliveryFee === null
+    deliveryFee === null
       ? 0
       : calculateGradeDiscount(
           group.itemsAmount,
           gradeDiscountRate,
-          group.itemsAmount + fulfillment.deliveryFee - couponDiscountAmount,
+          group.itemsAmount + deliveryFee - couponDiscountAmount,
         );
   discountAmount += gradeDiscountAmount;
   const totalAmount =
-    fulfillment.deliveryFee === null
+    deliveryFee === null
       ? null
       : integer(
-          group.itemsAmount + fulfillment.deliveryFee - discountAmount,
+          group.itemsAmount + deliveryFee - discountAmount,
           0,
           true,
         );
   return {
     orderableItemsAmount,
     itemsAmount: group.itemsAmount,
-    deliveryFee: fulfillment.deliveryFee,
+    deliveryFee,
+    grossDeliveryFee,
+    membershipDeliveryDiscountAmount,
     discountAmount,
     couponDiscountAmount,
     gradeDiscountAmount,
@@ -847,6 +858,7 @@ export async function previewCheckout(userId, rawInput) {
     : false;
   const stockIssues = buildStockIssues(items, now);
   const { grade } = await getUserGrade(userId, now);
+  const membershipDeliveryDiscountMax = await getMembershipDeliveryDiscount(userId, now);
   const orders = [];
   for (let index = 0; index < groups.length; index++) {
     const group = groups[index];
@@ -872,6 +884,7 @@ export async function previewCheckout(userId, rawInput) {
       hasPreviousOrder,
       now,
       grade.discountRate,
+      membershipDeliveryDiscountMax,
     );
     const issues = [...fulfillment.issues];
     if (amounts.coupon && !amounts.coupon.usable)
@@ -998,6 +1011,11 @@ export async function previewCheckout(userId, rawInput) {
       deliveryFee: orders.some((row) => row.deliveryFee === null)
         ? null
         : sum("deliveryFee"),
+      // 멤버십 배달비 할인 전 배달비와 할인 금액 (deliveryFee 는 할인한 뒤 실제 내는 배달비다)
+      grossDeliveryFee: orders.some((row) => row.grossDeliveryFee === null)
+        ? null
+        : sum("grossDeliveryFee"),
+      membershipDeliveryDiscountAmount: sum("membershipDeliveryDiscountAmount"),
       discountAmount: sum("discountAmount") + sum("cartCouponDiscountAmount"),
       cartCouponDiscountAmount: sum("cartCouponDiscountAmount"),
       couponDiscountAmount: sum("couponDiscountAmount"),

@@ -81,7 +81,8 @@ export default function CartPage() {
         listCheckoutCoupons({
           storeId: store.storeId,
           amount: store.itemsTotal,
-          deliveryFee: type === 'PICKUP' ? 0 : store.deliveryFee,
+          // 쿠폰은 멤버십 배달비 할인을 뺀 배송비를 기준으로 계산된다
+          deliveryFee: type === 'PICKUP' ? 0 : Math.max((store.deliveryFee ?? 0) - (store.membershipDeliveryDiscount ?? 0), 0),
           fulfillmentType: type,
         }),
       enabled: type === 'PICKUP' || store.deliveryFee !== null,
@@ -245,7 +246,7 @@ export default function CartPage() {
           order={{
             store: { name: couponStore.storeName },
             itemsAmount: couponStore.itemsTotal,
-            deliveryFee: type === 'PICKUP' ? 0 : couponStore.deliveryFee,
+            deliveryFee: type === 'PICKUP' ? 0 : Math.max((couponStore.deliveryFee ?? 0) - (couponStore.membershipDeliveryDiscount ?? 0), 0),
           }}
           option={{
             fulfillmentType: type,

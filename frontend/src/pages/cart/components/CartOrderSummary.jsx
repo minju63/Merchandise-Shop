@@ -29,6 +29,12 @@ export default function CartOrderSummary({ cart, type, couponDiscount }) {
             {couponDiscount > 0 ? `-${won(couponDiscount)}` : won(0)}
           </dd>
         </div>
+        {cart.membershipDeliveryDiscountTotal > 0 && (
+          <div>
+            <dt>멤버십 배달비 할인</dt>
+            <dd className="cart-order-summary__discount">-{won(cart.membershipDeliveryDiscountTotal)}</dd>
+          </div>
+        )}
         <div>
           <dt>배송비</dt>
           <dd className={isFreeDelivery ? 'is-free' : ''}>

@@ -22,7 +22,7 @@ export const CHEER_POINTS_PER_TICKET = 1000;
 export const cheerPoints = (ticketCount) => Number(ticketCount ?? 0) * CHEER_POINTS_PER_TICKET;
 export const DAILY_CHEER_LIMIT = 100;
 export const MIN_PAID_AMOUNT = 300000;
-export const CREDIT_RETURN_RATE = 105;
+export const CREDIT_RETURN_RATE = 100;
 
 // 이번 주 응원 마감(목 23:59 KST)까지 남은 일수. 마감 후면 다음 주 목요일 기준.
 export function thisWeekDeadline(now = new Date()) {
@@ -72,8 +72,7 @@ export const MOCK_RANKING = [
 ];
 
 export const RETURN_RULES = [
-  { title: '현금으로 산 응원권 → 적립금 105%', desc: '마이 적립금에 합쳐져서 굿즈 구매나 응원권 구매에 쓸 수 있어요.' },
-  { title: '적립금으로 산 응원권 → 적립금 100%', desc: '적립금이 불어나지 않도록 쓴 만큼만 돌려드려요.' },
+  { title: '응원에서 지면 → 적립금 100%', desc: '낙첨한 최애에 쓴 응원권 금액을 그대로 마이 적립금으로 돌려드려요. 현금·계좌·카드로는 환불되지 않고, 굿즈 구매나 응원권 구매에 쓸 수 있어요.' },
 ];
 
 export const GUIDE_NOTICES = [

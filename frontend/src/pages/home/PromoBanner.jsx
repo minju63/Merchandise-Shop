@@ -59,6 +59,7 @@ export default function PromoBanner({ banner, position, dragProps, onOpen, onOpe
         // 배너 디자인(당첨자가 꾸민 것)은 그대로 둔다.
         <FanBoard
           design={boardDesign}
+          footnote={dayLink ? `${dayChipLabel(banner.fanDay.date, banner.fanDay.count, banner.fanDay.birthdayOnly)} ›` : null}
           className={type !== 'FAN_FREE' ? 'fan-board--home-anniversary' : ''}
           textPosition={type !== 'FAN_FREE' ? {
             left: boardDesign?.photoUrl && boardDesign.photoLayout === 'left' ? '44%' : '6%',
@@ -96,11 +97,6 @@ export default function PromoBanner({ banner, position, dragProps, onOpen, onOpe
       )}
       {art ? <BannerArt type={type} /> : null}
       {kuji ? <span className="kuji-art" style={{ backgroundImage: `url(${kuji.art})` }} aria-hidden="true" /> : null}
-      {dayLink ? (
-        <span className="promo-banner__day">
-          {dayChipLabel(banner.fanDay.date, banner.fanDay.count, banner.fanDay.birthdayOnly)} <b aria-hidden="true">›</b>
-        </span>
-      ) : null}
       <span className="promo-banner__count">{position}</span>
     </article>
   );

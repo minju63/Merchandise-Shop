@@ -40,6 +40,9 @@ export default function CartStoreGroup({
     store.freeThreshold === null || store.freeThreshold === undefined
       ? null
       : Math.max(store.freeThreshold - itemsSum, 0);
+  // 멤버십 배달비 할인: 배송비가 붙는 매장에서 매장마다 최대 1,000원
+  const shippingFee = isDelivery && store.baseDeliveryFee > 0 && itemsSum > 0 && toFree !== 0 ? store.baseDeliveryFee : 0;
+  const memberDiscount = Math.min(store.membershipDeliveryDiscountMax ?? 0, shippingFee);
   return (
     <section className="cart-store">
       <header className="cart-store-header">
@@ -103,6 +106,12 @@ export default function CartStoreGroup({
             <dd>
               <DeliveryFee store={store} itemsSum={itemsSum} toFree={toFree} />
             </dd>
+          </div>
+        )}
+        {isDelivery && memberDiscount > 0 && (
+          <div>
+            <dt>멤버십 배달비 할인</dt>
+            <dd className="cart-store-summary__discount">-{won(memberDiscount)}</dd>
           </div>
         )}
         <div>

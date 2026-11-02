@@ -6,14 +6,20 @@ alter table point_transactions drop constraint point_transactions_type_check;
 alter table point_transactions add constraint point_transactions_type_check
   check (type = any (array['EARN', 'USE', 'USE_CANCEL', 'REVIEW_REWARD', 'KUJI_RESALE', 'CHEER_RETURN', 'CHEER_TICKET_BUY', 'CHEER_TICKET_REFUND']));
 
--- 지금까지의 응원 적립금 내역을 마이 적립금으로 옮긴다 (한 번만)
+-- 지금까지의 응원 적립금 내역을 마이 적립금으로 옮긴다
 insert into point_transactions (user_id, type, status, amount, memo, created_at)
 select l.user_id,
        case l.type when 'TICKET_BUY' then 'CHEER_TICKET_BUY' when 'TICKET_REFUND' then 'CHEER_TICKET_REFUND' when 'USE' then 'USE' when 'EXPIRE' then 'USE' else 'CHEER_RETURN' end,
        'CONFIRMED', l.amount,
        case l.type when 'RETURN_105' then '응원 반환(105%)' when 'RETURN_100' then '응원 반환(100%)' when 'TICKET_BUY' then '응원권 구매' when 'TICKET_REFUND' then '응원권 환불' when 'EXPIRE' then '응원 적립금 소멸' else '응원 적립금 사용' end,
        l.created_at
-  from reward_credit_ledger l;
+  from reward_credit_ledger l
+ -- 이미 옮긴 내역은 건너뛴다 (파일을 다시 실행해도 중복되지 않게)
+ where not exists (
+   select 1 from point_transactions p
+    where p.user_id = l.user_id and p.created_at = l.created_at and p.amount = l.amount
+      and p.type in ('CHEER_RETURN', 'CHEER_TICKET_BUY', 'CHEER_TICKET_REFUND')
+ );
 
 -- 앞으로 응원 적립금이 쌓이거나 쓰이면 같은 금액이 마이 적립금에도 기록된다
 create or replace function mirror_credit_to_points()
