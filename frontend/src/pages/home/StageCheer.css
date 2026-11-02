@@ -235,6 +235,17 @@
 }
 
 /* 최애 스테이지 안내 (/stage) */
+.stage-guide__stage {
+  margin-bottom: 8px;
+  cursor: default;
+  animation: none;
+}
+
+.stage-guide__portrait {
+  flex: none;
+  object-fit: contain;
+}
+
 .stage-guide__hero {
   margin: 0 0 8px;
   padding: 26px 20px 24px;

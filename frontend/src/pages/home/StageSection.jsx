@@ -5,6 +5,21 @@ import './StageSection.css';
 const ROW_HEIGHT = 56;
 const TICK_MS = 1600;
 
+function StageCharacter({ character, className }) {
+  return character.cutoutUrl
+    ? <img className={className} src={character.cutoutUrl} alt={character.name} draggable={false} />
+    : <span className={className}><CharacterFace character={character} size={72} /></span>;
+}
+
+function initialCharacters() {
+  try {
+    const saved = JSON.parse(sessionStorage.getItem('stage-demo-points') || '{}');
+    return STAGE_CHARACTERS.map((character) => ({ ...character, points: Number.isFinite(saved[character.id]) ? saved[character.id] : character.points }));
+  } catch {
+    return STAGE_CHARACTERS.map((character) => ({ ...character }));
+  }
+}
+
 function pickAction() {
   const total = STAGE_ACTIONS.reduce((sum, action) => sum + action.weight, 0);
   let roll = Math.random() * total;
@@ -45,8 +60,8 @@ export function CharacterFace({ character, size }) {
 }
 
 // onCheer(characterId): 응원하기(랜덤박스·최애박스) 화면으로 이동, onOpenGuide: 최애 스테이지 안내 화면으로 이동
-export default function StageSection({ onCheer, onOpenGuide }) {
-  const [characters, setCharacters] = useState(() => STAGE_CHARACTERS.map((character) => ({ ...character })));
+export default function StageSection({ onCheer, onOpenGuide, onRankingChange, compact = false }) {
+  const [characters, setCharacters] = useState(initialCharacters);
   const [previousRanks, setPreviousRanks] = useState({});
   const [feed, setFeed] = useState(null);
   const [now, setNow] = useState(() => Date.now());
@@ -68,6 +83,16 @@ export default function StageSection({ onCheer, onOpenGuide }) {
   }, []);
 
   useEffect(() => {
+    try {
+      sessionStorage.setItem('stage-demo-points', JSON.stringify(Object.fromEntries(characters.map((character) => [character.id, character.points]))));
+    } catch { /* 저장소를 사용할 수 없어도 시연은 계속한다. */ }
+  }, [characters]);
+
+  useEffect(() => {
+    onRankingChange?.(rankCharacters(characters));
+  }, [characters, onRankingChange]);
+
+  useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(timer);
   }, []);
@@ -76,13 +101,13 @@ export default function StageSection({ onCheer, onOpenGuide }) {
   const [leader, ...others] = ranked;
 
   return (
-    <section className="home-section stage-section" aria-label="LIVE 최애 스테이지">
+    <section className={`home-section stage-section${compact ? ' stage-section--compact' : ''}`} aria-label="LIVE 최애 스테이지">
       <div className="home-section-heading">
         <div>
           <h2><span className="stage-live">LIVE</span> 최애 스테이지</h2>
           <p>이번 주 무대의 주인공은? · 정산까지 {formatRemaining(nextDeadline(now) - now)}</p>
         </div>
-        {onOpenGuide ? (
+        {onOpenGuide && !compact ? (
           <button type="button" onClick={onOpenGuide}>자세히 <span aria-hidden="true">›</span></button>
         ) : null}
       </div>
@@ -90,24 +115,61 @@ export default function StageSection({ onCheer, onOpenGuide }) {
       {/* 홈에서 굿즈가 첫 화면에 같이 보이도록 1위 무대는 가로형으로 낮게 둔다 */}
       <div className="stage">
         <div className="stage__podium">
+          {compact ? (
+            <div className="stage__backing" aria-label={`백댄서: 2위 ${others[0].name}, 3위 ${others[1].name}`}>
+              <StageCharacter className="stage__dancer stage__dancer--left" character={others[0]} />
+              <StageCharacter className="stage__dancer stage__dancer--right" character={others[1]} />
+            </div>
+          ) : null}
           <div className="stage__hero" key={leader.id}>
-            <span className="stage__crown" aria-hidden="true">👑</span>
-            <div className="stage__figure"><CharacterFace character={leader} size={72} /></div>
+            <div className="stage__figure">
+              {compact ? (
+                <StageCharacter className="stage__cutout" character={leader} />
+              ) : <CharacterFace character={leader} size={72} />}
+            </div>
           </div>
           <div className="stage__floor" aria-hidden="true" />
         </div>
+        <div className={compact ? 'stage__sidebar' : 'stage__details'}>
         <div className="stage__info">
-          <p className="stage__series">1위 · {STAGE_SERIES[leader.series].name}</p>
-          <p className="stage__name">{leader.name}</p>
+          <p className="stage__series">{compact ? '' : '1위 · '}{STAGE_SERIES[leader.series].name}</p>
+          <p className="stage__name">{compact ? '1위 ' : ''}{leader.name}</p>
           <p className="stage__points">{leader.points.toLocaleString()}P</p>
-          {onCheer ? (
+          {!compact && onCheer ? (
             <button className="stage__cheer" type="button" onClick={() => onCheer(leader.id)}>
               응원하기 <span aria-hidden="true">›</span>
             </button>
           ) : null}
         </div>
+        {compact ? (
+          <div className="stage__rankings">
+          <p className="stage-demo-label">시연 순위 · 점수 갱신 중</p>
+          <ol className="stage-banner-ranking" start={2} aria-label="최애 스테이지 2~10위">
+            {characters.filter((character) => character.id !== leader.id).map((character) => {
+              const index = others.findIndex((item) => item.id === character.id);
+              const moved = character.id in previousRanks ? previousRanks[character.id] - index - 1 : 0;
+              return (
+              <li key={character.id} style={{ top: index * 15 }} className={feed?.id === character.id ? 'is-updated' : ''}>
+                <span className="stage-banner-ranking__rank">{index + 2}</span>
+                <img className="stage-banner-ranking__portrait" src={character.cutoutUrl} alt="" draggable={false} />
+                <span className="stage-banner-ranking__name">{character.name}</span>
+                <span className="stage-banner-ranking__points">{character.points.toLocaleString()}</span>
+                <span className={`stage-banner-ranking__change${moved > 0 ? ' is-up' : moved < 0 ? ' is-down' : ''}`} aria-label={moved ? `${Math.abs(moved)}계단 ${moved > 0 ? '상승' : '하락'}` : '변동 없음'}>{moved > 0 ? `↑${moved}` : moved < 0 ? `↓${-moved}` : '–'}</span>
+              </li>
+              );
+            })}
+          </ol>
+          </div>
+        ) : null}
+        {compact && onOpenGuide ? (
+          <button className="promo-banner__cta stage-banner-cta" type="button" onClick={onOpenGuide}>
+            자세히 보기 <b aria-hidden="true">›</b>
+          </button>
+        ) : null}
+        </div>
       </div>
 
+      {!compact && <>
       <p className="stage-feed" aria-live="polite">
         {feed ? <span key={feed.key}>{feed.text}</span> : '응원이 들어오면 여기에 표시돼요'}
       </p>
@@ -162,6 +224,7 @@ export default function StageSection({ onCheer, onOpenGuide }) {
           );
         })}
       </ol>
+      </>}
     </section>
   );
 }

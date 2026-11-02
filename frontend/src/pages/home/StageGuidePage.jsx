@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { DetailSection, DetailShell, NoticeList } from './BannerDetailParts.jsx';
-import { CharacterFace } from './StageSection.jsx';
+import StageSection from './StageSection.jsx';
 import { BOXES } from './boxMockData.js';
 import { STAGE_CHARACTERS, STAGE_SERIES } from './stageMockData.js';
 import './StageCheer.css';
@@ -38,7 +39,7 @@ const NOTICES = [
 
 // 홈 최애 스테이지의 "자세히" 화면 (/stage) — 실제 응원 데이터가 쌓이기 전 시연용
 export default function StageGuidePage({ onBack, onCheer }) {
-  const ranked = [...STAGE_CHARACTERS].sort((a, b) => b.points - a.points);
+  const [ranked, setRanked] = useState(() => [...STAGE_CHARACTERS].sort((a, b) => b.points - a.points));
   const leader = ranked[0];
   const exampleMine = BOXES[0].points;
   const examplePercent = ((exampleMine / leader.points) * 100).toFixed(1);
@@ -49,11 +50,9 @@ export default function StageGuidePage({ onBack, onCheer }) {
       ready
       onBack={onBack}
       hero={(
-        <div className="stage-guide__hero">
-          <p><span className="stage-live">LIVE</span> 매주 목요일 23:59 정산</p>
-          <h2>내 최애를<br />무대 위 1위로 올려요</h2>
-          <small>1위 최애를 응원한 팬에게는 한정 상품 추첨 기회!</small>
-        </div>
+        <article className="promo-banner promo-banner--stage stage-guide__stage">
+          <StageSection compact onRankingChange={setRanked} />
+        </article>
       )}
       footer={<button className="bd__btn" type="button" onClick={() => onCheer(leader.id)}>최애 응원하러 가기</button>}
     >
@@ -119,12 +118,12 @@ export default function StageGuidePage({ onBack, onCheer }) {
         </ol>
       </DetailSection>
 
-      <DetailSection title="이번 주 순위" description="상위 5명 · 홈 최애 스테이지에서 실시간으로 바뀌어요">
+      <DetailSection title="이번 주 순위" description="상위 10명 · 위 무대와 함께 갱신되는 시연 순위예요">
         <ol className="bd__rank">
-          {ranked.slice(0, 5).map((character, index) => (
+          {ranked.map((character, index) => (
             <li key={character.id}>
               <span className="bd__rank-no">{index + 1}</span>
-              <CharacterFace character={character} size={32} />
+              <img className="stage-guide__portrait" src={character.cutoutUrl} alt="" width={32} height={32} />
               <div className="bd__rank-body">
                 <strong>{character.name} <span className="stage-guide__series">{STAGE_SERIES[character.series].name}</span></strong>
                 <i style={{ width: `${Math.round((character.points / leader.points) * 100)}%` }} />

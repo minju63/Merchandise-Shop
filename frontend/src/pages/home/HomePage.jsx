@@ -3,7 +3,6 @@ import ProductCard from '../../components/ProductCard.jsx';
 import UpcomingProductCard from '../../components/UpcomingProductCard.jsx';
 import Icon from '../../components/Icon.jsx';
 import PromoBanner from './PromoBanner.jsx';
-import StageSection from './StageSection.jsx';
 import { fanBoardDesign, isFanBoardType } from '../fan/fanBoardPresets.js';
 import { brandGroupFor, hasPickedBrands, matchesInterests } from './interestMatch.js';
 import BottomNavigation from '../../components/BottomNavigation.jsx';
@@ -132,7 +131,8 @@ export default function HomePage({
   const lastImpressionId = useRef(null);
   const bannerDragState = useRef({ active: false, moved: false, startX: 0 });
   // 게시 중인 디자인이 없는 전광판은 캐러셀에서 빠지고, 카운터·점은 남은 배너 수로 센다.
-  const visibleBanners = data.banners.filter((banner) => {
+  const visibleBanners = [{ id: 'home-stage', bannerType: 'STAGE' }, ...data.banners].filter((banner) => {
+    if (banner.bannerType === 'STAGE') return true;
     if (isFanBoardType(banner.bannerType) && !fanBoardDesign(banner)) return false;
     return new Date(banner.startAt).getTime() <= currentTimestamp
       && currentTimestamp <= new Date(banner.endAt).getTime();
@@ -200,7 +200,7 @@ export default function HomePage({
   useEffect(() => {
     if (activeBannerId && lastImpressionId.current !== activeBannerId) {
       lastImpressionId.current = activeBannerId;
-      onBannerImpression?.(activeBannerId);
+      if (activeBannerId !== 'home-stage') onBannerImpression?.(activeBannerId);
     }
   }, [activeBannerId, onBannerImpression]);
 
@@ -303,6 +303,8 @@ export default function HomePage({
             <PromoBanner
               key={activeBanner.id}
               banner={activeBanner}
+              onStageCheer={onOpenStageCheer}
+              onStageGuide={onOpenStageGuide}
               position={`${normalizedBannerIndex + 1} / ${visibleBanners.length}`}
               dragProps={{
                 onPointerDown: handleBannerPointerDown,
@@ -341,8 +343,6 @@ export default function HomePage({
             </button>
           ))}
         </nav>
-
-        <StageSection onCheer={onOpenStageCheer} onOpenGuide={onOpenStageGuide} />
 
         <section className="home-section trending-section">
           <div className="home-section-heading">

@@ -1,4 +1,6 @@
 import FanBoard from '../fan/FanBoard.jsx';
+import StageSection from './StageSection.jsx';
+import Icon from '../../components/Icon.jsx';
 import { fanBoardDesign, isFanBoardType } from '../fan/fanBoardPresets.js';
 
 const DEFAULT_TITLES = {
@@ -8,6 +10,28 @@ const DEFAULT_TITLES = {
   BOX_PROMO: '박스를 열면\n한정판 피규어가 나올 수도!',
 };
 
+const BANNER_ICONS = {
+  SERVICE_INTRO: ['store', 'pin'],
+  AD: ['bag', 'store'],
+  EXHIBITION: ['gift', 'heart'],
+  FAN_PROMO: ['heart', 'mic'],
+  BOX_PROMO: ['gift', 'character'],
+};
+
+function BannerArt({ type }) {
+  const icons = BANNER_ICONS[type];
+  if (!icons) return null;
+  return (
+    <div className="promo-banner__art" aria-hidden="true">
+      <span className="promo-banner__art-halo" />
+      <span className="promo-banner__art-card"><Icon name={icons[0]} size={80} /></span>
+      <span className="promo-banner__art-badge"><Icon name={icons[1]} size={28} /></span>
+      <span className="promo-banner__art-spark promo-banner__art-spark--one">✦</span>
+      <span className="promo-banner__art-spark promo-banner__art-spark--two">✧</span>
+    </div>
+  );
+}
+
 function Cta({ onOpen }) {
   return (
     <button className="promo-banner__cta" type="button" onClick={onOpen} disabled={!onOpen}>
@@ -16,7 +40,7 @@ function Cta({ onOpen }) {
   );
 }
 
-export default function PromoBanner({ banner, position, dragProps, onOpen }) {
+export default function PromoBanner({ banner, position, dragProps, onOpen, onStageCheer, onStageGuide }) {
   const type = banner.bannerType;
   const modifier = isFanBoardType(type) ? 'fan' : type.toLowerCase().replaceAll('_', '-');
   const image = !isFanBoardType(type) && banner.imageUrl;
@@ -27,7 +51,9 @@ export default function PromoBanner({ banner, position, dragProps, onOpen }) {
       {...dragProps}
     >
       {image ? <img className="promo-banner__image" src={image} alt="" draggable={false} /> : null}
-      {isFanBoardType(type) ? (
+      {type === 'STAGE' ? (
+        <StageSection compact onCheer={onStageCheer} onOpenGuide={onStageGuide} />
+      ) : isFanBoardType(type) ? (
         // 전광판은 보기 전용: 자세히 보기도 클릭 이동도 없다.
         <FanBoard design={fanBoardDesign(banner)} />
       ) : (
@@ -47,7 +73,7 @@ export default function PromoBanner({ banner, position, dragProps, onOpen }) {
             <p className="promo-banner__eyebrow">랜덤박스 · 최애박스 · 확률 공개</p>
           ) : null}
           <h2>{banner.title || DEFAULT_TITLES[type]}</h2>
-          {type === 'BOX_PROMO' ? <span className="promo-banner__box-art" aria-hidden="true">🎁</span> : null}
+          {!image ? <BannerArt type={type} /> : null}
           <Cta onOpen={onOpen} />
         </div>
       )}

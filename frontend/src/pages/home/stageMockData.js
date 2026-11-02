@@ -1,5 +1,5 @@
 // LIVE 최애 스테이지 목업 데이터 — 실제 응원 데이터가 쌓이기 전 시연용.
-// 캐릭터 그림 대신 판매 중인 정품 굿즈 사진을 쓴다 (사진이 없는 캐릭터는 이름 첫 글자 배지).
+// 무대에는 로컬 투명 배경 이미지를 쓴다. 원본이 없는 캐릭터는 시연용 인형 이미지로 제작했다.
 const IMAGE_BASE = 'https://twjqulccljimqwggzrpf.supabase.co/storage/v1/object/public/goods-images/products';
 
 export const STAGE_SERIES = {
@@ -21,7 +21,7 @@ export const STAGE_CHARACTERS = [
   { id: 'shinobu', name: '코쵸우 시노부', series: 'KNY', points: 10260, imageUrl: `${IMAGE_BASE}/shinobu-pigure-bc925b9fdb24.png` },
   { id: 'zoro', name: '롤로노아 조로', series: 'OP', points: 9870 },
   { id: 'eren', name: '에렌 예거', series: 'AOT', points: 9120 },
-];
+].map((character) => ({ ...character, cutoutUrl: `/assets-nukki/${character.id}-cutout.png` }));
 
 // 실시간 피드에 흘러갈 기여 방법 (무료 응원 100P, 랜덤박스 1,000P, 최애박스 7,500P)
 export const STAGE_ACTIONS = [
