@@ -416,7 +416,7 @@ export default function CheckoutPage() {
       </main>
     );
 
-  const data = result?.accountId === accountId ? result.data : null;
+  const data = result && result.accountId === accountId ? result.data : null;
   const loading = !result || result.key !== key || result.accountId !== accountId;
   const setOption = (storeId) => (patch) =>
     setOverrides((prev) => ({ ...prev, [storeId]: { ...prev[storeId], ...patch } }));
