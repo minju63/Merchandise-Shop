@@ -14,14 +14,12 @@ export default function OAuthLandingGuard() {
 
   useEffect(() => {
     if (status !== 'in') return;
-    let pending = false;
     try {
-      pending = sessionStorage.getItem(OAUTH_PENDING_KEY) === '1';
-      if (pending) sessionStorage.removeItem(OAUTH_PENDING_KEY);
+      if (sessionStorage.getItem(OAUTH_PENDING_KEY) !== '1') return;
+      sessionStorage.removeItem(OAUTH_PENDING_KEY);
     } catch {
       return;
     }
-    if (!pending) return;
     getRegistrationState().then(
       (state) => {
         if (!state.registrationComplete) navigate(AUTH_ROUTES.signupTerms, { replace: true });
