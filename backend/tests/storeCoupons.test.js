@@ -55,7 +55,7 @@ test('매장 쿠폰 SQL: 발급, 주문 원자성, 취소, 접근 제어', async
     await db.exec(await readFile(new URL('../supabase/migrations/20261102052039_store_coupon_order_number_fix.sql', import.meta.url), 'utf8'));
     await db.exec(await readFile(new URL('../supabase/migrations/20261102055025_store_coupon_exception_safety.sql', import.meta.url), 'utf8'));
     await db.exec(await readFile(new URL('../supabase/migrations/20261102055905_store_coupon_cancellation_clock.sql', import.meta.url), 'utf8'));
-    await db.exec(await readFile(new URL('../supabase/migrations/20261102180000_grade_discount_checkout.sql', import.meta.url), 'utf8'));
+    await db.exec(await readFile(new URL('../supabase/migrations/20261102094152_grade_discount_checkout.sql', import.meta.url), 'utf8'));
     const seed = await readFile(new URL('../supabase/store_coupons_seed.sql', import.meta.url), 'utf8');
     await db.exec(seed);
     await db.exec(seed);
