@@ -224,7 +224,6 @@ export default function CartPage() {
             ))}
             <CartOrderSummary
               cart={cart}
-              items={items}
               type={type}
               couponDiscount={couponDiscount}
             />

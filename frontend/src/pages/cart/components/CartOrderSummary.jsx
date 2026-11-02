@@ -8,10 +8,7 @@ function goodsPickRate(amount) {
   return 0;
 }
 
-export default function CartOrderSummary({ cart, items, type, couponDiscount }) {
-  const selected = items.filter((item) => item.available && item.isSelected);
-  const originalAmount = selected.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const productDiscount = Math.max(originalAmount - cart.itemsTotal, 0);
+export default function CartOrderSummary({ cart, type, couponDiscount }) {
   const finalAmount = Math.max(cart.grandTotal - couponDiscount, 0);
   const basicReward = Math.floor(finalAmount * 0.01);
   const accountRate = goodsPickRate(cart.itemsTotal);
@@ -24,11 +21,7 @@ export default function CartOrderSummary({ cart, items, type, couponDiscount }) 
       <dl className="cart-order-summary__prices">
         <div>
           <dt>총 상품금액</dt>
-          <dd>{won(originalAmount)}</dd>
-        </div>
-        <div>
-          <dt>상품할인</dt>
-          <dd>{productDiscount > 0 ? `-${won(productDiscount)}` : won(0)}</dd>
+          <dd>{won(cart.itemsTotal)}</dd>
         </div>
         <div>
           <dt>쿠폰할인</dt>
