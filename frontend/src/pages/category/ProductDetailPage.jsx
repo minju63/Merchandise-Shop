@@ -29,16 +29,21 @@ function ProductDetailPageContent({
 }) {
   const [feedbackTab, setFeedbackTab] = useState('description');
   const { storeProductId } = useParams();
+  const [allReviewsView, setAllReviewsView] = useState(null);
+  const [mineReviewView, setMineReviewView] = useState(null);
+  const mineOnly = Boolean(user?.id && user.is_anonymous !== true && mineReviewView === storeProductId);
   const location = useLocation();
   const navigate = useNavigate();
-  const listReturnTo = /^\/(?:category\/products|search\/results|stores\/[^/?#]+)(?:\?|$)/.test(location.state?.listReturnTo ?? '')
+  const hasValidReturnTo = /^(?:\/(?:category\/products|search\/results|stores\/[^/?#]+)(?:\?|$)|\/my\/orders\/[0-9a-f-]{36}$)/.test(location.state?.listReturnTo ?? '');
+  const listReturnTo = hasValidReturnTo
     ? location.state.listReturnTo
     : '/category/products';
-  const backLabel = listReturnTo.startsWith('/search/results')
+  const backLabel = !hasValidReturnTo ? '' : listReturnTo.startsWith('/search/results')
     ? '검색 결과로 돌아가기'
-    : listReturnTo.startsWith('/stores/') ? '굿즈샵으로 돌아가기' : '상품 목록';
+    : listReturnTo.startsWith('/stores/') ? '굿즈샵으로 돌아가기'
+      : listReturnTo.startsWith('/my/orders/') ? '주문 상세로 돌아가기' : '상품 목록';
   const returnToList = (event) => {
-    if (listReturnTo.startsWith('/stores/') && !event.metaKey && !event.ctrlKey
+    if ((!hasValidReturnTo || listReturnTo.startsWith('/stores/') || listReturnTo.startsWith('/my/orders/')) && !event.metaKey && !event.ctrlKey
       && !event.shiftKey && !event.altKey && window.history.state?.idx > 0) {
       event.preventDefault();
       navigate(-1);
@@ -53,8 +58,8 @@ function ProductDetailPageContent({
     [api, client, storeProductId]
   );
   const reviewsLoad = useCallback(
-    (signal) => api.getProductReviews(storeProductId, { signal }, client),
-    [api, client, storeProductId]
+    (signal) => api.getProductReviews(storeProductId, { signal, mineOnly }, client),
+    [api, client, storeProductId, mineOnly]
   );
   const similarLoad = useCallback(
     (signal) => api.getSimilarStores?.(storeProductId, { signal }, client) ?? [],
@@ -80,7 +85,7 @@ function ProductDetailPageContent({
     const notFound = request.error?.response?.status === 404 || !request.error;
     return (
       <main className="category-page">
-        <Link to={listReturnTo} onClick={returnToList}>{backLabel}</Link>
+        <Link to={listReturnTo} onClick={returnToList}>{backLabel || '뒤로가기'}</Link>
         <ProductEmptyState
           message={notFound ? '상품을 찾을 수 없습니다.' : '상품을 불러오지 못했습니다.'}
           onRetry={notFound ? undefined : request.retry}
@@ -94,7 +99,7 @@ function ProductDetailPageContent({
     (product.status === 'ON_SALE' && product.stock <= 0 ? 'SOLD_OUT' : product.status);
   return (
     <main className="category-page category-detail">
-      <Link className="category-detail-back" to={listReturnTo} onClick={returnToList}>
+      <Link className="category-detail-back" to={listReturnTo} onClick={returnToList} aria-label={backLabel || '뒤로가기'}>
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m15 5-7 7 7 7" /></svg>
         {backLabel}
       </Link>
@@ -132,6 +137,11 @@ function ProductDetailPageContent({
         </div> : feedbackTab === 'reviews' ? <ProductReviewSection
           key={storeProductId}
           storeProductId={storeProductId}
+          storeId={product.storeId}
+          showAll={allReviewsView === storeProductId}
+          onShowAll={() => setAllReviewsView(storeProductId)}
+          mineOnly={mineOnly}
+          onToggleMine={() => setMineReviewView(mineOnly ? null : storeProductId)}
           client={client}
           api={api}
           reviews={reviews.data}

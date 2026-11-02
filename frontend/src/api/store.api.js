@@ -58,4 +58,12 @@ export const storeApi = {
     if (!response.success) throw new Error(response.message || '좋아요를 처리하지 못했습니다.');
     return response.data;
   },
+  toggleProductReviewLike: async (reviewId, liked) => {
+    const headers = await authHeaders();
+    const response = liked
+      ? await client.put(`/reviews/${encodeURIComponent(reviewId)}/like`, {}, { headers })
+      : await client.delete(`/reviews/${encodeURIComponent(reviewId)}/like`, { headers });
+    if (!response.success) throw new Error(response.message || '좋아요를 처리하지 못했습니다.');
+    return response.data;
+  },
 };

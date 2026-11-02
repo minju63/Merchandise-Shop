@@ -303,7 +303,7 @@
 .store-meta {
   font-size: 12px;
   margin-top: 7px !important;
-  white-space: nowrap;
+  white-space: normal;
 }
 .star {
   color: #ff9f34;
@@ -761,6 +761,7 @@
 }
 .detail-rating {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 7px;
   margin-top: 15px;
@@ -776,6 +777,7 @@
 }
 .detail-review-link {
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 6px;
   min-height: 32px;
@@ -1107,8 +1109,11 @@
 .review-summary-rating strong { font-size: 30px; }
 .review-main .review-summary-rating .review-stars { margin: 0 4px 0 0; font-size: 30px; }
 .review-summary p { color: #5b636e; margin: 10px 0 18px; font-size: 13px; }
-.review-write-button { display: block; width: 100%; margin-top: 18px; padding: 12px; border: 1px solid #242a33; border-radius: 8px; color: #fff; background: #242a33; font-weight: 700; font-size: 14px; text-align: center; }
+.review-write-button { display: block; width: 100%; margin-top: 14px; padding: 12px; border: 1px solid #242a33; border-radius: 8px; color: #fff; background: #242a33; font-weight: 700; font-size: 14px; text-align: center; }
 .review-write-button:disabled { opacity: .5; }
+.review-type-tabs { display: flex; gap: 8px; padding-top: 16px; }
+.review-type-tabs button { flex: 1; min-width: 0; padding: 10px 6px; border: 1px solid #e8e4ed; border-radius: 8px; background: #fff; color: #686272; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+.review-type-tabs button.is-active { border-color: #6846d8; background: #f8f5ff; color: #6846d8; }
 .review-list-section { padding-top: 17px; }
 .review-main .section-heading {
   gap: 10px;
@@ -1173,6 +1178,9 @@
 .review-main .review-stars { font-size: 20px; }
 .review-stars span:last-child { color: #606975; font-size: 12px; }
 .review-product { color: #727b86; font-size: 12px; margin: 10px 0 0; }
+.review-product-snapshot { display: flex; align-items: center; gap: 10px; margin-top: 12px; color: #44404d; font-size: 13px; }
+.review-product-snapshot img, .review-product-snapshot span { width: 44px; height: 44px; flex: none; border-radius: 6px; background: #f5f6f8; object-fit: cover; }
+.review-product-snapshot span { display: grid; place-items: center; color: #8b939d; font-size: 10px; }
 .review-content { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14px; line-height: 1.6; margin: 12px 0 0; }
 .review-images { display: flex; gap: 7px; overflow-x: auto; margin-top: 12px; }
 .review-images img { width: 76px; height: 76px; flex: none; object-fit: cover; border-radius: 6px; }

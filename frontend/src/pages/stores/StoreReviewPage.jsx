@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import RatingStars from '../../components/RatingStars.jsx';
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { storeApi } from '../../api/store.api.js';
 import { supabase } from '../../lib/supabase.js';
@@ -20,12 +20,21 @@ const sorts = [
 export default function StoreReviewPage() {
   const { confirm, dialog } = useDialog();
   const { storeId } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const type = searchParams.get('type') === 'product' ? 'product' : 'store';
   const location = useLocation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [sort, setSort] = useState('latest');
   const [mineOnly, setMineOnly] = useState(false);
   const [page, setPage] = useState(1);
+  useEffect(() => {
+    if (searchParams.has('type') && !['store', 'product'].includes(searchParams.get('type'))) {
+      const next = new URLSearchParams(searchParams);
+      next.set('type', 'store');
+      setSearchParams(next, { replace: true, state: location.state });
+    }
+  }, [location.state, searchParams, setSearchParams]);
   const session = useQuery({
     queryKey: ['review-auth-session'],
     queryFn: async () => (await supabase.auth.getSession()).data.session,
@@ -37,6 +46,17 @@ export default function StoreReviewPage() {
     !session.isFetching &&
     Boolean(session.data) &&
     session.data.user?.is_anonymous !== true;
+  useEffect(() => {
+    if (!supabase) return undefined;
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      setTimeout(() => {
+        if (!nextSession || nextSession.user?.is_anonymous === true) setMineOnly(false);
+        void queryClient.invalidateQueries({ queryKey: ['review-auth-session'] });
+        void queryClient.invalidateQueries({ queryKey: ['store-reviews', storeId] });
+      }, 0);
+    });
+    return () => subscription.unsubscribe();
+  }, [queryClient, storeId]);
   const eligible = useQuery({
     queryKey: ['reviewable-items', storeId],
     queryFn: () => storeApi.reviewableItems(storeId),
@@ -44,16 +64,21 @@ export default function StoreReviewPage() {
     refetchOnMount: 'always',
   });
   const { data, isPending, isError, error, refetch } = useQuery({
-    queryKey: ['store-reviews', storeId, session.data?.user?.id ?? 'guest', mineOnly, sort, page],
-    queryFn: () => storeApi.reviews(storeId, { sort, page, size: 20, mineOnly }),
+    queryKey: ['store-reviews', storeId, type, session.data?.user?.id ?? 'guest', mineOnly, sort, page, 20],
+    queryFn: () => storeApi.reviews(storeId, { type, sort, page, size: 20, mineOnly }),
     enabled: !supabase || session.isSuccess || session.isError,
     refetchOnMount: 'always',
   });
   const reviews = data?.data;
+  useEffect(() => {
+    if (!reviews || page <= Math.max(1, reviews.totalPages)) return undefined;
+    const timer = setTimeout(() => setPage(Math.max(1, reviews.totalPages)), 0);
+    return () => clearTimeout(timer);
+  }, [reviews, page]);
   const deleteMutation = useMutation({
     mutationFn: storeApi.deleteStoreReview,
     onSuccess: async () => {
-      await Promise.all([
+      await Promise.allSettled([
         queryClient.invalidateQueries({ queryKey: ['store-reviews', storeId] }),
         queryClient.invalidateQueries({ queryKey: ['store', storeId] }),
         queryClient.invalidateQueries({ queryKey: ['stores'] }),
@@ -91,39 +116,57 @@ export default function StoreReviewPage() {
         ) : (
           <>
             <section className="review-summary">
-              <h2>{reviews.store.name}</h2>
+              <h2>{reviews.store.name} · 전체 리뷰 {reviews.reviewSummary.totalReviewCount}개</h2>
               <div className="review-summary-rating">
                 {reviews.rating == null ? (
-                  <strong>평점 없음</strong>
+                  <strong>{type === 'store' ? '가게 평점 없음' : '상품 평점 없음'}</strong>
                 ) : (
                   <>
                     <RatingStars value={reviews.rating} size={26} />
-                    <strong>{reviews.rating.toFixed(1)}</strong>
+                    <strong>{type === 'store' ? '가게 평점' : '상품 평점'} {reviews.rating.toFixed(1)}</strong>
                   </>
                 )}
               </div>
-              {isMemberSession && eligible.isSuccess && !eligible.isFetching && (
-                <Link
-                  className="review-write-button"
-                  to={`/stores/${storeId}/reviews/write`}
-                  state={{
-                    fromStoreDetail: Boolean(location.state?.fromStoreDetail),
-                    fromProductDetail: Boolean(location.state?.fromProductDetail),
-                    returnToReview: true,
-                    review: eligible.data.data.review,
-                  }}
-                >
-                  {eligible.data.data.review ? '리뷰 수정하기' : '리뷰 쓰기'}
-                </Link>
-              )}
             </section>
+            <div className="review-type-tabs" role="tablist" aria-label="리뷰 종류">
+              {[
+                ['store', `가게 리뷰 ${reviews.reviewSummary.storeReviewCount}개`],
+                ['product', `상품 전체 리뷰 ${reviews.reviewSummary.productReviewCount}개`],
+              ].map(([value, label]) => (
+                <button key={value} type="button" role="tab" aria-selected={type === value}
+                  className={type === value ? 'is-active' : ''}
+                  onClick={() => {
+                    if (type === value) return;
+                    const next = new URLSearchParams(searchParams);
+                    next.set('type', value);
+                    setSearchParams(next, { replace: true, state: location.state });
+                    setMineOnly(false);
+                    setSort('latest');
+                    setPage(1);
+                  }}>{label}</button>
+              ))}
+            </div>
+            {type === 'store' && isMemberSession && eligible.isSuccess && !eligible.isFetching && (
+              <Link
+                className="review-write-button"
+                to={`/stores/${storeId}/reviews/write`}
+                state={{
+                  fromStoreDetail: Boolean(location.state?.fromStoreDetail),
+                  fromProductDetail: Boolean(location.state?.fromProductDetail),
+                  returnToReview: true,
+                  review: eligible.data.data.review,
+                }}
+              >
+                {eligible.data.data.review ? '리뷰 수정하기' : '리뷰 쓰기'}
+              </Link>
+            )}
             <section className="review-list-section" aria-label="리뷰 목록">
               <div className="section-heading">
                 <div className="review-list-title">
                   <strong>
                     {mineOnly
                       ? `내 리뷰 ${reviews.resultCount ?? 0}개`
-                      : `전체 리뷰 ${reviews.reviewCount}개`}
+                      : `${type === 'store' ? '가게 리뷰' : '상품 전체 리뷰'} ${reviews.reviewCount}개`}
                   </strong>
                   {isMemberSession && (
                     <button
@@ -162,6 +205,8 @@ export default function StoreReviewPage() {
                 reviews.items.map((review) => (
                   <StoreReviewCard
                     key={review.id}
+                    type={type}
+                    storeId={storeId}
                     review={{
                       ...review,
                       isMine: review.isMine,
@@ -170,12 +215,11 @@ export default function StoreReviewPage() {
                     canLike={isMemberSession}
                     onLogin={() => navigate(`/login?returnTo=${encodeURIComponent(`${location.pathname}${location.search}`)}`)}
                     onLike={async (liked) => {
-                      const result = await storeApi.toggleStoreReviewLike(review.id, liked);
+                      const result = await (type === 'store' ? storeApi.toggleStoreReviewLike : storeApi.toggleProductReviewLike)(review.id, liked);
                       await queryClient.invalidateQueries({ queryKey: ['store-reviews', storeId] });
                       return result;
                     }}
-                    onEdit={() =>
-                      navigate(`/stores/${storeId}/reviews/write`, {
+                    onEdit={() => navigate(`/stores/${storeId}/reviews/write`, {
                         state: {
                           review,
                           isMine: true,

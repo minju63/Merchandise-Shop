@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import Icon from './Icon.jsx';
 import NotificationBell from '../../../components/NotificationBell.jsx';
@@ -8,9 +8,13 @@ export { default as TabBar } from '../../../components/BottomNavigation.jsx';
 
 export function StoreHeader({ back = false, searchContext = null }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const orderReturnTo = /^\/my\/orders\/[0-9a-f-]{36}$/.test(location.state?.orderReturnTo ?? '')
+    ? location.state.orderReturnTo
+    : null;
   const goBack = () => {
     if (window.history.state?.idx > 0) navigate(-1);
-    else navigate('/stores', { replace: true });
+    else navigate(orderReturnTo ?? '/stores', { replace: true });
   };
 
   if (!back) {

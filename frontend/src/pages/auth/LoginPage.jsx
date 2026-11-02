@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabase.js';
-import { BagIcon } from '../my/icons.jsx';
+import goodsPickLogo from '../../assets/goods-pick-logo.png';
 import { useSession } from '../my/hooks.js';
 import { getRegistrationState } from '../../api/auth.api.js';
 import { EMAIL_PATTERN } from './authRules.js';
@@ -135,9 +135,7 @@ export default function LoginPage() {
   return (
     <main className="lg-page lg-login">
       <section className="lg-brand">
-        <span className="lg-brand__logo">
-          <BagIcon width={36} height={36} />
-        </span>
+        <img className="lg-brand__logo" src={goodsPickLogo} alt="굿즈픽 로고" width={76} height={76} />
         <h1 className="lg-brand__name">굿즈픽</h1>
         <p className="lg-brand__tag">
           우리 동네 굿즈샵 재고를 한눈에,

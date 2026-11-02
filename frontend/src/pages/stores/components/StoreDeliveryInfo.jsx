@@ -46,10 +46,6 @@ export default function StoreDeliveryInfo({ data }) {
           <span>{info.courier_name}</span>
         </div>
       )}
-      <div className="guide-line">
-        <strong>등록된 배송 지역</strong>
-        <span>{data.areas?.length ? data.areas.map((area) => area.regionName).filter(Boolean).join(', ') || '지역 정보가 없습니다.' : '지역 정보가 없습니다.'}</span>
-      </div>
       {info.guide_text && <p>{info.guide_text}</p>}
     </div>
   );

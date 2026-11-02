@@ -44,7 +44,7 @@ const ICONS = {
 const BADGES = {
   SERVICE_INTRO: '픽업',
   AD: '20%',
-  EXHIBITION: '12월',
+  EXHIBITION: '11월',
   BOX_PROMO: '?',
   FAN_PROMO: '♥',
 };
