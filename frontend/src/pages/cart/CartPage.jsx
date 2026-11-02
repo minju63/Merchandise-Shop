@@ -9,6 +9,7 @@ import { isAuthError } from '../../api/wishlist.api.js';
 import CartTabBar from './components/CartTabBar.jsx';
 import CartStoreGroup from './components/CartStoreGroup.jsx';
 import CartPriceBar from './components/CartPriceBar.jsx';
+import CartOrderSummary from './components/CartOrderSummary.jsx';
 import CartEmptyState, { CartLoginRequired } from './components/CartEmptyState.jsx';
 import './CartPage.css';
 
@@ -142,6 +143,12 @@ export default function CartPage() {
                 onRemove={(item) => removeMutation.mutate([item.cartItemId])}
               />
             ))}
+            <CartOrderSummary
+              cart={cart}
+              items={items}
+              type={type}
+              onCoupon={() => setNotice('쿠폰은 결제 화면에서 선택할 수 있어요')}
+            />
           </>
         ) : (
           <CartEmptyState type={type} />
