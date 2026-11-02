@@ -4,12 +4,14 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { fanApi } from '../../api/fan.api.js';
 import { supabase } from '../../lib/supabase.js';
 import { useSession } from '../my/hooks.js';
-import { listPaymentMethods } from '../my/account.api.js';
+import { createPaymentMethod, listPaymentMethods } from '../my/account.api.js';
 import FanCheerPage from './FanCheerPage.jsx';
 import FanTicketsPage from './FanTicketsPage.jsx';
 import FanResultPage from './FanResultPage.jsx';
 import FanDesignPage from './FanDesignPage.jsx';
 import FanRankingPage from './FanRankingPage.jsx';
+import FanDayPage from './FanDayPage.jsx';
+import { cheerPoints } from './fanGuideData.js';
 
 const RANKING_REFRESH_MS = 5000;
 
@@ -32,6 +34,7 @@ export function FanTicketsRoute() {
   const [method, setMethod] = useState('CASH');
   const [selected, setSelected] = useState(null);
   const [notice, setNotice] = useState('');
+  const [paymentOption, setPaymentOption] = useState(null);
   const [methodId, setMethodId] = useState(null);
   const [agreed, setAgreed] = useState(false);
   const me = useQuery({ queryKey: ['fan-me'], queryFn: fanApi.me, enabled: loggedIn, retry: false });
@@ -44,25 +47,35 @@ export function FanTicketsRoute() {
     retry: false,
   });
   const methodItems = methods.data?.items ?? [];
-  const activeMethodId = methodId ?? methodItems.find((item) => item.is_default)?.id ?? methodItems[0]?.id ?? null;
+  const bankAccounts = methodItems.filter((item) => item.method_type === 'BANK_ACCOUNT');
   const refresh = () => {
     queryClient.invalidateQueries({ queryKey: ['fan-me'] });
     queryClient.invalidateQueries({ queryKey: ['fan-tickets'] });
   };
   const buy = useMutation({
-    mutationFn: ({ kind, value }) => (kind === 'CASH' ? fanApi.buyWithCash(value, activeMethodId) : fanApi.buyWithCredit(value)),
+    mutationFn: ({ kind, value }) => (kind === 'CASH'
+      ? fanApi.buyWithCash(value, paymentOption, methodId)
+      : fanApi.buyWithCredit(value)),
     onSuccess: (response) => {
       refresh();
-      setNotice(`응원권 ${response.data.bought}장을 구매했어요.`);
+      setNotice(`응원권 ${response.data.bought}장 · 응원포인트 ${cheerPoints(response.data.bought).toLocaleString('ko-KR')}점을 구매했어요.`);
       setSelected(null);
       setAgreed(false);
     },
   });
   const refund = useMutation({
-    mutationFn: fanApi.refundPack,
+    mutationFn: async ({ packId, account }) => {
+      const created = await createPaymentMethod({
+        methodType: 'BANK_ACCOUNT',
+        providerName: account.bank.trim(),
+        last4: account.last4,
+        alias: account.holder.trim(),
+      });
+      return fanApi.refundPack(packId, created.paymentMethod.id);
+    },
     onSuccess: (response) => {
       refresh();
-      setNotice(`${response.data.amount.toLocaleString('ko-KR')}원을 ${response.data.source === 'CASH' ? '결제 취소로' : '적립금으로'} 돌려드렸어요.`);
+      setNotice(`환불 신청이 완료됐어요. ${response.data.amount.toLocaleString('ko-KR')}원 환불까지 영업일 기준 2~3일이 걸릴 수 있어요.`);
     },
   });
   const mutationError = buy.error?.message ?? refund.error?.message;
@@ -76,17 +89,27 @@ export function FanTicketsRoute() {
       working={buy.isPending || refund.isPending}
       error={mutationError ?? me.error?.message}
       notice={notice}
-      paymentMethods={methods.data ? methodItems : undefined}
-      paymentMethodId={activeMethodId}
+      paymentMethods={methods.data ? bankAccounts : undefined}
+      paymentOption={paymentOption}
+      paymentMethodId={methodId}
       agreed={agreed}
-      onSelectPaymentMethod={setMethodId}
+      onSelectPaymentOption={(option, id = null) => { setPaymentOption(option); setMethodId(id); setAgreed(false); }}
       onAgree={setAgreed}
       onAddPaymentMethod={() => navigate('/my/payment-methods')}
       onBack={goBack(navigate, '/fan/guide')}
-      onChangeMethod={(next) => { setMethod(next); setSelected(null); setNotice(''); buy.reset(); refund.reset(); }}
+      onChangeMethod={(next) => {
+        setMethod(next);
+        setSelected(null);
+        setPaymentOption(null);
+        setMethodId(null);
+        setAgreed(false);
+        setNotice('');
+        buy.reset();
+        refund.reset();
+      }}
       onSelect={(value) => { setSelected(value); setNotice(''); buy.reset(); }}
       onBuy={() => buy.mutate({ kind: method, value: selected })}
-      onRefund={(packId) => { setNotice(''); refund.mutate(packId); }}
+      onRefund={(packId, account) => { setNotice(''); return refund.mutateAsync({ packId, account }); }}
       onCheer={() => navigate('/fan/cheer')}
     />
   );
@@ -255,6 +278,129 @@ export function FanDesignRoute() {
       onSave={(payload, paths) => save.mutate({ payload, paths })}
       onSubmit={(payload, paths) => submit.mutate({ payload, paths })}
       onUpload={(file, target) => uploadDesignImage(designId, file, target)}
+    />
+  );
+}
+
+// 홈 4번 기념일 전광판을 누르면 열리는 "오늘 기념일인 최애" 화면 (/fan-banner/day/:date)
+export function FanDayRoute() {
+  const { date } = useParams();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { status } = useSession();
+  const loggedIn = status === 'in';
+  const [notice, setNotice] = useState('');
+  const query = useQuery({
+    queryKey: ['fan-day', date, loggedIn],
+    queryFn: () => fanApi.day(date),
+    enabled: status !== 'loading',
+    retry: false,
+  });
+  const board = query.data?.data;
+  const refresh = () => queryClient.invalidateQueries({ queryKey: ['fan-day', date] });
+  const toLogin = () => navigate(`/login?returnTo=${encodeURIComponent(`/fan-banner/day/${date}`)}`);
+  const like = useMutation({
+    mutationFn: (characterId) => fanApi.toggleDayLike(date, characterId),
+    onMutate: async (characterId) => {
+      await queryClient.cancelQueries({ queryKey: ['fan-day', date] });
+      const previous = queryClient.getQueriesData({ queryKey: ['fan-day', date] });
+      queryClient.setQueriesData({ queryKey: ['fan-day', date] }, (current) => {
+        if (!current?.data) return current;
+        const toggle = (item) => item.characterId === characterId
+          ? { ...item, liked: !item.liked, likeCount: Math.max(0, item.likeCount + (item.liked ? -1 : 1)) }
+          : item;
+        return {
+          ...current,
+          data: {
+            ...current.data,
+            ranked: current.data.ranked.map(toggle),
+            others: current.data.others.map(toggle),
+          },
+        };
+      });
+      return { previous };
+    },
+    onError: (_error, _characterId, context) => {
+      context?.previous.forEach(([key, value]) => queryClient.setQueryData(key, value));
+    },
+    onSettled: refresh,
+  });
+  const congrats = useMutation({
+    mutationFn: ({ characterId, message }) => fanApi.addDayCongrats(date, characterId, message),
+    onSuccess: (response) => {
+      refresh();
+      setNotice(response.data.hidden ? '등록했어요. 운영 정책에 어긋나는 글은 숨김 처리돼요.' : '축하 한마디를 남겼어요!');
+    },
+  });
+  const updateCongrats = useMutation({
+    mutationFn: ({ id, message }) => fanApi.updateDayCongrats(date, id, message),
+    onSuccess: (response) => {
+      refresh();
+      setNotice(response.data.hidden ? '수정했어요. 운영 정책에 어긋나는 글은 숨김 처리돼요.' : '축하 한마디를 수정했어요.');
+    },
+  });
+  const deleteCongrats = useMutation({
+    mutationFn: (id) => fanApi.deleteDayCongrats(date, id),
+    onSuccess: () => {
+      refresh();
+      setNotice('축하 한마디를 삭제했어요.');
+    },
+  });
+
+  // 굿즈는 기획전 상세로 연다. 누른 최애가 캘린더에서 선택된 상태가 되도록 이름과 날짜를 함께 넘긴다.
+  const openGoods = (item) => {
+    const bannerId = board?.exhibitionBannerId;
+    if (!item) return navigate(bannerId ? `/exhibitions/${bannerId}?character=all` : '/search');
+    if (!bannerId) return navigate(`/search/results?q=${encodeURIComponent(item.name)}`);
+    return navigate(`/exhibitions/${bannerId}?character=${encodeURIComponent(item.name)}&date=${date}`);
+  };
+
+  return (
+    <FanDayPage
+      date={date}
+      board={board}
+      error={query.error?.response?.data?.message ?? query.error?.message}
+      loggedIn={loggedIn}
+      busy={like.isPending}
+      posting={congrats.isPending || updateCongrats.isPending || deleteCongrats.isPending}
+      congratsNotice={notice}
+      congratsError={congrats.error?.message ?? updateCongrats.error?.message ?? deleteCongrats.error?.message ?? like.error?.message}
+      onBack={goBack(navigate, '/')}
+      onRetry={() => query.refetch()}
+      onLike={(item) => (loggedIn ? like.mutate(item.characterId) : toLogin())}
+      onGoods={openGoods}
+      onGoodsAll={openGoods}
+      onSubmitCongrats={async (input) => {
+        if (!loggedIn) {
+          toLogin();
+          return false;
+        }
+        setNotice('');
+        try {
+          await congrats.mutateAsync(input);
+          return true;
+        } catch {
+          return false;
+        }
+      }}
+      onUpdateCongrats={async (input) => {
+        setNotice('');
+        try {
+          await updateCongrats.mutateAsync(input);
+          return true;
+        } catch {
+          return false;
+        }
+      }}
+      onDeleteCongrats={async (id) => {
+        setNotice('');
+        try {
+          await deleteCongrats.mutateAsync(id);
+          return true;
+        } catch {
+          return false;
+        }
+      }}
     />
   );
 }

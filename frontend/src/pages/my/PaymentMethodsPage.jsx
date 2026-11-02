@@ -12,6 +12,7 @@ import { useRequest, useRequireLogin } from './hooks.js';
 import { MY_ROUTES } from './routes.js';
 import './orders.css';
 import './account.css';
+import { useDialog } from '../../components/useDialog.jsx';
 
 const TYPE_ICON = { CARD: CardIcon, BANK_ACCOUNT: BankIcon, EASY_PAY: WalletIcon };
 
@@ -138,6 +139,7 @@ function AddSheet({ onClose, onDone }) {
 }
 
 export default function PaymentMethodsPage() {
+  const { confirm, dialog } = useDialog();
   const signedIn = useRequireLogin(MY_ROUTES.login);
   const methods = useRequest(signedIn, 'payment-methods', listPaymentMethods);
   const [adding, setAdding] = useState(false);
@@ -181,8 +183,8 @@ export default function PaymentMethodsPage() {
             )}
             <button
               type="button"
-              onClick={() =>
-                window.confirm('이 결제수단을 삭제할까요?') &&
+              onClick={async () =>
+                (await confirm('이 결제수단을 삭제할까요?', { confirmLabel: '삭제', danger: true })) &&
                 run(() => deletePaymentMethod(method.id))
               }
             >
@@ -219,6 +221,7 @@ export default function PaymentMethodsPage() {
           }}
         />
       ) : null}
+      {dialog}
     </main>
   );
 }

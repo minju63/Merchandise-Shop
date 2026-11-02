@@ -116,6 +116,20 @@ export async function listOwnedGroup(userId, groupId) {
 export async function listItems(orderId) {
   return all("order_items", "*", [["eq", "order_id", orderId]]);
 }
+export async function findReviewedItemIds(userId, itemIds) {
+  if (!itemIds.length) return [];
+  const db = await database();
+  const rows = check(
+    await db
+      .from("reviews")
+      .select("order_item_id")
+      .eq("user_id", userId)
+      .in("order_item_id", itemIds)
+      .eq("is_hidden", false)
+      .is("deleted_at", null),
+  );
+  return (rows ?? []).map((row) => row.order_item_id);
+}
 export async function listHistories(orderId) {
   return all(
     "order_status_histories",
@@ -254,6 +268,21 @@ export async function cancelOwnedPaid(userId, orderId, memo) {
   );
   if (row) await appendStatusHistory(orderId, "PAID", "CANCELED", userId, memo);
   return row;
+}
+export async function confirmOwnedPurchase(userId, orderId) {
+  const db = await database();
+  const now = new Date().toISOString();
+  return check(
+    await db
+      .from("orders")
+      .update({ purchase_confirmed_at: now, updated_at: now })
+      .eq("id", orderId)
+      .eq("user_id", userId)
+      .eq("status", "COMPLETED")
+      .is("purchase_confirmed_at", null)
+      .select("*")
+      .maybeSingle(),
+  );
 }
 export async function changeOwnedAddress(userId, orderId, patch) {
   const db = await database();

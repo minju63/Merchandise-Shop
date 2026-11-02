@@ -159,12 +159,12 @@ export async function softDeleteOwnedStoreReview(userId, id) {
   );
 }
 export async function listCompletedItems(userId) {
-  const orders = await all("orders", "id", [
+  const orders = await all("orders", "id,purchase_confirmed_at", [
     ["eq", "user_id", userId],
     ["eq", "status", "COMPLETED"],
   ]);
   const result = [];
-  for (const order of orders) {
+  for (const order of orders.filter((row) => row.purchase_confirmed_at)) {
     const rows = await all("order_items", "*,sale:store_products(product_id)", [
       ["eq", "order_id", order.id],
     ]);
@@ -351,6 +351,41 @@ export async function synchronizeStoreRating(storeId) {
   return store;
 }
 
+export async function getPublicProductReviews(productId, { sort, page, size }) {
+  const column = sort === "latest" ? "created_at" : "rating";
+  const ascending = sort === "low";
+  let query = (await database())
+    .from("reviews")
+    .select("id,user_id,rating,content,created_at,images:review_images(image_url,display_order)", {
+      count: "exact",
+    })
+    .eq("product_id", productId)
+    .eq("is_hidden", false)
+    .is("deleted_at", null)
+    .order(column, { ascending });
+  if (column !== "created_at") query = query.order("created_at", { ascending: false });
+  const result = await query
+    .order("id", { ascending: false })
+    .range((page - 1) * size, page * size - 1);
+  check(result);
+  return { rows: result.data ?? [], totalCount: result.count ?? 0 };
+}
+
+export function summarizeProductReviews(rows) {
+  const count = rows.length;
+  return {
+    reviewCount: count,
+    averageRating: count ? Math.round(rows.reduce((sum, row) => sum + Number(row.rating), 0) / count * 10) / 10 : null,
+    satisfactionPercent: count ? Math.round(rows.filter((row) => Number(row.rating) >= 4).length / count * 100) : null,
+  };
+}
+
+export async function getPublicProductReviewSummary(productId) {
+  return summarizeProductReviews(await all('reviews', 'id,rating', [
+    ['eq', 'product_id', productId], ['eq', 'is_hidden', false], ['is', 'deleted_at', null],
+  ]));
+}
+
 // ───── 여경 — 굿즈샵 리뷰 (develop 901aa29 에서 원문 그대로 가져옴) ─────
 
 // 여경 — 굿즈샵 상세에서 사용 (store.service.js / store.routes.js)
@@ -462,6 +497,7 @@ export async function getCompletedOrders(userId, storeId) {
       .eq('user_id', userId)
       .eq('store_id', storeId)
       .eq('status', 'COMPLETED')
+      .not('purchase_confirmed_at', 'is', null)
       .is('canceled_at', null)
       .order('created_at', { ascending: false })
   );

@@ -18,6 +18,8 @@ export function splitTickets(count, { free = 0, credit = 0, cash = 0 }) {
 }
 
 export const CHEER_PRICE = 1000;
+export const CHEER_POINTS_PER_TICKET = 1000;
+export const cheerPoints = (ticketCount) => Number(ticketCount ?? 0) * CHEER_POINTS_PER_TICKET;
 export const DAILY_CHEER_LIMIT = 100;
 export const MIN_PAID_AMOUNT = 30000;
 export const CREDIT_RETURN_RATE = 105;
@@ -34,8 +36,8 @@ export function thisWeekDeadline(now = new Date()) {
 }
 
 export const CHEER_STEPS = [
-  { title: '응원권 구매', desc: `응원권 1장 = 응원 1회 = ${CHEER_PRICE.toLocaleString('ko-KR')}원이에요. 5장부터 살 수 있어요.` },
-  { title: '내 최애에게 응원', desc: `한 사람이 하루 최대 ${DAILY_CHEER_LIMIT}회까지 응원할 수 있어요.` },
+  { title: '응원권 구매', desc: `응원권 1장 = 응원포인트 ${CHEER_POINTS_PER_TICKET.toLocaleString('ko-KR')}점 = ${CHEER_PRICE.toLocaleString('ko-KR')}원이에요. 5장부터 살 수 있어요.` },
+  { title: '내 최애에게 응원', desc: `한 사람이 하루 최대 ${cheerPoints(DAILY_CHEER_LIMIT).toLocaleString('ko-KR')}점까지 응원할 수 있어요.` },
   { title: '1위 최애가 배너 자리', desc: '응원 수가 가장 많은 최애가 홈 배너에 올라가요. 동점이면 먼저 그 수에 도달한 최애가 이겨요.' },
 ];
 
@@ -78,7 +80,7 @@ export const GUIDE_NOTICES = [
   '이긴 최애에 쓴 유료 응원은 배너 자리 비용으로 확정돼 반환되지 않아요.',
   `이긴 최애의 현금 구매 응원권 합계가 ${MIN_PAID_AMOUNT.toLocaleString('ko-KR')}원보다 적으면 배너를 게시하지 않고 전액 반환해요.`,
   '무료 응원권으로 한 응원은 반환되지 않아요.',
-  '현금으로 산 응원권은 한 장도 쓰지 않았다면 구매 후 7일 안에 환불할 수 있어요.',
+  '구매한 응원권은 구매 후 30일 안에만 환불할 수 있어요. 현금 구매분은 한 장도 사용하지 않아야 해요.',
   '비방·광고·홍보성·응원과 무관한 내용의 전광판은 검수에서 반려될 수 있어요.',
   '주문을 취소·환불하면 그 주문으로 받은 무료 응원권은 회수돼요.',
 ];

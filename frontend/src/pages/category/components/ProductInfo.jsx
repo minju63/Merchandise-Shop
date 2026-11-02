@@ -1,10 +1,20 @@
 import Icon from '../../../components/Icon.jsx';
+import { formatOpenTime } from '../../../utils/openTime.js';
+import { useState } from 'react';
 
 export default function ProductInfo({ product }) {
+  const [currentTimestamp] = useState(() => Date.now());
   const status =
     product.displayStatus ||
     (product.status === 'ON_SALE' && product.stock <= 0 ? 'SOLD_OUT' : product.status);
   const labels = { ON_SALE: '판매 중', SOLD_OUT: '품절', UPCOMING: '입고 예정' };
+  const lowStock = status === 'ON_SALE' && product.stock > 0 && product.stock <= 10;
+  const statusLabel = status === 'ON_SALE'
+    ? (lowStock ? `품절 임박 · ${product.stock}개` : null)
+    : labels[status] || '이용 불가';
+  const expectedAt = product.upcomingAt
+    ? formatOpenTime(product.upcomingAt, currentTimestamp).text
+    : null;
   const categories = (product.categories || []).map((row) => row.category || row);
   const breadcrumb = [...new Set([
     categories.find((row) => row.type === 'CONTENT')?.name,
@@ -21,11 +31,16 @@ export default function ProductInfo({ product }) {
         {product.discountRate > 0 && <span>{product.discountRate}% </span>}
         {Number(product.price).toLocaleString('ko-KR')}원
       </p>
-      <div className="category-detail-tags">
-        <span className="category-chip">
-          {status === 'ON_SALE' ? `재고 ${product.stock}개` : labels[status] || '이용 불가'}
-        </span>
-      </div>
+      {statusLabel ? (
+        <div className="category-detail-tags">
+          <span className={`category-chip${lowStock ? ' category-chip--danger' : ''}`}>
+            {statusLabel}
+          </span>
+        </div>
+      ) : null}
+      {expectedAt && (
+        <time className="category-upcoming-time" dateTime={product.upcomingAt}>{expectedAt}</time>
+      )}
       <div className="category-fulfillment">
         <span><Icon name="store" size={22} />{product.pickupAvailable ? '매장 픽업 가능' : '매장 픽업 불가'}</span>
         <span><Icon name="truck" size={22} />{product.deliveryAvailable ? '일반 배송 가능' : '배송 불가'}</span>

@@ -27,10 +27,10 @@ export async function getServiceIntro(req, res) {
   res.json(ok(await homeBannerService.getServiceIntro(req.params.bannerId)));
 }
 
-// GET /api/v1/home/exhibitions/:bannerId?character=&type=&inStock= — 기획전 배너 상세
+// GET /api/v1/home/exhibitions/:bannerId?character=&date=&type=&inStock= — 기획전 배너 상세
 export async function getExhibition(req, res) {
-  const { character, type, inStock } = req.query;
-  res.json(ok(await homeBannerService.getExhibition(req.params.bannerId, { character, type, inStock })));
+  const { character, date, type, inStock } = req.query;
+  res.json(ok(await homeBannerService.getExhibition(req.params.bannerId, { character, date, type, inStock })));
 }
 
 // GET /api/v1/home/sections/:type — 섹션 더보기 (popular · new · recommend · low-stock · upcoming)

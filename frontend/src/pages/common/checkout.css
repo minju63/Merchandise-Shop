@@ -31,15 +31,21 @@
 .co-seg button { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 11px 0; border-radius: 9px; color: var(--co-faint); font-size: 14px; text-align: center !important; }
 .co-seg button.is-on { background: #fff; color: var(--co-text); font-weight: 700; box-shadow: 0 1px 4px rgba(28, 27, 34, 0.1); }
 .co-seg button:disabled { opacity: 0.4; cursor: default; }
+.co-seg button.is-on:disabled { opacity: 1; }
 .co-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .co-chip { padding: 11px 14px; border: 1px solid var(--co-line); border-radius: 8px; background: #fff; font-size: 13px; }
 .co-chip--round { padding: 8px 14px; border-radius: 18px; border-color: transparent; background: var(--co-soft); color: var(--co-sub); }
 .co-chip.is-on { border-color: #cfc6fa; background: var(--co-primary-soft); color: var(--co-primary); font-weight: 700; }
 .co-info { display: flex; align-items: center; gap: 6px; margin: 12px 0 0; color: var(--co-sub); font-size: 12px; }
+.co-pickup-notice { margin: 14px 0 22px; padding: 14px 16px; list-style: none; border-radius: 12px; background: var(--co-soft); color: var(--co-sub); font-size: 13px; line-height: 1.55; }
+.co-pickup-notice li { position: relative; padding-left: 12px; word-break: keep-all; }
+.co-pickup-notice li + li { margin-top: 8px; }
+.co-pickup-notice li::before { content: ''; position: absolute; left: 0; top: 0.7em; width: 3px; height: 3px; border-radius: 50%; background: currentColor; }
 .co-warn { margin: 10px 0 0; color: var(--co-error); font-size: 13px; }
 .co-warn--footer { padding: 0 16px; }
 .co-input { display: block; width: 100%; box-sizing: border-box; margin-top: 10px; padding: 14px; border: 1px solid var(--co-line); border-radius: 10px; background: #fff; outline: 0; }
 .co-section > .co-input:first-of-type { margin-top: 0; }
+.co-section > .co-chips + .co-input { margin-top: 16px; }
 .co-input::placeholder { color: var(--co-faint); }
 .co-addr { display: block; width: 100%; box-sizing: border-box; margin-top: 14px; padding: 14px; border: 1px solid var(--co-line); border-radius: 12px; }
 .co-addr p { margin: 6px 0 0; font-size: 13px; line-height: 1.5; }
@@ -51,6 +57,9 @@
 .co-coupon__text span { color: var(--co-sub); font-size: 12px; }
 .co-coupon__amount { color: var(--co-primary); font-style: normal; font-weight: 700; }
 .co-coupon__pick { color: var(--co-faint); font-size: 13px; }
+.co-coupon-title { display: flex; align-items: center; gap: 6px; margin: 0 0 10px; }
+.co-coupon-title > strong { font-size: 16px; }
+.co-coupon-title > button { display: grid; place-items: center; width: 26px; height: 26px; color: var(--co-sub); }
 .co-radio { display: flex; align-items: center; gap: 12px; padding: 10px 0; cursor: pointer; }
 .co-radio input { position: absolute; opacity: 0; }
 .co-radio__dot { flex: none; width: 22px; height: 22px; box-sizing: border-box; border: 2px solid #cfcdd9; border-radius: 50%; }
@@ -70,6 +79,15 @@
 .co-pay:disabled { opacity: 0.5; cursor: default; }
 .co-sheet__body { margin-top: 12px; }
 .co-sheet .ord-btn { margin-top: 12px; }
+.co-sheet { transition: transform 180ms ease-out; will-change: transform; }
+.co-sheet.is-dragging { transition: none; }
+.co-sheet > button.ord-sheet__grip { position: relative; display: block; width: 72px; height: 24px; margin: -8px auto 4px; padding: 0; border: 0; background: transparent; cursor: grab; touch-action: none; }
+.co-sheet.is-dragging > button.ord-sheet__grip { cursor: grabbing; }
+.co-sheet > button.ord-sheet__grip::after { position: absolute; top: 10px; left: 18px; width: 36px; height: 4px; border-radius: 2px; background: #dedce6; content: ''; }
+.co-sheet__heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.co-sheet__close { flex: none; width: 36px; height: 36px; padding: 0; border: 0; background: transparent; color: var(--co-text); font-size: 34px; font-weight: 300; line-height: 1; text-align: center !important; }
+.co-coupon-guide { margin: 8px 0 12px; padding-left: 22px; color: var(--co-sub); font-size: 14px; line-height: 1.65; }
+.co-coupon-guide li + li { margin-top: 12px; }
 
 /* 쿠폰 선택 시트 (C-02) */
 .co-sheet .ord-sheet__sub { margin: 6px 0 16px; }

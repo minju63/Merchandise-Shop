@@ -73,6 +73,17 @@ export const DEFAULT_TEXT_POS = {
   fill: { x: 6, y: 50 },
 };
 
+// 최애 사진 틀. 배너 너비·높이 대비 %(x·y는 왼쪽 위 모서리, w·h는 크기). 배치 버튼은 이 값을 한 번에 채워 준다.
+export const PHOTO_BOX = {
+  left: { x: 0, y: 0, w: 38, h: 100 },
+  right: { x: 62, y: 0, w: 38, h: 100 },
+  fill: { x: 0, y: 0, w: 100, h: 100 },
+};
+export const PHOTO_MIN = { w: 8, h: 15 };
+// 글자 줄 크기 배율(1이 기본)
+export const LINE_SCALE_MIN = 0.5;
+export const LINE_SCALE_MAX = 3;
+
 // 전광판의 글자 줄. 줄마다 따로 끌어서 옮길 수 있다 (옮긴 거리는 lineOffsets 에 배너 너비·높이 대비 %로 저장)
 export const BOARD_LINES = ['date', 'message', 'name', 'from'];
 
@@ -89,6 +100,8 @@ export function defaultDesign(type) {
     align: 'left',
     pos: { ...DEFAULT_TEXT_POS.none },
     lineOffsets: {},
+    photoBox: null,
+    lineScales: {},
     dateLine: type === 'FREE' ? FREE_DATE_LINE : '',
     message: type === 'FREE' ? 'MY FAVE' : 'HAPPY BIRTHDAY',
     name: '',

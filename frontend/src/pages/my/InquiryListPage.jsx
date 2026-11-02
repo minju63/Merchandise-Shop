@@ -9,6 +9,7 @@ import { MY_ROUTES } from './routes.js';
 import { INQUIRY_CATEGORY_LABEL } from './inquiryCategories.js';
 import './orders.css';
 import './help.css';
+import { useDialog } from '../../components/useDialog.jsx';
 
 const fetcher = () => listInquiries();
 const FILTERS = [
@@ -22,6 +23,7 @@ const answerText = (item) => item.answer ?? item.answer_content ?? item.reply ??
 const answerDate = (item) => item.answered_at ?? item.answer_at ?? null;
 
 export default function InquiryListPage() {
+  const { confirm, dialog } = useDialog();
   const navigate = useNavigate();
   const signedIn = useRequireLogin(MY_ROUTES.login);
   const inquiries = useRequest(signedIn, 'my-inquiries-all', fetcher);
@@ -33,7 +35,7 @@ export default function InquiryListPage() {
   const shown = filter === 'ALL' ? items : items.filter((item) => item.status === filter);
 
   const remove = async (item) => {
-    if (!window.confirm('이 문의를 삭제할까요?')) return;
+    if (!(await confirm('이 문의를 삭제할까요?', { confirmLabel: '삭제', danger: true }))) return;
     setError('');
     try {
       await deleteInquiry(item.id);
@@ -127,6 +129,7 @@ export default function InquiryListPage() {
           1:1 문의하기
         </button>
       </footer>
+      {dialog}
     </main>
   );
 }

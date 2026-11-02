@@ -1,0 +1,12 @@
+.header-actions-bar {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  color: #211d2b;
+}
+
+.header-actions-bar a {
+  display: inline-grid;
+  place-items: center;
+  color: inherit;
+}

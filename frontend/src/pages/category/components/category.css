@@ -117,6 +117,11 @@
   background: var(--accent-bg, #f4efff);
   font-size: 13px;
 }
+.category-chip--danger {
+  color: #c54c48;
+  background: #ffe8e6;
+  font-weight: 700;
+}
 .category-product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
@@ -140,6 +145,17 @@
 .category-empty button {
   margin-top: 14px;
 }
+.category-review-status { padding: 32px 16px; color: var(--muted); text-align: center; }
+.category-inquiry-demo-note { color:#93879f; font-size:12px; line-height:1.6; }
+.category-page .category-inquiry-toggle { display:block; width:100%; margin:18px 0; padding:13px 18px; border:1px solid #d9c9f0; border-radius:12px; background:#f6f1ff; color:#7444c2; font-weight:700; cursor:pointer; }
+.category-product-reviews__count { margin: 22px 0 6px; font-size: 15px; font-weight: 800; }
+.category-product-review { padding: 20px 0; border-bottom: 1px solid var(--border); }
+.category-product-review header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.category-product-review header time { color: var(--muted); font-size: 12px; }
+.category-product-review__rating { margin-top: 8px; color: #6846d8; font-size: 18px; letter-spacing: 1px; }
+.category-product-review > p { margin: 12px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.6; }
+.category-product-review__images { display: flex; gap: 8px; margin-top: 14px; overflow-x: auto; }
+.category-product-review__images img { width: 92px; height: 92px; flex: none; border-radius: 8px; object-fit: cover; }
 .category-filter-sheet {
   position: fixed;
   inset: auto 0 0;
@@ -543,16 +559,46 @@
   color: white;
   font-size: 12px;
 }
+.category-gallery-count.has-countdown { bottom: 50px; }
 .category-soldout-overlay {
   position: absolute;
   inset: 0;
-  background: #15122177;
+  background: rgb(110 108 120 / 45%);
   display: grid;
   place-items: center;
   color: white;
-  font-size: 28px;
+}
+.category-soldout-overlay span {
+  padding: 8px 18px;
+  border: 2px solid rgb(255 255 255 / 90%);
+  border-radius: 5px;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+.category-coming-soon-overlay {
+  background: rgb(110 108 120 / 45%);
+}
+.category-upcoming-countdown {
+  position: absolute;
+  z-index: 2;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 12px 16px;
+  color: #fff;
+  background: rgb(41 35 43 / 78%);
+  font-size: 14px;
   font-weight: 800;
-  letter-spacing: 1px;
+  line-height: 1.35;
+}
+.category-upcoming-time {
+  display: block;
+  margin: -10px 0 18px;
+  color: #ef4e55;
+  font-size: 13px;
+  font-weight: 800;
 }
 .category-detail .category-image-thumbnails button {
   border-radius: 7px;

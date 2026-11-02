@@ -8,11 +8,10 @@ import Icon from './components/Icon.jsx';
 import { ImageIcon } from '../my/icons.jsx';
 import '../my/orders.css';
 import '../my/support.css';
+import { uploadReviewImages } from '../../api/reviewImage.api.js';
 
 const MAX_IMAGES = 5;
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
-const REVIEW_IMAGE_BUCKET = 'review';
-const REVIEW_IMAGE_FOLDER = 'shop';
 const RATING_LABELS = ['별로예요', '아쉬워요', '보통이에요', '좋아요', '최고예요'];
 
 function RatingStar({ selected }) {
@@ -237,23 +236,12 @@ export default function StoreReviewWritePage() {
     submitting.current = true;
     setFormError('');
     try {
-      const userId = session.data?.user?.id;
-      const imageUrls = [];
-      for (const [index, { file }] of images.entries()) {
-        if (!file) {
-          imageUrls.push(images[index].preview);
-          continue;
-        }
-        const ext = (file.name.split('.').pop() || 'jpg').replace(/[^\w]/g, '').toLowerCase();
-        const path = `${REVIEW_IMAGE_FOLDER}/${storeId}/${userId}/review-${Date.now()}-${index}.${ext}`;
-        const { error: uploadError } = await supabase.storage
-          .from(REVIEW_IMAGE_BUCKET)
-          .upload(path, file, { contentType: file.type });
-        if (uploadError) throw uploadError;
-        imageUrls.push(
-          supabase.storage.from(REVIEW_IMAGE_BUCKET).getPublicUrl(path).data.publicUrl
-        );
-      }
+      const existingUrls = images.filter((image) => !image.file).map((image) => image.preview);
+      const newFiles = images.filter((image) => image.file).map((image) => image.file);
+      const uploadedUrls = newFiles.length
+        ? await uploadReviewImages(newFiles, { storeId })
+        : [];
+      const imageUrls = [...existingUrls, ...uploadedUrls];
       await mutation.mutateAsync({
         storeId,
         rating,
@@ -271,6 +259,7 @@ export default function StoreReviewWritePage() {
         state: {
           returnedFromWrite: true,
           fromStoreDetail: Boolean(location.state?.fromStoreDetail),
+          fromProductDetail: Boolean(location.state?.fromProductDetail),
         },
       });
     } catch (error) {
@@ -292,7 +281,10 @@ export default function StoreReviewWritePage() {
             } else {
               navigate(`/stores/${storeId}/reviews`, {
                 replace: true,
-                state: { fromStoreDetail: Boolean(location.state?.fromStoreDetail) },
+                state: {
+                  fromStoreDetail: Boolean(location.state?.fromStoreDetail),
+                  fromProductDetail: Boolean(location.state?.fromProductDetail),
+                },
               });
             }
           }}

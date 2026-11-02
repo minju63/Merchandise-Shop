@@ -327,6 +327,240 @@
   font-weight: 800;
 }
 
+.cart-store-summary dd.cart-store-summary__discount {
+  color: #e4525e;
+  font-weight: 800;
+}
+
+.cart-order-summary {
+  margin: 20px -16px 0;
+  padding: 24px 20px 28px;
+  border-top: 8px solid #f5f5f7;
+  background: #fff;
+}
+
+.cart-order-summary h2 {
+  margin: 0 0 22px;
+  color: #202127;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.cart-order-summary__prices {
+  display: grid;
+  margin: 0;
+  gap: 14px;
+}
+
+.cart-order-summary__prices > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.cart-order-summary__prices dt,
+.cart-order-summary__prices dd {
+  margin: 0;
+}
+
+.cart-order-summary__discount {
+  color: #e4525e;
+  font-size: 14px;
+}
+
+.cart-store-coupon {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: calc(100% - 32px);
+  margin: 8px 16px 16px;
+  padding: 14px;
+  gap: 16px;
+  border: 1px solid #e7e4ec;
+  border-radius: 12px;
+  background: #fff;
+  text-align: left;
+}
+
+.cart-store-coupon:disabled {
+  opacity: 0.5;
+}
+
+.cart-store-coupon__text {
+  display: grid;
+  gap: 5px;
+}
+
+.cart-store-coupon strong {
+  color: #24252b;
+  font-size: 15px;
+}
+
+.cart-store-coupon small {
+  color: #8a8c94;
+  font-size: 12px;
+}
+
+.cart-store-coupon em,
+.cart-store-coupon__pick {
+  color: #6c4adf;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.cart-store-coupon__action {
+  display: flex;
+  align-items: center;
+  flex: none;
+  gap: 8px;
+}
+
+.cart-store-coupon__action b {
+  color: #8a8c94;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.cart-coupon-state {
+  padding: 28px 0;
+  color: #747781;
+  text-align: center;
+}
+
+.cart-order-summary__prices dt {
+  color: #8a8c94;
+  font-size: 15px;
+}
+
+.cart-order-summary__prices dd {
+  color: #24252b;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.cart-order-summary__prices dd.is-free {
+  color: #ff9e19;
+}
+
+.cart-order-summary__prices button {
+  padding: 7px 9px;
+  border: 1px solid #b9cef7;
+  border-radius: 8px;
+  color: #2f72df;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.cart-order-summary__promo {
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+  padding: 14px;
+  gap: 10px;
+  border-radius: 12px;
+  background: #f6f6f7;
+}
+
+.cart-order-summary__promo span {
+  flex: none;
+  padding: 5px 9px;
+  border: 1px solid #a9c6fa;
+  border-radius: 99px;
+  color: #2f72df;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.cart-order-summary__promo p {
+  margin: 0;
+  color: #5f6672;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.cart-order-summary__benefits {
+  margin-top: 24px;
+  padding-top: 22px;
+  border-top: 1px solid #eeeeef;
+}
+
+.cart-order-summary__benefits h3 {
+  margin: 0 0 14px;
+  color: #24252b;
+  font-size: 17px;
+}
+
+.cart-order-summary__benefits > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 11px;
+  gap: 12px;
+  color: #44464e;
+  font-size: 14px;
+}
+
+.cart-order-summary__benefits span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cart-order-summary__benefits i {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  background: #6c4adf;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.cart-order-summary__benefits strong {
+  color: #24252b;
+  font-size: 15px;
+}
+
+.cart-order-summary__benefits small {
+  display: block;
+  margin-top: 15px;
+  padding: 12px;
+  border-radius: 10px;
+  color: #747781;
+  background: #f7f6fa;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.cart-order-summary__total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid #e7e7e9;
+}
+
+.cart-order-summary__total span {
+  color: #24252b;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.cart-order-summary__total strong {
+  color: #202127;
+  font-size: 22px;
+  font-weight: 900;
+}
+
 .cart-price-bar {
   position: fixed;
   bottom: 0;

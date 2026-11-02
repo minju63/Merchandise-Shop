@@ -1,15 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { listAddresses, listCoupons, listPaymentMethods } from '../my/account.api.js';
-import { formatPhone, paymentMethodName } from '../my/accountFormat.js';
+import { formatPhone } from '../my/accountFormat.js';
 import { ErrorNotice, Loading, PageHeader, Thumb } from '../my/common.jsx';
 import { useRequest, useRequireLogin } from '../my/hooks.js';
 import {
   BagIcon,
   ChevronIcon,
-  ClockIcon,
   InfoIcon,
-  PinIcon,
   StoreIcon,
   TruckIcon,
 } from '../my/icons.jsx';
@@ -17,13 +16,13 @@ import { formatWon } from '../my/orderFormat.js';
 import { MY_ROUTES } from '../my/routes.js';
 import { Box } from '../auth/AuthParts.jsx';
 import { CouponSheet, Radio, Sheet, StockSheet } from './CheckoutParts.jsx';
+import { PaymentMethodSheet } from '../fan/PaymentMethodPicker.jsx';
+import { selectedPaymentName } from '../fan/paymentMethodPickerFormat.js';
 import { previewCheckout, submitCheckout } from './checkout.api.js';
 import {
   DELIVERY_REQUESTS,
   issueText,
-  kstClock,
   pickupDateOptions,
-  shortAddress,
   stockIssueText,
 } from './checkoutFormat.js';
 import { AUTH_ROUTES } from '../auth/authRoutes.js';
@@ -61,7 +60,14 @@ function readSource(state) {
   } else if (state?.mode === 'DIRECT' && state.items?.length) {
     source = { mode: 'DIRECT', items: state.items, fulfillmentType: state.fulfillmentType ?? null };
   } else if (state?.mode === 'CART' && state.cartItemIds?.length) {
-    source = { mode: 'CART', cartItemIds: state.cartItemIds, fulfillmentType: null };
+    source = {
+      mode: 'CART',
+      cartItemIds: state.cartItemIds,
+      fulfillmentType: null,
+      ...(state.couponAssignments && typeof state.couponAssignments === 'object'
+        ? { couponAssignments: state.couponAssignments }
+        : {}),
+    };
   }
   if (source) saveSource(source);
   else {
@@ -74,204 +80,24 @@ function readSource(state) {
   return source;
 }
 
-function StoreBlock({
-  order,
-  option,
-  dates,
-  texts,
-  couponCount,
-  onOption,
-  onText,
-  onPickCoupon,
-  onPickAddress,
-  navigate,
-}) {
-  const store = order.store;
-  const isPickup = option.fulfillmentType === 'PICKUP';
-  const isDelivery = option.fulfillmentType === 'DELIVERY';
-  const address = order.address;
-  const savedRequest = address?.delivery_request ?? '';
-  const chip =
-    texts.deliveryChip ??
-    (DELIVERY_REQUESTS.includes(savedRequest) ? savedRequest : savedRequest ? CUSTOM : null);
-  const customText = texts.delivery ?? (chip === CUSTOM ? savedRequest : '');
-  const range = order.pickup?.availableIntervals ?? [];
-  const fulfillmentIssues = order.issues.filter((code) => !code.startsWith('COUPON_'));
-
+function PickupNotice({ storeName }) {
   return (
-    <>
-      <section className="co-section">
-        <div className="co-store">
-          <StoreIcon width={18} height={18} />
-          <strong>{store.name}</strong>
-          <span>{shortAddress(store.address)}</span>
-        </div>
-        {order.items.map((item) => (
-          <div key={item.storeProductId} className="co-item">
-            <Thumb src={item.thumbnailUrl} size={56} />
-            <div className="co-item__text">
-              <strong>{item.productName}</strong>
-              <span>수량 {item.quantity}개</span>
-            </div>
-            <strong className="co-item__price">{formatWon(item.lineAmount)}</strong>
-          </div>
-        ))}
-      </section>
+    <ul className="co-pickup-notice">
+      <li>바코드는 영업일 기준 최대 24시간 이내 발송됩니다.</li>
+      <li>바코드를 수신 받으신 이후 ‘{storeName}’으로 방문해주세요.</li>
+      <li>바코드 수신 후 3일 이내 매장에 방문하지 않으실 경우 주문은 자동 취소됩니다.</li>
+    </ul>
+  );
+}
 
-      <section className="co-section">
-        <h2 className="co-h">수령 방법</h2>
-        <div className="co-seg" role="tablist">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={isPickup}
-            className={isPickup ? 'is-on' : ''}
-            disabled={!store.pickup_available}
-            onClick={() => onOption({ fulfillmentType: 'PICKUP' })}
-          >
-            <StoreIcon width={16} height={16} /> 매장 픽업
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={isDelivery}
-            className={isDelivery ? 'is-on' : ''}
-            disabled={!store.delivery_available}
-            onClick={() => onOption({ fulfillmentType: 'DELIVERY' })}
-          >
-            <TruckIcon width={16} height={16} /> 배달
-          </button>
-        </div>
-
-        {isPickup ? (
-          <>
-            <h3 className="co-sub">픽업 날짜</h3>
-            <div className="co-chips">
-              {dates.map((date) => (
-                <button
-                  key={date.value}
-                  type="button"
-                  className={option.pickupDate === date.value ? 'co-chip is-on' : 'co-chip'}
-                  onClick={() => onOption({ pickupDate: date.value })}
-                >
-                  {date.label}
-                </button>
-              ))}
-            </div>
-            {range.length ? (
-              <p className="co-info">
-                <ClockIcon width={14} height={14} />
-                픽업 가능 시간{' '}
-                {range.map((r) => `${kstClock(r.startsAt)} – ${kstClock(r.endsAt)}`).join(', ')}
-                {order.pickup?.prepareMinutes
-                  ? ` · 상품 준비에 약 ${order.pickup.prepareMinutes}분 걸려요`
-                  : ''}
-              </p>
-            ) : null}
-          </>
-        ) : null}
-
-        {isDelivery ? (
-          <>
-            {address ? (
-              <div className="co-addr">
-                <div className="co-addr__top">
-                  <strong>{address.label || '배송지'}</strong>
-                  {address.is_default ? <span className="my-pill">기본 배송지</span> : null}
-                  <button type="button" className="co-addr__change" onClick={onPickAddress}>
-                    변경
-                  </button>
-                </div>
-                <p>
-                  {address.recipient_name} · {formatPhone(address.recipient_phone)}
-                </p>
-                <p>
-                  ({address.zip_code}) {address.road_address} {address.detail_address}
-                </p>
-              </div>
-            ) : (
-              <button
-                type="button"
-                className="co-addr co-addr--empty"
-                onClick={() => navigate(MY_ROUTES.addressNew)}
-              >
-                배송지를 등록해 주세요
-              </button>
-            )}
-            <h3 className="co-sub">배달 요청사항</h3>
-            <div className="co-chips">
-              {[...DELIVERY_REQUESTS, CUSTOM].map((label) => (
-                <button
-                  key={label}
-                  type="button"
-                  className={
-                    chip === label ? 'co-chip co-chip--round is-on' : 'co-chip co-chip--round'
-                  }
-                  onClick={() => onText({ deliveryChip: label })}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-            {chip === CUSTOM ? (
-              <input
-                className="co-input"
-                maxLength={100}
-                placeholder="배달 요청사항을 입력해 주세요"
-                value={customText}
-                onChange={(event) => onText({ delivery: event.target.value })}
-              />
-            ) : null}
-            {order.delivery ? (
-              <p className="co-info">
-                <TruckIcon width={14} height={14} />
-                {order.delivery.courierName
-                  ? `${order.delivery.courierName} 배송`
-                  : '매장에서 직접 배달'}{' '}
-                · 배달비 {formatWon(order.deliveryFee)}
-              </p>
-            ) : null}
-          </>
-        ) : null}
-
-        {fulfillmentIssues.map((code) => (
-          <p key={code} className="co-warn">
-            {issueText(code)}
-          </p>
-        ))}
-      </section>
-
-      <section className="co-section">
-        <h2 className="co-h">매장 요청사항</h2>
-        <input
-          className="co-input"
-          maxLength={200}
-          placeholder="예: 포장은 간단하게 해주세요"
-          value={texts.store ?? ''}
-          onChange={(event) => onText({ store: event.target.value })}
-        />
-      </section>
-
-      <section className="co-section">
-        <h2 className="co-h">할인</h2>
-        <button type="button" className="co-coupon" onClick={onPickCoupon}>
-          <div className="co-coupon__text">
-            <strong>쿠폰</strong>
-            <span>
-              {order.coupon
-                ? `${order.coupon.name}${order.coupon.usable ? '' : ' · 사용 불가'}`
-                : `사용 가능 ${couponCount}장`}
-            </span>
-          </div>
-          {order.discountAmount > 0 ? (
-            <em className="co-coupon__amount">-{formatWon(order.discountAmount)}</em>
-          ) : (
-            <span className="co-coupon__pick">선택</span>
-          )}
-          <ChevronIcon width={16} height={16} />
-        </button>
-      </section>
-    </>
+function CouponTitle({ onInfo }) {
+  return (
+    <div className="co-coupon-title">
+      <strong>장바구니 쿠폰</strong>
+      <button type="button" aria-label="장바구니 쿠폰 안내" onClick={onInfo}>
+        <InfoIcon width={18} height={18} />
+      </button>
+    </div>
   );
 }
 
@@ -300,17 +126,12 @@ function OrderCard({
   order,
   option,
   index,
-  dates,
   couponCount,
-  onOption,
   onPickCoupon,
-  onPickDate,
 }) {
   const store = order.store;
   const isPickup = option.fulfillmentType === 'PICKUP';
   const isDelivery = option.fulfillmentType === 'DELIVERY';
-  const dateLabel = dates.find((date) => date.value === option.pickupDate)?.label ?? '';
-  const range = order.pickup?.availableIntervals ?? [];
   const issues = order.issues.filter((code) => !code.startsWith('COUPON_'));
 
   return (
@@ -335,8 +156,7 @@ function OrderCard({
           role="tab"
           aria-selected={isPickup}
           className={isPickup ? 'is-on' : ''}
-          disabled={!store.pickup_available}
-          onClick={() => onOption({ fulfillmentType: 'PICKUP' })}
+          disabled
         >
           <StoreIcon width={14} height={14} /> 픽업
         </button>
@@ -345,44 +165,26 @@ function OrderCard({
           role="tab"
           aria-selected={isDelivery}
           className={isDelivery ? 'is-on' : ''}
-          disabled={!store.delivery_available}
-          onClick={() => onOption({ fulfillmentType: 'DELIVERY' })}
+          disabled
         >
           <TruckIcon width={14} height={14} /> 배달
         </button>
       </div>
-      {isPickup ? (
-        <button type="button" className="co-row" onClick={onPickDate}>
-          <span>픽업 일시</span>
-          <strong>{dateLabel}</strong>
-          <ChevronIcon width={14} height={14} />
-        </button>
-      ) : null}
-      {isPickup && range.length ? (
-        <p className="co-info">
-          <ClockIcon width={14} height={14} />
-          픽업 가능 {range.map((r) => `${kstClock(r.startsAt)} – ${kstClock(r.endsAt)}`).join(', ')}
-        </p>
-      ) : null}
-      {isDelivery && order.delivery ? (
-        <p className="co-info">
-          <PinIcon width={14} height={14} />
-          아래 배송지로 배달돼요 · 배달비 {formatWon(order.deliveryFee)}
-        </p>
-      ) : null}
+      {isPickup ? <PickupNotice storeName={store.name} /> : null}
       {issues.map((code) => (
         <p key={code} className="co-warn">
           {issueText(code)}
         </p>
       ))}
+      <div className="co-coupon-title"><strong>상품 쿠폰</strong></div>
       <button type="button" className="co-coupon co-coupon--card" onClick={onPickCoupon}>
         <div className="co-coupon__text">
-          <strong>쿠폰</strong>
-          <span>
+          <strong>
             {order.coupon
               ? `${order.coupon.name}${order.coupon.usable ? '' : ' · 사용 불가'}`
               : `사용 가능 ${couponCount}장`}
-          </span>
+          </strong>
+          <span>{order.coupon ? '상품 쿠폰 적용 중' : '쿠폰을 선택해 주세요'}</span>
         </div>
         {order.discountAmount > 0 ? (
           <em className="co-coupon__amount">-{formatWon(order.discountAmount)}</em>
@@ -419,6 +221,7 @@ function OrderCard({
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const location = useLocation();
   const signedIn = useRequireLogin(AUTH_ROUTES.login);
   const [source, setSource] = useState(() => readSource(location.state));
@@ -426,10 +229,19 @@ export default function CheckoutPage() {
   const dates = useMemo(() => pickupDateOptions(now), [now]);
 
   const [known, setKnown] = useState(null);
-  const [overrides, setOverrides] = useState({});
+  const [overrides, setOverrides] = useState(() =>
+    Object.fromEntries(
+      Object.entries(source?.couponAssignments ?? {}).map(([storeId, userCouponId]) => [
+        storeId,
+        { userCouponId },
+      ]),
+    ),
+  );
   const [texts, setTexts] = useState({});
   const [addressId, setAddressId] = useState(null);
   const [paymentMethodId, setPaymentMethodId] = useState(null);
+  const [paymentOption, setPaymentOption] = useState(null);
+  const [cartCouponId, setCartCouponId] = useState(null);
   const [agree, setAgree] = useState(false);
   const [sheet, setSheet] = useState(null);
   const [result, setResult] = useState(null);
@@ -447,6 +259,14 @@ export default function CheckoutPage() {
     'checkout-addresses',
     listAddresses,
   );
+  const paymentMethods = methods.data?.items ?? [];
+  const bankAccounts = paymentMethods.filter((method) => method.method_type === 'BANK_ACCOUNT');
+  const defaultAccount = bankAccounts.find((method) => method.is_default) ?? null;
+  const selectedPaymentOption = paymentOption ?? (defaultAccount ? 'GOODSPICK_PAY' : null);
+  const selectedPaymentMethodId =
+    selectedPaymentOption === 'GOODSPICK_PAY'
+      ? bankAccounts.find((method) => method.id === paymentMethodId)?.id ?? defaultAccount?.id ?? null
+      : null;
 
   const optionOf = (entry) => ({ ...entry, ...overrides[entry.storeId] });
 
@@ -472,7 +292,9 @@ export default function CheckoutPage() {
         }
       : {}),
     ...(addressId ? { addressId } : {}),
-    ...(paymentMethodId ? { paymentMethodId } : {}),
+    ...(selectedPaymentMethodId ? { paymentMethodId: selectedPaymentMethodId } : {}),
+    ...(selectedPaymentOption ? { paymentOption: selectedPaymentOption } : {}),
+    ...(cartCouponId ? { cartCouponId } : {}),
     ...(pointsUse > 0 ? { pointsUse } : {}),
     ...(useExpected ? { useExpectedPoints: true } : {}),
   };
@@ -531,6 +353,16 @@ export default function CheckoutPage() {
   const availableCoupons = (coupons.data?.items ?? []).filter(
     (item) => item.effectiveStatus === 'AVAILABLE',
   );
+  const productCoupons = availableCoupons.filter(
+    (item) => Boolean(item.coupon.store?.id ?? item.coupon.store_id),
+  );
+  const cartCoupons = availableCoupons.filter(
+    (item) => !(item.coupon.store?.id ?? item.coupon.store_id),
+  );
+  const productCouponsFor = (storeId) =>
+    productCoupons.filter(
+      (item) => (item.coupon.store?.id ?? item.coupon.store_id) === storeId,
+    );
   const usedElsewhere = (storeId) =>
     new Set(
       (known ?? [])
@@ -540,9 +372,6 @@ export default function CheckoutPage() {
     );
 
   const multi = Boolean(data) && data.orders.length > 1;
-  const quantity = data
-    ? data.orders.reduce((sum, order) => sum + order.items.reduce((s, i) => s + i.quantity, 0), 0)
-    : 0;
   const totals = data?.totals;
   const points = data?.points;
   const applyPoints = (amount) => {
@@ -560,16 +389,26 @@ export default function CheckoutPage() {
   const blockers = data
     ? [
         ...stockIssues.map(stockIssueText),
-        ...(data.paymentMethod ? [] : ['결제수단을 등록해 주세요']),
+        ...(selectedPaymentOption ? [] : ['결제수단을 선택해 주세요']),
       ]
     : [];
-  const canPay = Boolean(data?.canSubmit) && agree && !loading && !busy;
+  const canPay =
+    Boolean(data?.canSubmit) && Boolean(selectedPaymentOption) && agree && !loading && !busy;
   const deliveryOrders = data
     ? data.orders
         .map((order, index) => ({ order, index }))
         .filter(({ order }) => order.fulfillmentType === 'DELIVERY')
     : [];
   const sharedAddress = deliveryOrders.find(({ order }) => order.address)?.order.address ?? null;
+  // 배달 요청사항은 배송지와 함께 모든 배달 주문에 똑같이 적용한다.
+  const deliveryTexts = texts[deliveryOrders[0]?.order.storeId] ?? {};
+  const savedRequest = sharedAddress?.delivery_request ?? '';
+  const requestChip =
+    deliveryTexts.deliveryChip ??
+    (DELIVERY_REQUESTS.includes(savedRequest) ? savedRequest : savedRequest ? CUSTOM : null);
+  const requestText = deliveryTexts.delivery ?? (requestChip === CUSTOM ? savedRequest : '');
+  const setDeliveryText = (patch) =>
+    deliveryOrders.forEach(({ order }) => setText(order.storeId)(patch));
   const thumbs = Object.fromEntries(
     (data?.orders ?? []).flatMap((order) =>
       order.items.map((item) => [item.storeProductId, item.thumbnailUrl]),
@@ -625,6 +464,7 @@ export default function CheckoutPage() {
         paymentAgreed: true,
       });
       saveSource(null);
+      await queryClient.invalidateQueries({ queryKey: ['cart'] });
       navigate(AUTH_ROUTES.checkoutComplete(done.checkoutGroupId), {
         replace: true,
         state: {
@@ -642,25 +482,52 @@ export default function CheckoutPage() {
     }
   };
 
-  const paymentList = (
-    <>
-      {(methods.data?.items ?? []).map((method) => (
-        <Radio
-          key={method.id}
-          checked={data?.paymentMethod?.id === method.id}
-          onSelect={() => {
-            setPaymentMethodId(method.id);
-            setSheet(null);
-          }}
-        >
-          <strong>{paymentMethodName(method)}</strong>
-          {method.is_default ? <span>기본 결제수단</span> : null}
-        </Radio>
-      ))}
-      {methods.data && methods.data.items.length === 0 ? (
-        <p className="co-warn">등록된 결제수단이 없어요</p>
-      ) : null}
-    </>
+  const paymentBlock = (
+    <section className="co-section">
+      <h2 className="co-h">결제수단</h2>
+      <div className={selectedPaymentOption ? 'fan-payment-summary is-selected' : 'fan-payment-summary'}>
+        <span className="fan-payment-summary__icon" aria-hidden="true">₩</span>
+        <div>
+          <strong>
+            {selectedPaymentName(selectedPaymentOption, selectedPaymentMethodId, bankAccounts)}
+          </strong>
+          <small>
+            {selectedPaymentOption && totals?.payAmount != null
+              ? `${formatWon(totals.payAmount)} 결제 예정`
+              : '결제 전에 수단을 선택해 주세요'}
+          </small>
+        </div>
+        <button type="button" onClick={() => setSheet({ type: 'paymentMethod' })}>
+          {selectedPaymentOption ? '변경' : '선택'}
+        </button>
+      </div>
+    </section>
+  );
+
+  const cartCouponBlock = (
+    <section className="co-section">
+      <CouponTitle onInfo={() => setSheet({ type: 'couponInfo' })} />
+      <button type="button" className="co-coupon" onClick={() => setSheet({ type: 'cartCoupon' })}>
+        <div className="co-coupon__text">
+          <strong>
+            {data?.cartCoupon
+              ? `${data.cartCoupon.name}${data.cartCoupon.usable ? '' : ' · 사용 불가'}`
+              : `사용 가능 ${cartCoupons.length}장`}
+          </strong>
+          <span>
+            {data?.cartCoupon?.usable
+              ? '장바구니 쿠폰 적용 중'
+              : '전체 주문에 적용할 쿠폰을 선택해 주세요'}
+          </span>
+        </div>
+        {totals?.cartCouponDiscountAmount > 0 ? (
+          <em className="co-coupon__amount">-{formatWon(totals.cartCouponDiscountAmount)}</em>
+        ) : (
+          <span className="co-coupon__pick">선택</span>
+        )}
+        <ChevronIcon width={16} height={16} />
+      </button>
+    </section>
   );
 
   const agreeBlock = (
@@ -760,9 +627,10 @@ export default function CheckoutPage() {
   if (result?.error && !data)
     body = <ErrorNotice error={result.error} onRetry={() => setAttempt((v) => v + 1)} />;
   else if (!data || !known) body = <Loading />;
-  else if (multi)
+  else
     body = (
       <div className={loading ? 'co-body is-loading' : 'co-body'}>
+        {multi ? (
         <div className="co-banner">
           <span className="co-banner__icon">
             <BagIcon width={20} height={20} />
@@ -772,6 +640,7 @@ export default function CheckoutPage() {
             <span>매장별로 주문이 나뉘어 {data.orders.length}건으로 접수돼요</span>
           </div>
         </div>
+        ) : null}
         {data.orders.map((order, index) => {
           const entry = known.find((item) => item.storeId === order.storeId);
           return (
@@ -780,11 +649,8 @@ export default function CheckoutPage() {
               order={order}
               option={optionOf(entry)}
               index={index}
-              dates={dates}
-              couponCount={availableCoupons.length}
-              onOption={setOption(order.storeId)}
+              couponCount={productCouponsFor(order.storeId).length}
               onPickCoupon={() => setSheet({ type: 'coupon', storeId: order.storeId })}
-              onPickDate={() => setSheet({ type: 'date', storeId: order.storeId })}
             />
           );
         })}
@@ -808,26 +674,36 @@ export default function CheckoutPage() {
                 배송지를 등록해 주세요
               </button>
             )}
+            <h3 className="co-sub">배달 요청사항</h3>
+            <div className="co-chips">
+              {[...DELIVERY_REQUESTS, CUSTOM].map((label) => (
+                <button
+                  key={label}
+                  type="button"
+                  className={
+                    requestChip === label ? 'co-chip co-chip--round is-on' : 'co-chip co-chip--round'
+                  }
+                  onClick={() => setDeliveryText({ deliveryChip: label })}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            {requestChip === CUSTOM ? (
+              <input
+                className="co-input"
+                maxLength={100}
+                placeholder="배달 요청사항을 입력해 주세요"
+                value={requestText}
+                onChange={(event) => setDeliveryText({ delivery: event.target.value })}
+              />
+            ) : null}
           </section>
         ) : null}
 
-        <section className="co-section">
-          <h2 className="co-h">결제수단</h2>
-          {data.paymentMethod ? (
-            <button type="button" className="co-pm" onClick={() => setSheet({ type: 'payment' })}>
-              <div className="co-coupon__text">
-                <strong>{paymentMethodName(data.paymentMethod)}</strong>
-                {data.paymentMethod.is_default ? <span>기본 결제수단</span> : null}
-              </div>
-              <span className="co-coupon__pick">변경</span>
-              <ChevronIcon width={14} height={14} />
-            </button>
-          ) : (
-            <p className="co-warn">등록된 결제수단이 없어요</p>
-          )}
-        </section>
-
         {pointsBlock}
+        {cartCouponBlock}
+        {paymentBlock}
         <section className="co-section">
           <h2 className="co-h">결제 금액</h2>
           {totalRows}
@@ -835,54 +711,8 @@ export default function CheckoutPage() {
         </section>
       </div>
     );
-  else
-    body = (
-      <div className={loading ? 'co-body is-loading' : 'co-body'}>
-        <section className="co-section co-section--first">
-          <h2 className="co-h co-h--big">주문 상품 {quantity}개</h2>
-        </section>
-        {data.orders.map((order) => {
-          const entry = known.find((item) => item.storeId === order.storeId);
-          return (
-            <StoreBlock
-              key={order.storeId}
-              order={order}
-              option={optionOf(entry)}
-              dates={dates}
-              texts={texts[order.storeId] ?? {}}
-              couponCount={availableCoupons.length}
-              onOption={setOption(order.storeId)}
-              onText={setText(order.storeId)}
-              onPickCoupon={() => setSheet({ type: 'coupon', storeId: order.storeId })}
-              onPickAddress={() => setSheet({ type: 'address' })}
-              navigate={navigate}
-            />
-          );
-        })}
-
-        <section className="co-section">
-          <div className="co-h-row">
-            <h2 className="co-h">결제수단</h2>
-            <button type="button" onClick={() => navigate(MY_ROUTES.paymentMethods)}>
-              관리 <ChevronIcon width={12} height={12} />
-            </button>
-          </div>
-          {paymentList}
-        </section>
-
-        {pointsBlock}
-        <section className="co-section">
-          <h2 className="co-h">결제 금액</h2>
-          {totalRows}
-          {agreeBlock}
-        </section>
-      </div>
-    );
-
   const couponOrder =
     sheet?.type === 'coupon' ? data?.orders.find((order) => order.storeId === sheet.storeId) : null;
-  const dateEntry =
-    sheet?.type === 'date' ? known?.find((entry) => entry.storeId === sheet.storeId) : null;
 
   return (
     <main className="co-page">
@@ -901,7 +731,7 @@ export default function CheckoutPage() {
         <CouponSheet
           order={couponOrder}
           option={optionOf(known.find((entry) => entry.storeId === sheet.storeId))}
-          coupons={availableCoupons}
+          coupons={productCouponsFor(couponOrder.storeId)}
           takenIds={usedElsewhere(sheet.storeId)}
           onClose={() => setSheet(null)}
           onApply={(id) => {
@@ -911,27 +741,59 @@ export default function CheckoutPage() {
         />
       ) : null}
 
-      {dateEntry ? (
-        <Sheet title="픽업 날짜" onClose={() => setSheet(null)}>
-          {dates.map((date) => (
-            <Radio
-              key={date.value}
-              checked={optionOf(dateEntry).pickupDate === date.value}
-              onSelect={() => {
-                setOption(sheet.storeId)({ pickupDate: date.value });
-                setSheet(null);
-              }}
-            >
-              <strong>{date.label}</strong>
-            </Radio>
-          ))}
+      {sheet?.type === 'cartCoupon' && data ? (
+        <CouponSheet
+          order={{
+            store: { name: '전체 주문' },
+            itemsAmount: totals?.itemsAmount ?? 0,
+            deliveryFee: totals?.deliveryFee ?? 0,
+          }}
+          option={{
+            fulfillmentType:
+              data.orders.every((order) => order.fulfillmentType === 'DELIVERY')
+                ? 'DELIVERY'
+                : 'PICKUP',
+            userCouponId: cartCouponId,
+          }}
+          coupons={cartCoupons}
+          takenIds={new Set(
+            Object.values(overrides).map((option) => option.userCouponId).filter(Boolean),
+          )}
+          onClose={() => setSheet(null)}
+          onApply={(id) => {
+            setCartCouponId(id);
+            setSheet(null);
+          }}
+        />
+      ) : null}
+
+      {sheet?.type === 'couponInfo' ? (
+        <Sheet title="장바구니 쿠폰 안내" showClose onClose={() => setSheet(null)}>
+          <ul className="co-coupon-guide">
+            <li>장바구니 쿠폰은 상품 쿠폰과 중복 사용할 수 있어요.</li>
+            <li>상품 쿠폰을 적용하면 장바구니 쿠폰 할인 금액이 달라질 수 있어요.</li>
+            <li>일부 상품에는 장바구니 쿠폰을 사용할 수 없어요.</li>
+            <li>
+              구매 후 일부 상품을 취소하거나 반품하여 쿠폰 사용 조건을 충족하지 못하면 해당
+              쿠폰 혜택이 회수될 수 있어요.
+            </li>
+          </ul>
         </Sheet>
       ) : null}
 
-      {sheet?.type === 'payment' ? (
-        <Sheet title="결제수단 선택" onClose={() => setSheet(null)}>
-          {paymentList}
-        </Sheet>
+      {sheet?.type === 'paymentMethod' ? (
+        <PaymentMethodSheet
+          currentOption={selectedPaymentOption}
+          currentMethodId={selectedPaymentMethodId}
+          methods={methods.data ? bankAccounts : undefined}
+          onAdd={() => navigate(MY_ROUTES.paymentMethods)}
+          onClose={() => setSheet(null)}
+          onConfirm={(option, methodId) => {
+            setPaymentOption(option);
+            setPaymentMethodId(methodId);
+            setAgree(false);
+          }}
+        />
       ) : null}
 
       {sheet?.type === 'address' ? (

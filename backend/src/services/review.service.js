@@ -5,7 +5,8 @@ export { reviewError } from './reviewValidation.js'; // 여경 컨트롤러용 (
 import * as repository from "../repositories/review.repository.js";
 import { findOwnedItem, findSale } from "../repositories/order.repository.js";
 import { verifyOwnedImageUrls } from "./support.service.js";
-import { grantReviewReward } from "./user.service.js";
+import { grantReviewReward, reviewRewardDeadline } from "./user.service.js";
+import { randomUUID } from "node:crypto";
 
 import { findByAuthId } from "../repositories/user.repository.js";
 function failure(status, code, message) {
@@ -65,6 +66,92 @@ function paging(input, keys = []) {
     keyword: input.keyword === undefined ? "" : text(input.keyword, 100, 0),
   };
 }
+
+const REVIEW_IMAGE_TYPES = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+};
+const MAX_REVIEW_IMAGE_BYTES = 5 * 1024 * 1024;
+
+function reviewImageFiles(input) {
+  object(input, ["files", "storeId"]);
+  if (!Array.isArray(input.files) || input.files.length < 1 || input.files.length > 5)
+    throw failure(400, "INVALID_IMAGES", "사진은 한 번에 1~5장까지 업로드할 수 있어요.");
+  const storeId = input.storeId === undefined ? null : uuid(input.storeId);
+  const files = input.files.map((file) => {
+    object(file, ["mimeType", "base64"]);
+    const extension = REVIEW_IMAGE_TYPES[file.mimeType];
+    if (!extension || typeof file.base64 !== "string" || !/^[A-Za-z0-9+/]+={0,2}$/.test(file.base64))
+      throw failure(400, "INVALID_IMAGE", "JPG, PNG, WebP 사진만 선택해 주세요.");
+    const buffer = Buffer.from(file.base64, "base64");
+    if (!buffer.length || buffer.length > MAX_REVIEW_IMAGE_BYTES)
+      throw failure(400, "INVALID_IMAGE_SIZE", "사진은 장당 5MB 이하여야 해요.");
+    return { buffer, mimeType: file.mimeType, extension };
+  });
+  return { files, storeId };
+}
+
+export async function uploadReviewImages(userId, input) {
+  await active(userId);
+  const { files, storeId } = reviewImageFiles(input);
+  if (storeId && !(await getActiveStore(storeId)))
+    throw failure(404, "STORE_NOT_FOUND", "굿즈샵을 찾을 수 없어요.");
+  const uploadedPaths = [];
+  try {
+    const urls = [];
+    for (const file of files) {
+      const folder = storeId ? `shop/${storeId}/${userId}` : userId;
+      const path = `${folder}/review-${Date.now()}-${randomUUID()}.${file.extension}`;
+      const { error } = await supabase.storage.from("review").upload(path, file.buffer, {
+        contentType: file.mimeType,
+        upsert: false,
+      });
+      if (error) throw failure(503, "IMAGE_UPLOAD_FAILED", "사진 업로드에 실패했어요.");
+      uploadedPaths.push(path);
+      urls.push(supabase.storage.from("review").getPublicUrl(path).data.publicUrl);
+    }
+    return { urls };
+  } catch (error) {
+    if (uploadedPaths.length) await supabase.storage.from("review").remove(uploadedPaths);
+    throw error;
+  }
+}
+
+export async function listProductReviews(storeProductId, { sort = "latest", page = 1, size = 20, userId } = {}) {
+  uuid(storeProductId);
+  if (!["latest", "high", "low"].includes(sort))
+    throw failure(400, "INVALID_SORT", "리뷰 정렬 기준을 확인해 주세요.");
+  if (!Number.isSafeInteger(page) || page < 1 || !Number.isSafeInteger(size) || size < 1 || size > 100)
+    throw failure(400, "INVALID_PAGE", "리뷰 페이지 범위를 확인해 주세요.");
+  const sale = await findSale(storeProductId);
+  if (!sale || ["HIDDEN", "DELETED"].includes(sale.status))
+    throw failure(404, "PRODUCT_NOT_FOUND", "상품을 찾을 수 없어요.");
+  const [{ rows, totalCount }, summary] = await Promise.all([
+    repository.getPublicProductReviews(sale.product_id, { sort, page, size }),
+    repository.getPublicProductReviewSummary(sale.product_id),
+  ]);
+  const relations = await repository.getStoreReviewRelations(rows);
+  const users = new Map(relations.users.map((row) => [row.id, row.nickname]));
+  return {
+    items: rows.map((row) => ({
+      id: row.id,
+      nickname: users.get(row.user_id)?.trim() || "익명 구매자",
+      rating: row.rating,
+      content: row.content || "",
+      images: [...(row.images || [])]
+        .sort((a, b) => a.display_order - b.display_order)
+        .map((image) => image.image_url),
+      createdAt: row.created_at,
+      isMine: Boolean(userId && row.user_id === userId),
+    })),
+    page,
+    size,
+    totalCount,
+    totalPages: Math.ceil(totalCount / size),
+    summary,
+  };
+}
 function page(rows, options) {
   return {
     items: rows.slice(options.offset, options.offset + options.limit),
@@ -98,11 +185,11 @@ export async function checkReviewEligibility(userId, orderItemId) {
   uuid(orderItemId);
   await active(userId);
   const item = await findOwnedItem(userId, orderItemId);
-  if (!item || item.order.status !== "COMPLETED")
+  if (!item || item.order.status !== "COMPLETED" || !item.order.purchase_confirmed_at)
     throw failure(
       409,
       "REVIEW_NOT_ELIGIBLE",
-      "수령 완료한 본인 주문 상품만 리뷰를 쓸 수 있어요.",
+      "구매확정한 본인 주문 상품만 리뷰를 쓸 수 있어요.",
     );
   const existing = await repository.findByOrderItem(userId, orderItemId);
   if (existing?.is_hidden)
@@ -147,7 +234,30 @@ export async function listMyReviewItems(userId, input = {}) {
       ),
     );
   rows.sort((a, b) => b.created_at.localeCompare(a.created_at));
-  return page(rows, options);
+  const result = page(rows, options);
+  if (input.tab !== "WRITTEN")
+    result.items = result.items.map((row) => ({
+      ...row,
+      reward_deadline: reviewRewardDeadline(row.created_at).toISOString(),
+    }));
+  if (input.tab === "WRITTEN") {
+    // 작성한 리뷰에는 상품 이름·사진이 없어서 주문 상품에서 붙여 준다.
+    const items = await repository.getOrderItemsByIds(
+      result.items.map((row) => row.order_item_id).filter(Boolean),
+    );
+    const byId = new Map(items.map((item) => [item.id, item]));
+    result.items = result.items.map((row) => {
+      const item = byId.get(row.order_item_id);
+      return {
+        ...row,
+        order_id: item?.order_id ?? null,
+        store_product_id: item?.store_product_id ?? null,
+        product_name: item?.product_name ?? null,
+        product_image_url: item?.product_image_url ?? null,
+      };
+    });
+  }
+  return result;
 }
 
 async function finishReview(review) {
@@ -200,6 +310,7 @@ export async function createReview(userId, input) {
   const pointReward = await grantReviewReward(userId, {
     orderId: item.order_id,
     orderItemId: item.id,
+    purchasedAt: item.created_at,
   }).catch(() => ({ granted: false, amount: 0, reason: "REWARD_PENDING" }));
   return { ...created, pointReward };
 }
@@ -221,11 +332,15 @@ export async function updateReview(userId, id, input) {
   const images =
     input.imageUrls === undefined
       ? undefined
-      : await verifyOwnedImageUrls(userId, input.imageUrls, {
-          bucket: "review",
-          folderPrefix: ["shop", existing.store_id],
-          maxCount: 5,
-        });
+      : await verifyOwnedImageUrls(
+          userId,
+          input.imageUrls,
+          // 굿즈샵 폴더(shop/<storeId>/<userId>)에 올린 사진이면 그 규칙으로, 아니면 작성할 때와 같은 기본 규칙으로 확인한다.
+          input.imageUrls.length &&
+            input.imageUrls.every((url) => String(url).includes("/review/shop/"))
+            ? { bucket: "review", folderPrefix: ["shop", existing.store_id], maxCount: 5 }
+            : undefined,
+        );
   const row = await repository.updateOwnedWithImages(
     userId,
     id,

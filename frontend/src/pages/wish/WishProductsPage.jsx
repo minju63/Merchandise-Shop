@@ -193,8 +193,7 @@ export default function WishProductsPage() {
   };
 
   const addToCart = (item) => {
-    if (item.pickupAvailable && item.deliveryAvailable) setSheetItem(item);
-    else addMutation.mutate({ item, fulfillmentType: item.pickupAvailable ? 'PICKUP' : 'DELIVERY' });
+    setSheetItem(item);
   };
 
   // 바로 구매는 장바구니를 거치지 않고 결제 화면으로 간다. 수령 방법은 결제 화면에서 고른다.
@@ -303,6 +302,8 @@ export default function WishProductsPage() {
       {sheetItem && (
         <FulfillmentSheet
           productName={sheetItem.productName}
+          pickupAvailable={sheetItem.pickupAvailable}
+          deliveryAvailable={sheetItem.deliveryAvailable}
           isPending={addMutation.isPending}
           onCancel={() => setSheetItem(null)}
           onSelect={(fulfillmentType) => addMutation.mutate({ item: sheetItem, fulfillmentType })}

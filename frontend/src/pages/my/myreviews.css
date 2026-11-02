@@ -1,0 +1,35 @@
+/* 마이 > 내 후기 */
+.mr-summary { display: grid; grid-template-columns: repeat(2, 1fr); margin: 4px 0 14px; padding: 16px 0; border: 1px solid var(--my-line); border-radius: 16px; text-align: center; }
+.mr-summary > div + div { border-left: 1px solid var(--my-line); }
+.mr-summary strong { display: block; font-size: 20px; font-weight: 800; }
+.mr-summary span { color: var(--my-sub); font-size: 12px; }
+.mr-accent { color: var(--my-primary); }
+.mr-tabs { grid-template-columns: repeat(2, 1fr); }
+.mr-list { display: flex; flex-direction: column; }
+.mr-card { display: flex; flex-direction: column; gap: 12px; padding: 18px 0; border-bottom: 1px solid var(--my-line); }
+.mr-card__product { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; }
+.mr-card__product--link:disabled { cursor: default; }
+.mr-card__text { display: flex; flex: 1; flex-direction: column; gap: 3px; min-width: 0; }
+.mr-card__text strong { overflow: hidden; font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
+.mr-card__text span { color: var(--my-faint); font-size: 12px; }
+.mr-dday { margin: 0; color: var(--my-primary); font-size: 13px; font-weight: 700; }
+.mr-dday.is-expired { color: var(--my-faint); font-weight: 600; }
+.mr-btn { display: flex; align-items: center; justify-content: center; width: 100%; height: 46px; text-align: center; border-radius: 12px; background: var(--my-btn); color: var(--my-btn-text); font-size: 15px; font-weight: 700; }
+.mr-stars { color: #f5a623; font-size: 16px; letter-spacing: 1px; }
+.mr-stars__off { color: var(--my-line); }
+.mr-card__content { margin: 0; font-size: 14px; line-height: 1.6; white-space: pre-wrap; word-break: break-all; }
+.mr-photos { display: flex; gap: 6px; }
+.mr-photos img { width: 76px; height: 76px; border-radius: 10px; object-fit: cover; }
+.mr-hidden { margin: 0; color: var(--my-sub); font-size: 12px; }
+.mr-edit-stars { display: flex; gap: 4px; }
+.mr-edit-stars button { color: var(--my-line); font-size: 28px; line-height: 1; }
+.mr-edit-stars button.is-on { color: #f5a623; }
+.mr-count { margin: -6px 0 0; color: var(--my-faint); font-size: 12px; text-align: right; }
+.mr-actions { display: flex; justify-content: flex-end; gap: 16px; }
+.mr-link { color: var(--my-sub); font-size: 13px; }
+.mr-link.is-strong { color: var(--my-primary); font-weight: 700; }
+.mr-link:disabled { opacity: 0.4; }
+.mr-photo { position: relative; display: grid; place-items: center; width: 76px; height: 76px; border-radius: 10px; background: var(--my-soft) center / cover; }
+.mr-photo > button { position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; border-radius: 50%; background: rgba(0, 0, 0, 0.6); color: #fff; font-size: 14px; line-height: 1; }
+.mr-photo--add { align-content: center; gap: 2px; border: 1px dashed var(--my-line); color: var(--my-sub); font-size: 12px; cursor: pointer; }
+.mr-photo--add input { display: none; }

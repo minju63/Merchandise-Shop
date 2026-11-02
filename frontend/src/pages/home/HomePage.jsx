@@ -2,10 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import ProductCard from '../../components/ProductCard.jsx';
 import UpcomingProductCard from '../../components/UpcomingProductCard.jsx';
 import Icon from '../../components/Icon.jsx';
+import NotificationBell from '../../components/NotificationBell.jsx';
+import CartIconBadge from '../../components/CartIconBadge.jsx';
 import PromoBanner from './PromoBanner.jsx';
 import { fanBoardDesign, isFanBoardType } from '../fan/fanBoardPresets.js';
 import { brandGroupFor, hasPickedBrands, matchesInterests } from './interestMatch.js';
 import BottomNavigation from '../../components/BottomNavigation.jsx';
+import { ShowcaseGallery } from '../showcases/ShowcasePages.jsx';
 import './HomePage.css';
 
 function HorizontalRail({ children, className, ariaLabel }) {
@@ -126,6 +129,7 @@ export default function HomePage({
   const [activeProductTab, setActiveProductTab] = useState('popular');
   const [autoSlideVersion, setAutoSlideVersion] = useState(0);
   const [currentTimestamp, setCurrentTimestamp] = useState(() => new Date().getTime());
+  const [alertNotice, setAlertNotice] = useState('');
   const lastImpressionId = useRef(null);
   const bannerDragState = useRef({ active: false, moved: false, startX: 0 });
   // 게시 중인 디자인이 없는 전광판은 캐러셀에서 빠지고, 카운터·점은 남은 배너 수로 센다.
@@ -201,6 +205,12 @@ export default function HomePage({
     }
   }, [activeBannerId, onBannerImpression]);
 
+  // 기념일 전광판은 디자인은 그대로 두고, 누르면 그날 기념일인 최애 모아보기로 이동한다. (전광판은 banners 행이 아니라 클릭 수는 세지 않는다)
+  const handleFanDayOpen = () => {
+    if (!activeBanner?.fanDay || !onNavigate) return;
+    onNavigate({ bannerType: 'FAN_ANNIV', fanDate: activeBanner.fanDay.date });
+  };
+
   const handleBannerAction = () => {
     if (!activeBanner || !onNavigate) return;
     onBannerClick?.(activeBanner.id);
@@ -259,13 +269,27 @@ export default function HomePage({
     bannerDragState.current.moved = false;
   };
 
-  const handleOpenAlert = (product) => {
+  useEffect(() => {
+    if (!alertNotice) return undefined;
+    const timer = setTimeout(() => setAlertNotice(''), 2600);
+    return () => clearTimeout(timer);
+  }, [alertNotice]);
+
+  const handleOpenAlert = async (product) => {
     if (!isAuthenticated) {
       onRequestLogin?.();
       return;
     }
 
-    onToggleOpenAlert?.(product);
+    const result = await onToggleOpenAlert?.(product);
+    if (!result) return;
+    setAlertNotice(
+      result.alerted
+        ? result.type === 'RESTOCK'
+          ? '재입고 알림을 신청했어요. 마이 > 알림 신청에서 확인할 수 있어요.'
+          : '입고 알림을 신청했어요. 마이 > 알림 신청에서 확인할 수 있어요.'
+        : '알림 신청을 취소했어요.'
+    );
   };
 
   const alertActionAvailable = isAuthenticated
@@ -278,13 +302,9 @@ export default function HomePage({
         <div className="header-row">
           <h1>굿즈<span>픽</span></h1>
           <div className="header-actions">
-            <button type="button" aria-label="알림 목록 화면 준비 중" disabled>
-              <Icon name="bell" size={21} />
-              {data.badges.notifications > 0 && <span className="action-badge">{data.badges.notifications}</span>}
-            </button>
+            <NotificationBell iconSize={21} count={data.badges.notifications} />
             <button type="button" aria-label="장바구니" onClick={onOpenCart} disabled={!onOpenCart}>
-              <Icon name="cart" size={22} />
-              {data.badges.cart > 0 && <span className="action-badge">{data.badges.cart}</span>}
+              <CartIconBadge size={22} />
             </button>
           </div>
         </div>
@@ -309,6 +329,7 @@ export default function HomePage({
                 onClickCapture: handleBannerClickCapture,
               }}
               onOpen={onNavigate && !isFanBoardType(activeBanner.bannerType) ? handleBannerAction : undefined}
+              onOpenFanDay={onNavigate && activeBanner.fanDay?.count > 0 ? handleFanDayOpen : undefined}
             />
           ) : null}
           <div className="banner-dots" aria-label="배너 선택">
@@ -430,6 +451,8 @@ export default function HomePage({
           )}
         </section>
 
+        <section className="home-section"><ShowcaseGallery compact /></section>
+
         <section className="home-section upcoming-section">
           <div className="home-section-heading">
             <div>
@@ -474,6 +497,11 @@ export default function HomePage({
       </main>
 
       <BottomNavigation />
+      {alertNotice && (
+        <div className="home-alert-toast" role="status" aria-live="polite">
+          {alertNotice}
+        </div>
+      )}
     </div>
   );
 }

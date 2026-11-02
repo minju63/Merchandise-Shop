@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { supabase } from '../../lib/supabase.js';
 import { createReview } from './account.api.js';
+import { uploadReviewImages } from '../../api/reviewImage.api.js';
+import Dialog from '../../components/Dialog.jsx';
 import { ErrorNotice, Loading, PageHeader, Thumb } from './common.jsx';
-import { useRequest, useRequireLogin, useSession } from './hooks.js';
+import { useRequest, useRequireLogin } from './hooks.js';
 import { ImageIcon } from './icons.jsx';
 import { getOrder } from './my.api.js';
 import { MY_ROUTES } from './routes.js';
@@ -13,8 +14,6 @@ import './support.css';
 
 const LABELS = ['별로예요', '아쉬워요', '보통이에요', '좋아요', '최고예요'];
 const MAX_PHOTOS = 3;
-const BUCKET = 'goods-images';
-
 function Star({ on }) {
   return (
     <svg
@@ -40,18 +39,19 @@ export default function ReviewWritePage() {
   const { orderId } = useParams();
   const [params] = useSearchParams();
   const signedIn = useRequireLogin(MY_ROUTES.login);
-  const { session } = useSession();
   const detail = useRequest(signedIn, `order:${orderId}`, () => getOrder(orderId));
   const [rating, setRating] = useState(0);
   const [content, setContent] = useState('');
   const [photos, setPhotos] = useState([]);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [done, setDone] = useState(null);
 
   const order = detail.data;
   const wanted = params.get('item');
   const item = order
-    ? (wanted && order.items.find((it) => it.id === wanted)) || order.items[0]
+    ? (wanted && order.items.find((it) => it.id === wanted && !it.review_completed))
+      || order.items.find((it) => !it.review_completed)
     : null;
   const valid = rating > 0 && content.trim().length >= 10 && !busy;
 
@@ -68,26 +68,30 @@ export default function ReviewWritePage() {
     setBusy(true);
     setError('');
     try {
-      const userId = session.user.id;
-      const imageUrls = [];
-      for (const [index, photo] of photos.entries()) {
-        const ext = (photo.file.name.split('.').pop() || 'jpg').replace(/[^\w]/g, '').toLowerCase();
-        const path = `${userId}/review-${Date.now()}-${index}.${ext}`;
-        const { error: uploadError } = await supabase.storage
-          .from(BUCKET)
-          .upload(path, photo.file, { contentType: photo.file.type });
-        if (uploadError) throw uploadError;
-        imageUrls.push(supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl);
-      }
+      const imageUrls = photos.length
+        ? await uploadReviewImages(photos.map((photo) => photo.file))
+        : [];
       const created = await createReview({
         orderItemId: item.id,
         rating,
         content: content.trim(),
         ...(imageUrls.length ? { imageUrls } : {}),
       });
-      if (created?.pointReward?.granted)
-        window.alert(`리뷰 작성 완료! 적립금 ${created.pointReward.amount.toLocaleString()}원이 적립됐어요.`);
-      navigate(MY_ROUTES.orderDetail(orderId), { replace: true });
+      const reward = created?.pointReward;
+      const to = `/products/${item.store_product_id}#product-feedback`;
+      if (reward?.granted)
+        setDone({
+          to,
+          title: '리뷰 작성 완료!',
+          message: `적립금 ${reward.amount.toLocaleString()}원이 적립됐어요.`,
+        });
+      else if (reward?.reason === 'REWARD_EXPIRED')
+        setDone({
+          to,
+          title: '리뷰가 등록됐어요',
+          message: '구매 후 30일이 지나 적립금은 지급되지 않아요.',
+        });
+      else navigate(to, { replace: true });
     } catch (cause) {
       setError(cause.message);
       setBusy(false);
@@ -97,7 +101,7 @@ export default function ReviewWritePage() {
   let body;
   if (detail.error) body = <ErrorNotice error={detail.error} onRetry={detail.reload} />;
   else if (!order) body = <Loading />;
-  else if (!item) body = <p className="ord-empty">리뷰를 쓸 상품이 없어요</p>;
+  else if (!item) body = <p className="ord-empty">이 주문의 리뷰 작성을 완료했어요.</p>;
   else
     body = (
       <>
@@ -186,8 +190,14 @@ export default function ReviewWritePage() {
   return (
     <main className="ord-page ord-page--fab">
       <PageHeader title="리뷰 쓰기" />
-      <p className="mt-notice">리뷰를 작성하면 적립금 500원을 바로 드려요. (상품당 1회)</p>
+      <p className="mt-notice">구매 후 30일 안에 리뷰를 작성하면 적립금 500원을 바로 드려요. (상품당 1회)</p>
       {body}
+      <Dialog
+        open={Boolean(done)}
+        title={done?.title}
+        message={done?.message}
+        onConfirm={() => navigate(done.to, { replace: true })}
+      />
     </main>
   );
 }

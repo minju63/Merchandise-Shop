@@ -7,6 +7,7 @@ import { PageState, TabBar } from './components/StoreShell.jsx';
 import StoreSort from './components/StoreSort.jsx';
 import StoreReviewCard from './components/StoreReviewCard.jsx';
 import Icon from './components/Icon.jsx';
+import { useDialog } from '../../components/useDialog.jsx';
 
 const sorts = [
   { value: 'latest', label: '최신순' },
@@ -15,6 +16,7 @@ const sorts = [
 ];
 
 export default function StoreReviewPage() {
+  const { confirm, dialog } = useDialog();
   const { storeId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -66,7 +68,7 @@ export default function StoreReviewPage() {
           onClick={() => {
             const historyIndex = window.history.state?.idx ?? 0;
             if (
-              location.state?.fromStoreDetail &&
+              (location.state?.fromStoreDetail || location.state?.fromProductDetail) &&
               historyIndex > (location.state?.returnedFromWrite ? 1 : 0)
             ) {
               navigate(location.state?.returnedFromWrite ? -2 : -1);
@@ -110,6 +112,7 @@ export default function StoreReviewPage() {
                   to={`/stores/${storeId}/reviews/write`}
                   state={{
                     fromStoreDetail: Boolean(location.state?.fromStoreDetail),
+                    fromProductDetail: Boolean(location.state?.fromProductDetail),
                     returnToReview: true,
                     review: eligible.data.data.review,
                   }}
@@ -174,12 +177,13 @@ export default function StoreReviewPage() {
                           review,
                           isMine: true,
                           fromStoreDetail: Boolean(location.state?.fromStoreDetail),
+                          fromProductDetail: Boolean(location.state?.fromProductDetail),
                         },
                       })
                     }
-                    onDelete={() => {
+                    onDelete={async () => {
                       if (deleteMutation.isPending) return;
-                      if (window.confirm('이 리뷰를 삭제할까요?'))
+                      if (await confirm('이 리뷰를 삭제할까요?', { confirmLabel: '삭제', danger: true }))
                         deleteMutation.mutate(review.id);
                     }}
                   />
@@ -203,6 +207,7 @@ export default function StoreReviewPage() {
             </section>
           </>
         )}
+      {dialog}
       </main>
       <TabBar />
     </div>

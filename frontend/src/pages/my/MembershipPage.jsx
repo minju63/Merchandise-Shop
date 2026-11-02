@@ -15,10 +15,12 @@ import { formatWon } from './orderFormat.js';
 import { MY_ROUTES } from './routes.js';
 import './orders.css';
 import './account.css';
+import { useDialog } from '../../components/useDialog.jsx';
 
 const HERO_POINTS = ['배달비 1,000원 할인', '매달 쿠폰 팩 3장', '재입고 알림 우선 발송'];
 
 function ActiveMembership({ membership, onChanged }) {
+  const { confirm, dialog } = useDialog();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const plan = membership.plan;
@@ -26,9 +28,10 @@ function ActiveMembership({ membership, onChanged }) {
 
   const cancel = async () => {
     if (
-      !window.confirm(
-        '다음 갱신부터 멤버십을 해지할까요? 이용 기간이 끝날 때까지는 계속 쓸 수 있어요.'
-      )
+      !(await confirm(
+        '다음 갱신부터 멤버십을 해지할까요? 이용 기간이 끝날 때까지는 계속 쓸 수 있어요.',
+        { confirmLabel: '해지' }
+      ))
     )
       return;
     setBusy(true);
@@ -71,6 +74,7 @@ function ActiveMembership({ membership, onChanged }) {
           {canceled ? '해지 예약됨' : '멤버십 해지 예약'}
         </button>
       </footer>
+      {dialog}
     </>
   );
 }

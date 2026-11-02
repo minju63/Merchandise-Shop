@@ -17,6 +17,16 @@ import {
 import * as couponRepository from "../repositories/coupon.repository.js";
 import { evaluateCouponEligibility } from "./coupon.service.js";
 
+const CHECKOUT_PAYMENT_OPTIONS = Object.freeze({
+  GOODSPICK_PAY: "굿즈픽페이",
+  TOSS_PAY: "토스페이",
+  NAVER_PAY: "네이버페이",
+  KAKAO_PAY: "카카오페이",
+  CARD: "카드 결제",
+  VIRTUAL_ACCOUNT: "가상계좌",
+  MOBILE: "휴대폰 결제",
+});
+
 function failure(status, code, message) {
   return Object.assign(new Error(message), { status, code });
 }
@@ -84,6 +94,8 @@ export function normalizeCheckoutInput(input) {
     "storeOptions",
     "addressId",
     "paymentMethodId",
+    "paymentOption",
+    "cartCouponId",
     "pointsUse",
     "useExpectedPoints",
   ]);
@@ -101,11 +113,18 @@ export function normalizeCheckoutInput(input) {
     addressId: input.addressId == null ? null : id(input.addressId),
     paymentMethodId:
       input.paymentMethodId == null ? null : id(input.paymentMethodId),
+    paymentOption: input.paymentOption == null ? null : input.paymentOption,
+    cartCouponId: input.cartCouponId == null ? null : id(input.cartCouponId),
     pointsUse: input.pointsUse == null ? 0 : integer(input.pointsUse, 0, true),
     useExpectedPoints: input.useExpectedPoints === true,
   };
   if (input.useExpectedPoints != null && typeof input.useExpectedPoints !== "boolean")
     throw failure(400, "INVALID_POINTS", "적립예정금 사용 여부를 확인해 주세요.");
+  if (
+    result.paymentOption !== null &&
+    !Object.hasOwn(CHECKOUT_PAYMENT_OPTIONS, result.paymentOption)
+  )
+    throw failure(400, "INVALID_PAYMENT_OPTION", "결제수단을 다시 선택해 주세요.");
   if (input.mode === "DIRECT") {
     if (
       input.cartItemIds !== undefined ||
@@ -192,7 +211,10 @@ export function normalizeCheckoutInput(input) {
         : undefined,
     });
   }
-  validateCouponAssignments(result.storeOptions);
+  validateCouponAssignments([
+    ...result.storeOptions,
+    ...(result.cartCouponId ? [{ userCouponId: result.cartCouponId }] : []),
+  ]);
   return result;
 }
 async function getDatabase() {
@@ -427,6 +449,14 @@ function timeOnDate(date, time) {
     );
   return new Date(`${date}T${time}+09:00`);
 }
+const PICKUP_DATE_ISSUES = new Set([
+  "PICKUP_DATE_REQUIRED",
+  "BUSINESS_HOURS_MISSING",
+  "STORE_CLOSED_ON_DATE",
+  "PICKUP_HOLD_LIMIT",
+  "PICKUP_TIME_UNAVAILABLE",
+]);
+
 export function calculatePickupAvailability(date, hours, policy, now) {
   if (!date) return { issue: "PICKUP_DATE_REQUIRED", pickup: null };
   if (!hours) return { issue: "BUSINESS_HOURS_MISSING", pickup: null };
@@ -490,74 +520,7 @@ export function calculatePickupAvailability(date, hours, policy, now) {
     },
   };
 }
-function regionChain(regionId, map) {
-  const chain = [];
-  const seen = new Set();
-  let current = regionId;
-  while (current) {
-    const region = map.get(current);
-    if (!region || seen.has(current))
-      throw failure(
-        503,
-        "INVALID_DELIVERY_POLICY",
-        "배송지역 연결 설정을 확인할 수 없어요.",
-      );
-    seen.add(current);
-    chain.unshift(region);
-    current = region.parent_id;
-  }
-  return chain;
-}
-export function matchDeliveryArea(address, areas, regions) {
-  if (!areas.length) return { issue: "DELIVERY_AREAS_MISSING", area: null };
-  const map = new Map(regions.map((row) => [row.id, row]));
-  const road = address.road_address.trim().normalize("NFC");
-  const matches = [];
-  for (const area of areas) {
-    const chain = regionChain(area.region_id, map);
-    if (chain.some((row) => !row.is_active)) continue;
-    let rest = road;
-    let matched = true;
-    for (const region of chain) {
-      const names = [region.name, ...(region.aliases ?? [])];
-      if (names.some((name) => typeof name !== "string" || !name.trim()))
-        throw failure(
-          503,
-          "INVALID_DELIVERY_POLICY",
-          "배송지역 이름을 확인할 수 없어요.",
-        );
-      const prefix = names
-        .map((name) => name.trim().normalize("NFC"))
-        .filter((name) => rest === name || rest.startsWith(name + " "))
-        .sort((a, b) => b.length - a.length)[0];
-      if (!prefix) {
-        matched = false;
-        break;
-      }
-      rest = rest.slice(prefix.length).trim();
-    }
-    if (matched)
-      matches.push({
-        ...area,
-        depth: chain.length,
-        extra_fee: integer(area.extra_fee, 0, true),
-      });
-  }
-  if (!matches.length)
-    return { issue: "DELIVERY_AREA_NOT_MATCHED", area: null };
-  matches.sort((a, b) => b.depth - a.depth);
-  if (
-    matches[1]?.depth === matches[0].depth &&
-    matches[1].extra_fee !== matches[0].extra_fee
-  )
-    throw failure(
-      503,
-      "AMBIGUOUS_DELIVERY_AREA",
-      "배송지역 추가 요금을 확정할 수 없어요.",
-    );
-  return { issue: null, area: matches[0] };
-}
-export function calculateDeliveryFee(itemsAmount, policy, area) {
+export function calculateDeliveryFee(itemsAmount, policy) {
   const fee = integer(policy.delivery_fee, 0, true);
   const minimum = integer(policy.min_order_amount, 0, true);
   if (policy.free_threshold !== null) integer(policy.free_threshold, 0, true);
@@ -569,7 +532,7 @@ export function calculateDeliveryFee(itemsAmount, policy, area) {
       : fee;
   return {
     issue: null,
-    deliveryFee: integer(base + integer(area.extra_fee, 0, true), 0, true),
+    deliveryFee: integer(base, 0, true),
   };
 }
 export async function validateFulfillmentOptions(userId, groups, input, now) {
@@ -611,15 +574,6 @@ export async function validateFulfillmentOptions(userId, groups, input, now) {
       ? ((await listMyAddresses(userId)).items.find((row) => row.is_default) ??
         null)
       : null;
-  const areas = deliveryGroups.length
-    ? await readAll("store_delivery_areas", "id,store_id,region_id,extra_fee", [
-        ["in", "store_id", deliveryGroups.map((row) => row.storeId)],
-      ])
-    : [];
-  const regions =
-    deliveryGroups.length && areas.length
-      ? await readAll("regions", "id,parent_id,name,aliases,is_active")
-      : [];
   for (const option of input.storeOptions)
     if (!ids.includes(option.storeId))
       throw failure(
@@ -686,7 +640,8 @@ export async function validateFulfillmentOptions(userId, groups, input, now) {
         pickups.find((row) => row.store_id === store.id),
         now,
       );
-      if (result.issue) issues.push(result.issue);
+      // 픽업은 바코드 수신 후 방문하는 방식이라 날짜·영업시간 때문에 주문을 막지 않는다.
+      if (result.issue && !PICKUP_DATE_ISSUES.has(result.issue)) issues.push(result.issue);
       pickup = result.pickup;
     } else if (option.fulfillmentType === "DELIVERY") {
       const policy = deliveries.find((row) => row.store_id === store.id);
@@ -694,28 +649,17 @@ export async function validateFulfillmentOptions(userId, groups, input, now) {
       if (!policy) issues.push("DELIVERY_POLICY_MISSING");
       if (address && policy) {
         integer(policy.estimated_days, 0, true);
-        const area = matchDeliveryArea(
-          address,
-          areas.filter((row) => row.store_id === store.id),
-          regions,
-        );
-        if (area.issue) issues.push(area.issue);
-        else {
-          const result = calculateDeliveryFee(
-            group.itemsAmount,
-            policy,
-            area.area,
-          );
-          if (result.issue) issues.push(result.issue);
-          deliveryFee = result.deliveryFee;
-          delivery = {
-            regionId: area.area.region_id,
-            extraFee: area.area.extra_fee,
-            estimatedDays: policy.estimated_days,
-            courierName: policy.courier_name,
-            guideText: policy.guide_text,
-          };
-        }
+        const result = calculateDeliveryFee(group.itemsAmount, policy);
+        if (result.issue) issues.push(result.issue);
+        deliveryFee = result.deliveryFee;
+        delivery = {
+          nationwide: true,
+          regionId: null,
+          extraFee: 0,
+          estimatedDays: policy.estimated_days,
+          courierName: policy.courier_name,
+          guideText: policy.guide_text,
+        };
       }
     }
     results.push({
@@ -854,12 +798,33 @@ export async function previewCheckout(userId, rawInput) {
     input,
     now,
   );
-  const paymentMethod = input.paymentMethodId
-    ? await resolvePaymentMethodSelection(userId, input.paymentMethodId)
-    : ((await listMyPaymentMethods(userId)).items.find(
-        (row) => row.is_default,
-      ) ?? null);
-  const hasPreviousOrder = input.storeOptions.some(
+  let paymentMethod;
+  if (input.paymentOption === "GOODSPICK_PAY") {
+    if (!input.paymentMethodId)
+      throw failure(400, "PAYMENT_METHOD_REQUIRED", "굿즈픽페이 기본 계좌를 선택해 주세요.");
+    paymentMethod = await resolvePaymentMethodSelection(userId, input.paymentMethodId);
+    if (paymentMethod.method_type !== "BANK_ACCOUNT" || paymentMethod.is_default !== true)
+      throw failure(400, "INVALID_PAYMENT_OPTION", "굿즈픽페이 기본 계좌를 확인해 주세요.");
+    paymentMethod = {
+      ...paymentMethod,
+      provider_name: `굿즈픽페이 · ${paymentMethod.provider_name}`,
+    };
+  } else if (input.paymentOption) {
+    if (input.paymentMethodId)
+      throw failure(400, "INVALID_PAYMENT_OPTION", "결제수단을 다시 선택해 주세요.");
+    paymentMethod = {
+      id: null,
+      method_type: input.paymentOption,
+      provider_name: CHECKOUT_PAYMENT_OPTIONS[input.paymentOption],
+      last4: null,
+      is_default: false,
+    };
+  } else {
+    paymentMethod = input.paymentMethodId
+      ? await resolvePaymentMethodSelection(userId, input.paymentMethodId)
+      : ((await listMyPaymentMethods(userId)).items.find((row) => row.is_default) ?? null);
+  }
+  const hasPreviousOrder = input.cartCouponId || input.storeOptions.some(
     (option) => option.userCouponId,
   )
     ? await couponRepository.hasPreviousOrder(userId)
@@ -922,6 +887,49 @@ export async function previewCheckout(userId, rawInput) {
       ...amounts,
     });
   }
+  let cartCoupon = null;
+  if (input.cartCouponId) {
+    const owned = await couponRepository.findOwnedWithPolicy(userId, input.cartCouponId);
+    if (!owned)
+      throw failure(404, "COUPON_NOT_FOUND", "보유한 장바구니 쿠폰을 찾지 못했어요.");
+    const fulfillmentTypes = new Set(orders.map((order) => order.fulfillmentType));
+    const eligibility = orders.some((order) => order.totalAmount === null)
+      ? { usable: false, reason: "QUOTE_NOT_READY", discountAmount: 0, discountScope: null }
+      : owned.coupon.store_id !== null
+        ? { usable: false, reason: "STORE_MISMATCH", discountAmount: 0, discountScope: null }
+        : evaluateCouponEligibility(
+          owned,
+          {
+            userId,
+            storeId: null,
+            itemsAmount: orders.reduce((sum, order) => sum + order.itemsAmount, 0),
+            deliveryFee: orders.reduce((sum, order) => sum + (order.deliveryFee ?? 0), 0),
+            fulfillmentType: fulfillmentTypes.size === 1 ? orders[0].fulfillmentType : "ALL",
+            hasPreviousOrder,
+          },
+          now,
+        );
+    cartCoupon = {
+      userCouponId: owned.id,
+      couponId: owned.coupon_id,
+      name: owned.coupon.name,
+      ...eligibility,
+    };
+    if (!eligibility.usable) {
+      orders[0].issues.push("CART_COUPON_" + eligibility.reason);
+    } else {
+      let remaining = eligibility.discountAmount;
+      for (const order of orders) {
+        const allocated = Math.min(remaining, order.totalAmount);
+        order.cartCouponDiscountAmount = allocated;
+        order.totalAmount -= allocated;
+        remaining -= allocated;
+      }
+    }
+  }
+  orders.forEach((order) => {
+    order.cartCouponDiscountAmount ??= 0;
+  });
   const points = quotePoints((await getPointBalance(userId)).balance, orders, input);
   orders.forEach((row, index) => {
     const { used, earn } = points.allocations[index];
@@ -944,6 +952,8 @@ export async function previewCheckout(userId, rawInput) {
     orders,
     stockIssues,
     paymentMethod,
+    paymentOption: input.paymentOption,
+    cartCoupon,
     issues: [...(paymentMethod ? [] : ["PAYMENT_METHOD_REQUIRED"]), ...points.issues],
     points: {
       balance: points.balance,
@@ -959,7 +969,8 @@ export async function previewCheckout(userId, rawInput) {
       deliveryFee: orders.some((row) => row.deliveryFee === null)
         ? null
         : sum("deliveryFee"),
-      discountAmount: sum("discountAmount"),
+      discountAmount: sum("discountAmount") + sum("cartCouponDiscountAmount"),
+      cartCouponDiscountAmount: sum("cartCouponDiscountAmount"),
       totalAmount: orders.some((row) => row.totalAmount === null)
         ? null
         : sum("totalAmount"),
@@ -981,6 +992,8 @@ export function validateSubmitInput(raw) {
     "storeOptions",
     "addressId",
     "paymentMethodId",
+    "paymentOption",
+    "cartCouponId",
     "pointsUse",
     "useExpectedPoints",
     "paymentAgreed",
@@ -1090,7 +1103,7 @@ export async function submitCheckout(userId, raw) {
         status: "PAID",
         items_amount: order.itemsAmount,
         delivery_fee: order.deliveryFee,
-        discount_amount: order.discountAmount,
+        discount_amount: order.discountAmount + order.cartCouponDiscountAmount,
         total_amount: order.payAmount,
         points_used_amount: order.pointsUsedAmount,
         points_earn_amount: order.pointsEarnAmount,
@@ -1160,10 +1173,14 @@ export async function submitCheckout(userId, raw) {
         await paymentRepository.createMockPayment(userId, {
           purpose: "ORDER",
           order_id: row.id,
-          payment_method_id: quote.paymentMethod.id,
+          payment_method_id: quote.paymentMethod.id ?? null,
           method_label: methodLabel,
           amount: row.total_amount,
         });
+    }
+    if (quote.cartCoupon?.usable) {
+      await couponRepository.markOwnedUsed(userId, quote.cartCoupon.userCouponId);
+      consumed.push(quote.cartCoupon.userCouponId);
     }
   } catch (error) {
     const recovery = [];

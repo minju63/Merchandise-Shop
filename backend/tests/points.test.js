@@ -54,6 +54,19 @@ test('주문 입력은 적립금 사용 값을 검증한다', () => {
   assert.throws(() => normalizeCheckoutInput({ ...input, useExpectedPoints: 'yes' }));
 });
 
+test('주문 입력은 응모권과 같은 결제 채널과 장바구니 쿠폰을 검증한다', () => {
+  const input = { mode: 'CART', cartItemIds: ['11111111-1111-4111-8111-111111111111'] };
+  const cartCouponId = '22222222-2222-4222-8222-222222222222';
+  const normalized = normalizeCheckoutInput({
+    ...input,
+    paymentOption: 'KAKAO_PAY',
+    cartCouponId,
+  });
+  assert.equal(normalized.paymentOption, 'KAKAO_PAY');
+  assert.equal(normalized.cartCouponId, cartCouponId);
+  assert.throws(() => normalizeCheckoutInput({ ...input, paymentOption: 'CRYPTO' }));
+});
+
 test('잔액은 확정된 내역만 합산한다', () => {
   assert.equal(
     sumConfirmedPoints([
@@ -64,4 +77,12 @@ test('잔액은 확정된 내역만 합산한다', () => {
     ]),
     3200
   );
+});
+
+test('리뷰 적립금은 구매 후 30일까지만 받을 수 있다', async () => {
+  const { grantReviewReward, reviewRewardDeadline } = await import('../src/services/user.service.js');
+  const purchased = '2026-01-01T00:00:00.000Z';
+  assert.equal(reviewRewardDeadline(purchased).toISOString(), '2026-01-31T00:00:00.000Z');
+  const expired = await grantReviewReward('u', { orderId: 'o', orderItemId: 'i', purchasedAt: purchased });
+  assert.deepEqual(expired, { granted: false, amount: 0, reason: 'REWARD_EXPIRED' });
 });

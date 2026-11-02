@@ -1,4 +1,5 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { formatOpenTime } from '../../../utils/openTime.js';
 
 function GalleryImage({ src, alt }) {
   const [failed, setFailed] = useState(false);
@@ -16,6 +17,8 @@ export default function ProductImageGallery({
   thumbnailUrl,
   productName,
   soldOut = false,
+  comingSoon = false,
+  upcomingAt,
 }) {
   const urls = [
     ...new Set(
@@ -25,7 +28,18 @@ export default function ProductImageGallery({
   const [selected, setSelected] = useState(0);
   const gesture = useRef(null);
   const [dragOffset, setDragOffset] = useState(0);
+  const [currentTimestamp, setCurrentTimestamp] = useState(() => Date.now());
   const current = urls[selected] || urls[0];
+  const openTimestamp = new Date(upcomingAt).getTime();
+  const countdownText = comingSoon && Number.isFinite(openTimestamp) && openTimestamp > currentTimestamp
+    ? formatOpenTime(upcomingAt, currentTimestamp).countdownText
+    : null;
+
+  useEffect(() => {
+    if (!comingSoon || !upcomingAt) return undefined;
+    const timer = window.setInterval(() => setCurrentTimestamp(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [comingSoon, upcomingAt]);
   function startDrag(event) {
     if (urls.length < 2 || !event.isPrimary || event.button !== 0) return;
     gesture.current = { id: event.pointerId, x: event.clientX, y: event.clientY };
@@ -62,9 +76,18 @@ export default function ProductImageGallery({
         <div className="category-swipe-image" style={{ transform: `translateX(${dragOffset * 0.35}px)` }}>
           <GalleryImage key={current || 'empty'} src={current} alt={productName} />
         </div>
-        {soldOut && <div className="category-soldout-overlay">SOLD OUT</div>}
+        {(soldOut || comingSoon) && (
+          <div className={`category-soldout-overlay${comingSoon ? ' category-coming-soon-overlay' : ''}`}>
+            <span>{comingSoon ? 'COMING SOON' : 'SOLD OUT'}</span>
+          </div>
+        )}
+        {countdownText ? (
+          <strong className="category-upcoming-countdown">
+            <span aria-hidden="true">◷</span> {countdownText} 후 오픈
+          </strong>
+        ) : null}
         {urls.length > 0 && (
-          <span className="category-gallery-count">
+          <span className={`category-gallery-count${countdownText ? ' has-countdown' : ''}`}>
             {Math.max(1, urls.indexOf(current) + 1)}/{urls.length}
           </span>
         )}

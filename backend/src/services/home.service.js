@@ -1,7 +1,7 @@
 // 담당: 민주
 // 홈 서비스 — 비즈니스 로직, DB 접근은 repositories/ 를 통해서만
 import { findActiveCategories, findHomeBanners, findHomeProducts } from '../repositories/home.repository.js';
-import { getHomeBoards } from './fan.service.js';
+import { describeDay, getHomeBoards } from './fan.service.js';
 
 const SECTION_LIMIT = 10;
 const RECOMMENDATION_LIMIT = 30;
@@ -128,12 +128,14 @@ const boardBanners = (boards) => boards.map((board) => ({
   imageUrl: null,
   advertiserName: null,
   design: board.design,
+  // 기념일 전광판만: 누르면 열리는 "그날 기념일인 최애" 화면 정보
+  fanDay: board.day ?? null,
   startAt: '1970-01-01T00:00:00Z',
   endAt: '9999-12-31T23:59:59Z',
   clickCount: 0,
 }));
 
-function buildBanners(rows, boards = []) {
+function buildBanners(rows, boards = [], legacyDays = new Map()) {
   const banners = rows.map((banner) => ({
     id: banner.id,
     bannerType: banner.banner_type,
@@ -145,6 +147,8 @@ function buildBanners(rows, boards = []) {
     eventDate: banner.event_date,
     message: banner.message,
     fanNickname: banner.fan_nickname,
+    // 예전 FAN 행도 그 날짜의 "기념일인 최애" 화면으로 들어갈 수 있다
+    fanDay: legacyDays.get(banner.id) ?? null,
     startAt: banner.starts_at ?? '1970-01-01T00:00:00Z',
     endAt: banner.ends_at ?? '9999-12-31T23:59:59Z',
     clickCount: banner.click_count,
@@ -205,6 +209,13 @@ export async function getHome() {
     getHomeBoards().catch(() => []),
   ]);
 
+  // 예전 FAN 배너(banners 행)는 event_date 를 그날로 본다
+  const legacyDays = new Map(await Promise.all(
+    bannerRows
+      .filter((row) => row.banner_type === 'FAN' && row.event_date)
+      .map(async (row) => [row.id, await describeDay(row.event_date)]),
+  ));
+
   const onSale = products
     .filter((product) => product.status === 'ON_SALE')
     .map((product) => ({ product, listing: representativeListing(product) }))
@@ -256,7 +267,7 @@ export async function getHome() {
     }));
 
   return {
-    banners: buildBanners(bannerRows, fanBoards),
+    banners: buildBanners(bannerRows, fanBoards, legacyDays),
     categories: buildCategoryShortcuts(categories),
     interestCategories: buildInterestCategories(categories),
     popularProducts,

@@ -38,6 +38,11 @@ router.post(
   controller.getReorderItems,
 );
 router.post(
+  "/:orderId/confirm",
+  requireAuthentication,
+  controller.confirmMyPurchase,
+);
+router.post(
   "/:orderId/cancel",
   requireAuthentication,
   controller.cancelMyOrder,

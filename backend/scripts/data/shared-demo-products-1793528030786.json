@@ -1,0 +1,4972 @@
+[
+  {
+    "id": "24dafa13-9f92-42ea-ae6d-e266779806c7",
+    "product_id": "0085d944-a04c-492d-9263-30099b1af4f4",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 5500,
+    "stock": 16,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "3c474cd0-a9f7-4c48-8389-a68ff4849967",
+    "product_id": "0085d944-a04c-492d-9263-30099b1af4f4",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 5500,
+    "stock": 8,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "35978aae-a1a2-4f7e-8103-ca8644249fb5",
+    "product_id": "0085d944-a04c-492d-9263-30099b1af4f4",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 5500,
+    "stock": 4,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "9adfb7ca-c081-48ec-907d-eb9851dc8364",
+    "product_id": "0100302b-6ded-4464-b0ef-5b2ee63f0f1f",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 29000,
+    "stock": 8,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "b73177c8-db6a-4262-bfd0-963f3a48d4a3",
+    "product_id": "0100302b-6ded-4464-b0ef-5b2ee63f0f1f",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 29000,
+    "stock": 19,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "77a866bf-dd60-4817-acec-f624eeaece8e",
+    "product_id": "0100302b-6ded-4464-b0ef-5b2ee63f0f1f",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 29000,
+    "stock": 17,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "17be963d-ea8e-4fce-86b7-eb046396a6f8",
+    "product_id": "05bf8b75-f528-411b-bcb4-f04a9bd421db",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 18000,
+    "stock": 12,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "0c695440-75ce-4de7-a9fc-83d90d57f35c",
+    "product_id": "05bf8b75-f528-411b-bcb4-f04a9bd421db",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 18000,
+    "stock": 26,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "44ca3221-f38b-4507-8666-6a1f9a528066",
+    "product_id": "066829b3-e580-47dd-9b8a-7782c69d9c31",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 22000,
+    "stock": 9,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "22ea3022-e6ef-4a61-94e2-cf8874c26817",
+    "product_id": "066829b3-e580-47dd-9b8a-7782c69d9c31",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 22000,
+    "stock": 6,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "090831b6-ecee-4146-88e4-4c1ccff11572",
+    "product_id": "066829b3-e580-47dd-9b8a-7782c69d9c31",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 22000,
+    "stock": 11,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "94df9608-ddff-4e6f-ad1c-80f94ecc1235",
+    "product_id": "0969ae5d-5166-4f54-9e35-7a950a958a5a",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 9900,
+    "stock": 30,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "91abd7dd-1cfa-45df-b543-0cf08d173d85",
+    "product_id": "0969ae5d-5166-4f54-9e35-7a950a958a5a",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 9900,
+    "stock": 16,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "2cbdaeb8-f0b4-4423-98c5-ff6309445301",
+    "product_id": "0a5ca3da-af07-41c1-93da-619ef7d48006",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 7000,
+    "stock": 3,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "6be46adf-2e0b-4752-add9-483d4f972605",
+    "product_id": "0a5ca3da-af07-41c1-93da-619ef7d48006",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 7000,
+    "stock": 20,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "2769ad32-a08c-4f79-96e4-f7e4a2e5279e",
+    "product_id": "0a5ca3da-af07-41c1-93da-619ef7d48006",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 7000,
+    "stock": 8,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "e68daab9-b10d-4a13-a6b0-5b93fdadea2b",
+    "product_id": "0daeecf7-6d73-4470-b05b-eabf21cde471",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 49000,
+    "stock": 20,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "88f87882-da9c-457e-a235-771be712da86",
+    "product_id": "0daeecf7-6d73-4470-b05b-eabf21cde471",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 49000,
+    "stock": 15,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "efc62d8d-1404-45bb-9e6c-7c4c546397ff",
+    "product_id": "0daeecf7-6d73-4470-b05b-eabf21cde471",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 49000,
+    "stock": 29,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "994d4124-cd94-4e06-b797-b7b786533e3f",
+    "product_id": "0f6d6978-d67d-495c-be4d-def688bb3a8b",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 9000,
+    "stock": 30,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "4696c922-2de9-4870-9b63-70c067711974",
+    "product_id": "0f6d6978-d67d-495c-be4d-def688bb3a8b",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 9000,
+    "stock": 6,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "33f45fa5-6038-4b5e-90aa-58d74bbfc02c",
+    "product_id": "0f97b0e6-8a20-4895-9aff-6a401c6c59e7",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 35000,
+    "stock": 17,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "edc3daeb-1a18-4f54-8006-bcb245d3f7f0",
+    "product_id": "0f97b0e6-8a20-4895-9aff-6a401c6c59e7",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 35000,
+    "stock": 25,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "6d4aa3ad-ae50-423d-a393-110d6cb8e163",
+    "product_id": "0fe64224-c991-4aaa-afa9-701948d523f6",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 9900,
+    "stock": 18,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "ff2e5303-aaec-4315-9d65-b3bdd0a414da",
+    "product_id": "0fe64224-c991-4aaa-afa9-701948d523f6",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 9900,
+    "stock": 23,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "5b086248-cdf0-458c-9cd1-8ddb9553fd82",
+    "product_id": "0fe64224-c991-4aaa-afa9-701948d523f6",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 9900,
+    "stock": 6,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "77694459-8542-4f82-bdb5-6bd9a6bd9a2a",
+    "product_id": "1158ceb2-76b4-49e7-80dd-3f0453eae6a5",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 9000,
+    "stock": 3,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "897e8a10-9ce5-4117-af04-ec949cc90909",
+    "product_id": "1158ceb2-76b4-49e7-80dd-3f0453eae6a5",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 9000,
+    "stock": 14,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "4de931e3-791f-4807-9293-6f9fa2362a27",
+    "product_id": "1158ceb2-76b4-49e7-80dd-3f0453eae6a5",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 9000,
+    "stock": 28,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "91771063-aa25-45be-927c-8013c811890d",
+    "product_id": "121d3fd5-8875-4a9d-8e4f-53993abb7f69",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 3500,
+    "stock": 9,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "714fa0b6-d23d-47c9-9ceb-131ffce2693e",
+    "product_id": "121d3fd5-8875-4a9d-8e4f-53993abb7f69",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 3500,
+    "stock": 4,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "a1e558ad-952a-4eec-a7fa-1a83aa0b31b2",
+    "product_id": "121d3fd5-8875-4a9d-8e4f-53993abb7f69",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 3500,
+    "stock": 14,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "10d4fea3-fb31-4873-9ebc-cc6c96c41d6d",
+    "product_id": "1265c062-4f93-4b87-a2ca-2dc6851e76a3",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 8900,
+    "stock": 12,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "e443f729-591f-4822-bef5-f2210f7a14a3",
+    "product_id": "1265c062-4f93-4b87-a2ca-2dc6851e76a3",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 8900,
+    "stock": 9,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "ef089c1b-6de0-4c9d-8342-556710a50c50",
+    "product_id": "1265c062-4f93-4b87-a2ca-2dc6851e76a3",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 8900,
+    "stock": 30,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "a2b0eb7a-53e5-4a1b-b133-0df0b7836e1b",
+    "product_id": "1345baa2-c29c-4929-8bb6-9cdd288de521",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 8000,
+    "stock": 21,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "3e3ed561-d87c-4728-973b-26081b478d36",
+    "product_id": "1345baa2-c29c-4929-8bb6-9cdd288de521",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 8000,
+    "stock": 12,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "4da6d735-1dc2-4d62-a6d1-ea8ce09b340c",
+    "product_id": "1c693280-d22a-450b-bea7-00920a4cab19",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 35000,
+    "stock": 12,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "e15adf8e-843a-4111-8488-f81683528386",
+    "product_id": "1c693280-d22a-450b-bea7-00920a4cab19",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 35000,
+    "stock": 7,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "50d73446-4e1f-462d-905a-e9aa7838fee1",
+    "product_id": "1c693280-d22a-450b-bea7-00920a4cab19",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 35000,
+    "stock": 17,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "8fb9e2d3-c24c-444a-a2fe-fca6d4dc6424",
+    "product_id": "1e3351e0-c18f-4b48-8b9a-303d29cf46f4",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 5500,
+    "stock": 26,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "14c30ebd-693d-40dc-8769-ae6997676339",
+    "product_id": "1e3351e0-c18f-4b48-8b9a-303d29cf46f4",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 5500,
+    "stock": 25,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "6b643f49-9aef-4e6a-a39e-6c04e0f2a46c",
+    "product_id": "1ec68469-b538-4dc0-afc1-ca6694ad0ea5",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 15000,
+    "stock": 28,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "6986d582-eee1-4860-bd72-5e1a7ac9ca92",
+    "product_id": "1ec68469-b538-4dc0-afc1-ca6694ad0ea5",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 15000,
+    "stock": 12,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "67e1a7dd-591f-4282-84d3-af73f1890632",
+    "product_id": "20000000-0000-4000-8000-000000000001",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 12000,
+    "stock": 18,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "c9e9efdd-0e81-406f-bfa0-e8e084bd0182",
+    "product_id": "20000000-0000-4000-8000-000000000001",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 12000,
+    "stock": 14,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "b8d51ce2-46e3-4afa-9cfa-fd343e715439",
+    "product_id": "20000000-0000-4000-8000-000000000001",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 12000,
+    "stock": 9,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "8affe5a1-a1e7-4d6c-bbcd-e801a628370a",
+    "product_id": "20000000-0000-4000-8000-000000000003",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 18000,
+    "stock": 11,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "384fe815-5088-4baa-ab41-04188ed1f133",
+    "product_id": "20000000-0000-4000-8000-000000000003",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 18000,
+    "stock": 11,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "6e181928-988e-4932-a77a-0cbd271033c8",
+    "product_id": "20000000-0000-4000-8000-000000000007",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 16000,
+    "stock": 25,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "1dc5c57c-6c79-4282-a735-f2533d15dac8",
+    "product_id": "20000000-0000-4000-8000-000000000007",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 16000,
+    "stock": 13,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "59b20ef5-ccc1-4d52-b747-e582a060679f",
+    "product_id": "20000000-0000-4000-8000-000000000008",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 22000,
+    "stock": 20,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "00e70be5-26c2-4e99-9c38-ddac33172032",
+    "product_id": "20000000-0000-4000-8000-000000000008",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 22000,
+    "stock": 13,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "11ec0508-6677-43a9-ae3b-ba4e45e1dc4d",
+    "product_id": "20000000-0000-4000-8000-000000000008",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 22000,
+    "stock": 24,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "55e10ff0-db12-4b53-89f1-59e6f4de6f89",
+    "product_id": "20000000-0000-4000-8000-000000000012",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 12000,
+    "stock": 18,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "b74b5b9e-80dc-41cc-a2f4-b4afca3477bd",
+    "product_id": "20000000-0000-4000-8000-000000000012",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 12000,
+    "stock": 26,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "a8c4ead6-e5c6-4a7d-a029-0c20c56e83c0",
+    "product_id": "20000000-0000-4000-8000-000000000202",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 9000,
+    "stock": 11,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "a3e98a65-4a01-49db-9d09-ca7aa23a7bfb",
+    "product_id": "20000000-0000-4000-8000-000000000202",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 9000,
+    "stock": 29,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "cdfa26a1-0b30-4313-a228-f3c306e20339",
+    "product_id": "20000000-0000-4000-8000-000000000203",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 12000,
+    "stock": 15,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "1b1aa960-1c52-4c99-a449-860b37c0b32d",
+    "product_id": "20000000-0000-4000-8000-000000000203",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 12000,
+    "stock": 17,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "2e23da6c-bbf3-4592-a6da-e56c5a29c262",
+    "product_id": "20000000-0000-4000-8000-000000000204",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 24000,
+    "stock": 18,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "2ba409a4-fb4d-4abd-8b8a-739448ded1f2",
+    "product_id": "20000000-0000-4000-8000-000000000204",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 24000,
+    "stock": 20,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "e83546ce-7e27-4533-ae67-7d73d1cdc848",
+    "product_id": "20000000-0000-4000-8000-000000000301",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 15000,
+    "stock": 23,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "2471caa8-13da-4a8c-bda3-8d839b040373",
+    "product_id": "20000000-0000-4000-8000-000000000301",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 15000,
+    "stock": 5,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "d9f99267-841a-4abf-9659-a7fa1b550001",
+    "product_id": "20000000-0000-4000-8000-000000000301",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 15000,
+    "stock": 16,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "b38765a7-fef3-45f5-8212-228204aec30a",
+    "product_id": "20000000-0000-4000-8000-000000000302",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 11000,
+    "stock": 29,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "f845d212-0938-4e1e-b262-a103ba6a613d",
+    "product_id": "20000000-0000-4000-8000-000000000302",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 11000,
+    "stock": 24,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "7cd0c23c-a2f6-4825-b52f-54d22e31432c",
+    "product_id": "20000000-0000-4000-8000-000000000302",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 11000,
+    "stock": 12,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "0871184e-e3f1-4acf-8702-1204c01dd3ad",
+    "product_id": "20000000-0000-4000-8000-000000000303",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 4000,
+    "stock": 13,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "4b50c3a7-26ba-4c8c-94f6-ee681dc717d6",
+    "product_id": "20000000-0000-4000-8000-000000000303",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 4000,
+    "stock": 15,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "3be34a4f-a947-470d-bbdb-445a1f6886a0",
+    "product_id": "20000000-0000-4000-8000-000000000303",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 4000,
+    "stock": 13,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "aae25915-25de-4736-b10b-bfd8b1e93e22",
+    "product_id": "20000000-0000-4000-8000-000000000305",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 22000,
+    "stock": 12,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "6b8e2ef9-d61a-4205-b351-6b75e2f6848d",
+    "product_id": "20000000-0000-4000-8000-000000000305",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 22000,
+    "stock": 7,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "ebb1f514-9da1-44ac-93fb-c078de64b1bb",
+    "product_id": "20000000-0000-4000-8000-000000000305",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 22000,
+    "stock": 25,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "899cba76-c3b4-4bb4-be5b-e377839acdce",
+    "product_id": "20000000-0000-4000-8000-000000000306",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 28000,
+    "stock": 18,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "1fac5e3b-ddf4-4917-97e5-e26c8ee92d55",
+    "product_id": "20000000-0000-4000-8000-000000000306",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 28000,
+    "stock": 3,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "f2c171ef-5e2b-4845-b524-2b0b52989810",
+    "product_id": "20000000-0000-4000-8000-000000000306",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 28000,
+    "stock": 4,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "3d62786b-38e7-458d-9cd6-957af00385e5",
+    "product_id": "20000000-0000-4000-8000-000000000307",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 9000,
+    "stock": 21,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "78b85eef-a125-4d73-a9b8-46aae2de7170",
+    "product_id": "20000000-0000-4000-8000-000000000307",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 9000,
+    "stock": 19,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "9d22e02e-1f65-4f9a-a07e-9940d8801978",
+    "product_id": "20000000-0000-4000-8000-000000000307",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 9000,
+    "stock": 6,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "8a61de79-ea19-4c2f-a125-996b3844be52",
+    "product_id": "20000000-0000-4000-8000-000000000308",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 7000,
+    "stock": 28,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "00f44869-ce69-4bc8-b684-5f436a85c125",
+    "product_id": "20000000-0000-4000-8000-000000000308",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 7000,
+    "stock": 27,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "b8d06a2a-8dc4-424b-9f3d-93525eede851",
+    "product_id": "20000000-0000-4000-8000-000000000309",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 3500,
+    "stock": 14,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "b901a88e-dad8-4ffc-85ac-b83292b3e254",
+    "product_id": "20000000-0000-4000-8000-000000000309",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 3500,
+    "stock": 7,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "49810a82-2f88-4fd1-8e51-598fceede93e",
+    "product_id": "20000000-0000-4000-8000-000000000309",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 3500,
+    "stock": 13,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "76e0123b-5be0-47eb-8f27-5ebfbaad7248",
+    "product_id": "20000000-0000-4000-8000-000000000310",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 12000,
+    "stock": 20,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "e2428085-aaf2-4996-aecc-145e739832d2",
+    "product_id": "20000000-0000-4000-8000-000000000310",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 12000,
+    "stock": 6,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "286c9f4a-dc78-445a-8f12-f24e14723612",
+    "product_id": "20000000-0000-4000-8000-000000000310",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 12000,
+    "stock": 22,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "ccea7f77-05b2-43d4-833a-22c566bff2fa",
+    "product_id": "2029e083-e3ca-4cc7-b819-7c1cc90e90aa",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 49000,
+    "stock": 10,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "a4bb175e-7749-4ac3-bb13-1463fe88af7d",
+    "product_id": "2029e083-e3ca-4cc7-b819-7c1cc90e90aa",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 49000,
+    "stock": 4,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "ff490cac-3a20-4571-b7a3-f3910fd623de",
+    "product_id": "2029e083-e3ca-4cc7-b819-7c1cc90e90aa",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 49000,
+    "stock": 29,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "db605823-8a3b-4f78-8a5b-53e693a53593",
+    "product_id": "203837e3-86b1-43d9-baf5-a5e5125185b0",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 15000,
+    "stock": 23,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "0c4d94a2-dfd2-47d6-8643-41503b2a7a84",
+    "product_id": "203837e3-86b1-43d9-baf5-a5e5125185b0",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 15000,
+    "stock": 8,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "8898e63b-a538-4c44-8ec3-33898ee7c148",
+    "product_id": "21ae63e5-a5ac-4532-ac66-f70e0eb6c2b5",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 7900,
+    "stock": 8,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "5c81d6f5-a14c-47ef-8351-9bc4c286496f",
+    "product_id": "21ae63e5-a5ac-4532-ac66-f70e0eb6c2b5",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 7900,
+    "stock": 12,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "7bd900d6-1928-40a1-b823-282ac676fa02",
+    "product_id": "2400c487-2521-4a1a-92d9-14455fe31d1f",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 4500,
+    "stock": 10,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "f56190ef-30b3-4c61-a2b6-b88491608450",
+    "product_id": "2400c487-2521-4a1a-92d9-14455fe31d1f",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 4500,
+    "stock": 23,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "ccbf7303-69ba-4a40-a1ee-e02e5223ee68",
+    "product_id": "2400c487-2521-4a1a-92d9-14455fe31d1f",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 4500,
+    "stock": 27,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "7ca1936d-648d-403e-b6df-d7d2d21bf7df",
+    "product_id": "2639e13f-557b-4fd7-b475-1e7b22abf784",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 14000,
+    "stock": 6,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "44ba639d-57e9-4144-b0e4-f10768bc7143",
+    "product_id": "2639e13f-557b-4fd7-b475-1e7b22abf784",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 14000,
+    "stock": 15,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "9a22448d-25a5-48e3-914a-c241c75843c8",
+    "product_id": "2688d5d1-2c53-4940-aa83-bc97075851ea",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 32000,
+    "stock": 21,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "a6884a33-e7d3-4c86-8c4b-79ab48cb3f5f",
+    "product_id": "2688d5d1-2c53-4940-aa83-bc97075851ea",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 32000,
+    "stock": 15,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "6dca1a02-a17a-422b-be2c-a9191e7df0fe",
+    "product_id": "27c9ddd0-d8e4-4d0f-996a-178c01d8de38",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 18000,
+    "stock": 6,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "af8fb0ac-613c-4d7f-afba-45c55ee6c081",
+    "product_id": "27c9ddd0-d8e4-4d0f-996a-178c01d8de38",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 18000,
+    "stock": 7,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "f42b58db-d600-4877-a131-9590f11327c9",
+    "product_id": "29b66f79-bc4b-419a-9c77-059f94a85978",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 25000,
+    "stock": 18,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "9cef57f3-7042-4f8a-bce1-7a3af1b184e4",
+    "product_id": "29b66f79-bc4b-419a-9c77-059f94a85978",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 25000,
+    "stock": 6,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "6b5567ea-5d00-400b-82e5-62655bd5ea01",
+    "product_id": "29b8ddc8-d568-4dc0-a83d-dbbdc28640da",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 15000,
+    "stock": 11,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "c1959976-4ab2-45f9-87da-4e39a755f98a",
+    "product_id": "29b8ddc8-d568-4dc0-a83d-dbbdc28640da",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 15000,
+    "stock": 12,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "22d32e51-768a-4d3b-a7ad-75298522584d",
+    "product_id": "2e5776ba-b966-4b57-8b62-e4593691fae7",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 5000,
+    "stock": 22,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "6b4110e3-bfca-4c71-a82c-895dcfe40e1d",
+    "product_id": "2e5776ba-b966-4b57-8b62-e4593691fae7",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 5000,
+    "stock": 7,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "4e3d4e53-815b-4fab-aaef-659273c4f997",
+    "product_id": "2e5776ba-b966-4b57-8b62-e4593691fae7",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 5000,
+    "stock": 14,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "8a21a201-141e-4be4-95ed-08d99c00f8a8",
+    "product_id": "2e7542e1-8296-4cd9-a9c8-1772a3222132",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 29000,
+    "stock": 27,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "bccc8c7d-a7a8-47f1-a57f-34b71c031032",
+    "product_id": "2e7542e1-8296-4cd9-a9c8-1772a3222132",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 29000,
+    "stock": 22,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "ec46ac1c-0a67-4001-ace2-78db7d4f33cf",
+    "product_id": "34844406-49f6-413b-98cf-1ff6191a67f9",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 49000,
+    "stock": 22,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "8dbb20ed-59b4-4c42-a43e-6094eb51aa1e",
+    "product_id": "34844406-49f6-413b-98cf-1ff6191a67f9",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 49000,
+    "stock": 5,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "ce90fdb9-6ed6-4acf-87e6-705dd9b71d85",
+    "product_id": "34844406-49f6-413b-98cf-1ff6191a67f9",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 49000,
+    "stock": 9,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "ba1cb952-ffa3-4c51-81ff-32379331170d",
+    "product_id": "34df3e52-203e-4524-99cc-c2a280f38b28",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 22000,
+    "stock": 6,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "2fbc5aa8-de04-433d-b333-06baf6255ad7",
+    "product_id": "34df3e52-203e-4524-99cc-c2a280f38b28",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 22000,
+    "stock": 4,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "e608c3f0-a544-4381-a3f1-942fb642a776",
+    "product_id": "34df3e52-203e-4524-99cc-c2a280f38b28",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 22000,
+    "stock": 19,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "ac0a3903-d457-4075-93a3-dd11ada29c09",
+    "product_id": "35d351b7-d1f5-406e-bb5d-a4c4799b172d",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 8500,
+    "stock": 8,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "68de1611-9aa7-4c92-9e78-8f6d53d622e4",
+    "product_id": "35d351b7-d1f5-406e-bb5d-a4c4799b172d",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 8500,
+    "stock": 16,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "92d38252-2fcc-4445-a7a7-f699123ede98",
+    "product_id": "35d351b7-d1f5-406e-bb5d-a4c4799b172d",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 8500,
+    "stock": 10,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "779c7a57-0bd5-49ce-85a7-c076517ad1e0",
+    "product_id": "35f0d198-2222-476e-84db-26d25e6d7dff",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 4500,
+    "stock": 5,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "b10b2270-07ed-4143-b9d8-070ce2220cf3",
+    "product_id": "35f0d198-2222-476e-84db-26d25e6d7dff",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 4500,
+    "stock": 12,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "d91b5fd7-43aa-4d89-8957-8d10ce7743a8",
+    "product_id": "35f0d198-2222-476e-84db-26d25e6d7dff",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 4500,
+    "stock": 7,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "0f0cb321-afe5-4a76-bfe1-6be0f409b307",
+    "product_id": "3640ce25-3e1e-4644-9334-5f7eef913a9d",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 45000,
+    "stock": 23,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "5a69d475-521d-41a8-bfcc-23f717be94cd",
+    "product_id": "3640ce25-3e1e-4644-9334-5f7eef913a9d",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 45000,
+    "stock": 18,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "d6763c97-ceba-403b-b0e6-2599761d11ad",
+    "product_id": "38a4853e-693e-42cb-8b4c-474275c27ede",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 30000,
+    "stock": 30,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "2e471902-c106-431e-af95-7684f0d1f5bd",
+    "product_id": "38a4853e-693e-42cb-8b4c-474275c27ede",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 30000,
+    "stock": 16,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "38a4bfc4-511a-438d-9aaf-031eaba5c20e",
+    "product_id": "39761275-6afd-4973-b118-35cca2f0e871",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 69000,
+    "stock": 3,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "b7d24cf3-9701-4f41-a6cc-ec8fb1cfe5d8",
+    "product_id": "39761275-6afd-4973-b118-35cca2f0e871",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 69000,
+    "stock": 6,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "5f26fa11-65ae-4ce9-b703-b4f7b11b947e",
+    "product_id": "3fdb0c0a-1dd5-4e6d-bd75-211f7550a24b",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 8000,
+    "stock": 15,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "d78c238c-cd9e-4ec5-8084-140743dec09a",
+    "product_id": "3fdb0c0a-1dd5-4e6d-bd75-211f7550a24b",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 8000,
+    "stock": 19,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "9cd0263d-b091-4705-a006-55b8275eee8c",
+    "product_id": "409e60cc-e225-4f37-b82b-a8231ca0caa4",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 5000,
+    "stock": 17,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "58a4de37-01a7-4fd0-9dff-07d6a4e81137",
+    "product_id": "409e60cc-e225-4f37-b82b-a8231ca0caa4",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 5000,
+    "stock": 22,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "60e6b999-3c79-486b-9406-8d81208d9dd2",
+    "product_id": "409e60cc-e225-4f37-b82b-a8231ca0caa4",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 5000,
+    "stock": 9,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "40404233-09cb-4ba9-9bec-be995c418dbf",
+    "product_id": "423d36db-cbec-40e6-a369-56f2ba7bc57a",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 39000,
+    "stock": 29,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "ae935d7f-68e6-4c5c-926c-d77bc6a37ff8",
+    "product_id": "423d36db-cbec-40e6-a369-56f2ba7bc57a",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 39000,
+    "stock": 21,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "5b8bd0a8-ead0-4b38-bb3a-3033439c2480",
+    "product_id": "43432a66-01aa-4e56-b3a3-9fac5f405073",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 8500,
+    "stock": 23,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "36934729-3768-40a0-bcf8-c9fda843d5a2",
+    "product_id": "43432a66-01aa-4e56-b3a3-9fac5f405073",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 8500,
+    "stock": 18,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "25455f31-e52c-4ab4-a29a-cc9b64483aa3",
+    "product_id": "43432a66-01aa-4e56-b3a3-9fac5f405073",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 8500,
+    "stock": 19,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "30f8dd37-bcf4-4239-bb71-3482e6265143",
+    "product_id": "43abe5bd-0c5c-41d8-abeb-0f9b43ca5e7d",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 7900,
+    "stock": 9,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "31903b8d-e745-4c5f-8a18-89c55006704e",
+    "product_id": "43abe5bd-0c5c-41d8-abeb-0f9b43ca5e7d",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 7900,
+    "stock": 8,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "cd80e8d4-68d8-4473-b097-b5130dadfa98",
+    "product_id": "43abe5bd-0c5c-41d8-abeb-0f9b43ca5e7d",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 7900,
+    "stock": 17,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "b475646b-9684-4df1-b285-116ce9472991",
+    "product_id": "446daaad-ab67-445f-8975-add9a4984e65",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 3000,
+    "stock": 4,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "aaa2c30b-a663-4b59-bbab-87399570f45d",
+    "product_id": "446daaad-ab67-445f-8975-add9a4984e65",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 3000,
+    "stock": 9,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "8474b2bf-03d0-4f84-9311-fd260a616374",
+    "product_id": "44e7ce7e-8052-41e6-93e5-2a2bc61f0f55",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 5000,
+    "stock": 8,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "9356f645-786f-48cb-8e0f-79b25aa5a171",
+    "product_id": "44e7ce7e-8052-41e6-93e5-2a2bc61f0f55",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 5000,
+    "stock": 30,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "bd2eea8f-65dd-407e-865a-44420a8b9e37",
+    "product_id": "44e7ce7e-8052-41e6-93e5-2a2bc61f0f55",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 5000,
+    "stock": 17,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "7168f837-eb12-4ddc-a1b1-806a9b35a709",
+    "product_id": "474cb123-7ab1-475f-ad9d-856475922adc",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 15000,
+    "stock": 6,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "f21cc070-4425-4995-98e7-ad613110e8e7",
+    "product_id": "474cb123-7ab1-475f-ad9d-856475922adc",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 15000,
+    "stock": 12,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "9c74bb96-76e3-4020-99f1-9a5c2b188cdb",
+    "product_id": "474cb123-7ab1-475f-ad9d-856475922adc",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 15000,
+    "stock": 25,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "7c40f9aa-cbcd-4719-bbe2-632358001fda",
+    "product_id": "48cb0a7e-8098-4dcb-8618-4f0d71d74de9",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 35000,
+    "stock": 25,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "d1835409-373e-4315-af4d-991d43adcc2e",
+    "product_id": "48cb0a7e-8098-4dcb-8618-4f0d71d74de9",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 35000,
+    "stock": 15,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "9f9da479-259a-4062-a88f-9810877937f0",
+    "product_id": "48cb0a7e-8098-4dcb-8618-4f0d71d74de9",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 35000,
+    "stock": 24,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "007d1a91-4dae-45db-b8a9-7d0051fd2078",
+    "product_id": "4ac71890-2453-45af-9320-b470b5649a9a",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 18000,
+    "stock": 29,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "6cd1584a-68f4-496c-84a5-9b88ced2aa70",
+    "product_id": "4ac71890-2453-45af-9320-b470b5649a9a",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 18000,
+    "stock": 5,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "b2640e95-c4dd-406a-830a-4af5ad171ef4",
+    "product_id": "4c456bb6-3b46-4cc6-8f89-347f46271be1",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 29000,
+    "stock": 7,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "e1aa9d15-2a80-4d73-bdbd-4b5a4b46be9e",
+    "product_id": "4c456bb6-3b46-4cc6-8f89-347f46271be1",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 29000,
+    "stock": 7,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "467c3fdc-bcb7-4757-84e3-fdc1a192e4d9",
+    "product_id": "4cc48727-3d0c-42b4-8f57-84c82b43f69c",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 32000,
+    "stock": 30,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "87bea37d-2ac2-446b-bc82-4cca26a3a27b",
+    "product_id": "4cc48727-3d0c-42b4-8f57-84c82b43f69c",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 32000,
+    "stock": 14,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "a9f2306a-3c33-4e27-b669-8934f1feada1",
+    "product_id": "4d76dae2-d3a9-4649-9734-c7ab72071f1f",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 15000,
+    "stock": 20,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "0d05e67f-8163-4e86-9be4-f47da660cbb9",
+    "product_id": "4d76dae2-d3a9-4649-9734-c7ab72071f1f",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 15000,
+    "stock": 29,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "b77f0b35-5409-488c-90c1-8e081cf2d2b9",
+    "product_id": "4d76dae2-d3a9-4649-9734-c7ab72071f1f",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 15000,
+    "stock": 25,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "606042cb-698e-4ddc-9c2b-5e3f82c7cfb0",
+    "product_id": "4f3377a2-810a-47f6-a534-6f5b27436890",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 25000,
+    "stock": 4,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "fb786fcd-6a2a-452e-9369-92eee8ac7b2f",
+    "product_id": "4f3377a2-810a-47f6-a534-6f5b27436890",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 25000,
+    "stock": 14,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "236f8092-b748-4253-901a-48d08e244359",
+    "product_id": "4f3377a2-810a-47f6-a534-6f5b27436890",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 25000,
+    "stock": 29,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "2474a9e1-b7a3-496c-a32d-35bf7d931cf7",
+    "product_id": "50561afc-147a-408f-b114-f9310b5df400",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 9900,
+    "stock": 16,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "4c602e9e-1663-4719-a5e4-93704437ee0c",
+    "product_id": "50561afc-147a-408f-b114-f9310b5df400",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 9900,
+    "stock": 6,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "dc78aa64-2867-49f2-a052-4ce5af23f60f",
+    "product_id": "50c88bcc-5575-49b4-91db-87b49162f9d0",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 6000,
+    "stock": 26,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "74f93fa0-0131-471b-986e-35b4565b855b",
+    "product_id": "50c88bcc-5575-49b4-91db-87b49162f9d0",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 6000,
+    "stock": 16,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "418a9c65-349a-428f-b448-8ced9b0941d5",
+    "product_id": "51cbc4a3-9a0c-4a35-a04a-6a1861c22fad",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 25000,
+    "stock": 16,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "1c2ac583-0a0c-4f8b-800d-466e5a0d1349",
+    "product_id": "51cbc4a3-9a0c-4a35-a04a-6a1861c22fad",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 25000,
+    "stock": 3,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "e62fadb5-2a3a-4f4f-a08b-26199a41aca3",
+    "product_id": "51cbc4a3-9a0c-4a35-a04a-6a1861c22fad",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 25000,
+    "stock": 4,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "f91985cf-925b-4b1c-9553-d6b0f9b30cc8",
+    "product_id": "54184cbe-0086-46b4-acff-981f202571ce",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 5500,
+    "stock": 8,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "b9d0938f-930d-4774-b411-ec4366344b40",
+    "product_id": "54184cbe-0086-46b4-acff-981f202571ce",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 5500,
+    "stock": 10,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "f9d04222-0c3c-4437-abb1-5bdba08873cf",
+    "product_id": "54184cbe-0086-46b4-acff-981f202571ce",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 5500,
+    "stock": 26,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "dbfb2328-5589-417c-8393-3e5a7118c769",
+    "product_id": "5490cc4c-b71a-4f9f-8666-10e7e733610e",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 18000,
+    "stock": 24,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "8ffb84a4-464c-4eb1-a2fd-1cf269264acb",
+    "product_id": "5490cc4c-b71a-4f9f-8666-10e7e733610e",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 18000,
+    "stock": 29,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "a4d0cdb9-bb9a-4e0f-a56e-98d92a5e48d2",
+    "product_id": "5490cc4c-b71a-4f9f-8666-10e7e733610e",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 18000,
+    "stock": 4,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "393579d8-9434-4060-bc1e-bd16cade2b68",
+    "product_id": "592e5f0d-cbe6-40e1-be7c-da561447787d",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 5000,
+    "stock": 21,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "9a8b7671-ba1f-482c-8ade-08dc279e4d5a",
+    "product_id": "592e5f0d-cbe6-40e1-be7c-da561447787d",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 5000,
+    "stock": 7,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "09f0feef-fb6d-4735-ad73-307506cfc043",
+    "product_id": "592e5f0d-cbe6-40e1-be7c-da561447787d",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 5000,
+    "stock": 13,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "27a8953e-fea0-47da-8824-681e424d1f0b",
+    "product_id": "5971340e-f77c-49a2-9e35-e5884b3ca054",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 15000,
+    "stock": 28,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "a96b6a59-d308-4573-8219-f4c0ea586439",
+    "product_id": "5971340e-f77c-49a2-9e35-e5884b3ca054",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 15000,
+    "stock": 16,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "5d5c97b4-7978-4253-9a1d-fdd5ff7f3960",
+    "product_id": "59f0aafe-5ce6-4222-9d8b-a62a27585eb1",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 52000,
+    "stock": 7,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "cb2443d3-4cbc-4097-a74b-d03105ee7341",
+    "product_id": "59f0aafe-5ce6-4222-9d8b-a62a27585eb1",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 52000,
+    "stock": 3,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "a9cacba9-8aad-4eec-b891-ab5b0d30876f",
+    "product_id": "59f0aafe-5ce6-4222-9d8b-a62a27585eb1",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 52000,
+    "stock": 30,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "3187d458-832c-4e20-871a-ba8acbfafbc9",
+    "product_id": "5a522095-2a58-4732-9a28-2d62ae1171c3",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 5000,
+    "stock": 12,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "48da745a-90d2-48f6-8ef7-17643d6f35ac",
+    "product_id": "5a522095-2a58-4732-9a28-2d62ae1171c3",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 5000,
+    "stock": 5,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "bdf815da-4707-4983-9ac2-1a448928ce6c",
+    "product_id": "5a522095-2a58-4732-9a28-2d62ae1171c3",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 5000,
+    "stock": 20,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "53467cbd-1ecc-4fba-8e70-e7a53877dc5f",
+    "product_id": "5befcb0e-b7f8-4800-878d-589702984626",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 18000,
+    "stock": 26,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "18abf9aa-6b3e-4bce-a09e-d8dfd9ec6ef2",
+    "product_id": "5befcb0e-b7f8-4800-878d-589702984626",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 18000,
+    "stock": 3,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "2bc42e3a-8284-4c73-8533-9ec4ca39ea34",
+    "product_id": "5c35f646-d5a9-4b47-a0d8-4d0395dc88dd",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 19000,
+    "stock": 22,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "ed802da8-1707-4b7f-951f-3139f7179db6",
+    "product_id": "5c35f646-d5a9-4b47-a0d8-4d0395dc88dd",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 19000,
+    "stock": 13,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "9149f4b6-8290-4997-b21b-d1cd920d2aef",
+    "product_id": "5c35f646-d5a9-4b47-a0d8-4d0395dc88dd",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 19000,
+    "stock": 27,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "057534f7-bfa6-42b0-a024-e7727a31af6d",
+    "product_id": "5f877d75-589f-4c6c-ac87-367f639a0943",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 8000,
+    "stock": 28,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "70e3368b-928e-4bd5-9bc6-db69d7933fc7",
+    "product_id": "5f877d75-589f-4c6c-ac87-367f639a0943",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 8000,
+    "stock": 16,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "9de54f94-65d7-47a3-9a3c-1c70aa7714c7",
+    "product_id": "5f877d75-589f-4c6c-ac87-367f639a0943",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 8000,
+    "stock": 6,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "7b0441c5-e24f-4f31-873d-71dbe1087c81",
+    "product_id": "6376fc2b-8826-4417-afa7-6583fbea153e",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 89000,
+    "stock": 22,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "5826b179-fedc-42c6-a142-ccd1e903aa22",
+    "product_id": "6376fc2b-8826-4417-afa7-6583fbea153e",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 89000,
+    "stock": 18,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "a005cf6f-4174-4e06-894e-3e8345946532",
+    "product_id": "6376fc2b-8826-4417-afa7-6583fbea153e",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 89000,
+    "stock": 15,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "98692f14-0551-486f-a0e0-615665a27ee0",
+    "product_id": "64406ba9-9c35-4c74-ae4a-66f77cbb11d2",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 6500,
+    "stock": 11,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "d18b7f90-64f8-4950-903c-436ab36a196e",
+    "product_id": "64406ba9-9c35-4c74-ae4a-66f77cbb11d2",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 6500,
+    "stock": 18,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "8b9478fa-1c47-45b3-884a-a38905aa6a6d",
+    "product_id": "64406ba9-9c35-4c74-ae4a-66f77cbb11d2",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 6500,
+    "stock": 10,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "fc9df053-dc8f-45a6-b496-8625e48f5720",
+    "product_id": "64e033e8-7608-438d-8b92-3b8cc8c711de",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 9000,
+    "stock": 12,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "d082efd5-fc46-498e-85fb-31f6b8b254ce",
+    "product_id": "64e033e8-7608-438d-8b92-3b8cc8c711de",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 9000,
+    "stock": 9,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "ad24b524-4e74-4039-8b6d-67c30160e4fa",
+    "product_id": "656474ff-24b8-4b7c-a768-5947adb1f843",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 5000,
+    "stock": 3,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "057b58f3-e49d-443e-8b4f-35a474210189",
+    "product_id": "656474ff-24b8-4b7c-a768-5947adb1f843",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 5000,
+    "stock": 18,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "6570b29d-144d-4729-b302-f83c58774dad",
+    "product_id": "656474ff-24b8-4b7c-a768-5947adb1f843",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 5000,
+    "stock": 16,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "7d588ac7-d366-43a7-ba74-ad15dc71f53d",
+    "product_id": "66f40fe5-6bc1-486e-aba5-913b693eb76e",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 5000,
+    "stock": 10,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "11eaa32d-d14d-40a5-8436-605b7d2d5df1",
+    "product_id": "66f40fe5-6bc1-486e-aba5-913b693eb76e",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 5000,
+    "stock": 30,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "5963a48e-9249-4224-b18f-4373256e16bc",
+    "product_id": "66f40fe5-6bc1-486e-aba5-913b693eb76e",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 5000,
+    "stock": 23,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "cebb5274-ecff-432b-a609-e944296dad58",
+    "product_id": "6882bb7a-50b5-4852-ac29-ad7398680924",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 5000,
+    "stock": 4,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "37976d6e-d4c7-4e1f-abec-5bcd6e18f605",
+    "product_id": "6882bb7a-50b5-4852-ac29-ad7398680924",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 5000,
+    "stock": 18,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "7f199ea1-6edc-489c-9a74-6b2a640eec2a",
+    "product_id": "6882bb7a-50b5-4852-ac29-ad7398680924",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 5000,
+    "stock": 30,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "0c0d3f83-4833-475f-9ff8-5e05a3dc1091",
+    "product_id": "6d286364-0a16-45e6-b51d-c9abc4630d92",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 6000,
+    "stock": 26,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "17b04997-7fce-49f9-8a13-9d5fc1680fce",
+    "product_id": "6d286364-0a16-45e6-b51d-c9abc4630d92",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 6000,
+    "stock": 15,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "002f5a26-1e87-461f-b2e4-daa037732d35",
+    "product_id": "6ed886a5-30d5-4e96-b124-8079d253db72",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 9000,
+    "stock": 23,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "f03419d2-25d3-4f56-ba66-03f3091c4099",
+    "product_id": "6ed886a5-30d5-4e96-b124-8079d253db72",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 9000,
+    "stock": 11,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "2ba62d58-a06c-4f32-90b8-ffbc595c8e0e",
+    "product_id": "6f9a837a-7783-4533-99fa-1256b5bc39d9",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 6000,
+    "stock": 29,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "27881687-09c5-4bbb-b016-ed7bbe0f118a",
+    "product_id": "6f9a837a-7783-4533-99fa-1256b5bc39d9",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 6000,
+    "stock": 15,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "ca86cdfb-5f4d-4d2f-b27a-512ce2c79ceb",
+    "product_id": "6f9a837a-7783-4533-99fa-1256b5bc39d9",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 6000,
+    "stock": 22,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "f65207da-a3fe-439f-acdb-9fe0807f0321",
+    "product_id": "701aad6f-22c3-4b9c-833e-0a37eccdb563",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 15000,
+    "stock": 10,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "8d721291-a067-4cb6-80f8-2123a7ce7eae",
+    "product_id": "701aad6f-22c3-4b9c-833e-0a37eccdb563",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 15000,
+    "stock": 10,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "2cd9039f-63d0-4a9c-b93c-724b69a6b3ec",
+    "product_id": "701aad6f-22c3-4b9c-833e-0a37eccdb563",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 15000,
+    "stock": 11,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "5f699503-4469-4358-ad94-28bfab4e1168",
+    "product_id": "71094057-809d-447c-a1c7-80cf83630fe7",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 5000,
+    "stock": 8,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "47aceceb-b094-488a-bd70-5f430ae15607",
+    "product_id": "71094057-809d-447c-a1c7-80cf83630fe7",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 5000,
+    "stock": 6,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "b08461b2-44f7-4f46-b32c-365ac8d80e07",
+    "product_id": "71094057-809d-447c-a1c7-80cf83630fe7",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 5000,
+    "stock": 16,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "83ceabac-e1a2-45fa-a893-0436c56d1aa7",
+    "product_id": "72465c81-7d50-4db1-811d-257d8492a111",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 12000,
+    "stock": 19,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "8eae2dcc-eb98-4cca-84e3-9bfe568183bb",
+    "product_id": "72465c81-7d50-4db1-811d-257d8492a111",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 12000,
+    "stock": 21,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "7615aa9d-42ea-444f-afde-dfbab12fa355",
+    "product_id": "72465c81-7d50-4db1-811d-257d8492a111",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 12000,
+    "stock": 12,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "9c962ccf-96e7-41b4-b1df-9b1794ab8559",
+    "product_id": "7496dd57-2a84-46b9-a611-b70dc7ff75a6",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 10000,
+    "stock": 12,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "443c0172-9040-41e3-94e0-30ae4fc2f7cd",
+    "product_id": "7496dd57-2a84-46b9-a611-b70dc7ff75a6",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 10000,
+    "stock": 7,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "5414014d-2148-4c3f-b464-414d61390e1d",
+    "product_id": "7496dd57-2a84-46b9-a611-b70dc7ff75a6",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 10000,
+    "stock": 24,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "4859bc13-3f4b-4bdb-8bf4-5de6f3e64b13",
+    "product_id": "74fbd140-1ced-44d9-86a0-00d628ebc544",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 8000,
+    "stock": 25,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "c86d1fda-5a2d-4f6d-8d7a-223def9d11df",
+    "product_id": "74fbd140-1ced-44d9-86a0-00d628ebc544",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 8000,
+    "stock": 6,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "d4ad3b33-5881-4a9a-a740-6a3fe7a1683b",
+    "product_id": "75b91812-1297-483b-8901-c16d919f8aac",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 5000,
+    "stock": 11,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "bc2f6813-1ede-4128-80c6-5f149c04f1b9",
+    "product_id": "75b91812-1297-483b-8901-c16d919f8aac",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 5000,
+    "stock": 8,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "aeb2650a-9da6-4064-849d-ec806edbf148",
+    "product_id": "75b91812-1297-483b-8901-c16d919f8aac",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 5000,
+    "stock": 16,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "8c4904fa-762d-470e-a9b2-76fcdae7a3bb",
+    "product_id": "75f8ac51-d0e9-4631-9e6a-94241fb5d4fa",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 10000,
+    "stock": 4,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "1a0c9b09-4b61-42ac-b0b9-2b68a9f13c54",
+    "product_id": "75f8ac51-d0e9-4631-9e6a-94241fb5d4fa",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 10000,
+    "stock": 14,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "f9ad2c25-26b7-4592-a17f-aaa8b8395c96",
+    "product_id": "75f8ac51-d0e9-4631-9e6a-94241fb5d4fa",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 10000,
+    "stock": 18,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "02198c89-29ff-4c2e-869f-e6b9001b1051",
+    "product_id": "76b2e1f6-a456-4002-be38-249c242db9b8",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 9900,
+    "stock": 5,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "13b7cd21-2032-4158-bbb9-5cdf30f09d95",
+    "product_id": "76b2e1f6-a456-4002-be38-249c242db9b8",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 9900,
+    "stock": 13,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "a2fd5f27-a716-4b82-81b5-d8678d9fadd5",
+    "product_id": "780a92b6-8ac8-47c7-9336-df2e925a224c",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 15000,
+    "stock": 8,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "6f7f1254-9565-4898-8910-c6e345f0609c",
+    "product_id": "780a92b6-8ac8-47c7-9336-df2e925a224c",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 15000,
+    "stock": 25,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "606da5fb-34a9-4dda-b71e-716aba529ae6",
+    "product_id": "7890840d-4971-4dfb-9321-e42c6a8327a4",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 17000,
+    "stock": 12,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "e530da22-c49f-4531-a635-8bb34bbda9fd",
+    "product_id": "7890840d-4971-4dfb-9321-e42c6a8327a4",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 17000,
+    "stock": 29,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "4624cbb6-93e0-4ba5-ab07-54658793aab3",
+    "product_id": "7890840d-4971-4dfb-9321-e42c6a8327a4",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 17000,
+    "stock": 23,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "c75ccaf8-87e4-4c65-8471-3b5e99067244",
+    "product_id": "7b7ec192-6f67-4ef4-884c-ac2439830f30",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 10000,
+    "stock": 3,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "da10e025-947d-4b86-99f9-4e109041a801",
+    "product_id": "7b7ec192-6f67-4ef4-884c-ac2439830f30",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 10000,
+    "stock": 19,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "15d6a939-c604-4f02-8ed7-a30bf0dbd7bc",
+    "product_id": "7b7ec192-6f67-4ef4-884c-ac2439830f30",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 10000,
+    "stock": 28,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "8a9bb90e-0704-43a8-88f9-e18b34fb47b5",
+    "product_id": "7d918657-3370-4914-acf7-393a95429f7a",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 12000,
+    "stock": 17,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "884fcc4d-b95a-40c8-836d-dfaa9d445752",
+    "product_id": "7d918657-3370-4914-acf7-393a95429f7a",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 12000,
+    "stock": 8,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "8c1383f7-53b0-43f3-aa61-9a5792901d10",
+    "product_id": "7d918657-3370-4914-acf7-393a95429f7a",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 12000,
+    "stock": 21,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "9fae4d46-e613-4da0-b9e1-b84427a73798",
+    "product_id": "7d923c8c-8e1e-478a-853b-4eb5a9d57a6f",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 15000,
+    "stock": 3,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "78361368-e3be-4a3f-baf7-0b344263783a",
+    "product_id": "7d923c8c-8e1e-478a-853b-4eb5a9d57a6f",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 15000,
+    "stock": 3,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "77640b99-d24c-41c9-ba1d-adf33509aa31",
+    "product_id": "7d923c8c-8e1e-478a-853b-4eb5a9d57a6f",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 15000,
+    "stock": 30,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "1983c62b-ce69-4afc-bd37-8a8b1c88807e",
+    "product_id": "7e8b6561-5574-4099-ab9d-096ac63ad68a",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 5000,
+    "stock": 5,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "7cb968c1-7d6b-45bc-8998-921a47b73154",
+    "product_id": "7e8b6561-5574-4099-ab9d-096ac63ad68a",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 5000,
+    "stock": 10,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "624a0ec1-07bf-42ba-ada1-43ea7e78cedc",
+    "product_id": "7e8b6561-5574-4099-ab9d-096ac63ad68a",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 5000,
+    "stock": 27,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "65d94c4d-80aa-4f02-80a5-2346614e3ef4",
+    "product_id": "80a91454-9c21-4a31-aadc-36c6f5393cec",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 5000,
+    "stock": 18,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "87b73565-284e-4fd6-b42e-3ee178e11c30",
+    "product_id": "80a91454-9c21-4a31-aadc-36c6f5393cec",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 5000,
+    "stock": 19,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "4f13d618-c669-42f8-9646-aa1cf610fb20",
+    "product_id": "8100757d-7631-4283-9518-072267009498",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 6500,
+    "stock": 3,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "67a276e0-fc6c-4adb-9f7f-72010a2caccd",
+    "product_id": "8100757d-7631-4283-9518-072267009498",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 6500,
+    "stock": 7,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "868b6bcb-a494-4cf9-8c89-d48287a05f2f",
+    "product_id": "8100757d-7631-4283-9518-072267009498",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 6500,
+    "stock": 20,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "a8b1f779-cca9-45d1-bcec-15329ddf758f",
+    "product_id": "839bb038-dcd1-4ea6-aef6-2180d463355e",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 18000,
+    "stock": 18,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "ce688a1c-ac70-42d1-a5ae-9327ba7c60ba",
+    "product_id": "839bb038-dcd1-4ea6-aef6-2180d463355e",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 18000,
+    "stock": 21,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "2c885599-adbe-4cbb-98c3-68956acacf2a",
+    "product_id": "839bb038-dcd1-4ea6-aef6-2180d463355e",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 18000,
+    "stock": 8,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "01c6eacc-9bc2-43d1-9b23-63a1c5224ec9",
+    "product_id": "855e0d34-476a-4bdf-ab54-0d63f3fa4f7e",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 7500,
+    "stock": 27,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "9f4a73d0-9229-4e4b-b891-d074b2858836",
+    "product_id": "855e0d34-476a-4bdf-ab54-0d63f3fa4f7e",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 7500,
+    "stock": 13,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "d31b1e11-7415-46af-a5d5-013545db6e23",
+    "product_id": "85816888-a70c-4e38-a13a-02bb2c348477",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 5000,
+    "stock": 8,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "5f85f435-422c-411a-bdc4-d366145d7669",
+    "product_id": "85816888-a70c-4e38-a13a-02bb2c348477",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 5000,
+    "stock": 13,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "903a1da0-7c18-4101-8b76-00a2c6a8f822",
+    "product_id": "899d50f8-12fc-4700-8d8d-38d0a1d56612",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 3500,
+    "stock": 10,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "d09f3800-385c-4106-bc03-6bfbc0196b7a",
+    "product_id": "899d50f8-12fc-4700-8d8d-38d0a1d56612",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 3500,
+    "stock": 18,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "1350ccbb-4897-4fe1-8af7-2d72c987c8c1",
+    "product_id": "8a7e65ad-ab18-4f3f-9b05-0b69185c1956",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 18000,
+    "stock": 22,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "ffed7393-e5bd-4c90-a622-653e76ec1d01",
+    "product_id": "8a7e65ad-ab18-4f3f-9b05-0b69185c1956",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 18000,
+    "stock": 8,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "95e0feaf-233a-43ea-b58d-7a2f44eabae8",
+    "product_id": "8a7e65ad-ab18-4f3f-9b05-0b69185c1956",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 18000,
+    "stock": 3,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "e06d2815-9b17-4057-b6f0-426400ab1fe9",
+    "product_id": "8c21db1a-d277-4baf-8978-95b2752da829",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 12000,
+    "stock": 11,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "bc541ca5-95ce-436b-8cb4-94db321c2504",
+    "product_id": "8c21db1a-d277-4baf-8978-95b2752da829",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 12000,
+    "stock": 20,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "b751210f-801c-4f9c-859c-7bc5087ac607",
+    "product_id": "8c21db1a-d277-4baf-8978-95b2752da829",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 12000,
+    "stock": 8,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "8d83ad81-8096-4407-b191-f38aa7506e4d",
+    "product_id": "8f17d51b-3ea8-4daf-aaf7-a92c9640cf2d",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 16000,
+    "stock": 30,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "1f14823c-6cdb-4c6d-a557-6b4a4c950841",
+    "product_id": "8f17d51b-3ea8-4daf-aaf7-a92c9640cf2d",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 16000,
+    "stock": 18,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "344c631f-45c9-4d2d-9629-ba1e3423b8b4",
+    "product_id": "9016a84d-304a-4454-be61-e0c0c7929c56",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 4500,
+    "stock": 26,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "fe2fc679-5536-4df1-aa21-7261ef7b8e4a",
+    "product_id": "9016a84d-304a-4454-be61-e0c0c7929c56",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 4500,
+    "stock": 29,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "4ee73eda-02a4-4874-a440-02b645946d6d",
+    "product_id": "9016a84d-304a-4454-be61-e0c0c7929c56",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 4500,
+    "stock": 17,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "594007ee-8329-469f-9d1c-5441eca6a9cd",
+    "product_id": "9023ed02-aa9c-42ef-9751-23e0b4dc78eb",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 15000,
+    "stock": 17,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "e059bfbc-3dcf-44c9-8e54-eb068be17171",
+    "product_id": "9023ed02-aa9c-42ef-9751-23e0b4dc78eb",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 15000,
+    "stock": 18,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "cac70445-d5f3-4a18-9783-e5a198bf5a70",
+    "product_id": "9023ed02-aa9c-42ef-9751-23e0b4dc78eb",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 15000,
+    "stock": 28,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "52c21a96-da8d-44fb-b564-eefe020ddb5e",
+    "product_id": "9124aa19-af34-4c89-94f7-29ce08bb52bc",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 5500,
+    "stock": 13,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "054108d3-f83a-4ed2-93cf-660421475827",
+    "product_id": "9124aa19-af34-4c89-94f7-29ce08bb52bc",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 5500,
+    "stock": 4,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "3bc98784-86ec-4f27-bffa-e57f62451dbb",
+    "product_id": "9124aa19-af34-4c89-94f7-29ce08bb52bc",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 5500,
+    "stock": 30,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "c5e2b5c6-f91c-4cee-94a4-33e7c70c1d6d",
+    "product_id": "94f54831-8f06-4207-ab79-66bddccdff67",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 15000,
+    "stock": 8,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "7798cb45-c38d-45a1-b353-a8d432131b4a",
+    "product_id": "94f54831-8f06-4207-ab79-66bddccdff67",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 15000,
+    "stock": 22,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "46f3238c-13f6-4043-a375-39e4c721631c",
+    "product_id": "94f54831-8f06-4207-ab79-66bddccdff67",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 15000,
+    "stock": 13,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "2310e591-0f69-4958-829a-bb9678fc11c4",
+    "product_id": "974ca7a9-c300-4e33-a5ba-cd508d8e8b50",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 14000,
+    "stock": 18,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "43d2842c-87e5-44ee-bdc0-5bf29a3d579d",
+    "product_id": "974ca7a9-c300-4e33-a5ba-cd508d8e8b50",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 14000,
+    "stock": 15,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "49539638-f737-4d3d-b425-71ebfe64a913",
+    "product_id": "974ca7a9-c300-4e33-a5ba-cd508d8e8b50",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 14000,
+    "stock": 7,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "e8220c32-1f92-40b2-911d-86dfd4f7b1b8",
+    "product_id": "9a8acb50-a695-47d0-a01e-85492da1c6bb",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 44000,
+    "stock": 6,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "e332ea12-4592-4160-bfe6-0a8e708b5cf2",
+    "product_id": "9a8acb50-a695-47d0-a01e-85492da1c6bb",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 44000,
+    "stock": 21,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "00587265-e768-447f-8def-59208527c710",
+    "product_id": "9ba872ea-5b3a-454e-8c92-4945b17d51bc",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 18000,
+    "stock": 3,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "abc890c5-d5b4-4c63-a189-ea6eac4d8fde",
+    "product_id": "9ba872ea-5b3a-454e-8c92-4945b17d51bc",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 18000,
+    "stock": 24,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "ea3b2d3b-9993-4f4b-a93c-60701414de83",
+    "product_id": "9c79cfc0-eeae-482b-8481-0a5874955954",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 39000,
+    "stock": 26,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "d95d0950-c7f7-4eb6-8cbe-da108d3888dc",
+    "product_id": "9c79cfc0-eeae-482b-8481-0a5874955954",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 39000,
+    "stock": 11,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "b3238df0-c43d-4b82-b16f-e8f2b46c56c5",
+    "product_id": "9e61a539-42ab-4372-ab39-1a013e7e9ee3",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 7000,
+    "stock": 13,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "eda28ce5-3c15-40a7-8684-651fadcfebb1",
+    "product_id": "9e61a539-42ab-4372-ab39-1a013e7e9ee3",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 7000,
+    "stock": 9,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "1cb7438b-d6b2-410b-993c-c3a857c9cbe8",
+    "product_id": "9f59fd48-c67c-4987-acad-efdfa040914d",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 12000,
+    "stock": 16,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "eb4d1527-be70-4752-9d7a-5afd5d4a3700",
+    "product_id": "9f59fd48-c67c-4987-acad-efdfa040914d",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 12000,
+    "stock": 29,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "62baad4a-a5e4-4ffb-960e-d0de8521a6a3",
+    "product_id": "9f59fd48-c67c-4987-acad-efdfa040914d",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 12000,
+    "stock": 16,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "b54f698a-e0d7-44ab-b9b5-d6ec8c3871ad",
+    "product_id": "a472451c-6411-4858-bd19-2b3b97fdffb7",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 3500,
+    "stock": 22,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "583189ef-6e8e-4bb6-978c-58ff861645c2",
+    "product_id": "a472451c-6411-4858-bd19-2b3b97fdffb7",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 3500,
+    "stock": 6,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "d874d21a-0c7c-4ad0-908a-362f1500cec2",
+    "product_id": "a596e0d4-0a73-432a-9dca-e2f1ca47756f",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 52000,
+    "stock": 5,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "38274066-06fc-4832-84b3-57e7adb00c0c",
+    "product_id": "a596e0d4-0a73-432a-9dca-e2f1ca47756f",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 52000,
+    "stock": 9,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "f8f26d86-c798-4d37-8938-45725c56ff37",
+    "product_id": "a596e0d4-0a73-432a-9dca-e2f1ca47756f",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 52000,
+    "stock": 4,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "e871c060-2bfc-4b72-9110-0a6d57d156a8",
+    "product_id": "a70de51b-17cc-4879-9ddd-82924f8cfccc",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 10000,
+    "stock": 14,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "e1805fe2-4a0e-4312-957a-0e71bf72626e",
+    "product_id": "a70de51b-17cc-4879-9ddd-82924f8cfccc",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 10000,
+    "stock": 30,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "c015d8d6-ca30-49ec-a247-762f36b7c3e8",
+    "product_id": "a70de51b-17cc-4879-9ddd-82924f8cfccc",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 10000,
+    "stock": 14,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "e987f031-50bd-4a50-be64-00bdeccd1627",
+    "product_id": "a714f26f-6fb6-4bec-b276-85a13a89325a",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 18000,
+    "stock": 28,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "681d0537-c5c9-4598-8223-18b4077d4e2c",
+    "product_id": "a714f26f-6fb6-4bec-b276-85a13a89325a",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 18000,
+    "stock": 13,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "b93be368-7eb2-43a1-8259-aa0fee5c4495",
+    "product_id": "a714f26f-6fb6-4bec-b276-85a13a89325a",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 18000,
+    "stock": 16,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "b9d7a5e3-768e-4f4e-a63b-6a81111aab47",
+    "product_id": "a7f30257-23af-4589-98d8-0140f6e67725",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 29000,
+    "stock": 25,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "fe03ba83-13e7-4d0d-9225-6a14484186eb",
+    "product_id": "a7f30257-23af-4589-98d8-0140f6e67725",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 29000,
+    "stock": 3,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "664776ec-5a09-488e-bf5f-eac9dff179e3",
+    "product_id": "a7f30257-23af-4589-98d8-0140f6e67725",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 29000,
+    "stock": 16,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "5f866f68-2f2e-4555-ad0d-184725427a79",
+    "product_id": "a949081c-14c8-4102-9b4c-8ca5907d7a4c",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 16500,
+    "stock": 29,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "a8027dff-e119-4398-806f-2dfe57a8213c",
+    "product_id": "a949081c-14c8-4102-9b4c-8ca5907d7a4c",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 16500,
+    "stock": 14,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "56dc6170-2e04-4479-b08c-9c11778396f1",
+    "product_id": "a949081c-14c8-4102-9b4c-8ca5907d7a4c",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 16500,
+    "stock": 15,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "5e081af3-dd42-4ebb-ba98-0eb88988ceaf",
+    "product_id": "aa794b3e-bf09-4e40-a925-b950128ca6a9",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 85000,
+    "stock": 16,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "bd37c4d9-fa29-4fed-9172-da8ab50620ad",
+    "product_id": "aa794b3e-bf09-4e40-a925-b950128ca6a9",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 85000,
+    "stock": 9,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "fa4d73f7-7b20-474f-92a3-7a3c253c6c51",
+    "product_id": "aaebabd0-80c8-4875-91ca-4350955184ec",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 65000,
+    "stock": 11,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "ff4185b8-4c9c-4c86-b933-657776b823db",
+    "product_id": "aaebabd0-80c8-4875-91ca-4350955184ec",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 65000,
+    "stock": 22,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "f3e195d4-d29b-49c2-958c-543ef4a4c71f",
+    "product_id": "aaebabd0-80c8-4875-91ca-4350955184ec",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 65000,
+    "stock": 18,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "ef26a236-baed-41e2-b89d-149b28f895e8",
+    "product_id": "ad7f2d7e-2072-46a3-9885-7a998b07fdd0",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 6000,
+    "stock": 25,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "c860bcf7-767e-4bba-bbfe-00f65e3fd6f5",
+    "product_id": "ad7f2d7e-2072-46a3-9885-7a998b07fdd0",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 6000,
+    "stock": 19,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "899813ef-0df1-443b-8622-405bf45caa0c",
+    "product_id": "ad7f2d7e-2072-46a3-9885-7a998b07fdd0",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 6000,
+    "stock": 24,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "fbbf4fb1-55ea-4644-95b5-26eb9beae88e",
+    "product_id": "aef01180-7ef4-4ede-bfee-78fe1931b2c7",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 6000,
+    "stock": 7,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "3701a66f-9d64-4d9c-9326-cf46ff066f18",
+    "product_id": "aef01180-7ef4-4ede-bfee-78fe1931b2c7",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 6000,
+    "stock": 21,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "27ae3d86-4244-4299-9aae-5f6f9dd1b099",
+    "product_id": "b1a44c5a-83eb-4822-bffd-6ba8107d13d5",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 45000,
+    "stock": 6,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "fc2d1259-50aa-459e-a302-7fba458941b9",
+    "product_id": "b1a44c5a-83eb-4822-bffd-6ba8107d13d5",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 45000,
+    "stock": 23,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "dba90a02-8b8e-47e5-918a-39717637dc7c",
+    "product_id": "b2279f05-062a-41e6-9d84-3fbf419c4cf0",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 4500,
+    "stock": 5,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "3a194760-46a9-4bf9-8490-f89c3b17eec8",
+    "product_id": "b2279f05-062a-41e6-9d84-3fbf419c4cf0",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 4500,
+    "stock": 19,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "0f95e9e2-f38d-4bd7-9a1b-e90581f993f7",
+    "product_id": "b2279f05-062a-41e6-9d84-3fbf419c4cf0",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 4500,
+    "stock": 10,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "392fa96c-317f-4f70-a10a-25a96f7d21d1",
+    "product_id": "b4f1ce0a-ed2c-46d3-9c4e-ba9cfe35122b",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 1500,
+    "stock": 21,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "7d408ec6-7ab8-4b1c-818d-68fe19a2100e",
+    "product_id": "b4f1ce0a-ed2c-46d3-9c4e-ba9cfe35122b",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 1500,
+    "stock": 13,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "b7497218-979a-496c-94bd-9b49975ddcdc",
+    "product_id": "b4f1ce0a-ed2c-46d3-9c4e-ba9cfe35122b",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 1500,
+    "stock": 23,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "a772f867-35df-4fee-a80e-a007a6330905",
+    "product_id": "b50db46b-4474-4793-b749-0c70263846fb",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 13000,
+    "stock": 29,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "ee6158b5-44ec-4c6d-827d-a9010c80659f",
+    "product_id": "b50db46b-4474-4793-b749-0c70263846fb",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 13000,
+    "stock": 9,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "20b96657-4796-4f2d-bf8e-5dfa54f54a55",
+    "product_id": "b53e8626-89bf-4b42-a196-5452563697f9",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 16500,
+    "stock": 17,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "0848a907-5801-49ba-be13-647af936922a",
+    "product_id": "b53e8626-89bf-4b42-a196-5452563697f9",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 16500,
+    "stock": 17,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "bfb0aa2d-ee60-45f9-ad05-01f5a13b70ba",
+    "product_id": "b6bdb6b4-fef1-4726-8194-703245b57284",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 19000,
+    "stock": 28,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "73c5b3ce-64e4-4b08-a593-88bfb14f4804",
+    "product_id": "b6bdb6b4-fef1-4726-8194-703245b57284",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 19000,
+    "stock": 13,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "2a9160f5-b2e5-4828-9edf-0ae47ad4ade9",
+    "product_id": "b7a8a7ee-4070-41bf-97d9-b9a03ea49eb3",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 18000,
+    "stock": 13,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "d9854c15-24d2-47a6-be16-6a8be96d93d7",
+    "product_id": "b7a8a7ee-4070-41bf-97d9-b9a03ea49eb3",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 18000,
+    "stock": 30,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "bf0000e4-a25b-48d3-b2bc-5c7b47840f2f",
+    "product_id": "b8a6b27d-1436-4961-8ee2-7fb5f72408bc",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 18000,
+    "stock": 6,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "b473d34a-b662-4cc5-870d-02b74a3b23e6",
+    "product_id": "b8a6b27d-1436-4961-8ee2-7fb5f72408bc",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 18000,
+    "stock": 9,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "6ba0acfe-ca13-4a1a-b36c-e091ef0384d8",
+    "product_id": "b8a6b27d-1436-4961-8ee2-7fb5f72408bc",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 18000,
+    "stock": 18,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "7fbc2758-0d22-4e5f-9650-c8af55bde928",
+    "product_id": "b9e2fc7f-bc0d-465c-9c26-1571d8b3783d",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 18000,
+    "stock": 24,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "f8ddfb26-1204-45cb-83d1-5d7a8fcb8179",
+    "product_id": "b9e2fc7f-bc0d-465c-9c26-1571d8b3783d",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 18000,
+    "stock": 4,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "52c47b20-e237-4cae-9525-a491670fd19b",
+    "product_id": "b9e2fc7f-bc0d-465c-9c26-1571d8b3783d",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 18000,
+    "stock": 23,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "4675fe86-b246-4800-9572-3833d78b5f72",
+    "product_id": "ba3c15b5-80a2-4d94-9ce7-c489599b16a3",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 8000,
+    "stock": 12,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "8ef2ad2a-0df0-47c9-b98c-9360eafdea60",
+    "product_id": "ba3c15b5-80a2-4d94-9ce7-c489599b16a3",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 8000,
+    "stock": 12,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "01b1e905-d9e4-4fca-9677-f3a3b6572eab",
+    "product_id": "bcd37be1-0a9d-4eab-9c71-6e3af9560944",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 5000,
+    "stock": 4,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "907f40d3-57b6-4426-8724-c1a523288d65",
+    "product_id": "bcd37be1-0a9d-4eab-9c71-6e3af9560944",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 5000,
+    "stock": 21,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "321a355b-0484-437a-8487-0ef1131ab787",
+    "product_id": "bd2040b9-d4e1-42a6-b61d-b6666ef407b9",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 18000,
+    "stock": 10,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "1e025ccf-111d-4b10-a2ef-a4b48d961219",
+    "product_id": "bd2040b9-d4e1-42a6-b61d-b6666ef407b9",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 18000,
+    "stock": 13,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "933eb824-ba06-4839-963e-ef27260fa101",
+    "product_id": "bd2040b9-d4e1-42a6-b61d-b6666ef407b9",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 18000,
+    "stock": 14,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "8446e40d-d127-4897-b441-28f19f464fa3",
+    "product_id": "bda0eba6-210d-40f0-9158-4255085a201e",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 8500,
+    "stock": 28,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "88321d9c-de67-4030-97a8-634d729fc847",
+    "product_id": "bda0eba6-210d-40f0-9158-4255085a201e",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 8500,
+    "stock": 23,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "e8a22dde-dfe4-44f2-a86d-0ccb57c15493",
+    "product_id": "bda0eba6-210d-40f0-9158-4255085a201e",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 8500,
+    "stock": 3,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "35c9bb32-62e2-4782-a74f-decf3dfdf2d8",
+    "product_id": "bdb2687b-9ea5-4ade-aaa7-30c7710adbe7",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 15000,
+    "stock": 5,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "2038badb-4810-41a0-b71c-24956b14cbcf",
+    "product_id": "bdb2687b-9ea5-4ade-aaa7-30c7710adbe7",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 15000,
+    "stock": 17,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "380d4f2f-b6e0-4f15-a973-e222ad5d09a6",
+    "product_id": "bdb2687b-9ea5-4ade-aaa7-30c7710adbe7",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 15000,
+    "stock": 22,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "c38ea23f-db36-4cc7-83d7-781062710567",
+    "product_id": "be7d1ce6-8887-4e6a-8a50-d36d6eea510e",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 15000,
+    "stock": 8,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "1d8b23ba-6ca8-414f-9cee-0d5afb99e145",
+    "product_id": "be7d1ce6-8887-4e6a-8a50-d36d6eea510e",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 15000,
+    "stock": 13,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "e06c2651-0c00-4b99-87ea-25f1db1181e2",
+    "product_id": "c140f7df-8df0-413c-baf5-1b78afbc321d",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 19000,
+    "stock": 28,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "1aa2300c-d5d6-4ca5-a652-646de2e7b2c5",
+    "product_id": "c140f7df-8df0-413c-baf5-1b78afbc321d",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 19000,
+    "stock": 12,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "a9476984-5d80-4aef-bf86-7c1e6bac6652",
+    "product_id": "c140f7df-8df0-413c-baf5-1b78afbc321d",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 19000,
+    "stock": 18,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "dd5a261a-a89b-4216-9aa1-8540095d3f71",
+    "product_id": "c176e54f-f07e-4933-9505-f7e606eb8e32",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 145000,
+    "stock": 8,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "15c2c5d1-8a0a-4602-b051-ef5f9f3bb915",
+    "product_id": "c176e54f-f07e-4933-9505-f7e606eb8e32",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 145000,
+    "stock": 5,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "0cd4c4d4-6c05-4865-81dd-9b7c096159c7",
+    "product_id": "c18d5b6a-45e1-4ce7-9724-d310a552622e",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 9000,
+    "stock": 15,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "34687828-6af2-4845-9722-c4879cc05fd7",
+    "product_id": "c18d5b6a-45e1-4ce7-9724-d310a552622e",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 9000,
+    "stock": 27,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "d35befff-7325-4a2a-bfc9-eab3826f127c",
+    "product_id": "c18d5b6a-45e1-4ce7-9724-d310a552622e",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 9000,
+    "stock": 10,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "d2747b08-ddcd-4417-ad95-354fb6fb77f1",
+    "product_id": "c28c1ef4-6ff0-4e69-b32c-bfad0f67085a",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 33000,
+    "stock": 4,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "d64ae8b4-a3ee-4bbe-b747-4f803bbaec70",
+    "product_id": "c28c1ef4-6ff0-4e69-b32c-bfad0f67085a",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 33000,
+    "stock": 17,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "9ac73ffd-e11f-412f-b1b5-509a25e3f17c",
+    "product_id": "c28c1ef4-6ff0-4e69-b32c-bfad0f67085a",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 33000,
+    "stock": 5,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "ce2464d7-4140-487e-b403-f100777aa04c",
+    "product_id": "c81363f0-4c0b-46a2-ae7c-0e5aea8f3cc7",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 14000,
+    "stock": 3,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "0bf78fb9-0423-4e84-87e4-bd85e8f8fa8e",
+    "product_id": "c81363f0-4c0b-46a2-ae7c-0e5aea8f3cc7",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 14000,
+    "stock": 23,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "517d5679-8142-4d0e-be86-34ee1bc6c9bb",
+    "product_id": "c8ee4c5d-fbfb-439a-ac1e-1378bd33d441",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 42000,
+    "stock": 10,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "00da2258-fc36-4671-b3de-5a1fe5546879",
+    "product_id": "c8ee4c5d-fbfb-439a-ac1e-1378bd33d441",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 42000,
+    "stock": 30,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "00a9ee21-cbb1-411b-b8ed-4179eb7cb205",
+    "product_id": "ca35620f-3dd3-41f4-8859-da3678648dd4",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 8000,
+    "stock": 9,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "87a4bfb3-c712-4957-b3ac-4a8705667024",
+    "product_id": "ca35620f-3dd3-41f4-8859-da3678648dd4",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 8000,
+    "stock": 8,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "a8153b10-1679-440b-8695-695653333efb",
+    "product_id": "ca35620f-3dd3-41f4-8859-da3678648dd4",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 8000,
+    "stock": 21,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "9dd740b5-f1e1-4578-bcdb-6b53b59f7f1e",
+    "product_id": "cabfe680-cb58-4b85-8c4b-f7f7641356b7",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 32000,
+    "stock": 5,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "d0360903-a2fd-4e12-b834-e1208997d471",
+    "product_id": "cabfe680-cb58-4b85-8c4b-f7f7641356b7",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 32000,
+    "stock": 26,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "fe08c1f8-e778-4a08-9635-73d06f87af04",
+    "product_id": "cabfe680-cb58-4b85-8c4b-f7f7641356b7",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 32000,
+    "stock": 9,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "d105155c-4a69-457d-904c-cbcb9bad9064",
+    "product_id": "cbb2c20c-478e-4c1a-9229-7541c21f22ec",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 8500,
+    "stock": 16,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "b777f9c4-8212-498b-acbb-3456f80bb89b",
+    "product_id": "cbb2c20c-478e-4c1a-9229-7541c21f22ec",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 8500,
+    "stock": 18,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "1a0eb784-e5e9-4423-80b5-c1a1d8cd30f7",
+    "product_id": "cbb2c20c-478e-4c1a-9229-7541c21f22ec",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 8500,
+    "stock": 4,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "5c35b6e3-3161-4baa-ba74-f4c2bbe9a0dc",
+    "product_id": "cc8da0df-8f3d-4955-aa18-3d639b143739",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 28000,
+    "stock": 17,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "eebef013-ddb9-4985-babd-f56811e6d908",
+    "product_id": "cc8da0df-8f3d-4955-aa18-3d639b143739",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 28000,
+    "stock": 3,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "61819045-5881-4eaa-8505-6b13bc369c8f",
+    "product_id": "cd15a919-635e-47e6-9512-deacb0176afd",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 18000,
+    "stock": 3,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "0862c3da-952e-4060-bfff-28ccebcaf495",
+    "product_id": "cd15a919-635e-47e6-9512-deacb0176afd",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 18000,
+    "stock": 26,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "18aeb225-ebb7-4990-a842-d3e69c19725a",
+    "product_id": "cda9b0b4-e6e7-4068-8b20-edeaff6033ef",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 7000,
+    "stock": 17,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "c24e2d63-60e6-4224-9aed-ef9735c9c674",
+    "product_id": "cda9b0b4-e6e7-4068-8b20-edeaff6033ef",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 7000,
+    "stock": 24,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "ca6bb5e4-a2c9-46a6-bc7a-b25f7365ee2b",
+    "product_id": "d199dc1d-4408-47c6-91ed-1be4f26d7b74",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 7500,
+    "stock": 10,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "836b8eeb-0276-48c9-836c-b81a48363275",
+    "product_id": "d199dc1d-4408-47c6-91ed-1be4f26d7b74",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 7500,
+    "stock": 4,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "49172490-9de7-4f47-a755-6a110efc6a48",
+    "product_id": "d199dc1d-4408-47c6-91ed-1be4f26d7b74",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 7500,
+    "stock": 8,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "3d804915-ea33-4454-bfc7-638ff8e88507",
+    "product_id": "d42702b8-b544-423f-b6a5-699f3fab101c",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 39000,
+    "stock": 4,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "39bc699e-155e-4e92-ace6-f5da8d1908ed",
+    "product_id": "d42702b8-b544-423f-b6a5-699f3fab101c",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 39000,
+    "stock": 4,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "54426331-88a8-4bff-a257-e9cf67136e64",
+    "product_id": "d449e2ec-4bf1-4d76-b8e7-5826557a2fb5",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 99000,
+    "stock": 10,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "5f20407d-e436-4f2e-a678-ed1165595966",
+    "product_id": "d449e2ec-4bf1-4d76-b8e7-5826557a2fb5",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 99000,
+    "stock": 27,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "427abb2c-3f75-4bd9-8167-f664fa0c472a",
+    "product_id": "d449e2ec-4bf1-4d76-b8e7-5826557a2fb5",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 99000,
+    "stock": 3,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "efcc96bf-9b6f-47fa-b261-882763e43fbb",
+    "product_id": "d5b0b16f-ec09-4ac8-952b-648fcc84574a",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 4500,
+    "stock": 24,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "eadad707-fa37-45c9-831f-359a8160327b",
+    "product_id": "d5b0b16f-ec09-4ac8-952b-648fcc84574a",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 4500,
+    "stock": 29,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "2901d291-3f93-451e-acaa-550ca3037f84",
+    "product_id": "d74b869b-ef79-488a-b743-155bd6ce1f0c",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 5000,
+    "stock": 5,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "337bc0c2-381d-426d-8557-0849f920cdae",
+    "product_id": "d74b869b-ef79-488a-b743-155bd6ce1f0c",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 5000,
+    "stock": 20,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "0f26b668-96bd-4dc1-9cc2-58eedf3f3ad6",
+    "product_id": "d781886d-4e8c-4498-a63f-88358b5e0cfc",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 34000,
+    "stock": 12,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "42e1ba50-aa94-474f-b2f7-7dc89f6c8ddb",
+    "product_id": "d781886d-4e8c-4498-a63f-88358b5e0cfc",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 34000,
+    "stock": 11,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "c8b4dcd8-a056-447f-8b07-48d0a61c85eb",
+    "product_id": "d781886d-4e8c-4498-a63f-88358b5e0cfc",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 34000,
+    "stock": 22,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "42e3c4d3-d6cb-48c0-a64a-412a16ce5f2b",
+    "product_id": "d78fbc3a-b550-4db2-8e50-99b270b6fa87",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 29000,
+    "stock": 4,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "243b3ea8-127f-4faa-a827-504c0c2d2ba2",
+    "product_id": "d78fbc3a-b550-4db2-8e50-99b270b6fa87",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 29000,
+    "stock": 18,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "0090f106-05e8-4641-9dea-52ef196583b6",
+    "product_id": "d78fbc3a-b550-4db2-8e50-99b270b6fa87",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 29000,
+    "stock": 18,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "8a8f9b9c-94fb-42fa-a660-e79104c55939",
+    "product_id": "d8612b59-b8df-4260-95fc-04498407f024",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 125000,
+    "stock": 6,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "5a1e9cc4-e7dc-4b43-9e81-57043024eb38",
+    "product_id": "d8612b59-b8df-4260-95fc-04498407f024",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 125000,
+    "stock": 16,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "e58140b9-464c-4789-9326-e096c38f75f6",
+    "product_id": "d92d987c-d646-4e2f-8c04-cdcbd450c841",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 5000,
+    "stock": 23,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "a9f210cf-e18e-4211-a11c-4dd2b956a57e",
+    "product_id": "d92d987c-d646-4e2f-8c04-cdcbd450c841",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 5000,
+    "stock": 26,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "2a4af54d-a49a-4825-90b5-56b017d6fad9",
+    "product_id": "dce05596-2a16-4151-bd87-af7035d41ce6",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 4500,
+    "stock": 10,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "36f2be63-2ee5-4dd5-ba06-cfd3745ef463",
+    "product_id": "dce05596-2a16-4151-bd87-af7035d41ce6",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 4500,
+    "stock": 5,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "f4178045-9109-4f0d-9f80-2d9fb31ad2d4",
+    "product_id": "ddf628bf-942d-439d-bc31-b7111560d3ba",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 45000,
+    "stock": 5,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "9bda826a-8e8a-4903-b33e-f5ab213dbcd0",
+    "product_id": "ddf628bf-942d-439d-bc31-b7111560d3ba",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 45000,
+    "stock": 19,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "1ffe0dbc-2383-46c8-8d43-a419541f42a2",
+    "product_id": "df17af81-930f-4b3d-bc7c-986023488818",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 45000,
+    "stock": 11,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "7739c251-3f44-4a96-b93a-4958bee1d7b5",
+    "product_id": "df17af81-930f-4b3d-bc7c-986023488818",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 45000,
+    "stock": 5,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "8ea8f6b8-876d-4891-9035-448e101e608b",
+    "product_id": "e1101263-d51f-4ef8-9658-ae74570faa75",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 15000,
+    "stock": 12,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "ab2d0995-527d-4e68-b90e-2049087b4a4a",
+    "product_id": "e1101263-d51f-4ef8-9658-ae74570faa75",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 15000,
+    "stock": 14,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "f1e2e04d-633e-4f1b-89bd-e3ccdd743585",
+    "product_id": "e1101263-d51f-4ef8-9658-ae74570faa75",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 15000,
+    "stock": 23,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "d93089b7-d758-4415-912c-1fb3947e5b85",
+    "product_id": "e2678ac3-e3a9-4251-8172-ecbae0e0d618",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 4000,
+    "stock": 16,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "570b76a1-0c8e-4153-8dea-8f70323e38c6",
+    "product_id": "e2678ac3-e3a9-4251-8172-ecbae0e0d618",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 4000,
+    "stock": 11,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "8f56467f-4044-4232-8c00-29054bdb7d85",
+    "product_id": "e3a3542b-844b-4e35-ab1f-fff302d6653c",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 18000,
+    "stock": 20,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "e63e680c-b5d7-4e04-85da-6cf2d780d548",
+    "product_id": "e3a3542b-844b-4e35-ab1f-fff302d6653c",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 18000,
+    "stock": 21,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "c98cddff-4eae-4ccb-a395-fa04a32d0e51",
+    "product_id": "e3a3542b-844b-4e35-ab1f-fff302d6653c",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 18000,
+    "stock": 28,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "6f70fb03-58cc-481c-bc1b-1d721d620db9",
+    "product_id": "e6dbea99-588d-4110-be6b-70acdd4ab832",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 3500,
+    "stock": 28,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "ea8df8cd-62c8-4335-8e18-85cd69632bb5",
+    "product_id": "e6dbea99-588d-4110-be6b-70acdd4ab832",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 3500,
+    "stock": 7,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "72374c4c-c29f-4a0c-91c6-8f808ba653d4",
+    "product_id": "e7f4943e-54f6-427e-a07b-bf9c82210ce8",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 5000,
+    "stock": 22,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "c640e513-9ec2-4906-8ce5-7ab6e941c7bc",
+    "product_id": "e7f4943e-54f6-427e-a07b-bf9c82210ce8",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 5000,
+    "stock": 26,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "259f9239-2d00-46db-8897-b9282c969436",
+    "product_id": "e7f4943e-54f6-427e-a07b-bf9c82210ce8",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 5000,
+    "stock": 17,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "19a4a084-5ddf-4bdc-97fb-308eff0a798a",
+    "product_id": "ea8cf4b2-59b5-48a7-9d00-2b151c88256c",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 8900,
+    "stock": 24,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "de0eac2e-b321-47c5-90b2-edef98871171",
+    "product_id": "ea8cf4b2-59b5-48a7-9d00-2b151c88256c",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 8900,
+    "stock": 20,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "31bf408e-5c40-4ef6-beb7-1ad39030fe2e",
+    "product_id": "ea8cf4b2-59b5-48a7-9d00-2b151c88256c",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 8900,
+    "stock": 28,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "4d908c03-12d2-4cc8-9fb6-4337afbf19e7",
+    "product_id": "eaf1304e-9a79-4d7c-ba0c-823314783ac1",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 20000,
+    "stock": 20,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "dfd7ee42-aa40-4f5c-976e-97e8555f4fc1",
+    "product_id": "eaf1304e-9a79-4d7c-ba0c-823314783ac1",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 20000,
+    "stock": 24,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "480fee3b-6d59-4504-8942-e811b84de1a3",
+    "product_id": "eba585d4-30ef-441c-b8e7-102fa8bf0b4c",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 5000,
+    "stock": 6,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "7bc16810-5af3-4343-954f-a0a2747eda91",
+    "product_id": "eba585d4-30ef-441c-b8e7-102fa8bf0b4c",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 5000,
+    "stock": 25,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "02205720-2cd9-451d-8b07-e70abfcdea5b",
+    "product_id": "ed55c4f1-f31d-40a7-bd6f-6c077a1efd1d",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 12000,
+    "stock": 21,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "3265d780-d062-4ef3-b1b0-233bd9ff6e8f",
+    "product_id": "ed55c4f1-f31d-40a7-bd6f-6c077a1efd1d",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 12000,
+    "stock": 19,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "b817d988-bcfc-4a1b-809f-ff326fd6d159",
+    "product_id": "ed55c4f1-f31d-40a7-bd6f-6c077a1efd1d",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 12000,
+    "stock": 14,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "b397da2a-f0e5-404d-8f83-707004ea7d4c",
+    "product_id": "ed8bd0bb-3b61-4c84-9c6a-af2b21be6ce7",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 15000,
+    "stock": 27,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "081a476d-affe-404e-8c94-bbad2b254611",
+    "product_id": "ed8bd0bb-3b61-4c84-9c6a-af2b21be6ce7",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 15000,
+    "stock": 3,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "865770ae-f5e3-4b28-a3e9-58d9625af5f3",
+    "product_id": "ed8bd0bb-3b61-4c84-9c6a-af2b21be6ce7",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 15000,
+    "stock": 4,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "c30432a2-487c-4a8c-b804-1eb04e0bd6eb",
+    "product_id": "ee4f1ccf-f416-4f72-9d0b-8a562ac6be59",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 5000,
+    "stock": 11,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "6a23cab8-07c8-45a1-ba7f-8ecb85fdd3fd",
+    "product_id": "ee4f1ccf-f416-4f72-9d0b-8a562ac6be59",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 5000,
+    "stock": 21,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "1e641f17-a553-4fca-a2bd-d2aaf687f39f",
+    "product_id": "ee4f1ccf-f416-4f72-9d0b-8a562ac6be59",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 5000,
+    "stock": 8,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "0aad41dc-42fc-42b9-b4e1-81c5961e776e",
+    "product_id": "eeb1904c-292f-47f9-8a3f-6e8d50c60fe2",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 5000,
+    "stock": 12,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "cd9743ff-0751-4a5f-bf6c-1963e3190c68",
+    "product_id": "eeb1904c-292f-47f9-8a3f-6e8d50c60fe2",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 5000,
+    "stock": 10,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "1c108a43-8d34-4b0b-ad5b-fb30aeed3eac",
+    "product_id": "eeb1904c-292f-47f9-8a3f-6e8d50c60fe2",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 5000,
+    "stock": 27,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "931a9f2b-e031-47bb-96b0-f585b19b3ef4",
+    "product_id": "ef10d0af-723c-460e-9fa0-2b7c2c66fda7",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 5000,
+    "stock": 11,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "161a3458-238b-49a9-941c-4554d4db9dc4",
+    "product_id": "ef10d0af-723c-460e-9fa0-2b7c2c66fda7",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 5000,
+    "stock": 4,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "aef55c39-34e9-4a93-9217-9e947c73e3c9",
+    "product_id": "ef10d0af-723c-460e-9fa0-2b7c2c66fda7",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 5000,
+    "stock": 8,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "0b33865a-608f-4b40-b1f0-bd2bdd7daeac",
+    "product_id": "f1902e1d-550d-494d-91b8-f8859be8788a",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 17000,
+    "stock": 18,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "d805502d-c5d6-4662-ad06-8a178c6883b6",
+    "product_id": "f1902e1d-550d-494d-91b8-f8859be8788a",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 17000,
+    "stock": 19,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "b00e742f-b86b-40d1-b907-434b1bdb2561",
+    "product_id": "f1daa3ca-40fa-4007-a82c-a6d8232d11e2",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 2500,
+    "stock": 18,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "d8b6a69c-4a68-4dbc-871d-79a6df93b4d7",
+    "product_id": "f1daa3ca-40fa-4007-a82c-a6d8232d11e2",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 2500,
+    "stock": 4,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "28dd8064-609f-41ab-bf02-aa8a64523535",
+    "product_id": "f405f3eb-eff7-4f1c-a0e8-9bc57782420d",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 45000,
+    "stock": 16,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "7fec558b-e129-4f0d-b0af-28d2da5a3344",
+    "product_id": "f405f3eb-eff7-4f1c-a0e8-9bc57782420d",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 45000,
+    "stock": 14,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "3aab2c89-2e24-46fd-a2af-04df0d0111e7",
+    "product_id": "f405f3eb-eff7-4f1c-a0e8-9bc57782420d",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 45000,
+    "stock": 8,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "3e648e2a-1a5a-413d-a818-bcfb8644570f",
+    "product_id": "f4d85027-6c43-44ad-b66c-4b6ee409e060",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 38000,
+    "stock": 17,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "2e55b23c-2085-4726-ae95-bc7783dbbf5c",
+    "product_id": "f4d85027-6c43-44ad-b66c-4b6ee409e060",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 38000,
+    "stock": 10,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "318a30a7-f0ce-4d7a-a2ec-131675f8572d",
+    "product_id": "f4d85027-6c43-44ad-b66c-4b6ee409e060",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 38000,
+    "stock": 19,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "3cefc1c7-84d6-4cdb-8f03-09ad65c70cc5",
+    "product_id": "f99952c8-9b80-4d70-945a-bf0a724fc40e",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 8500,
+    "stock": 26,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "d3eb366c-1c0b-4baf-b227-659efe4ac470",
+    "product_id": "f99952c8-9b80-4d70-945a-bf0a724fc40e",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 8500,
+    "stock": 23,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "012837c6-a9a4-4eb4-bff7-3d58f5ab2deb",
+    "product_id": "f99952c8-9b80-4d70-945a-bf0a724fc40e",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 8500,
+    "stock": 16,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "89930c44-fcf2-4f4b-8b07-2a6724b9fd3c",
+    "product_id": "f9d8cc4a-e1db-480e-a4b7-d8ba48495627",
+    "store_id": "d101e327-d58c-4850-938f-386d775c07fb",
+    "price": 8000,
+    "stock": 30,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "324b37d5-47e4-4a2a-b930-db6e838eca2f",
+    "product_id": "f9d8cc4a-e1db-480e-a4b7-d8ba48495627",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 8000,
+    "stock": 27,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "8d65d103-f515-4954-9884-f70c981291b9",
+    "product_id": "f9d8cc4a-e1db-480e-a4b7-d8ba48495627",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 8000,
+    "stock": 24,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "11d80b3e-f3b5-4170-8e02-3cfb74229fba",
+    "product_id": "fab4bd2f-b75c-4e30-b906-8e43ccfff1a9",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 59000,
+    "stock": 20,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "707a233f-4bcb-4f43-94d2-5ae8eb3b8b62",
+    "product_id": "fab4bd2f-b75c-4e30-b906-8e43ccfff1a9",
+    "store_id": "10000000-0000-4000-8000-000000000004",
+    "price": 59000,
+    "stock": 25,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "31c7be14-4426-4fdc-b468-075eab81f222",
+    "product_id": "fab4bd2f-b75c-4e30-b906-8e43ccfff1a9",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 59000,
+    "stock": 26,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "b82a3e7c-5352-4dd2-9cd7-213281b67319",
+    "product_id": "fb099f03-234e-4e98-ad4e-9f8b840bff38",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 6500,
+    "stock": 21,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "1607f060-b9d2-44e4-8fce-c489524827b8",
+    "product_id": "fb099f03-234e-4e98-ad4e-9f8b840bff38",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 6500,
+    "stock": 16,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "c53ddfd7-f104-4ec6-98ac-d3a0dc89f3f9",
+    "product_id": "fb563d71-c30f-4b7b-b272-01310dd96497",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 12000,
+    "stock": 3,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "0d47b3b7-e1f5-418f-9cc5-5b4930772e0d",
+    "product_id": "fb563d71-c30f-4b7b-b272-01310dd96497",
+    "store_id": "6d903525-8dee-4ea4-af78-2963c0434014",
+    "price": 12000,
+    "stock": 5,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "abf8e252-48c5-4fd6-bb86-2308472c852b",
+    "product_id": "fbff7ef6-1e51-43e9-88ec-df9a7ca90026",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 28000,
+    "stock": 26,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  },
+  {
+    "id": "e2deb078-1272-4504-ade4-53dc39e8b1f3",
+    "product_id": "fbff7ef6-1e51-43e9-88ec-df9a7ca90026",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 28000,
+    "stock": 19,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "ca813ac4-351d-406a-b707-410bfee22f0b",
+    "product_id": "fbff7ef6-1e51-43e9-88ec-df9a7ca90026",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 28000,
+    "stock": 20,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "a1b6df08-2210-4fe5-bf8b-1c4ca9cc784a",
+    "product_id": "fe27a83a-d084-4360-a0ed-23139625ac72",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 15000,
+    "stock": 11,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "c55b7041-ba54-429d-b318-b850033dc3b8",
+    "product_id": "fe27a83a-d084-4360-a0ed-23139625ac72",
+    "store_id": "10000000-0000-4000-8000-000000000002",
+    "price": 15000,
+    "stock": 9,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": false
+  },
+  {
+    "id": "03417156-1e70-46a6-bd9d-1e80f606c71a",
+    "product_id": "ff880b0e-7e25-4bd6-a1c7-9824037dfd4c",
+    "store_id": "10000000-0000-4000-8000-000000000003",
+    "price": 28000,
+    "stock": 23,
+    "status": "ON_SALE",
+    "pickup_available": false,
+    "delivery_available": true
+  },
+  {
+    "id": "7ec721a6-60c7-4c09-ac2f-9f8833661e86",
+    "product_id": "ff880b0e-7e25-4bd6-a1c7-9824037dfd4c",
+    "store_id": "10000000-0000-4000-8000-000000000001",
+    "price": 28000,
+    "stock": 13,
+    "status": "ON_SALE",
+    "pickup_available": true,
+    "delivery_available": true
+  }
+]

@@ -3,10 +3,62 @@ import * as repository from '../repositories/fan.repository.js';
 import { getPaymentProvider } from '../payments/index.js';
 import { resolvePaymentMethodSelection } from './paymentMethod.service.js';
 import { paymentMethodLabel } from './checkout.service.js';
+import { findHomeBanners } from '../repositories/home.repository.js';
 
 const failure = (status, code, message) => Object.assign(new Error(message), { status, code });
 
 const CHARGE_AMOUNTS = [5000, 10000, 30000, 50000];
+export const FAN_PAYMENT_OPTIONS = Object.freeze({
+  GOODSPICK_PAY: '굿즈픽페이',
+  TOSS_PAY: '토스페이',
+  NAVER_PAY: '네이버페이',
+  KAKAO_PAY: '카카오페이',
+  CARD: '카드 결제',
+  VIRTUAL_ACCOUNT: '가상계좌',
+  MOBILE: '휴대폰 결제',
+});
+export const FAN_REFUND_DAYS = 30;
+
+export function fanPaymentOptionLabel(option) {
+  const label = FAN_PAYMENT_OPTIONS[option];
+  if (!label && option !== 'REGISTERED_ACCOUNT') {
+    throw failure(400, 'FAN_INVALID_PAYMENT_OPTION', '결제수단을 선택해 주세요.');
+  }
+  return label ?? null;
+}
+
+export function isPackRefundable(pack, now = Date.now()) {
+  const purchasedAt = new Date(pack.created_at).getTime();
+  const withinRefundPeriod = Number.isFinite(purchasedAt)
+    && now >= purchasedAt
+    && now - purchasedAt <= FAN_REFUND_DAYS * 86400000;
+  return pack.status === 'ACTIVE'
+    && pack.remaining > 0
+    && withinRefundPeriod
+    && (pack.source === 'CREDIT' || pack.remaining === pack.quantity);
+}
+
+// 생일 모아보기 목업 기본 축하 수. DB 시드가 아직 적용되지 않은 개발 환경에서도
+// 화면을 확인할 수 있게 하고, DB가 이미 기본값을 반환하면 중복 합산하지 않는다.
+const DAY_LIKE_MOCK_COUNTS = new Map([
+  ['고죠 사토루', 3284],
+  ['후시구로 메구미', 1436],
+  ['쿠기사키 노바라', 1092],
+]);
+
+export function applyDayLikeMocks(board) {
+  const apply = (item) => {
+    const base = DAY_LIKE_MOCK_COUNTS.get(item.name);
+    const current = Number(item.likeCount ?? 0);
+    if (!base || current >= base) return item;
+    return { ...item, likeCount: base + current };
+  };
+  return {
+    ...board,
+    ranked: (board.ranked ?? []).map(apply),
+    others: (board.others ?? []).map(apply),
+  };
+}
 
 // DB 함수가 던지는 FAN_* 오류를 화면에 보여 줄 메시지로 바꾼다.
 const DB_ERRORS = {
@@ -16,10 +68,10 @@ const DB_ERRORS = {
   FAN_INVALID_MESSAGE: [400, '응원 한마디는 1~30자로 입력해 주세요.'],
   FAN_INVALID_NICKNAME: [400, '표시 닉네임은 1~20자로 입력해 주세요.'],
   FAN_BANNED_WORD: [400, '사용할 수 없는 표현이 들어 있어요.'],
-  FAN_INVALID_COUNT: [400, '응원 횟수를 확인해 주세요.'],
+  FAN_INVALID_COUNT: [400, '보낼 응원포인트를 확인해 주세요.'],
   FAN_CHARACTER_NOT_FOUND: [404, '최애를 찾을 수 없어요.'],
   FAN_ANNIVERSARY_NOT_NEXT_WEEK: [400, '다음 주에 기념일이 있는 최애만 기념일 응원을 보낼 수 있어요.'],
-  FAN_DAILY_LIMIT: [409, '하루에 최대 100회까지 응원할 수 있어요. 남은 횟수를 확인해 주세요.'],
+  FAN_DAILY_LIMIT: [409, '하루에 최대 응원포인트 100,000점까지 보낼 수 있어요. 남은 포인트를 확인해 주세요.'],
   FAN_NOT_ENOUGH_TICKETS: [409, '응원권이 부족해요. 응원권을 구매해 주세요.'],
   FAN_NOT_ENOUGH_CREDIT: [409, '적립금이 부족해요.'],
   FAN_PACK_NOT_REFUNDABLE: [409, '환불할 수 없는 응원권이에요. 사용했거나 환불 가능 기간이 지났어요.'],
@@ -32,6 +84,10 @@ const DB_ERRORS = {
   FAN_DESIGN_INVALID_PATH: [400, '이미지 경로가 올바르지 않아요.'],
   FAN_DESIGN_EMPTY: [400, '메인 문구를 입력한 뒤 검수를 요청해 주세요.'],
   FAN_WEEK_NOT_FOUND: [404, '주차를 찾을 수 없어요.'],
+  FAN_DAY_CHARACTER_NOT_FOUND: [404, '그날 기념일인 최애가 아니에요.'],
+  FAN_DAY_INVALID_MESSAGE: [400, '축하 한마디는 1~50자로 입력해 주세요.'],
+  FAN_DAY_CONGRATS_LIMIT: [409, '축하 한마디는 하루에 최대 5개까지 남길 수 있어요.'],
+  FAN_DAY_CONGRATS_NOT_FOUND: [404, '수정하거나 삭제할 축하 한마디를 찾을 수 없어요.'],
 };
 
 function translate(error) {
@@ -62,7 +118,7 @@ export const getResults = (userId) => repository.resultFor(userId).catch(transla
 // 내 응원권 묶음과 적립금 내역
 export async function getTickets(userId) {
   const [packs, credit] = await Promise.all([repository.findTicketPacks(userId), repository.findCreditLedger(userId)]);
-  const refundDays = 7;
+  const now = Date.now();
   return {
     packs: packs.map((pack) => ({
       id: pack.id,
@@ -73,9 +129,7 @@ export async function getTickets(userId) {
       status: pack.status,
       expiresAt: pack.expires_at,
       createdAt: pack.created_at,
-      refundable: pack.status === 'ACTIVE' && pack.remaining > 0
-        && (pack.source === 'CREDIT'
-          || (pack.remaining === pack.quantity && Date.now() - new Date(pack.created_at).getTime() < refundDays * 86400000)),
+      refundable: isPackRefundable(pack, now),
     })),
     credit: credit.map((row) => ({
       id: row.id,
@@ -96,14 +150,28 @@ export async function buyWithCash(userId, body = {}) {
   if (body.paymentAgreed !== true) {
     throw failure(400, 'FAN_PAYMENT_NOT_AGREED', '결제에 동의해 주세요.');
   }
-  // 멤버십 구독과 같이 내가 등록한 결제수단만 쓸 수 있다
-  const method = await resolvePaymentMethodSelection(userId, body.paymentMethodId);
-  const approval = await getPaymentProvider().charge({ userId, amount });
+  const optionLabel = fanPaymentOptionLabel(body.paymentOption);
+  let method = null;
+  let methodLabel = optionLabel;
+  // 굿즈픽페이는 요청한 기본 계좌가 실제로 내 활성 은행 계좌인지 확인한다.
+  if (['GOODSPICK_PAY', 'REGISTERED_ACCOUNT'].includes(body.paymentOption)) {
+    method = await resolvePaymentMethodSelection(userId, body.paymentMethodId);
+    if (method.method_type !== 'BANK_ACCOUNT') {
+      throw failure(400, 'FAN_INVALID_PAYMENT_OPTION', '등록된 은행 계좌를 선택해 주세요.');
+    }
+    if (body.paymentOption === 'GOODSPICK_PAY' && method.is_default !== true) {
+      throw failure(400, 'FAN_INVALID_PAYMENT_OPTION', '굿즈픽페이 기본 계좌를 확인해 주세요.');
+    }
+    methodLabel = body.paymentOption === 'GOODSPICK_PAY'
+      ? `굿즈픽페이 · ${paymentMethodLabel(method)}`
+      : `등록 계좌 · ${paymentMethodLabel(method)}`;
+  }
+  const approval = await getPaymentProvider().charge({ userId, amount, methodLabel });
   const paymentId = await repository.insertChargePayment(userId, {
     amount,
     ...approval,
-    methodLabel: paymentMethodLabel(method),
-    paymentMethodId: method.id,
+    methodLabel,
+    paymentMethodId: method?.id ?? null,
   });
   return repository.buyWithCash(userId, paymentId).catch(translate);
 }
@@ -114,7 +182,14 @@ export async function buyWithCredit(userId, body = {}) {
 }
 
 // 미사용 응원권 환불: 적립금 구매분은 적립금으로 복원, 현금 구매분은 결제 취소(모의)
-export async function refundPack(userId, packId) {
+export async function refundPack(userId, packId, body = {}) {
+  if (!body.refundPaymentMethodId) {
+    throw failure(400, 'FAN_REFUND_ACCOUNT_REQUIRED', '환불받을 은행 계좌를 입력해 주세요.');
+  }
+  const refundMethod = await resolvePaymentMethodSelection(userId, body.refundPaymentMethodId);
+  if (refundMethod.method_type !== 'BANK_ACCOUNT') {
+    throw failure(400, 'FAN_REFUND_ACCOUNT_REQUIRED', '환불받을 은행 계좌를 입력해 주세요.');
+  }
   let result;
   try {
     result = await repository.refundPack(userId, packId);
@@ -127,7 +202,7 @@ export async function refundPack(userId, packId) {
     await getPaymentProvider().cancel({ transactionId: payment.pg_transaction_id });
     await repository.markPaymentCanceled(result.paymentId);
   }
-  return { source: result.source, amount: result.amount };
+  return { source: result.source, amount: result.amount, processingDays: '2~3일' };
 }
 
 // 기념일 날짜 탭: 다음 주 게시 기간에 기념일이 있는 날짜와 그날의 최애들
@@ -243,8 +318,95 @@ export async function submitDesign(userId, designId) {
   return repository.submitDesign(userId, designId).catch(translate);
 }
 
-// 홈 4·5번 배너: 오늘 게시 중인 승인된 디자인
+// 홈 4·5번 배너: 오늘 게시 중인 승인된 디자인.
+// 기념일 전광판에는 "그날 기념일인 최애 n명" 칩에 쓸 정보(day)를 함께 붙인다.
 export async function getHomeBoards() {
   const views = (await repository.homeBoards()) ?? [];
-  return Promise.all(views.map(withImageUrls));
+  const boards = await Promise.all(views.map(withImageUrls));
+  return Promise.all(boards.map(async (board) => {
+    if (board.slotType !== 'ANNIV' || !board.publishDate) return board;
+    return { ...board, day: await describeDay(board.publishDate) };
+  }));
+}
+
+// 홈 배너 칩에 쓰는 정보: 그날 기념일인 최애 수와 전부 생일인지 여부
+export async function describeDay(date) {
+  const kinds = await repository.findDayAnniversaryKinds(date).catch(() => []);
+  return { date, count: kinds.length, birthdayOnly: kinds.every((kind) => kind === 'BIRTHDAY') };
+}
+
+const isDate = (value) => /^\d{4}-\d{2}-\d{2}$/.test(String(value ?? '')) && !Number.isNaN(Date.parse(value));
+
+// 오늘 기념일인 최애 모아보기 (로그인하지 않아도 볼 수 있고, 로그인하면 내 축하하기 표시가 함께 온다)
+export async function getDayBoard(date, userId) {
+  if (!isDate(date)) throw failure(400, 'FAN_INVALID_DATE', '날짜를 확인해 주세요.');
+  const [board, banners] = await Promise.all([
+    repository.dayBoard(date, userId).catch(translate),
+    // 하단 "굿즈 보러 가기" 버튼이 열 기획전 배너
+    findHomeBanners(new Date().toISOString()).catch(() => []),
+  ]);
+  const exhibition = banners.find((banner) => banner.banner_type === 'EXHIBITION');
+  return applyDayLikeMocks({ ...board, exhibitionBannerId: exhibition?.id ?? null });
+}
+
+function dayInput(date, characterId) {
+  if (!isDate(date)) throw failure(400, 'FAN_INVALID_DATE', '날짜를 확인해 주세요.');
+  if (!characterId) throw failure(404, 'FAN_DAY_CHARACTER_NOT_FOUND', DB_ERRORS.FAN_DAY_CHARACTER_NOT_FOUND[1]);
+}
+
+const badCharacterId = (error) => (error.code === '22P02'
+  ? failure(404, 'FAN_DAY_CHARACTER_NOT_FOUND', DB_ERRORS.FAN_DAY_CHARACTER_NOT_FOUND[1])
+  : null);
+
+export async function toggleDayLike(userId, date, body = {}) {
+  dayInput(date, body.characterId);
+  try {
+    return await repository.dayLikeToggle(userId, date, body.characterId);
+  } catch (error) {
+    const bad = badCharacterId(error);
+    if (bad) throw bad;
+    return translate(error);
+  }
+}
+
+export async function addDayCongrats(userId, date, body = {}) {
+  dayInput(date, body.characterId);
+  try {
+    return await repository.dayCongratsAdd(userId, date, body.characterId, String(body.message ?? ''));
+  } catch (error) {
+    const bad = badCharacterId(error);
+    if (bad) throw bad;
+    return translate(error);
+  }
+}
+
+function congratsInput(date, congratsId) {
+  if (!isDate(date)) throw failure(400, 'FAN_INVALID_DATE', '날짜를 확인해 주세요.');
+  if (!congratsId) throw failure(404, 'FAN_DAY_CONGRATS_NOT_FOUND', DB_ERRORS.FAN_DAY_CONGRATS_NOT_FOUND[1]);
+}
+
+const badCongratsId = (error) => (error.code === '22P02'
+  ? failure(404, 'FAN_DAY_CONGRATS_NOT_FOUND', DB_ERRORS.FAN_DAY_CONGRATS_NOT_FOUND[1])
+  : null);
+
+export async function updateDayCongrats(userId, date, congratsId, body = {}) {
+  congratsInput(date, congratsId);
+  try {
+    return await repository.dayCongratsUpdate(userId, date, congratsId, String(body.message ?? ''));
+  } catch (error) {
+    const bad = badCongratsId(error);
+    if (bad) throw bad;
+    return translate(error);
+  }
+}
+
+export async function deleteDayCongrats(userId, date, congratsId) {
+  congratsInput(date, congratsId);
+  try {
+    return await repository.dayCongratsDelete(userId, date, congratsId);
+  } catch (error) {
+    const bad = badCongratsId(error);
+    if (bad) throw bad;
+    return translate(error);
+  }
 }

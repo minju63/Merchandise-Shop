@@ -10,6 +10,7 @@ import {
 import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import HomePage from './pages/home/HomePage.jsx';
+import NotificationPage from './pages/notifications/NotificationPage.jsx';
 import { homeMockData } from './pages/home/homeMockData.js';
 import { useSession } from './pages/my/hooks.js';
 import SearchPage, { SearchResultsPage } from './pages/search/SearchPage.jsx';
@@ -17,7 +18,10 @@ import { parseRegionalQuery } from './pages/search/searchQuery.js';
 import { searchMockData } from './pages/search/searchMockData.js';
 import { EMPTY_FILTERS, filterParams } from './pages/search/searchFilters.js';
 import StoreListPage from './pages/stores/StoreListPage.jsx';
+import StoreMapPage from './pages/stores/StoreMapPage.jsx';
 import StoreDetailPage from './pages/stores/StoreDetailPage.jsx';
+import ShowcaseEditorPage from './pages/showcases/ShowcaseEditorPage.jsx';
+import { ShowcaseGalleryPage, ShowcaseDetailPage, ShowcaseManagePage } from './pages/showcases/ShowcasePages.jsx';
 import StoreReviewPage from './pages/stores/StoreReviewPage.jsx';
 import StoreReviewWritePage from './pages/stores/StoreReviewWritePage.jsx';
 import LoginPage from './pages/auth/LoginPage.jsx';
@@ -32,6 +36,7 @@ import MyPage from './pages/my/MyPage.jsx';
 import OrdersPage from './pages/my/OrdersPage.jsx';
 import OrderDetailPage from './pages/my/OrderDetailPage.jsx';
 import ReviewWritePage from './pages/my/ReviewWritePage.jsx';
+import MyReviewsPage from './pages/my/MyReviewsPage.jsx';
 import MembershipPage from './pages/my/MembershipPage.jsx';
 import CouponsPage from './pages/my/CouponsPage.jsx';
 import CouponDetailPage from './pages/my/CouponDetailPage.jsx';
@@ -72,9 +77,14 @@ import * as productApi from './api/product.api.js';
 import client from './api/client.js';
 import { cartApi } from './api/cart.api.js';
 import { wishlistApi } from './api/wishlist.api.js';
+import { openAlertApi } from './api/openAlert.api.js';
+import { notificationApi } from './api/notification.api.js';
+import { preorderApi } from './api/preorder.api.js';
 import useWishlist from './hooks/useWishlist.js';
 import { supabase } from './lib/supabase.js';
 import FulfillmentSheet from './pages/wish/components/FulfillmentSheet.jsx';
+import GoodsPassSheet from './pages/wish/components/GoodsPassSheet.jsx';
+import PreorderSheet from './pages/wish/components/PreorderSheet.jsx';
 import CartAddedToast from './components/CartAddedToast.jsx';
 import { searchApi } from './api/search.api.js';
 import { bannerApi, homeApi } from './api/home.api.js';
@@ -91,8 +101,9 @@ import AdProductsPage from './pages/home/AdProductsPage.jsx';
 import ExhibitionPage from './pages/home/ExhibitionPage.jsx';
 import FanGuidePage from './pages/home/FanGuidePage.jsx';
 import { fanApi } from './api/fan.api.js';
-import { FanCheerRoute, FanDesignRoute, FanRankingRoute, FanResultRoute, FanTicketsRoute } from './pages/fan/FanRoutes.jsx';
+import { FanCheerRoute, FanDayRoute, FanDesignRoute, FanRankingRoute, FanResultRoute, FanTicketsRoute } from './pages/fan/FanRoutes.jsx';
 import './App.css';
+import { useDialog } from './components/useDialog.jsx';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
@@ -130,15 +141,16 @@ function useStoreFilter(storeId) {
   });
 }
 
-// 배너 종류별 상세 화면. 팬 응원 전광판(FAN_ANNIV · FAN_FREE)은 상세 화면이 없어 이동하지 않는다.
+// 배너 종류별 상세 화면. 기념일 전광판(FAN_ANNIV)은 "오늘 기념일인 최애" 화면으로, 자유 응원 전광판(FAN_FREE)은 보기 전용이라 이동하지 않는다.
 const BANNER_DETAIL_PATHS = {
   SERVICE_INTRO: '/intro',
   AD: '/ads',
   EXHIBITION: '/exhibitions',
 };
 
-function bannerPath({ bannerId, bannerType }) {
+function bannerPath({ bannerId, bannerType, fanDate }) {
   if (bannerType === 'FAN_PROMO') return '/fan/guide';
+  if (bannerType === 'FAN_ANNIV') return fanDate ? `/fan-banner/day/${fanDate}` : null;
   const base = BANNER_DETAIL_PATHS[bannerType];
   return base ? `${base}/${bannerId}` : null;
 }
@@ -191,8 +203,10 @@ const LOW_STOCK_PATH = `/category/products?${new URLSearchParams({
 
 function HomeRoute() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   // 로그인한 경우에만 관심사를 적용한다. 비회원은 관심사가 비어 있는 처음 상태로 둘러본다.
-  const { status: sessionStatus } = useSession();
+  const { status: sessionStatus, session } = useSession();
+  const alertQueryKey = ['home-alerts', session?.user?.id];
   const goLogin = () => navigate('/login?returnTo=%2F');
   // 홈에서 바로 들어온 목록은 뒤로가기를 카테고리가 아니라 홈으로 되돌린다.
   const fromHome = { state: { fromHome: true } };
@@ -203,6 +217,50 @@ function HomeRoute() {
     staleTime: 10000,
     retry: false,
   });
+  const alertQuery = useQuery({
+    queryKey: alertQueryKey,
+    queryFn: async () => {
+      const [openResponse, restockResponse] = await Promise.all([
+        openAlertApi.list(),
+        wishlistApi.restockAlerts.list({ page: 1, size: 100 }),
+      ]);
+      return [
+        ...(openResponse.data?.items ?? []).map((item) => item.productId),
+        ...(restockResponse.data?.items ?? []).map((item) => item.storeProductId),
+      ];
+    },
+    enabled: sessionStatus === 'in',
+    retry: false,
+  });
+  const badgeQuery = useQuery({
+    queryKey: ['header-badges', session?.user?.id],
+    queryFn: notificationApi.badges,
+    enabled: sessionStatus === 'in',
+    retry: false,
+  });
+
+  const { alert: showAlert, dialog } = useDialog();
+
+  const toggleProductAlert = async (product) => {
+    const alertId = product.id;
+    const isAlerted = (alertQuery.data ?? []).includes(alertId);
+    try {
+      if (product.openType === 'RESTOCK') {
+        await (isAlerted
+          ? wishlistApi.restockAlerts.remove(product.storeProductId)
+          : wishlistApi.restockAlerts.create(product.storeProductId));
+      } else {
+        await (isAlerted ? openAlertApi.remove(product.id) : openAlertApi.create(product.id));
+      }
+      queryClient.setQueryData(alertQueryKey, (current = []) =>
+        isAlerted ? current.filter((id) => id !== alertId) : [...current, alertId]
+      );
+      return { alerted: !isAlerted, type: product.openType };
+    } catch (error) {
+      showAlert(error.message || '알림 신청을 처리하지 못했어요. 다시 시도해 주세요.');
+      return null;
+    }
+  };
 
   if (homeQuery.isPending) return <p className="home-status">불러오는 중...</p>;
   if (homeQuery.isError) {
@@ -215,8 +273,17 @@ function HomeRoute() {
   }
 
   return (
+    <>
     <HomePage
-      data={{ ...homeMockData, ...homeQuery.data.data }}
+      data={{
+        ...homeMockData,
+        ...homeQuery.data.data,
+        badges: {
+          ...homeMockData.badges,
+          ...homeQuery.data.data.badges,
+          notifications: badgeQuery.data?.data?.notifications ?? 0,
+        },
+      }}
       isAuthenticated={sessionStatus === 'in'}
       onLogin={goLogin}
       onRequestLogin={goLogin}
@@ -227,9 +294,11 @@ function HomeRoute() {
       onOpenCart={() => navigate('/cart')}
       onOpenProduct={(product) => navigate(`/products/${product.storeProductId}`)}
       onOpenCategory={openCategory}
-      onOpenTrending={(tab) => navigate(trendingPath(tab))}
+      onOpenTrending={(tab) => navigate(trendingPath(tab), fromHome)}
       onOpenUpcoming={() => navigate(UPCOMING_PATH, fromHome)}
       onOpenLowStock={() => navigate(LOW_STOCK_PATH, fromHome)}
+      alertedProductIds={sessionStatus === 'in' ? (alertQuery.data ?? []) : []}
+      onToggleOpenAlert={toggleProductAlert}
       onBannerClick={(bannerId) => {
         bannerApi.click(bannerId).catch(() => {
           // 클릭 기록 실패가 화면 이동을 막지 않는다.
@@ -240,6 +309,8 @@ function HomeRoute() {
         if (path) navigate(path);
       }}
     />
+    {dialog}
+    </>
   );
 }
 
@@ -324,12 +395,13 @@ function ExhibitionRoute() {
   const { bannerId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const character = searchParams.get('character') ?? '';
+  const date = searchParams.get('date') ?? '';
   const type = searchParams.get('type') ?? '';
   const inStock = searchParams.get('inStock') === 'true';
   // 캐릭터·종류·재고 조건이 바뀌면 그 기준으로 굿즈를 다시 불러온다.
   const query = useQuery({
-    queryKey: ['home-exhibition', bannerId, character, type, inStock],
-    queryFn: () => homeApi.exhibition(bannerId, { character, type, inStock: inStock || undefined }),
+    queryKey: ['home-exhibition', bannerId, character, date, type, inStock],
+    queryFn: () => homeApi.exhibition(bannerId, { character, date: date || undefined, type, inStock: inStock || undefined }),
     placeholderData: (previous) => previous,
     retry: false,
   });
@@ -422,6 +494,7 @@ function ProductDetailRoute() {
   const { storeProductId } = useParams();
   const [user, setUser] = useState(null);
   const [sheet, setSheet] = useState(null);
+  const [preorderFlow, setPreorderFlow] = useState(null);
   const [cartToast, setCartToast] = useState(null);
   const closeCartToast = useCallback(() => setCartToast(null), []);
   const queryClient = useQueryClient();
@@ -431,6 +504,26 @@ function ProductDetailRoute() {
     queryFn: () => productApi.getProductDetail(storeProductId, {}, client),
     retry: false,
   });
+  const preorders = useQuery({
+    queryKey: ['preorders', 'list'],
+    queryFn: () => preorderApi.list({ page: 1, size: 100 }),
+    enabled: Boolean(user),
+    retry: false,
+  });
+  const restockAlerts = useQuery({
+    queryKey: ['restock-alerts', 'list'],
+    queryFn: () => wishlistApi.restockAlerts.list({ page: 1, size: 100 }),
+    enabled: Boolean(user),
+    retry: false,
+  });
+  const preorderedIds = new Set(
+    (preorders.data?.data.items ?? [])
+      .filter((preorder) => ['PENDING', 'RESERVED'].includes(preorder.status))
+      .map((preorder) => preorder.storeProductId)
+  );
+  const restockAlertedIds = new Set(
+    (restockAlerts.data?.data.items ?? []).map((alert) => alert.storeProductId)
+  );
   useEffect(() => {
     if (!supabase) return undefined;
     supabase.auth.getSession().then(({ data }) => setUser(data.session?.user ?? null));
@@ -462,6 +555,34 @@ function ProductDetailRoute() {
             await (wished ? wishlistApi.addProduct(id) : wishlistApi.removeProduct(id));
             queryClient.invalidateQueries({ queryKey: ['wishlist'] });
           },
+          restock: async (id, enabled) => {
+            await (enabled
+              ? wishlistApi.restockAlerts.create(id)
+              : wishlistApi.restockAlerts.remove(id));
+            queryClient.invalidateQueries({ queryKey: ['restock-alerts'] });
+          },
+          isRestockAlerted: (id) => restockAlertedIds.has(id),
+          isPreordered: (id) => preorderedIds.has(id),
+          preorder: (id) =>
+            new Promise((resolve, reject) => {
+              preorderApi.quote({ storeProductId: id, qty: 1 }).then((response) => {
+                if (response.data.alreadyPreordered) {
+                  reject(Object.assign(new Error('이미 예약한 상품이에요.'), { code: 'ALREADY_PREORDERED' }));
+                  return;
+                }
+                setPreorderFlow({
+                  resolve,
+                  reject,
+                  step: response.data.isSubscribed ? 'preorder' : 'pass',
+                  item: {
+                    storeProductId: id,
+                    productName: detail.data?.productName || detail.data?.name || '상품',
+                    storeName: detail.data?.storeName || '',
+                    thumbnailUrl: detail.data?.thumbnailUrl || null,
+                  },
+                });
+              }, reject);
+            }),
           // 담은 뒤에는 수령 방법을 바꿀 수 없어서, 자동으로 고르지 않고 시트로 먼저 묻는다.
           cart: (id, quantity) =>
             new Promise((resolve, reject) => {
@@ -505,6 +626,37 @@ function ProductDetailRoute() {
           text={cartToast.text}
           onClose={closeCartToast}
           onGoToCart={() => navigate(`/cart?type=${cartToast.type}`)}
+        />
+      )}
+      {preorderFlow?.step === 'pass' && (
+        <GoodsPassSheet
+          onClose={() => {
+            preorderFlow.reject(Object.assign(new Error('취소'), { cancelled: true }));
+            setPreorderFlow(null);
+          }}
+          onSubscribed={() => setPreorderFlow({ ...preorderFlow, step: 'preorder' })}
+        />
+      )}
+      {preorderFlow?.step === 'preorder' && (
+        <PreorderSheet
+          item={preorderFlow.item}
+          onClose={() => {
+            preorderFlow.reject(Object.assign(new Error('취소'), { cancelled: true }));
+            setPreorderFlow(null);
+          }}
+          onDone={(result) => {
+            preorderFlow.resolve(result);
+            setPreorderFlow(null);
+            queryClient.invalidateQueries({ queryKey: ['preorders'] });
+          }}
+          onFail={(error) => {
+            if (error.code === 'SUBSCRIPTION_REQUIRED') {
+              setPreorderFlow({ ...preorderFlow, step: 'pass' });
+              return;
+            }
+            preorderFlow.reject(error);
+            setPreorderFlow(null);
+          }}
         />
       )}
     </>
@@ -566,7 +718,8 @@ function SearchResultsRoute() {
   const query = searchParams.get('q')?.trim() ?? '';
   const storeId = searchParams.get('storeId');
   const originStoreId = storeId || location.state?.originStoreId;
-  const searchState = originStoreId ? { originStoreId } : undefined;
+  const fromStoreDetail = Boolean(storeId && location.state?.fromStoreDetail);
+  const searchState = originStoreId ? { originStoreId, fromStoreDetail } : undefined;
   const sort = searchParams.get('sort') ?? 'popular';
   const page = Number(searchParams.get('page') ?? 1);
   const regionAll = searchParams.get('region') === 'all';
@@ -663,7 +816,9 @@ function SearchResultsRoute() {
         setSavedFilters({ key: filterKey, value: nextFilters });
         if (page > 1) navigate(searchUrl('/search/results', { query, storeId, sort, regionAll }), { state: searchState });
       }}
-      onBack={() => navigate(searchUrl('/search', { query, storeId }), { state: searchState })}
+      onBack={() => fromStoreDetail
+        ? navigate(`/stores/${encodeURIComponent(storeId)}`, { replace: true })
+        : navigate(searchUrl('/search', { query, storeId }), { state: searchState })}
       // 결과 화면에서 다시 검색하면 이전 정렬을 이어받지 않고 처음 검색할 때처럼 시작한다.
       onSearch={(nextQuery) => navigate(searchUrl('/search/results', { query: nextQuery, storeId }), { state: searchState })}
       onLogSearch={logSearch}
@@ -678,6 +833,7 @@ export default function App() {
       <Routes>
         {/* 민주 — 홈 · 검색 */}
         <Route path="/" element={<HomeRoute />} />
+        <Route path="/notifications" element={<NotificationPage />} />
         <Route path="/interests" element={<InterestRoute />} />
         <Route path="/search" element={<SearchRoute />} />
         <Route path="/search/results" element={<SearchResultsRoute />} />
@@ -690,13 +846,20 @@ export default function App() {
         <Route path="/fan/tickets" element={<FanTicketsRoute />} />
         <Route path="/fan/ranking" element={<FanRankingRoute />} />
         <Route path="/fan/result" element={<FanResultRoute />} />
+        <Route path="/fan-banner/day/:date" element={<FanDayRoute />} />
         <Route path="/fan/design/:designId" element={<FanDesignRoute />} />
 
         {/* 여경 — 굿즈샵 */}
         <Route path="/stores" element={<StoreListPage />} />
+        <Route path="/stores/map" element={<StoreMapPage />} />
         <Route path="/stores/:storeId" element={<StoreDetailPage />} />
         <Route path="/stores/:storeId/reviews" element={<StoreReviewPage />} />
         <Route path="/stores/:storeId/reviews/write" element={<StoreReviewWritePage />} />
+        <Route path="/showcases" element={<ShowcaseGalleryPage />} />
+        <Route path="/showcases/:id" element={<ShowcaseDetailPage />} />
+        <Route path="/my/showcases" element={<ShowcaseManagePage />} />
+        <Route path="/my/showcases/:id/edit" element={<ShowcaseEditorPage />} />
+        <Route path="/my/seller-center/stores/:storeId/showcases" element={<ShowcaseManagePage type="SHOP" />} />
 
         {/* 은혜 — 카테고리 · 상품 */}
         <Route path="/category" element={<CategoryPage />} />
@@ -721,6 +884,7 @@ export default function App() {
         <Route path="/my/orders" element={<OrdersPage />} />
         <Route path="/my/orders/:orderId" element={<OrderDetailPage />} />
         <Route path="/my/orders/:orderId/review" element={<ReviewWritePage />} />
+        <Route path="/my/reviews" element={<MyReviewsPage />} />
         <Route path="/my/membership" element={<MembershipPage />} />
         <Route path="/my/coupons" element={<CouponsPage />} />
         <Route path="/my/coupons/:couponId" element={<CouponDetailPage />} />

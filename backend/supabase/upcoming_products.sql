@@ -23,9 +23,37 @@ create table if not exists open_alerts (
   primary key (user_id, product_id)
 );
 
+-- 이미 테이블이 존재하는 환경에서도 upsert의 충돌 대상이 보장되도록 한다.
+-- 기존 중복 신청은 같은 알림이므로 가장 오래된 한 건만 남긴다.
+delete from open_alerts
+where ctid in (
+  select duplicate.ctid
+  from (
+    select ctid,
+           row_number() over (
+             partition by user_id, product_id
+             order by created_at, ctid
+           ) as duplicate_number
+    from open_alerts
+  ) duplicate
+  where duplicate.duplicate_number > 1
+);
+
+create unique index if not exists open_alerts_user_product_uidx
+  on open_alerts (user_id, product_id);
+
 create index if not exists products_upcoming_home_idx
   on products (open_at asc, alert_count desc)
   where status = 'UPCOMING';
+
+-- 출시 예정 상세에서 사전예약을 제공한다. 이미 오픈했거나 판매 상태가 다른 상품은 제외한다.
+update store_products listing
+set preorder_available = true
+from products product
+where listing.product_id = product.id
+  and listing.status = 'UPCOMING'
+  and product.status = 'UPCOMING'
+  and product.open_at > now();
 
 create or replace function sync_product_open_alert_count()
 returns trigger

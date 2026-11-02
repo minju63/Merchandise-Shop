@@ -8,6 +8,7 @@ import { MY_ROUTES } from './routes.js';
 import './orders.css';
 import './account.css';
 import './mytab.css';
+import { useDialog } from '../../components/useDialog.jsx';
 
 function AddSheet({ onClose, onDone }) {
   const [form, setForm] = useState({ bank: '', last4: '', holder: '' });
@@ -95,6 +96,7 @@ function AddSheet({ onClose, onDone }) {
 }
 
 export default function RefundAccountsPage() {
+  const { confirm, dialog } = useDialog();
   const signedIn = useRequireLogin(MY_ROUTES.login);
   const methods = useRequest(signedIn, 'refund-accounts', listPaymentMethods);
   const [adding, setAdding] = useState(false);
@@ -104,7 +106,7 @@ export default function RefundAccountsPage() {
   );
 
   const remove = async (account) => {
-    if (!window.confirm('이 환불계좌를 삭제할까요?')) return;
+    if (!(await confirm('이 환불계좌를 삭제할까요?', { confirmLabel: '삭제', danger: true }))) return;
     setError('');
     try {
       await deletePaymentMethod(account.id);
@@ -164,6 +166,7 @@ export default function RefundAccountsPage() {
           }}
         />
       ) : null}
+      {dialog}
     </main>
   );
 }

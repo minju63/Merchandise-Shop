@@ -12,8 +12,10 @@ import { useRequest, useRequireLogin } from './hooks.js';
 import { MY_ROUTES } from './routes.js';
 import './orders.css';
 import './account.css';
+import { useDialog } from '../../components/useDialog.jsx';
 
 export default function AddressesPage() {
+  const { confirm, dialog } = useDialog();
   const navigate = useNavigate();
   const location = useLocation();
   const pickForOrderId = location.state?.orderId ?? null;
@@ -85,8 +87,9 @@ export default function AddressesPage() {
               <button
                 type="button"
                 className="ord-btn ord-btn--small"
-                onClick={() =>
-                  window.confirm('이 배송지를 삭제할까요?') && run(() => deleteAddress(address.id))
+                onClick={async () =>
+                  (await confirm('이 배송지를 삭제할까요?', { confirmLabel: '삭제', danger: true })) &&
+                  run(() => deleteAddress(address.id))
                 }
               >
                 삭제
@@ -130,6 +133,7 @@ export default function AddressesPage() {
           + 배송지 추가
         </button>
       </footer>
+      {dialog}
     </main>
   );
 }

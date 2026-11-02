@@ -1,4 +1,5 @@
 import BottomNavigation from '../../components/BottomNavigation.jsx';
+import HeaderActions from '../../components/HeaderActions.jsx';
 import { useNavigate } from 'react-router-dom';
 import {
   BagIcon,
@@ -6,7 +7,6 @@ import {
   BankIcon,
   BoxIcon,
   CardIcon,
-  CartIcon,
   ChevronIcon,
   ClockIcon,
   DocIcon,
@@ -27,6 +27,7 @@ import {
   membershipShortName,
   providerLabel,
 } from './format.js';
+import { supabase } from '../../lib/supabase.js';
 import { getMyPoints, getWritableReviewCount } from './account.api.js';
 import { useMySummary, useRequest, useSession } from './hooks.js';
 import { formatWon } from './orderFormat.js';
@@ -43,11 +44,6 @@ const ORDER_STEPS = [
 ];
 
 const ClockRowIcon = (props) => <ClockIcon width={22} height={22} {...props} />;
-
-function Badge({ count }) {
-  const text = formatBadgeCount(count);
-  return text ? <span className="my-badge">{text}</span> : null;
-}
 
 function Row({ icon: Icon, label, value, accent, locked, onClick }) {
   return (
@@ -76,30 +72,11 @@ function Section({ title, children }) {
   );
 }
 
-function HeaderButton({ label, to, onNavigate, children }) {
-  return (
-    <button type="button" className="my-icon-btn" aria-label={label} onClick={() => onNavigate(to)}>
-      {children}
-    </button>
-  );
-}
-
-function Header({ header, guest, onNavigate }) {
+function Header() {
   return (
     <header className="my-header">
       <h1 className="my-header__title">마이</h1>
-      <div className="my-header__actions">
-        {guest ? null : (
-          <HeaderButton label="알림" to={MY_ROUTES.notifications} onNavigate={onNavigate}>
-            <BellIcon />
-            <Badge count={header?.unreadNotifications} />
-          </HeaderButton>
-        )}
-        <HeaderButton label="장바구니" to={MY_ROUTES.cart} onNavigate={onNavigate}>
-          <CartIcon />
-          <Badge count={header?.cartItems} />
-        </HeaderButton>
-      </div>
+      <HeaderActions />
     </header>
   );
 }
@@ -222,6 +199,7 @@ function MemberView({ data, provider, onNavigate }) {
       </section>
 
       <Section title="쇼핑">
+        <Row icon={BoxIcon} label="내 진열장" onClick={() => onNavigate(MY_ROUTES.showcases)} />
         <Row icon={BagIcon} label="전체 주문 내역" onClick={() => onNavigate(MY_ROUTES.orders)} />
         <Row
           icon={StoreIcon}
@@ -238,6 +216,7 @@ function MemberView({ data, provider, onNavigate }) {
           label="취소·반품·교환 내역"
           onClick={() => onNavigate(MY_ROUTES.claims)}
         />
+        <Row icon={DocIcon} label="리뷰" onClick={() => onNavigate(MY_ROUTES.myReviews)} />
         <Row
           icon={ClockRowIcon}
           label="최근 본 상품"
@@ -394,6 +373,17 @@ export default function MyPage() {
         onAction={() => navigate(MY_ROUTES.signup)}
       />
     );
+  } else if (summary.error?.code === 'INVALID_TOKEN') {
+    body = (
+      <Notice
+        message={summary.error.message}
+        actionLabel="로그아웃하고 다시 로그인"
+        onAction={async () => {
+          await supabase.auth.signOut({ scope: 'local' });
+          navigate(MY_ROUTES.login);
+        }}
+      />
+    );
   } else if (summary.error) {
     body = (
       <Notice
@@ -408,7 +398,7 @@ export default function MyPage() {
 
   return (
     <main className="my-page">
-      <Header header={summary.data?.header} guest={status === 'out'} onNavigate={navigate} />
+      <Header />
       {body}
       <p className="my-version">앱 버전 1.0.0</p>
       <BottomNavigation />

@@ -9,6 +9,7 @@ export function createProductImageRepository(client) {
           .from('product_images')
           .select('*')
           .eq('product_id', productId)
+          .order('display_order')
           .order('id')
           .range(offset, offset + 999);
         if (error)

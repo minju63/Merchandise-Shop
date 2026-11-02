@@ -31,12 +31,21 @@ export async function findProductOpenState(productId) {
 }
 
 export async function createOpenAlert(userId, productId) {
-  const { data, error } = await getSupabase()
+  const db = getSupabase();
+  const { data: existing, error: findError } = await db
     .from('open_alerts')
-    .upsert(
-      { user_id: userId, product_id: productId },
-      { onConflict: 'user_id,product_id' }
-    )
+    .select('*')
+    .eq('user_id', userId)
+    .eq('product_id', productId)
+    .limit(1)
+    .maybeSingle();
+
+  throwOnError(findError);
+  if (existing) return existing;
+
+  const { data, error } = await db
+    .from('open_alerts')
+    .insert({ user_id: userId, product_id: productId })
     .select()
     .single();
 

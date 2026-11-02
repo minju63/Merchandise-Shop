@@ -34,6 +34,42 @@ export const saveDesign = (userId, designId, payload, backgroundPath, photoPath)
 export const submitDesign = (userId, designId) => rpc('fan_submit_design', { p_user: userId, p_design: designId });
 export const homeBoards = () => rpc('fan_home_boards', { p_date: null });
 
+// 그날 기념일인 최애 모아보기 · 축하하기 · 축하 한마디
+export const dayBoard = (date, userId) => rpc('fan_day_board', { p_date: date, p_user: userId ?? null });
+export const dayLikeToggle = (userId, date, characterId) => rpc('fan_day_like_toggle', {
+  p_user: userId,
+  p_date: date,
+  p_character: characterId,
+});
+export const dayCongratsAdd = (userId, date, characterId, message) => rpc('fan_day_congrats_add', {
+  p_user: userId,
+  p_date: date,
+  p_character: characterId,
+  p_message: message,
+});
+export const dayCongratsUpdate = (userId, date, congratsId, message) => rpc('fan_day_congrats_update', {
+  p_user: userId,
+  p_date: date,
+  p_congrats: congratsId,
+  p_message: message,
+});
+export const dayCongratsDelete = (userId, date, congratsId) => rpc('fan_day_congrats_delete', {
+  p_user: userId,
+  p_date: date,
+  p_congrats: congratsId,
+});
+
+// 홈 배너 칩에 쓰는 "그날 기념일인 최애" 종류 목록
+export async function findDayAnniversaryKinds(date) {
+  const { data, error } = await getSupabase()
+    .from('anniversaries')
+    .select('kind')
+    .eq('event_date', date)
+    .eq('is_active', true);
+  throwOnError(error);
+  return (data ?? []).map((row) => row.kind);
+}
+
 export async function signedUrl(path, seconds = 3600) {
   if (!path) return null;
   const { data, error } = await getSupabase().storage.from('fan-banner').createSignedUrl(path, seconds);

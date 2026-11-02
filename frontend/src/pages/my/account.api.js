@@ -14,6 +14,7 @@ export const getWritableReviewCount = () =>
 
 // 쿠폰
 export const listCoupons = () => http.get('/coupons').then(data);
+export const listCheckoutCoupons = (params) => http.get('/coupons/usable', { params }).then(data);
 export const getCoupon = (id) => http.get(`/coupons/${id}`).then(data);
 export const registerCoupon = (code) => http.post('/coupons/register', { code }).then(data);
 
@@ -57,6 +58,10 @@ export const listReports = () => http.get('/reports').then(data);
 
 // 리뷰
 export const createReview = (body) => http.post('/reviews', body).then(data);
+export const updateReview = (id, body) => http.patch(`/reviews/${id}`, body).then(data);
+export const deleteReview = (id) => http.delete(`/reviews/${id}`).then(data);
+export const listMyReviews = (tab) =>
+  http.get('/reviews/me', { params: { tab, page: 1, size: 100 } }).then(data);
 
 // 입점 신청
 export const getMySellerApplication = () => http.get('/seller-applications/me').then(data);

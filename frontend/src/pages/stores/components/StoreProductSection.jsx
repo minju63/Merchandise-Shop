@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { storeApi } from '../../../api/store.api.js';
@@ -6,10 +5,9 @@ import GoodsListCard from '../../../components/GoodsListCard.jsx';
 import { PageState } from './StoreShell.jsx';
 
 export default function StoreProductSection({ storeId, searchContext }) {
-  const [page, setPage] = useState(1);
   const { data, isPending, isError, error, refetch } = useQuery({
-    queryKey: ['store-products', storeId, page],
-    queryFn: () => storeApi.products(storeId, { sort: 'popular', page, size: 20 }),
+    queryKey: ['store-products', storeId, 1, 6],
+    queryFn: () => storeApi.products(storeId, { sort: 'popular', page: 1, size: 6 }),
   });
   const products = data?.data;
   return (
@@ -19,6 +17,7 @@ export default function StoreProductSection({ storeId, searchContext }) {
         <Link
           className="product-view-all"
           to={`/search/results?storeId=${encodeURIComponent(searchContext.storeId)}`}
+          state={{ fromStoreDetail: true }}
         >
           굿즈 전체보기 ›
         </Link>
@@ -49,18 +48,6 @@ export default function StoreProductSection({ storeId, searchContext }) {
       ) : (
         <PageState>판매 중인 상품이 없습니다.</PageState>
       )}
-      <div className="pagination">
-        {page > 1 && (
-          <button className="secondary-button" onClick={() => setPage(page - 1)}>
-            이전
-          </button>
-        )}
-        {products?.totalCount > page * 20 && (
-          <button className="secondary-button" onClick={() => setPage(page + 1)}>
-            다음
-          </button>
-        )}
-      </div>
     </section>
   );
 }

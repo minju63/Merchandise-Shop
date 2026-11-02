@@ -1,0 +1,38 @@
+.pi-status { display:inline-flex; padding:4px 8px; border-radius:6px; background:#f2eff5; color:#97859e; font-size:11px; font-weight:700; }
+.pi-status.is-answered { color:#7545bc; background:#f1e9fe; }
+
+.pi-tabs { display:grid; grid-template-columns:1fr 1fr; margin:12px 0 4px; border-bottom:1px solid #ece6f2; }
+.pi-tabs button { padding:12px 0; border:0; border-radius:0; border-bottom:2px solid transparent; background:none; color:#a297ad; font-size:14px; font-weight:700; cursor:pointer; }
+.pi-tabs button.is-on { border-bottom-color:#7545bc; color:#7545bc; }
+.pi-hint { margin:12px 0 0; color:#a297ad; font-size:12px; line-height:1.5; }
+.pi-list { margin:0; padding:0; list-style:none; }
+.pi-item { border-bottom:1px solid #f0eaf5; }
+.pi-item__head { display:flex; align-items:center; gap:8px; width:100%; padding:16px 2px; border:0; background:none; text-align:left; cursor:pointer; }
+.pi-item__head strong { flex:1; min-width:0; overflow:hidden; font-size:14px; text-overflow:ellipsis; white-space:nowrap; }
+.pi-item__head time { color:#a399ad; font-size:11px; white-space:nowrap; }
+.pi-item__arrow { flex:none; color:#a297ad; transition:transform .15s; }
+.pi-item__arrow.is-open { transform:rotate(180deg); }
+.pi-item__body { padding:0 2px 18px; }
+.pi-item__body>p { margin:0; font-size:13px; line-height:1.7; overflow-wrap:anywhere; }
+.pi-item__body blockquote { margin:14px 0 0; padding:12px; border:0; border-radius:10px; background:#f8f5fc; color:#6d5a80; }
+.pi-item__body blockquote strong { display:block; margin-bottom:6px; font-size:12px; color:#7950aa; }
+.pi-item__body blockquote p { margin:0; font-size:13px; line-height:1.7; overflow-wrap:anywhere; }
+
+.category-page .category-inquiry-toggle { width:auto; margin:8px 0 0 auto; padding:9px 18px; border:1px solid #7444c2; border-radius:20px; background:#7444c2; color:#fff; font-size:13px; font-weight:700; }
+.category-page .category-inquiry-toggle[aria-expanded="true"] { background:#fff; color:#7444c2; }
+.pi-pager { margin:16px 0 4px; }
+.pi-pager button { padding:7px 14px; border:1px solid #d9c9f0; border-radius:16px; background:#fff; color:#7444c2; font-size:13px; font-weight:700; }
+.pi-pager button:disabled { border-color:#ece6f2; color:#c4bbcc; }
+.category-page .category-section .pi-tabs button { border-radius:0; box-shadow:none; background:none; }
+/* 상품 상세 탭 안에 들어간 Q&A는 바깥 섹션과 선이 겹치지 않게 한다 */
+.category-develop-shell .category-detail #product-feedback .category-section,
+#product-feedback .category-section { margin-top:0; padding-top:12px; border-top:0; }
+/* 질문 하나가 박스 하나: 펼치면 박스가 커지면서 내용이 안에 들어간다 */
+.category-page .pi-list { display:flex; flex-direction:column; gap:10px; margin-top:12px; }
+.category-page .pi-item { overflow:hidden; border:1px solid #e3e1ea; border-radius:12px; background:#fff; }
+.category-page .pi-item .pi-item__head { padding:16px; border:0; border-radius:0; box-shadow:none; background:none; }
+.category-page .pi-item .pi-item__body { padding:0 16px 16px; }
+#product-feedback .category-section { padding-top:0; }
+.category-page .category-section .pi-tabs { margin-top:0; }
+.category-page .category-section .pi-tabs { margin-top:-8px; }
+.category-page .category-section .pi-tabs button { padding-top:8px; padding-bottom:10px; }

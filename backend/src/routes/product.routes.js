@@ -1,8 +1,10 @@
 import { requireAuth, optionalAuth } from '../middlewares/auth.middleware.js';
 import { Router } from 'express';
+import { productStores } from '../controllers/storeMap.controller.js';
 import {
   getProducts,
   getProductDetail,
+  getProductReviews,
   getRelatedProducts,
   getSimilarStores,
 } from '../controllers/product.controller.js';
@@ -27,8 +29,10 @@ export function createProductRouter({ requireAuth = authUnavailable, optionalAut
   const router = Router();
   if (optionalAuth) router.use(optionalAuth);
   router.get('/', getProducts);
+  router.get('/:productId/stores', productStores);
   router.get('/:storeProductId/related', getRelatedProducts);
   router.get('/:storeProductId/similar-stores', getSimilarStores);
+  router.get('/:storeProductId/reviews', getProductReviews);
   router.get('/:storeProductId/inquiries', getProductInquiries);
   router.post('/:storeProductId/inquiries', requireAuth, createProductInquiry);
   router.get('/:storeProductId', getProductDetail);

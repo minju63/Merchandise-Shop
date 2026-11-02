@@ -1,7 +1,7 @@
 import CategoryLayout from './components/CategoryLayout.jsx';
 import CategoryProductCard from './components/CategoryProductCard.jsx';
 import sharedClient from '../../api/client.js';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams, useLocation, useNavigate } from 'react-router-dom';
 import * as productApi from '../../api/product.api';
 import ProductImageGallery from './components/ProductImageGallery';
@@ -13,6 +13,7 @@ import RelatedProductSection from './components/RelatedProductSection';
 import ProductInquirySection from './components/ProductInquirySection';
 import ProductActionBar from './components/ProductActionBar';
 import ProductEmptyState from './components/ProductEmptyState';
+import ProductReviewSection from './components/ProductReviewSection';
 import useCategoryRequest from './components/useCategoryRequest';
 import './components/category.css';
 
@@ -26,7 +27,7 @@ function ProductDetailPageContent({
   api = productApi,
   inquiryApi,
 }) {
-  const [feedbackTab, setFeedbackTab] = useState('reviews');
+  const [feedbackTab, setFeedbackTab] = useState('description');
   const { storeProductId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -51,6 +52,10 @@ function ProductDetailPageContent({
     (signal) => api.getRelatedProducts(storeProductId, { signal }, client),
     [api, client, storeProductId]
   );
+  const reviewsLoad = useCallback(
+    (signal) => api.getProductReviews(storeProductId, { signal }, client),
+    [api, client, storeProductId]
+  );
   const similarLoad = useCallback(
     (signal) => api.getSimilarStores?.(storeProductId, { signal }, client) ?? [],
     [api, client, storeProductId]
@@ -58,6 +63,12 @@ function ProductDetailPageContent({
   const request = useCategoryRequest(load, user?.id);
   const similar = useCategoryRequest(similarLoad, user?.id);
   const related = useCategoryRequest(relatedLoad, user?.id);
+  const reviews = useCategoryRequest(reviewsLoad, user?.id);
+  useEffect(() => {
+    if (!['#product-feedback', '#product-description'].includes(location.hash) || request.loading) return;
+    setFeedbackTab(location.hash === '#product-description' ? 'description' : 'reviews');
+    requestAnimationFrame(() => document.getElementById('product-feedback')?.scrollIntoView());
+  }, [location.hash, request.loading]);
   if (request.loading)
     return (
       <main className="category-page">
@@ -77,6 +88,9 @@ function ProductDetailPageContent({
     );
   }
   const product = request.data;
+  const displayStatus =
+    product.displayStatus ||
+    (product.status === 'ON_SALE' && product.stock <= 0 ? 'SOLD_OUT' : product.status);
   return (
     <main className="category-page category-detail">
       <Link className="category-detail-back" to={listReturnTo} onClick={returnToList}>
@@ -90,29 +104,40 @@ function ProductDetailPageContent({
           thumbnailUrl={product.thumbnailUrl}
           productName={product.productName || product.name}
           soldOut={
-            product.displayStatus === 'SOLD_OUT' ||
-            product.status === 'SOLD_OUT' ||
-            (product.status === 'ON_SALE' && product.stock <= 0)
+            displayStatus === 'SOLD_OUT'
           }
+          comingSoon={displayStatus === 'UPCOMING'}
+          upcomingAt={product.upcomingAt}
         />
         <ProductInfo product={product} />
       </div>
       <div className="category-primary-seller">
         <SellerInfoCard store={product.store} storeId={product.storeId} storeName={product.storeName} />
       </div>
-      <div id="product-description">
-      <ProductDescription
-        description={product.description}
-        spec={product.spec}
-        images={product.images}
-      />
-      </div>
       <section id="product-feedback" className="category-section">
-        <nav className="category-result-tabs" aria-label="리뷰와 상품 문의">
-          <button type="button" aria-pressed={feedbackTab === 'reviews'} onClick={() => setFeedbackTab('reviews')}>리뷰</button>
+        <nav className="category-result-tabs" aria-label="상품 설명과 리뷰 및 상품 문의">
+          <button type="button" aria-pressed={feedbackTab === 'description'} onClick={() => setFeedbackTab('description')}>상품 설명</button>
+          <button
+            type="button"
+            aria-pressed={feedbackTab === 'reviews'}
+            onClick={() => setFeedbackTab('reviews')}
+          >
+            리뷰
+          </button>
           <button type="button" aria-pressed={feedbackTab === 'inquiries'} onClick={() => setFeedbackTab('inquiries')}>Q&A</button>
         </nav>
-        {feedbackTab === 'reviews' ? <ProductEmptyState message="상품 리뷰는 아직 연결되지 않았습니다." /> : <ProductInquirySection
+        {feedbackTab === 'description' ? <div id="product-description">
+          <ProductDescription description={product.description} spec={product.spec} images={product.images} />
+        </div> : feedbackTab === 'reviews' ? <ProductReviewSection
+          key={storeProductId}
+          storeProductId={storeProductId}
+          client={client}
+          api={api}
+          reviews={reviews.data}
+          loading={reviews.loading}
+          error={reviews.error}
+          onRetry={reviews.retry}
+        /> : <ProductInquirySection
         key={storeProductId}
         storeProductId={storeProductId}
         client={client}

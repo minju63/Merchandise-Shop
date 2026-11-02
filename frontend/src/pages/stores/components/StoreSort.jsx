@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Icon from './Icon.jsx';
 
-export default function StoreSort({ value, options, onChange }) {
+export default function StoreSort({ value, options, onChange, label = '정렬 기준' }) {
   const [open, setOpen] = useState(false);
   const root = useRef(null);
   useEffect(() => {
@@ -26,12 +26,13 @@ export default function StoreSort({ value, options, onChange }) {
         onClick={() => setOpen(!open)}
         aria-expanded={open}
         aria-haspopup="listbox"
+        aria-label={label}
       >
         {options.find((item) => item.value === value)?.label}
         <Icon name="chevron" size={15} />
       </button>
       {open && (
-        <div className="sort-menu" role="listbox" aria-label="정렬 기준">
+        <div className="sort-menu" role="listbox" aria-label={label}>
           {options.map((item) => (
             <button
               key={item.value}

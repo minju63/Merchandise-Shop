@@ -1,21 +1,66 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { couponConditions, formatMonthDot } from '../my/accountFormat.js';
 import { Thumb } from '../my/common.jsx';
 import { InfoIcon } from '../my/icons.jsx';
 import { formatWon } from '../my/orderFormat.js';
 import { estimateCoupon } from './checkoutFormat.js';
 
-export function Sheet({ title, sub, onClose, children }) {
+export function Sheet({ title, sub, showClose = false, onClose, children }) {
+  const drag = useRef(null);
+  const dragY = useRef(0);
+  const [offsetY, setOffsetY] = useState(0);
+  const [dragging, setDragging] = useState(false);
+
+  const finishDrag = (event, cancelled = false) => {
+    if (!drag.current || event.pointerId !== drag.current.pointerId) return;
+    event.currentTarget.releasePointerCapture?.(event.pointerId);
+    const shouldClose = !cancelled && dragY.current >= Math.min(120, window.innerHeight * 0.15);
+    drag.current = null;
+    dragY.current = 0;
+    setDragging(false);
+    if (shouldClose) onClose();
+    else setOffsetY(0);
+  };
+
   return (
     <div className="ord-sheet-backdrop" onClick={onClose}>
       <div
-        className="ord-sheet co-sheet"
+        className={`ord-sheet co-sheet${dragging ? ' is-dragging' : ''}`}
         role="dialog"
         aria-label={title}
+        style={{ transform: `translateY(${offsetY}px)` }}
         onClick={(event) => event.stopPropagation()}
       >
-        <span className="ord-sheet__grip" />
-        {title ? <h2 className="ord-sheet__title">{title}</h2> : null}
+        <button
+          type="button"
+          className="ord-sheet__grip"
+          aria-label="바텀시트 닫기"
+          onClick={(event) => event.stopPropagation()}
+          onPointerDown={(event) => {
+            drag.current = { pointerId: event.pointerId, startY: event.clientY };
+            dragY.current = 0;
+            setDragging(true);
+            event.currentTarget.setPointerCapture(event.pointerId);
+          }}
+          onPointerMove={(event) => {
+            if (!drag.current || event.pointerId !== drag.current.pointerId) return;
+            const next = Math.max(0, event.clientY - drag.current.startY);
+            dragY.current = next;
+            setOffsetY(next);
+          }}
+          onPointerUp={(event) => finishDrag(event)}
+          onPointerCancel={(event) => finishDrag(event, true)}
+        />
+        {title || showClose ? (
+          <div className="co-sheet__heading">
+            {title ? <h2 className="ord-sheet__title">{title}</h2> : null}
+            {showClose ? (
+              <button type="button" className="co-sheet__close" aria-label="닫기" onClick={onClose}>
+                ×
+              </button>
+            ) : null}
+          </div>
+        ) : null}
         {sub ? <p className="ord-sheet__sub">{sub}</p> : null}
         <div className="co-sheet__body">{children}</div>
       </div>
@@ -41,11 +86,21 @@ export function CouponSheet({ order, option, coupons, takenIds, onApply, onClose
     deliveryFee: order.deliveryFee,
     fulfillmentType: option.fulfillmentType,
   };
-  const rows = coupons.map((item) => ({
-    item,
-    taken: takenIds.has(item.id),
-    ...estimateCoupon(item, ctx),
-  }));
+  const rows = coupons.map((item) => {
+    const estimate = estimateCoupon(item, ctx);
+    const serverEvaluated = typeof item.usable === 'boolean';
+    return {
+      item,
+      taken: takenIds.has(item.id),
+      usable: serverEvaluated ? item.usable : estimate.usable,
+      reason: serverEvaluated
+        ? item.reason
+          ? '이 주문에는 사용할 수 없어요'
+          : null
+        : estimate.reason,
+      amount: serverEvaluated ? item.discountAmount : estimate.amount,
+    };
+  });
   const best = rows
     .filter((row) => row.usable && !row.taken)
     .reduce((top, row) => (!top || row.amount > top.amount ? row : top), null);

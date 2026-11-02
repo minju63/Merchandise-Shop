@@ -7,6 +7,7 @@ import StoreImageSlider from './components/StoreImageSlider.jsx';
 import StoreInfo from './components/StoreInfo.jsx';
 import StoreGuide from './components/StoreGuide.jsx';
 import StoreProductSection from './components/StoreProductSection.jsx';
+import { ShowcaseGallery } from '../showcases/ShowcasePages.jsx';
 
 export default function StoreDetailPage() {
   const { storeId } = useParams();
@@ -31,6 +32,7 @@ export default function StoreDetailPage() {
             <StoreImageSlider images={store.images} name={store.name} />
             <StoreInfo store={store} onGuide={setGuide} />
             <StoreProductSection storeId={storeId} searchContext={searchContext} />
+            <ShowcaseGallery type="SHOP" storeId={storeId} compact />
           </>
         )}
       </main>

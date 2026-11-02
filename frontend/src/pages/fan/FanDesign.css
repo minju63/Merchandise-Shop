@@ -38,6 +38,11 @@
   touch-action: none;
 }
 
+.fan-board--edit [data-fan-photo] {
+  cursor: grab;
+  touch-action: none;
+}
+
 .fan-board--edit {
   touch-action: pan-y;
 }
@@ -287,4 +292,9 @@
   padding: 0;
   border: 0;
   background: none;
+}
+
+/* 섹션이 fieldset 안에 있어 BannerDetail의 마지막 섹션 여백이 먹지 않는다. 고정 하단 버튼에 가려지지 않게 직접 띄운다 */
+.fan-design__fieldset > .bd__section:last-child {
+  padding-bottom: calc(24px + 96px + env(safe-area-inset-bottom));
 }

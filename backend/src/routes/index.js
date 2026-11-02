@@ -40,8 +40,10 @@ import cartRoutes from './cart.routes.js';
 
 // 미정
 import notificationRoutes from './notification.routes.js';
+import showcaseRoutes from './showcase.routes.js';
 
 const router = Router();
+router.use('/showcases', showcaseRoutes);
 
 // 연수 — 로그인 · 결제 · 마이
 router.use('/auth', authRoutes);

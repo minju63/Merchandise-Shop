@@ -8,6 +8,7 @@ import routes from './routes/index.js';
 import { notFound } from './middlewares/notFound.middleware.js';
 import { errorHandler } from './middlewares/errorHandler.middleware.js';
 import { startUpcomingProductsJob } from './jobs/upcoming-products.job.js';
+import { startNotificationRetentionJob } from './jobs/notification-retention.job.js';
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use('/api/v1/reviews', express.json({ limit: '36mb' }));
+app.use('/api/v1/showcases', express.json({ limit: '9mb' }));
 app.use(express.json());
 
 app.get('/api/v1/health', (req, res) => {
@@ -38,6 +40,7 @@ const isMain = process.argv[1] && fileURLToPath(import.meta.url) === path.resolv
 
 if (isMain) {
   startUpcomingProductsJob();
+  startNotificationRetentionJob();
   const PORT = process.env.PORT || 4000;
   app.listen(PORT, () => console.log(`server on :${PORT}`));
 }

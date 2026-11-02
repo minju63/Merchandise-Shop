@@ -1,5 +1,6 @@
 // 담당: 연수
 import { Navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { getMySellerApplication } from './account.api.js';
 import { ErrorNotice, Loading, PageHeader } from './common.jsx';
 import { useRequest, useRequireLogin } from './hooks.js';
@@ -8,8 +9,9 @@ import { MY_ROUTES } from './routes.js';
 import './orders.css';
 import './help.css';
 
-// 입점 승인된 판매자가 보는 화면. 판매자 센터 본 기능은 별도 화면이 생기기 전까지 내 매장 목록만 보여준다.
+// 입점 승인된 판매자가 매장별 진열장을 관리하는 진입 화면.
 export default function SellerCenterPage() {
+  const navigate = useNavigate();
   const signedIn = useRequireLogin(MY_ROUTES.login);
   const mine = useRequest(signedIn, 'seller-center', getMySellerApplication);
 
@@ -36,6 +38,7 @@ export default function SellerCenterPage() {
                 {store.name}
               </strong>
               {store.address ? <p className="hlp-card__text">{store.address}</p> : null}
+              <button type="button" className="showcase-primary" onClick={() => navigate(`/my/seller-center/stores/${store.id}/showcases`)}>내 진열장 관리</button>
             </article>
           ))}
         </div>
