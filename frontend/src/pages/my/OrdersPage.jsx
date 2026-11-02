@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import CancelSheet from './CancelSheet.jsx';
 import { ErrorNotice, Loading, PageHeader, Thumb } from './common.jsx';
-import { CheckIcon, ClockIcon, SearchIcon, TruckIcon } from './icons.jsx';
+import { ChevronIcon, SearchIcon } from './icons.jsx';
 import { useRequest, useSession } from './hooks.js';
-import { getReorderItems, listOrders } from './my.api.js';
+import { confirmPurchase, getReorderItems, listOrders } from './my.api.js';
 import {
   FULFILLMENT_LABEL,
-  formatMonthDay,
+  formatYearMonthDay,
   formatWon,
   itemsTitle,
   statusNote,
@@ -24,18 +23,35 @@ const TABS = [
   ['delivery', '배달', 'DELIVERY'],
 ];
 const CHIPS = [
-  ['', '최근 3개월'],
   ['ONGOING', '진행 중'],
   ['COMPLETED', '수령 완료'],
-  ['CANCELED', '취소'],
 ];
 const PAGE_SIZE = 20;
-const NOTE_ICONS = { clock: ClockIcon, truck: TruckIcon, check: CheckIcon };
+const YEAR_COUNT = 5;
+// 한 번에 결제한 주문(checkout_group_id 가 같은 것)은 한 묶음이고, 같은 날이라도 결제를 나눠 했으면 묶음을 따로 둔다.
+function payGroups(orders) {
+  const groups = [];
+  const byGroup = new Map();
+  for (const order of orders) {
+    const key = order.checkout_group_id;
+    if (key && byGroup.has(key)) byGroup.get(key).push(order);
+    else {
+      const group = [order];
+      groups.push(group);
+      if (key) byGroup.set(key, group);
+    }
+  }
+  return groups;
+}
+// 기간 선택: 기본은 최근 3개월, '전체'는 전 기간, 숫자는 그 해의 주문만
+function yearOptions() {
+  const thisYear = Number(formatYearMonthDay(new Date().toISOString()).slice(0, 4));
+  return Array.from({ length: YEAR_COUNT }, (_, index) => String(thisYear - index));
+}
 
-function OrderCard({ order, onCancel, onNavigate, onReorder }) {
+function OrderCard({ order, onConfirm, onNavigate, onReorder }) {
   const pill = statusPill(order);
   const note = statusNote(order);
-  const NoteIcon = NOTE_ICONS[note.icon];
   const detailPath = MY_ROUTES.orderDetail(order.id);
   const thumb = order.items?.[0]?.product_image_url;
   const reviewCompleted =
@@ -68,31 +84,22 @@ function OrderCard({ order, onCancel, onNavigate, onReorder }) {
         <button type="button" className="ord-btn ord-btn--soft" onClick={() => onReorder(order)}>
           재구매
         </button>
-        <button
-          type="button"
-          className="ord-btn"
-          disabled={reviewCompleted}
-          onClick={() => {
-            if (!reviewCompleted) onNavigate(MY_ROUTES.reviewWrite(order.id));
-          }}
-        >
-          {reviewCompleted ? '작성 완료' : '리뷰 쓰기'}
-        </button>
-      </div>
-    );
-  } else if (order.canCancel) {
-    actions = (
-      <div className="ord-actions">
-        <button type="button" className="ord-btn ord-btn--grow" onClick={() => onCancel(order)}>
-          주문 취소
-        </button>
-        <button
-          type="button"
-          className="ord-btn ord-btn--grow"
-          onClick={() => onNavigate(detailPath)}
-        >
-          주문 상세
-        </button>
+        {order.purchase_confirmed_at ? (
+          <button
+            type="button"
+            className="ord-btn"
+            disabled={reviewCompleted}
+            onClick={() => {
+              if (!reviewCompleted) onNavigate(MY_ROUTES.reviewWrite(order.id));
+            }}
+          >
+            {reviewCompleted ? '작성 완료' : '리뷰 쓰기'}
+          </button>
+        ) : (
+          <button type="button" className="ord-btn" onClick={() => onConfirm(order)}>
+            구매확정
+          </button>
+        )}
       </div>
     );
   } else {
@@ -109,14 +116,11 @@ function OrderCard({ order, onCancel, onNavigate, onReorder }) {
 
   return (
     <article className="ord-card">
-      <div className="ord-card__top">
-        <button type="button" className="ord-card__no" onClick={() => onNavigate(detailPath)}>
-          {formatMonthDay(order.created_at)} · {order.order_no}
-        </button>
-        <span className={`ord-pill ord-pill--${pill.tone}`}>{pill.label}</span>
-      </div>
+      <button type="button" className="ord-card__status" onClick={() => onNavigate(detailPath)}>
+        {pill.label} <span>· {note.text}</span>
+      </button>
       <button type="button" className="ord-card__body" onClick={() => onNavigate(detailPath)}>
-        <Thumb src={thumb} />
+        <Thumb src={thumb} size={96} />
         <span className="ord-card__text">
           <span className="ord-card__store">
             {order.store?.name}
@@ -128,16 +132,13 @@ function OrderCard({ order, onCancel, onNavigate, onReorder }) {
           </span>
         </span>
       </button>
-      <p className="ord-card__note">
-        <NoteIcon /> {note.text}
-      </p>
       {actions}
     </article>
   );
 }
 
 export default function OrdersPage() {
-  const { alert: showAlert, dialog } = useDialog();
+  const { alert: showAlert, confirm, dialog } = useDialog();
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const { status: authStatus } = useSession();
@@ -145,10 +146,12 @@ export default function OrdersPage() {
 
   const tab = TABS.find(([key]) => key === params.get('type')) ?? TABS[0];
   const statusParam = params.get('status') ?? '';
+  const years = yearOptions();
+  const periodParam = params.get('period') ?? '';
+  const period = periodParam === 'ALL' || years.includes(periodParam) ? periodParam : '';
   const [input, setInput] = useState('');
   const [keyword, setKeyword] = useState('');
   const [pageNo, setPageNo] = useState(1);
-  const [cancelTarget, setCancelTarget] = useState(null);
 
   useEffect(() => {
     if (authStatus === 'out') navigate(MY_ROUTES.login, { replace: true });
@@ -167,7 +170,12 @@ export default function OrdersPage() {
     page: 1,
     size,
     ...(tab[2] ? { fulfillmentType: tab[2] } : {}),
-    ...(statusParam ? { status: statusParam } : { period: 'LAST_3_MONTHS' }),
+    ...(statusParam ? { status: statusParam } : {}),
+    ...(period && period !== 'ALL'
+      ? { from: `${period}-01-01`, to: `${period}-12-31` }
+      : !period && !statusParam
+        ? { period: 'LAST_3_MONTHS' }
+        : {}),
     ...(keyword ? { keyword } : {}),
   };
   const orders = useRequest(signedIn, JSON.stringify(query), () => listOrders(query));
@@ -191,7 +199,23 @@ export default function OrdersPage() {
     }
   };
 
-  const items = orders.data?.items ?? [];
+  const confirmOrder = async (order) => {
+    const message =
+      '구매를 확정할까요?\n구매확정 후에는 반품·교환이 불가능해요.\n확정하면 적립금이 지급되고 리뷰를 쓸 수 있어요.';
+    if (!(await confirm(message, { confirmLabel: '구매확정' })))
+      return;
+    try {
+      await confirmPurchase(order.id);
+      orders.reload();
+    } catch (error) {
+      await showAlert(error.message);
+    }
+  };
+
+  // 취소된 주문은 취소·반품·교환 내역에서 따로 본다.
+  const items = (orders.data?.items ?? []).filter((order) => order.status !== 'CANCELED');
+  // 같은 날짜(KST)에 주문한 내역은 한 날짜 아래로 묶는다. 목록은 이미 최신순이다.
+  const groups = payGroups(items).map((group) => [formatYearMonthDay(group[0].created_at), group]);
   const hasMore = orders.data && items.length < orders.data.totalCount && size < 100;
 
   let body;
@@ -201,14 +225,26 @@ export default function OrdersPage() {
   else
     body = (
       <>
-        {items.map((order) => (
-          <OrderCard
-            key={order.id}
-            order={order}
-            onCancel={setCancelTarget}
-            onNavigate={navigate}
-            onReorder={reorder}
-          />
+        {groups.map(([date, dayOrders]) => (
+          <section key={dayOrders[0].id} className="ord-day">
+            <button
+              type="button"
+              className="ord-day__head"
+              onClick={() => navigate(MY_ROUTES.orderDetail(dayOrders[0].id))}
+            >
+              <h2 className="ord-day__date">{date}</h2>
+              <ChevronIcon />
+            </button>
+            {dayOrders.map((order) => (
+              <OrderCard
+                key={order.id}
+                order={order}
+                onConfirm={confirmOrder}
+                onNavigate={navigate}
+                onReorder={reorder}
+              />
+            ))}
+          </section>
         ))}
         {hasMore ? (
           <button
@@ -248,28 +284,29 @@ export default function OrdersPage() {
         />
       </label>
       <div className="ord-chips">
+        <label className="ord-period">
+          <select value={period} onChange={(event) => update({ period: event.target.value })}>
+            <option value="">최근 3개월</option>
+            <option value="ALL">전체</option>
+            {years.map((year) => (
+              <option key={year} value={year}>
+                {year}년
+              </option>
+            ))}
+          </select>
+        </label>
         {CHIPS.map(([value, label]) => (
           <button
             key={label}
             type="button"
             className={statusParam === value ? 'ord-chip is-active' : 'ord-chip'}
-            onClick={() => update({ status: value })}
+            onClick={() => update({ status: statusParam === value ? '' : value })}
           >
             {label}
           </button>
         ))}
       </div>
       <div className="ord-list">{body}</div>
-      {cancelTarget ? (
-        <CancelSheet
-          order={cancelTarget}
-          onClose={() => setCancelTarget(null)}
-          onDone={() => {
-            setCancelTarget(null);
-            orders.reload();
-          }}
-        />
-      ) : null}
       {dialog}
     </main>
   );

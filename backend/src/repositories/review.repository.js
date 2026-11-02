@@ -159,12 +159,12 @@ export async function softDeleteOwnedStoreReview(userId, id) {
   );
 }
 export async function listCompletedItems(userId) {
-  const orders = await all("orders", "id", [
+  const orders = await all("orders", "id,purchase_confirmed_at", [
     ["eq", "user_id", userId],
     ["eq", "status", "COMPLETED"],
   ]);
   const result = [];
-  for (const order of orders) {
+  for (const order of orders.filter((row) => row.purchase_confirmed_at)) {
     const rows = await all("order_items", "*,sale:store_products(product_id)", [
       ["eq", "order_id", order.id],
     ]);
@@ -497,6 +497,7 @@ export async function getCompletedOrders(userId, storeId) {
       .eq('user_id', userId)
       .eq('store_id', storeId)
       .eq('status', 'COMPLETED')
+      .not('purchase_confirmed_at', 'is', null)
       .is('canceled_at', null)
       .order('created_at', { ascending: false })
   );

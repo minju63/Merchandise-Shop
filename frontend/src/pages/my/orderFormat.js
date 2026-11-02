@@ -19,6 +19,12 @@ export function formatMonthDay(iso) {
   return `${p.month}.${p.day}`;
 }
 
+// "2026.09.30"
+export function formatYearMonthDay(iso) {
+  const p = parts(iso, { year: 'numeric', month: '2-digit', day: '2-digit' });
+  return `${p.year}.${p.month}.${p.day}`;
+}
+
 // "14:12"
 export function formatClock(iso) {
   const p = parts(iso, { hour: '2-digit', minute: '2-digit' });

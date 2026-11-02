@@ -2,6 +2,7 @@
 // 담당: 동균
 import { NavLink } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import HeaderActions from '../../../components/HeaderActions.jsx';
 import { isAuthError, wishlistApi } from '../../../api/wishlist.api.js';
 
 export default function WishTabBar() {
@@ -17,7 +18,10 @@ export default function WishTabBar() {
   ];
   return (
     <header className="wish-header">
-      <h1>찜</h1>
+      <div className="wish-header-row">
+        <h1>찜</h1>
+        <HeaderActions />
+      </div>
       <nav className="wish-tabs" aria-label="찜 목록 종류">
         {tabs.map(({ to, label, count }) => (
           <NavLink

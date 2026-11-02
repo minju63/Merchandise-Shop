@@ -507,17 +507,45 @@
   transition: none;
 }
 
+.fan-payment-sheet__head {
+  margin: -12px -20px 0;
+  padding: 12px 20px 0;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
 .fan-payment-sheet__grip {
   display: block;
   width: 44px;
   height: 4px;
   margin: 0 auto 20px;
-  padding: 0;
-  border: 0;
   border-radius: 99px;
   background: #d7d5dc;
-  cursor: grab;
-  touch-action: none;
+}
+
+.fan-payment-accounts {
+  display: grid;
+  gap: 6px;
+  margin: -2px 0 4px;
+}
+
+.fan-payment-accounts button {
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid #dedce3;
+  border-radius: 10px;
+  color: #3f4047;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: left;
+}
+
+.fan-payment-accounts button.is-on {
+  border-color: #6f5be7;
+  color: #6247d9;
+  background: #f3f0ff;
 }
 
 .fan-payment-sheet h2 {
@@ -534,6 +562,10 @@
 }
 
 .fan-payment-sheet__tabs button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
   min-height: 46px;
   padding: 0 4px;
   border: 1px solid #dedce3;
@@ -712,6 +744,10 @@
 }
 
 .fan-payment-sheet__confirm {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
   min-height: 52px;
   margin-top: 14px;
   border: 0;

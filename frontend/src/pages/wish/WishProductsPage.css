@@ -8,8 +8,14 @@
   backdrop-filter: blur(12px);
   border-bottom: 1px solid #f1f2f4;
 }
+.wish-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
 .wish-header h1 {
-  margin: 0 0 10px;
+  margin: 0;
   font-size: 22px;
   font-weight: 800;
   letter-spacing: -0.6px;
@@ -433,6 +439,11 @@
 }
 .wish-sheet button:disabled {
   opacity: 0.55;
+}
+.wish-sheet-options button:disabled {
+  background: #f1f2f4;
+  color: #9a9fa8;
+  cursor: not-allowed;
 }
 
 /* 재입고 알림 시트 · 토스트 액션 */

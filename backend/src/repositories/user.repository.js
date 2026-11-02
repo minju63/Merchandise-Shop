@@ -340,7 +340,7 @@ export async function listPendingPointEarnings(userId) {
   const db = await getDatabase();
   const { data, error } = await db
     .from('point_transactions')
-    .select('id,order_id,amount,order:orders(status)')
+    .select('id,order_id,amount,order:orders(status,purchase_confirmed_at)')
     .eq('user_id', userId)
     .eq('type', 'EARN')
     .eq('status', 'PENDING');

@@ -37,10 +37,15 @@
 .co-chip--round { padding: 8px 14px; border-radius: 18px; border-color: transparent; background: var(--co-soft); color: var(--co-sub); }
 .co-chip.is-on { border-color: #cfc6fa; background: var(--co-primary-soft); color: var(--co-primary); font-weight: 700; }
 .co-info { display: flex; align-items: center; gap: 6px; margin: 12px 0 0; color: var(--co-sub); font-size: 12px; }
+.co-pickup-notice { margin: 14px 0 22px; padding: 14px 16px; list-style: none; border-radius: 12px; background: var(--co-soft); color: var(--co-sub); font-size: 13px; line-height: 1.55; }
+.co-pickup-notice li { position: relative; padding-left: 12px; word-break: keep-all; }
+.co-pickup-notice li + li { margin-top: 8px; }
+.co-pickup-notice li::before { content: ''; position: absolute; left: 0; top: 0.7em; width: 3px; height: 3px; border-radius: 50%; background: currentColor; }
 .co-warn { margin: 10px 0 0; color: var(--co-error); font-size: 13px; }
 .co-warn--footer { padding: 0 16px; }
 .co-input { display: block; width: 100%; box-sizing: border-box; margin-top: 10px; padding: 14px; border: 1px solid var(--co-line); border-radius: 10px; background: #fff; outline: 0; }
 .co-section > .co-input:first-of-type { margin-top: 0; }
+.co-section > .co-chips + .co-input { margin-top: 16px; }
 .co-input::placeholder { color: var(--co-faint); }
 .co-addr { display: block; width: 100%; box-sizing: border-box; margin-top: 14px; padding: 14px; border: 1px solid var(--co-line); border-radius: 12px; }
 .co-addr p { margin: 6px 0 0; font-size: 13px; line-height: 1.5; }

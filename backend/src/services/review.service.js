@@ -185,11 +185,11 @@ export async function checkReviewEligibility(userId, orderItemId) {
   uuid(orderItemId);
   await active(userId);
   const item = await findOwnedItem(userId, orderItemId);
-  if (!item || item.order.status !== "COMPLETED")
+  if (!item || item.order.status !== "COMPLETED" || !item.order.purchase_confirmed_at)
     throw failure(
       409,
       "REVIEW_NOT_ELIGIBLE",
-      "수령 완료한 본인 주문 상품만 리뷰를 쓸 수 있어요.",
+      "구매확정한 본인 주문 상품만 리뷰를 쓸 수 있어요.",
     );
   const existing = await repository.findByOrderItem(userId, orderItemId);
   if (existing?.is_hidden)

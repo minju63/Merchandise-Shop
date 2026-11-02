@@ -1,7 +1,7 @@
 .dlg-overlay { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 24px; background: rgba(28, 27, 34, 0.5); }
 .dlg { width: 100%; max-width: 320px; padding: 24px 20px 16px; border-radius: 18px; background: #fff; color: var(--my-text, #1c1b22); text-align: center; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2); }
 .dlg__title { margin: 0 0 8px; font-size: 17px; font-weight: 800; }
-.dlg__message { margin: 0; font-size: 14px; line-height: 1.6; color: var(--my-sub, #6b6878); word-break: keep-all; }
+.dlg__message { white-space: pre-line; margin: 0; font-size: 14px; line-height: 1.6; color: var(--my-sub, #6b6878); word-break: keep-all; }
 .dlg__actions { display: flex; gap: 8px; margin-top: 20px; }
 .dlg__btn { display: flex; flex: 1; align-items: center; justify-content: center; height: 44px; padding: 0; text-align: center; line-height: 1; border-radius: 12px; background: var(--my-soft, #f7f6fa); font-size: 15px; font-weight: 700; }
 .dlg__btn--primary { background: var(--my-btn, #b4a5f8); color: var(--my-btn-text, #231a4f); }

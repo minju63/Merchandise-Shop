@@ -273,12 +273,12 @@ export function sumConfirmedPoints(rows) {
     .reduce((total, row) => total + row.amount, 0);
 }
 
-// 적립 예정분은 주문이 구매 확정(COMPLETED)되면 확정하고, 취소(CANCELED)되면 소멸시킨다.
+// 적립 예정분은 고객이 구매확정(COMPLETED + purchase_confirmed_at)하면 확정하고, 취소(CANCELED)되면 소멸시킨다.
 export async function syncPointEarnings(userId) {
   const pending = await userRepository.listPendingPointEarnings(userId);
   for (const row of pending) {
     const status = row.order?.status;
-    if (status === 'COMPLETED') await userRepository.setPointTransactionStatus(row.id, 'CONFIRMED');
+    if (status === 'COMPLETED' && row.order?.purchase_confirmed_at) await userRepository.setPointTransactionStatus(row.id, 'CONFIRMED');
     if (status === 'CANCELED') await userRepository.setPointTransactionStatus(row.id, 'CANCELED');
   }
 }
@@ -404,6 +404,23 @@ export async function restoreOrderPoints(userId, orderId) {
       await userRepository.setPointTransactionStatus(row.id, 'CANCELED');
     }
   }
+}
+
+// 구매확정 시 적립 예정분이 없던 주문(미리 적립 신청을 안 한 경우)에는 결제 금액 기준으로 바로 적립한다.
+export async function grantPurchasePoints(userId, order) {
+  const rows = await userRepository.listOrderPointTransactions(userId, order.id);
+  if (rows.some((row) => row.type === 'EARN')) return 0;
+  const amount = Math.floor(((order.total_amount ?? 0) * POINT_POLICY.earnRatePercent) / 100);
+  if (amount <= 0) return 0;
+  await userRepository.insertPointTransaction({
+    user_id: userId,
+    order_id: order.id,
+    type: 'EARN',
+    status: 'CONFIRMED',
+    amount,
+    memo: '구매확정 적립',
+  });
+  return amount;
 }
 
 export async function recordOrderPoints(userId, orderId, { used, earn }) {

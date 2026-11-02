@@ -51,6 +51,11 @@ export async function getPickupInfo(orderId) {
   return response.data.data;
 }
 
+export async function confirmPurchase(orderId) {
+  const response = await http.post(`/orders/${orderId}/confirm`, {});
+  return response.data.data;
+}
+
 export async function cancelOrder(orderId, body) {
   const response = await http.post(`/orders/${orderId}/cancel`, body);
   return response.data.data;

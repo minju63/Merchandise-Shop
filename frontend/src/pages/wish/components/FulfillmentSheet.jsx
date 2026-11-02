@@ -20,11 +20,11 @@ export default function FulfillmentSheet({ productName, isPending, pickupAvailab
         <div className="wish-sheet-options">
           <button type="button" disabled={isPending || !pickupAvailable} onClick={() => onSelect('PICKUP')}>
             <Icon name="bag" size={22} />
-            {pickupAvailable ? '픽업' : '픽업 불가'}
+            {pickupAvailable ? '픽업' : '픽업 불가한 매장입니다'}
           </button>
           <button type="button" disabled={isPending || !deliveryAvailable} onClick={() => onSelect('DELIVERY')}>
             <Icon name="truck" size={22} />
-            {deliveryAvailable ? '배달' : '배달 불가'}
+            {deliveryAvailable ? '배달' : '배달 불가한 매장입니다'}
           </button>
         </div>
         <button type="button" className="wish-sheet-cancel" disabled={isPending} onClick={onCancel}>

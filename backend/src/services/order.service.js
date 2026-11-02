@@ -1,4 +1,4 @@
-import { threeMonthsAgo, restoreOrderPoints } from "./user.service.js";
+import { threeMonthsAgo, restoreOrderPoints, syncPointEarnings, grantPurchasePoints } from "./user.service.js";
 import { listMyPaymentMethods } from "./paymentMethod.service.js";
 import * as repository from "../repositories/order.repository.js";
 import * as payments from "../repositories/payment.repository.js";
@@ -219,6 +219,7 @@ export async function listMyOrders(userId, input = {}) {
       ...row,
       items,
       canCancel: canCancelOrder(row),
+      canConfirm: canConfirmPurchase(row),
       pickupWindow: row.pickup_deadline
         ? getPickupWindow(row.pickup_deadline)
         : null,
@@ -238,6 +239,42 @@ export async function listMyOrders(userId, input = {}) {
   );
   return page(result, options);
 }
+async function findOrderer(userId) {
+  const profile = await findByAuthId(userId);
+  return profile
+    ? { name: profile.nickname, phone: profile.phone ?? null, email: profile.email ?? null }
+    : null;
+}
+// 같은 결제(checkout_group_id)로 접수된 다른 매장 주문. 상세 화면에서 함께 보여준다.
+async function listGroupSiblings(userId, row) {
+  if (!row.checkout_group_id) return [];
+  const siblings = (await repository.listOwnedGroup(userId, row.checkout_group_id))
+    .filter((order) => order.id !== row.id)
+    .sort((a, b) => a.created_at.localeCompare(b.created_at) || a.id.localeCompare(b.id));
+  return Promise.all(
+    siblings.map(async (order) => {
+      const [store, items] = await Promise.all([
+        repository.findStore(order.store_id),
+        repository.listItems(order.id),
+      ]);
+      return {
+        id: order.id,
+        order_no: order.order_no,
+        status: order.status,
+        fulfillment_type: order.fulfillment_type,
+        total_amount: order.total_amount,
+        store: store ? { id: store.id, name: store.name, thumbnail_url: store.thumbnail_url } : null,
+        items: items.map((item) => ({
+          id: item.id,
+          product_name: item.product_name,
+          product_image_url: item.product_image_url,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+        })),
+      };
+    }),
+  );
+}
 export async function getMyOrderDetail(userId, orderId, query = {}) {
   object(query, []);
   const row = await owned(userId, orderId);
@@ -251,6 +288,8 @@ export async function getMyOrderDetail(userId, orderId, query = {}) {
       ...item,
       review_completed: reviewedItemIds.has(item.id),
     })),
+    orderer: await findOrderer(userId),
+    groupOrders: await listGroupSiblings(userId, row),
     histories: await repository.listHistories(row.id),
     payments: await payments.listOwnedOrderPayments(userId, row.id),
     requests: parseOrderRequests(row.delivery_request),
@@ -258,6 +297,7 @@ export async function getMyOrderDetail(userId, orderId, query = {}) {
       ? getPickupWindow(row.pickup_deadline)
       : null,
     canCancel: canCancelOrder(row),
+    canConfirm: canConfirmPurchase(row),
     canChangeAddress:
       row.fulfillment_type === "DELIVERY" && row.status === "PAID",
     fulfillmentInfo: await repository.listFulfillmentInfo(
@@ -385,6 +425,23 @@ export function validateCancellationInput(input) {
         ? null
         : text(input.detail, 500, input.reason === "ETC" ? 1 : 0),
   };
+}
+export function canConfirmPurchase(order) {
+  return order.status === "COMPLETED" && !order.purchase_confirmed_at;
+}
+// 배송이 완료된 주문을 고객이 구매확정한다. 확정하면 적립 예정 적립금이 지급되고 리뷰를 쓸 수 있다.
+export async function confirmMyPurchase(userId, orderId) {
+  const row = await owned(userId, orderId);
+  if (row.purchase_confirmed_at)
+    return { ...(await getMyOrderDetail(userId, row.id)), alreadyConfirmed: true };
+  if (!canConfirmPurchase(row))
+    throw failure(409, "CONFIRM_NOT_ALLOWED", "배송이 완료된 주문만 구매확정할 수 있어요.");
+  const changed = await repository.confirmOwnedPurchase(userId, row.id);
+  if (!changed)
+    throw failure(409, "CONFIRM_NOT_ALLOWED", "주문 상태가 바뀌었어요. 다시 확인해 주세요.");
+  await syncPointEarnings(userId);
+  const earned = await grantPurchasePoints(userId, changed);
+  return { ...(await getMyOrderDetail(userId, row.id)), alreadyConfirmed: false, earnedPoints: earned };
 }
 export async function cancelMyOrder(userId, orderId, input) {
   const reason = validateCancellationInput(input);
@@ -525,6 +582,12 @@ export async function createMyClaim(userId, orderId, input) {
       409,
       "CLAIM_NOT_ALLOWED",
       "수령을 완료한 주문만 반품·교환을 요청할 수 있어요.",
+    );
+  if (order.purchase_confirmed_at)
+    throw failure(
+      409,
+      "CLAIM_NOT_ALLOWED",
+      "구매확정한 주문은 반품·교환을 요청할 수 없어요.",
     );
   const item = await repository.findOwnedItem(userId, claim.orderItemId);
   if (!item || item.order_id !== order.id)

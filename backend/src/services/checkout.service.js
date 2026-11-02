@@ -449,6 +449,14 @@ function timeOnDate(date, time) {
     );
   return new Date(`${date}T${time}+09:00`);
 }
+const PICKUP_DATE_ISSUES = new Set([
+  "PICKUP_DATE_REQUIRED",
+  "BUSINESS_HOURS_MISSING",
+  "STORE_CLOSED_ON_DATE",
+  "PICKUP_HOLD_LIMIT",
+  "PICKUP_TIME_UNAVAILABLE",
+]);
+
 export function calculatePickupAvailability(date, hours, policy, now) {
   if (!date) return { issue: "PICKUP_DATE_REQUIRED", pickup: null };
   if (!hours) return { issue: "BUSINESS_HOURS_MISSING", pickup: null };
@@ -632,7 +640,8 @@ export async function validateFulfillmentOptions(userId, groups, input, now) {
         pickups.find((row) => row.store_id === store.id),
         now,
       );
-      if (result.issue) issues.push(result.issue);
+      // 픽업은 바코드 수신 후 방문하는 방식이라 날짜·영업시간 때문에 주문을 막지 않는다.
+      if (result.issue && !PICKUP_DATE_ISSUES.has(result.issue)) issues.push(result.issue);
       pickup = result.pickup;
     } else if (option.fulfillmentType === "DELIVERY") {
       const policy = deliveries.find((row) => row.store_id === store.id);

@@ -143,6 +143,7 @@ function PaymentMethodSheet({ currentOption, currentMethodId, methods, onAdd, on
   const [draftMethodId, setDraftMethodId] = useState(currentMethodId);
   const drag = useSheetDrag(onClose);
   const defaultAccount = methods?.find((item) => item.is_default) ?? null;
+  const pickedAccount = methods?.find((item) => item.id === draftMethodId) ?? defaultAccount;
 
   const changeTab = (next) => {
     setTab(next);
@@ -166,8 +167,10 @@ function PaymentMethodSheet({ currentOption, currentMethodId, methods, onAdd, on
         aria-labelledby="fan-payment-sheet-title"
         onClick={(event) => event.stopPropagation()}
       >
-        <button type="button" className="fan-payment-sheet__grip" aria-label="아래로 끌어 닫기" {...drag.gripProps} />
-        <h2 id="fan-payment-sheet-title">결제 수단 변경</h2>
+        <div className="fan-payment-sheet__head" {...drag.gripProps}>
+          <span className="fan-payment-sheet__grip" aria-hidden="true" />
+          <h2 id="fan-payment-sheet-title">결제 수단 변경</h2>
+        </div>
         <div className="fan-payment-sheet__tabs" role="tablist" aria-label="결제수단 종류">
           {PAYMENT_TABS.map(([value, label]) => (
             <button
@@ -189,19 +192,40 @@ function PaymentMethodSheet({ currentOption, currentMethodId, methods, onAdd, on
               <button
                 type="button"
                 className={`${draftOption === 'GOODSPICK_PAY' ? 'is-on ' : ''}is-goodspick`.trim()}
-                disabled={!defaultAccount}
-                onClick={() => defaultAccount && choose('GOODSPICK_PAY', defaultAccount.id)}
+                disabled={!pickedAccount}
+                onClick={() => pickedAccount && choose('GOODSPICK_PAY', pickedAccount.id)}
               >
                 <span>
                   <b>GOODSPICK <u>Pay</u></b>
                   <small>
-                    {defaultAccount
-                      ? `기본 계좌 · ${paymentMethodName(defaultAccount)}`
+                    {pickedAccount
+                      ? `${pickedAccount.is_default ? '기본 계좌' : '선택 계좌'} · ${paymentMethodName(pickedAccount)}`
                       : methods ? '기본 결제 계좌를 등록해 주세요' : '기본 계좌 불러오는 중'}
                   </small>
                 </span>
                 <i aria-hidden="true">✓</i>
               </button>
+              {draftOption === 'GOODSPICK_PAY' && methods?.length > 1 ? (
+                <div className="fan-payment-accounts" role="radiogroup" aria-label="결제 계좌 선택">
+                  {methods.map((account) => (
+                    <button
+                      key={account.id}
+                      type="button"
+                      role="radio"
+                      aria-checked={pickedAccount?.id === account.id}
+                      className={pickedAccount?.id === account.id ? 'is-on' : ''}
+                      onClick={() => choose('GOODSPICK_PAY', account.id)}
+                    >
+                      {paymentMethodName(account)}{account.is_default ? ' · 기본' : ''}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+              {methods && defaultAccount ? (
+                <button className="is-add" type="button" onClick={onAdd}>
+                  <span>+ 계좌 추가·관리</span>
+                </button>
+              ) : null}
               {[
                 ['TOSS_PAY', '토스페이'],
                 ['NAVER_PAY', '네이버페이'],

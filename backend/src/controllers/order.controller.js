@@ -77,6 +77,15 @@ export async function getReorderItems(req, res, next) {
     next(error);
   }
 }
+export async function confirmMyPurchase(req, res, next) {
+  try {
+    res
+      .status(200)
+      .json(ok(await service.confirmMyPurchase(res.locals.authUser.id, req.params.orderId)));
+  } catch (error) {
+    next(error);
+  }
+}
 export async function cancelMyOrder(req, res, next) {
   try {
     res

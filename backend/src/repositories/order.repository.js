@@ -269,6 +269,21 @@ export async function cancelOwnedPaid(userId, orderId, memo) {
   if (row) await appendStatusHistory(orderId, "PAID", "CANCELED", userId, memo);
   return row;
 }
+export async function confirmOwnedPurchase(userId, orderId) {
+  const db = await database();
+  const now = new Date().toISOString();
+  return check(
+    await db
+      .from("orders")
+      .update({ purchase_confirmed_at: now, updated_at: now })
+      .eq("id", orderId)
+      .eq("user_id", userId)
+      .eq("status", "COMPLETED")
+      .is("purchase_confirmed_at", null)
+      .select("*")
+      .maybeSingle(),
+  );
+}
 export async function changeOwnedAddress(userId, orderId, patch) {
   const db = await database();
   return check(
