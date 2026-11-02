@@ -6,6 +6,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useSession } from '../my/hooks.js';
 import { kujiApi } from './kuji.api.js';
 import KujiSwap from './KujiSwap.jsx';
+import EventCheckout from '../home/EventCheckout.jsx';
 import { GradeBadge, KujiHeader, KujiPage, StateBox, Toast } from './KujiParts.jsx';
 import { SWAP_FEE, cx, pad, won } from './kujiUi.js';
 import s from './kuji.module.css';
@@ -38,6 +39,8 @@ export default function KujiDetailPage() {
   });
   const [sel, setSel] = useState([]);
   const [toast, setToast] = useState('');
+  // 결제 화면을 보여 주는 중인지 (번호를 고른 뒤 뽑기 버튼을 누르면 켜진다)
+  const [checkout, setCheckout] = useState(false);
 
   const detail = useQuery({ queryKey: ['kuji', kujiId, 'detail'], queryFn: () => kujiApi.detail(kujiId), retry: false });
   const board = useQuery({ queryKey: ['kuji', kujiId, 'board'], queryFn: () => kujiApi.board(kujiId), retry: false });
@@ -70,6 +73,7 @@ export default function KujiDetailPage() {
     },
     onError: (error) => {
       setToast(error.message);
+      setCheckout(false);
       setSel([]);
       refresh();
     },
@@ -113,8 +117,32 @@ export default function KujiDetailPage() {
       goLogin();
       return;
     }
-    if (sel.length) buy.mutate(sel);
+    // 번호를 고르면 결제 화면으로 넘어가고, 결제하면 실제로 번호를 산다
+    if (sel.length) setCheckout(true);
   };
+
+  if (checkout && sel.length) {
+    return (
+      <EventCheckout
+        title="쿠지 결제"
+        heading={kuji.title}
+        lines={[
+          { label: '번호', value: sel.map(pad).join(', ') },
+          { label: '수량', value: `${sel.length}장 × ${won(kuji.ticketPrice)}` },
+        ]}
+        total={sel.length * kuji.ticketPrice}
+        notices={[
+          '지금은 시연용 모의 결제라 실제로 돈이 나가지 않아요.',
+          '결제하면 고른 번호가 바로 내 티켓이 되고, 뽑기 화면으로 넘어가요.',
+          '결제 중에 다른 분이 같은 번호를 먼저 사면 결제가 취소돼요.',
+        ]}
+        working={buy.isPending}
+        onBack={() => setCheckout(false)}
+        onPay={() => buy.mutate(sel)}
+        onAddPaymentMethod={() => navigate('/my/payment-methods')}
+      />
+    );
+  }
 
   return (
     <KujiPage>
@@ -305,7 +333,7 @@ export default function KujiDetailPage() {
             <b>{won(sel.length * kuji.ticketPrice)}</b>
           </div>
           <button type="button" className={s.cta} disabled={!onSale || buy.isPending || (signedIn && sel.length === 0)} onClick={submit}>
-            {!onSale ? '판매가 끝났어요' : buy.isPending ? '결제 중…' : !signedIn ? '로그인하고 뽑기' : sel.length ? `${sel.length}장 뽑기` : '번호를 골라주세요'}
+            {!onSale ? '판매가 끝났어요' : buy.isPending ? '결제 중…' : !signedIn ? '로그인하고 뽑기' : sel.length ? `${sel.length}장 결제하고 뽑기` : '번호를 골라주세요'}
           </button>
         </div>
       ) : null}

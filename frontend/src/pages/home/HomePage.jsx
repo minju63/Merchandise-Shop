@@ -16,6 +16,7 @@ const QUICK_LINKS = [
   { label: '최애 스테이지', path: '/stage', live: true },
   { label: '쿠지뽑기', path: '/kuji' },
   { label: '랜덤박스', path: '/box' },
+  { label: '응원 전광판', path: '/fan/guide' },
 ];
 
 function HorizontalRail({ children, className, ariaLabel }) {

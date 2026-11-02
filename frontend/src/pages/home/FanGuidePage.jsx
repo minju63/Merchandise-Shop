@@ -46,12 +46,12 @@ const NOTICES = [
 ];
 
 // 전광판 안내 (/fan/guide): 기념일 전광판(응원 순위)과 자유 응원 전광판(날짜 결제) 중 골라 신청한다
-export default function FanGuidePage({ onBack, onApplyAnniversary, onApplyFree, onShowRanking, onShowResult, onShowTickets }) {
+export default function FanGuidePage({ onBack, onApplyAnniversary, onApplyFree, onShowRanking, onShowResult, onShowBillboards, onShowTickets }) {
   const [choosing, setChoosing] = useState(false);
 
   return (
     <DetailShell
-      title="전광판 안내"
+      title="응원 전광판"
       ready
       onBack={onBack}
       hero={(
@@ -77,9 +77,10 @@ export default function FanGuidePage({ onBack, onApplyAnniversary, onApplyFree, 
         </DetailSection>
       ))}
 
-      <DetailSection title="기념일 전광판 바로가기">
-        <button className="bd__link-btn" type="button" onClick={onShowRanking}>실시간 응원 순위 보기 ›</button>
-        <button className="bd__link-btn" type="button" onClick={onShowResult}>내 응원 결과 · 전광판 꾸미기 ›</button>
+      <DetailSection title="응원 전광판 바로가기">
+        <button className="bd__link-btn" type="button" onClick={onShowRanking}>기념일 실시간 응원 순위 보기 ›</button>
+        <button className="bd__link-btn" type="button" onClick={onShowResult}>내 응원 결과 · 기념일 전광판 꾸미기 ›</button>
+        <button className="bd__link-btn" type="button" onClick={onShowBillboards}>내 자유 전광판 · 신청 내역·꾸미기 ›</button>
         <button className="bd__link-btn" type="button" onClick={onShowTickets}>응원권 구매하기 ›</button>
       </DetailSection>
 

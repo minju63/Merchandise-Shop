@@ -18,6 +18,9 @@ async function requireAuthentication(req, res, next) {
 router.get("/plans", controller.listConsumerPlans);
 router.get("/me", requireAuthentication, controller.getMyMembership);
 router.post("/", requireAuthentication, controller.subscribeMembership);
+// 이번 달 멤버십 쿠폰팩 (플랜별 쿠폰, 매달 1번)
+router.get("/me/coupon-pack", requireAuthentication, controller.getMyMembershipCouponPack);
+router.post("/me/coupon-pack", requireAuthentication, controller.claimMembershipCouponPack);
 router.post(
   "/me/cancel",
   requireAuthentication,

@@ -1169,10 +1169,11 @@
 }
 
 /* 검색창 아래 이벤트 바로가기 (최애 스테이지 · 쿠지 · 랜덤박스) */
+/* 바로가기 4개가 폰 폭(375)에서 한 줄에 들어가게 간격을 줄이고 남는 폭은 고르게 나눈다 */
 .home-quick {
   display: flex;
   margin-top: 10px;
-  gap: 8px;
+  gap: 6px;
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -1183,10 +1184,11 @@
 
 .home-quick button {
   display: inline-flex;
-  flex: none;
-  padding: 7px 14px;
+  flex: 1 0 auto;
+  padding: 7px 10px;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 5px;
   border: 1px solid #e4e1ec;
   border-radius: 999px;
   color: var(--text);

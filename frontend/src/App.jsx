@@ -169,7 +169,10 @@ function bannerPath({ bannerId, bannerType, fanDate, kujiId }) {
 // 홈 카테고리 바로가기는 카테고리 탭과 같은 방식으로 이동한다.
 // 작품(CONTENT)은 카테고리 탭의 해당 분류 > 전체 > 모두 보기 결과로, 굿즈 종류(GOODS)는 상품 목록으로 간다.
 function categoryPath({ type, categoryId, name }) {
-  if (type === 'ALL') return '/category';
+  // 전체는 카테고리 탭의 전체 > 모두 보기 결과(굿즈 전체)로 간다.
+  if (type === 'ALL') {
+    return `/category/products?${new URLSearchParams({ resultType: 'goods', contentName: '전체', allGoods: 'true' })}`;
+  }
   if (type === 'CONTENT') {
     return `/category/products?${new URLSearchParams({
       resultType: 'goods',
@@ -455,6 +458,7 @@ function StageCheerRoute() {
       initialOptionId={searchParams.get('option')}
       onBack={() => (window.history.length > 1 ? navigate(-1) : navigate('/'))}
       onHome={() => navigate('/stage')}
+      onAddPaymentMethod={() => navigate('/my/payment-methods')}
     />
   );
 }
@@ -504,6 +508,7 @@ function FanGuideRoute() {
       onApplyFree={() => go('/fan/billboard')}
       onShowRanking={() => navigate('/fan/ranking')}
       onShowResult={() => go('/fan/result')}
+      onShowBillboards={() => go('/fan/billboard')}
       onShowTickets={() => go('/fan/tickets')}
     />
   );
