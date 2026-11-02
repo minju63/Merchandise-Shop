@@ -17,6 +17,7 @@ export const FAN_PAYMENT_OPTIONS = Object.freeze({
   VIRTUAL_ACCOUNT: '가상계좌',
   MOBILE: '휴대폰 결제',
 });
+// 응원권은 구매한 날부터 30일 안에, 안 쓴 장수만큼 1장(1,000P) 단위로 환불할 수 있다.
 export const FAN_REFUND_DAYS = 30;
 
 export function fanPaymentOptionLabel(option) {
@@ -34,8 +35,7 @@ export function isPackRefundable(pack, now = Date.now()) {
     && now - purchasedAt <= FAN_REFUND_DAYS * 86400000;
   return pack.status === 'ACTIVE'
     && pack.remaining > 0
-    && withinRefundPeriod
-    && (pack.source === 'CREDIT' || pack.remaining === pack.quantity);
+    && withinRefundPeriod;
 }
 
 // 생일 모아보기 목업 기본 축하 수. DB 시드가 아직 적용되지 않은 개발 환경에서도
@@ -136,6 +136,7 @@ export async function getTickets(userId) {
       expiresAt: pack.expires_at,
       createdAt: pack.created_at,
       refundable: isPackRefundable(pack, now),
+      paymentLabel: pack.payment?.method_label ?? null,
     })),
     credit: credit.map((row) => ({
       id: row.id,
@@ -196,26 +197,26 @@ export async function buyWithCredit(userId, body = {}) {
 
 // 미사용 응원권 환불: 적립금 구매분은 적립금으로 복원, 현금 구매분은 결제 취소(모의)
 export async function refundPack(userId, packId, body = {}) {
-  if (!body.refundPaymentMethodId) {
-    throw failure(400, 'FAN_REFUND_ACCOUNT_REQUIRED', '환불받을 은행 계좌를 입력해 주세요.');
-  }
-  const refundMethod = await resolvePaymentMethodSelection(userId, body.refundPaymentMethodId);
-  if (refundMethod.method_type !== 'BANK_ACCOUNT') {
-    throw failure(400, 'FAN_REFUND_ACCOUNT_REQUIRED', '환불받을 은행 계좌를 입력해 주세요.');
+  // 환불할 장수: 안 쓴 응원권 중 1장 단위. 보내지 않으면 남은 장수 전부.
+  const quantity = body.quantity === undefined ? null : Number(body.quantity);
+  if (quantity !== null && !Number.isInteger(quantity)) {
+    throw failure(400, 'FAN_INVALID_COUNT', DB_ERRORS.FAN_INVALID_COUNT[1]);
   }
   let result;
   try {
-    result = await repository.refundPack(userId, packId);
+    result = await repository.refundPack(userId, packId, quantity);
   } catch (error) {
     if (error.code === '22P02') throw failure(404, 'FAN_PACK_NOT_REFUNDABLE', DB_ERRORS.FAN_PACK_NOT_REFUNDABLE[1]);
     return translate(error);
   }
+  // 현금 구매분은 결제했던 수단 그대로 해당 금액만큼 결제를 취소해 환불하고, 적립금 구매분은 적립금으로 돌려준다.
   if (result.source === 'CASH') {
     const payment = await repository.findPayment(result.paymentId);
-    await getPaymentProvider().cancel({ transactionId: payment.pg_transaction_id });
-    await repository.markPaymentCanceled(result.paymentId);
+    await getPaymentProvider().cancel({ transactionId: payment.pg_transaction_id, amount: result.amount });
+    if (result.fullyRefunded) await repository.markPaymentCanceled(result.paymentId);
+    return { source: 'CASH', amount: result.amount, quantity: result.quantity, refundedTo: payment.method_label ?? '결제하신 수단', processingDays: '2~3일' };
   }
-  return { source: result.source, amount: result.amount, processingDays: '2~3일' };
+  return { source: result.source, amount: result.amount, quantity: result.quantity, refundedTo: '적립금', processingDays: null };
 }
 
 // 기념일 날짜 탭: 다음 주 게시 기간에 기념일이 있는 날짜와 그날의 최애들

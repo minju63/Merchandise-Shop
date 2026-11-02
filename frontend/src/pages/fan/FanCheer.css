@@ -785,17 +785,28 @@
   will-change: transform;
 }
 
+/* 위쪽 손잡이와 제목을 잡고 끌어 내리면 닫힌다 */
+.fan-refund-sheet__head {
+  margin: -12px -20px 0;
+  padding: 12px 20px 0;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
 .fan-refund-sheet__grip {
   display: block;
   width: 42px;
   height: 4px;
   margin: 0 auto 18px;
-  padding: 0;
-  border: 0;
   border-radius: 99px;
   background: #d9d7df;
-  cursor: grab;
-  touch-action: none;
+}
+
+.fan-refund-sheet__to {
+  margin: 0 0 8px;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .fan-refund-sheet h2 {
@@ -887,3 +898,10 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.fan-refund-sheet__qty { display: flex; align-items: center; justify-content: space-between; margin: 4px 0 12px; padding: 12px 14px; border: 1px solid #ece8f4; border-radius: 12px; font-size: 14px; }
+.fan-refund-sheet__qty small { margin-left: 6px; color: #8a8494; font-size: 12px; }
+.fan-refund-sheet__qty > div { display: flex; align-items: center; gap: 12px; }
+.fan-refund-sheet__qty button { width: 32px; height: 32px; border: 1px solid #d9cfe6; border-radius: 50%; background: #fff; color: #54228c; font-size: 18px; line-height: 1; cursor: pointer; }
+.fan-refund-sheet__qty button:disabled { opacity: 0.35; cursor: default; }
+.fan-refund-sheet__qty b { min-width: 36px; text-align: center; }

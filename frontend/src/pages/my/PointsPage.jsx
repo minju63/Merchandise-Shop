@@ -14,6 +14,9 @@ const TYPE_LABEL = {
   USE_CANCEL: '주문 취소로 돌려받음',
   REVIEW_REWARD: '리뷰 작성 적립',
   KUJI_RESALE: '쿠지 되팔기 적립',
+  CHEER_RETURN: '응원 반환 적립',
+  CHEER_TICKET_BUY: '응원권 구매에 사용',
+  CHEER_TICKET_REFUND: '응원권 환불 적립',
 };
 
 export default function PointsPage() {
@@ -55,7 +58,7 @@ export default function PointsPage() {
                 <strong>
                   {item.memo?.startsWith('리뷰 작성 적립')
                     ? '리뷰 작성 적립'
-                    : TYPE_LABEL[item.type] ?? item.memo}
+                    : item.type === 'CHEER_RETURN' ? item.memo ?? TYPE_LABEL.CHEER_RETURN : TYPE_LABEL[item.type] ?? item.memo}
                   {item.status === 'PENDING' ? <span className="mt-tag">적립 예정</span> : null}
                 </strong>
                 <span>{formatFullDate(item.createdAt)}</span>

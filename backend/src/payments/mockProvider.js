@@ -18,6 +18,7 @@ export async function charge({ amount }) {
 }
 
 // 결제 취소(환불): 모의이므로 항상 성공한다.
-export async function cancel({ transactionId }) {
-  return { transactionId, canceledAt: new Date().toISOString(), isMock: true };
+// amount 가 있으면 그만큼만 부분 취소한 것으로 본다.
+export async function cancel({ transactionId, amount }) {
+  return { transactionId, amount: amount ?? null, canceledAt: new Date().toISOString(), isMock: true };
 }

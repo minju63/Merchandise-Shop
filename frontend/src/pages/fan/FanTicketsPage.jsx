@@ -290,17 +290,17 @@ function PaymentMethodSheet({ currentOption, currentMethodId, methods, onAdd, on
 }
 
 function RefundSheet({ pack, working, onClose, onSubmit }) {
-  const [form, setForm] = useState({ bank: '', last4: '', holder: '' });
   const [error, setError] = useState('');
+  const [quantity, setQuantity] = useState(pack.remaining);
   const drag = useSheetDrag(onClose);
-  const valid = form.bank.trim() && /^\d{4}$/.test(form.last4) && form.holder.trim();
+  const toCash = pack.source === 'CASH';
 
   const submit = async (event) => {
     event.preventDefault();
-    if (!valid || working) return;
+    if (working) return;
     setError('');
     try {
-      await onSubmit(pack.id, form);
+      await onSubmit(pack.id, quantity);
       onClose();
     } catch (cause) {
       setError(cause.message);
@@ -318,47 +318,33 @@ function RefundSheet({ pack, working, onClose, onSubmit }) {
         onClick={(event) => event.stopPropagation()}
         onSubmit={submit}
       >
-        <button type="button" className="fan-refund-sheet__grip" aria-label="아래로 끌어 닫기" {...drag.gripProps} />
-        <h2 id="fan-refund-title">환불 계좌 입력</h2>
+        <div className="fan-refund-sheet__head" {...drag.gripProps}>
+          <span className="fan-refund-sheet__grip" aria-hidden="true" />
+          <h2 id="fan-refund-title">응원권 환불</h2>
+        </div>
         <p className="fan-refund-sheet__amount">
-          {SOURCE_LABELS[pack.source]} 응원권 {pack.remaining}장
-          <strong>{won(pack.remaining * pack.unitPrice)}원</strong>
+          {SOURCE_LABELS[pack.source]} 응원권 · 안 쓴 응원권 {pack.remaining}장
+          <strong>{won(quantity * pack.unitPrice)}원</strong>
         </p>
-        <p className="fan-refund-sheet__notice">환불 신청 후 입금까지 영업일 기준 2~3일이 소요될 수 있어요.</p>
-        <label>
-          <span>은행</span>
-          <input
-            value={form.bank}
-            maxLength={50}
-            placeholder="국민은행"
-            autoFocus
-            onChange={(event) => setForm({ ...form, bank: event.target.value })}
-          />
-        </label>
-        <label>
-          <span>계좌번호 뒤 4자리</span>
-          <input
-            value={form.last4}
-            inputMode="numeric"
-            placeholder="1234"
-            onChange={(event) => setForm({ ...form, last4: event.target.value.replace(/\D/g, '').slice(0, 4) })}
-          />
-        </label>
-        <label>
-          <span>예금주</span>
-          <input
-            value={form.holder}
-            maxLength={50}
-            placeholder="홍길동"
-            onChange={(event) => setForm({ ...form, holder: event.target.value })}
-          />
-        </label>
-        <p className="fan-refund-sheet__demo">시연용이라 계좌번호 전체는 저장하지 않고 뒤 4자리만 받아요.</p>
+        <div className="fan-refund-sheet__qty">
+          <span>환불할 장수 <small>1장 = {won(pack.unitPrice)}P</small></span>
+          <div>
+            <button type="button" aria-label="1장 줄이기" disabled={working || quantity <= 1} onClick={() => setQuantity(quantity - 1)}>−</button>
+            <b>{quantity}장</b>
+            <button type="button" aria-label="1장 늘리기" disabled={working || quantity >= pack.remaining} onClick={() => setQuantity(quantity + 1)}>+</button>
+          </div>
+        </div>
+        <p className="fan-refund-sheet__to">
+          {toCash
+            ? <>결제하신 <b>{pack.paymentLabel ?? '결제수단'}</b>(으)로 환불돼요.</>
+            : <><b>적립금</b>으로 바로 돌아와요.</>}
+        </p>
+        {toCash ? <p className="fan-refund-sheet__notice">환불 신청 후 입금까지 영업일 기준 2~3일이 소요될 수 있어요.</p> : null}
         {error ? <p className="fan-error" role="alert">{error}</p> : null}
         <div className="fan-refund-sheet__actions">
           <button type="button" onClick={onClose} disabled={working}>취소</button>
-          <button className="is-primary" type="submit" disabled={!valid || working}>
-            {working ? '신청 중...' : '환불 신청'}
+          <button className="is-primary" type="submit" disabled={working}>
+            {working ? '신청 중...' : `${quantity}장 환불 신청`}
           </button>
         </div>
       </form>
@@ -483,8 +469,8 @@ export default function FanTicketsPage({
                 `한 사람이 하루에 최대 응원포인트 ${won(cheerPoints(DAILY_CHEER_LIMIT))}점까지 보낼 수 있어요 (무료 응원권 포함).`,
                 `응원한 최애가 지면 현금으로 산 응원권은 적립금 ${CREDIT_RETURN_RATE}%, 적립금으로 산 응원권은 100%를 돌려드려요.`,
                 '이긴 최애에 쓴 응원권과 무료 응원권으로 한 응원은 반환되지 않아요.',
-                '구매한 응원권은 구매 후 30일 안에만 환불할 수 있어요.',
-                '현금 구매분은 한 장도 사용하지 않아야 하며, 적립금 구매분은 안 쓴 만큼 돌려받을 수 있어요.',
+                '응원권은 구매 후 30일 안에, 사용하지 않은 장수만큼 1장(1,000P) 단위로 환불할 수 있어요.',
+                '현금으로 산 응원권은 결제하신 수단으로, 적립금으로 산 응원권은 적립금으로 돌려드려요.',
               ]}
             />
           </DetailSection>
@@ -512,7 +498,7 @@ export default function FanTicketsPage({
             )}
           </DetailSection>
 
-          <DetailSection title="적립금 내역">
+          <DetailSection title="적립금 내역" description="응원 관련 내역이에요. 전체 적립금은 마이 > 적립금에서 확인할 수 있어요.">
             {tickets?.credit.length ? (
               <ul className="fan-ledger">
                 {tickets.credit.map((row) => (

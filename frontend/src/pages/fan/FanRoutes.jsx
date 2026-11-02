@@ -4,7 +4,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { fanApi } from '../../api/fan.api.js';
 import { supabase } from '../../lib/supabase.js';
 import { useSession } from '../my/hooks.js';
-import { createPaymentMethod, listPaymentMethods } from '../my/account.api.js';
+import { listPaymentMethods } from '../my/account.api.js';
 import FanCheerPage from './FanCheerPage.jsx';
 import FanTicketsPage from './FanTicketsPage.jsx';
 import FanResultPage from './FanResultPage.jsx';
@@ -64,18 +64,15 @@ export function FanTicketsRoute() {
     },
   });
   const refund = useMutation({
-    mutationFn: async ({ packId, account }) => {
-      const created = await createPaymentMethod({
-        methodType: 'BANK_ACCOUNT',
-        providerName: account.bank.trim(),
-        last4: account.last4,
-        alias: account.holder.trim(),
-      });
-      return fanApi.refundPack(packId, created.paymentMethod.id);
-    },
+    mutationFn: ({ packId, quantity }) => fanApi.refundPack(packId, quantity),
     onSuccess: (response) => {
       refresh();
-      setNotice(`환불 신청이 완료됐어요. ${response.data.amount.toLocaleString('ko-KR')}원 환불까지 영업일 기준 2~3일이 걸릴 수 있어요.`);
+      const { amount, quantity, refundedTo, processingDays } = response.data;
+      setNotice(
+        processingDays
+          ? `응원권 ${quantity}장 환불을 신청했어요. ${amount.toLocaleString('ko-KR')}원이 ${refundedTo}(으)로 환불되고, 영업일 기준 ${processingDays}이 걸릴 수 있어요.`
+          : `응원권 ${quantity}장 환불이 완료됐어요. ${amount.toLocaleString('ko-KR')}원이 ${refundedTo}으로 돌아갔어요.`,
+      );
     },
   });
   const mutationError = buy.error?.message ?? refund.error?.message;
@@ -109,7 +106,7 @@ export function FanTicketsRoute() {
       }}
       onSelect={(value) => { setSelected(value); setNotice(''); buy.reset(); }}
       onBuy={() => buy.mutate({ kind: method, value: selected })}
-      onRefund={(packId, account) => { setNotice(''); return refund.mutateAsync({ packId, account }); }}
+      onRefund={(packId, quantity) => { setNotice(''); return refund.mutateAsync({ packId, quantity }); }}
       onCheer={() => navigate('/fan/cheer')}
     />
   );

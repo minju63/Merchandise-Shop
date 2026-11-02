@@ -79,7 +79,7 @@ export async function signedUrl(path, seconds = 3600) {
 
 export const buyWithCash = (userId, paymentId) => rpc('cheer_buy_with_cash', { p_user: userId, p_payment: paymentId });
 export const buyWithCredit = (userId, quantity) => rpc('cheer_buy_with_credit', { p_user: userId, p_quantity: quantity });
-export const refundPack = (userId, packId) => rpc('cheer_refund_pack', { p_user: userId, p_pack: packId });
+export const refundPack = (userId, packId, quantity) => rpc('cheer_refund_pack', { p_user: userId, p_pack: packId, p_quantity: quantity });
 
 export const send = (userId, input) => rpc('cheer_send', {
   p_user: userId,
@@ -122,7 +122,7 @@ export async function countWeekCheers(weekId) {
 export async function findTicketPacks(userId) {
   const { data, error } = await getSupabase()
     .from('cheer_ticket_packs')
-    .select('id, source, quantity, remaining, unit_price, status, expires_at, created_at')
+    .select('id, source, quantity, remaining, unit_price, status, expires_at, created_at, payment:payments ( method_label )')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
     .limit(30);
@@ -144,7 +144,7 @@ export async function findCreditLedger(userId, limit = 30) {
 export async function findPayment(paymentId) {
   const { data, error } = await getSupabase()
     .from('payments')
-    .select('id, pg_transaction_id, status')
+    .select('id, pg_transaction_id, status, method_label')
     .eq('id', paymentId)
     .single();
   throwOnError(error);
