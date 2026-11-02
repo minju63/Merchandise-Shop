@@ -11,6 +11,8 @@ import {
 import {
   getProductInquiries,
   createProductInquiry,
+  updateProductInquiry,
+  deleteProductInquiry,
 } from '../controllers/productInquiry.controller.js';
 
 // Shared owner mounts /api/v1/products and injects the existing verified auth middleware.
@@ -35,6 +37,8 @@ export function createProductRouter({ requireAuth = authUnavailable, optionalAut
   router.get('/:storeProductId/reviews', getProductReviews);
   router.get('/:storeProductId/inquiries', getProductInquiries);
   router.post('/:storeProductId/inquiries', requireAuth, createProductInquiry);
+  router.patch('/:storeProductId/inquiries/:inquiryId', requireAuth, updateProductInquiry);
+  router.delete('/:storeProductId/inquiries/:inquiryId', requireAuth, deleteProductInquiry);
   router.get('/:storeProductId', getProductDetail);
   return router;
 }

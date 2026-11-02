@@ -123,6 +123,43 @@ export function createProductInquiryRepository(client) {
       checkError(error);
       return data;
     },
+    // 내가 쓴 문의만 고친다. 매장이 답변한 문의는 고칠 수 없다.
+    async update({ id, store_id, user_id, title, content }) {
+      requireId(id, 'inquiryId');
+      requireId(user_id, 'userId');
+      const { data, error } = await client
+        .from('inquiries')
+        .update({ title: title.trim(), content: content.trim() })
+        .eq('id', id)
+        .eq('store_id', store_id)
+        .eq('user_id', user_id)
+        .eq('category', 'PRODUCT')
+        .eq('status', 'PENDING')
+        .select(FIELDS)
+        .maybeSingle();
+      checkError(error);
+      return data;
+    },
+    // 내가 쓴 문의만 지운다. 첨부 이미지 행도 함께 지운다.
+    async remove({ id, store_id, user_id }) {
+      requireId(id, 'inquiryId');
+      requireId(user_id, 'userId');
+      const { data: own, error: findError } = await client
+        .from('inquiries')
+        .select('id')
+        .eq('id', id)
+        .eq('store_id', store_id)
+        .eq('user_id', user_id)
+        .eq('category', 'PRODUCT')
+        .maybeSingle();
+      checkError(findError);
+      if (!own) return false;
+      const { error: imageError } = await client.from('inquiry_images').delete().eq('inquiry_id', id);
+      checkError(imageError);
+      const { error } = await client.from('inquiries').delete().eq('id', id).eq('user_id', user_id);
+      checkError(error);
+      return true;
+    },
   };
 }
 
@@ -140,4 +177,10 @@ export async function create(input) {
 }
 export async function findDemoByStoreId(storeId) {
   return (await repository()).findDemoByStoreId(storeId);
+}
+export async function update(input) {
+  return (await repository()).update(input);
+}
+export async function remove(input) {
+  return (await repository()).remove(input);
 }

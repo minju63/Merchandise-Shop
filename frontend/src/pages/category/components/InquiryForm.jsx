@@ -20,12 +20,9 @@ export default function InquiryForm({ user, onSubmit, onLogin }) {
       setContent('');
       setMessage('문의가 등록되었습니다.');
     } catch (error) {
-      if (error.response?.status === 401) onLogin?.();
-      setMessage(
-        error.response?.status === 401
-          ? '로그인이 필요합니다.'
-          : '문의를 등록하지 못했습니다. 다시 시도해 주세요.'
-      );
+      const unauthorized = error.status === 401 || error.response?.status === 401;
+      if (unauthorized) onLogin?.();
+      setMessage(unauthorized ? '로그인이 필요합니다.' : error.message || '문의를 등록하지 못했습니다. 다시 시도해 주세요.');
     } finally {
       setPending(false);
     }

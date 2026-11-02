@@ -32,7 +32,17 @@
 .category-page .pi-item { overflow:hidden; border:1px solid #e3e1ea; border-radius:12px; background:#fff; }
 .category-page .pi-item .pi-item__head { padding:16px; border:0; border-radius:0; box-shadow:none; background:none; }
 .category-page .pi-item .pi-item__body { padding:0 16px 16px; }
-#product-feedback .category-section { padding-top:0; }
+#product-feedback .category-section { padding-top:0; padding-bottom:0; }
 .category-page .category-section .pi-tabs { margin-top:0; }
 .category-page .category-section .pi-tabs { margin-top:-8px; }
 .category-page .category-section .pi-tabs button { padding-top:8px; padding-bottom:10px; }
+
+.pi-item__actions { display:flex; justify-content:flex-end; gap:8px; margin-top:12px; }
+.category-page .pi-item__actions button { padding:6px 14px; border:1px solid #d9cfe6; border-radius:999px; background:#fff; color:#6a5a7d; font-size:13px; cursor:pointer; }
+.pi-edit { display:flex; flex-direction:column; gap:8px; }
+.pi-edit input, .pi-edit textarea { width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #ddd3ee; border-radius:10px; font:inherit; font-size:14px; }
+.pi-edit__error { margin:0; color:#c0392b; font-size:13px; }
+.pi-edit__actions { display:flex; justify-content:flex-end; gap:8px; }
+.category-page .pi-edit__actions button { padding:8px 16px; border:1px solid #d9cfe6; border-radius:999px; background:#fff; font-size:13px; cursor:pointer; }
+.category-page .pi-edit__actions .is-primary { border-color:#7a4fd0; background:#7a4fd0; color:#fff; }
+.category-page .pi-edit__actions button:disabled { opacity:.5; cursor:default; }
