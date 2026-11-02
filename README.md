@@ -269,6 +269,8 @@ npm run dev                   # http://localhost:5173
 
 ## 6. 환경 변수
 
+2D 진열장용 DB·Storage 적용 및 `REMOVE_BG_API_KEY` 설정은 [진열장 배포 안내](./backend/supabase/SHOWCASES.md)를 참고하세요.
+
 **backend/.env.example**
 ```
 PORT=4000

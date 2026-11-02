@@ -470,23 +470,14 @@
 }
 
 .list-main .store-list-heading {
-  min-height: 42px;
-  margin: 0 0 11px;
-  align-items: end;
+  min-height: 0;
+  margin: 0 0 14px;
+  align-items: start;
+  gap: 12px;
 }
 
-.store-list-heading h1 {
-  margin: 0;
-  color: #211d2b;
-  font-size: 17px;
-  line-height: 1.25;
-  letter-spacing: -0.65px;
-}
-
-.store-list-heading p {
-  margin: 4px 0 0;
-  color: #817b8a;
-  font-size: 11px;
+.store-main.list-main > .showcase-store-tabs + .store-list-heading {
+  margin-top: 16px;
 }
 
 .list-main .sort-trigger {
@@ -537,6 +528,16 @@
   color: #6846d8;
   background: #f5f1ff;
   font-weight: 800;
+}
+
+.store-main.list-main .showcase-gallery__sort .sort-trigger,
+.store-main.list-main .showcase-gallery__sort .sort-menu button {
+  font-size: 13px;
+}
+
+.store-main.list-main .showcase-gallery__sort .sort-trigger svg {
+  width: 15px;
+  height: 15px;
 }
 
 .list-main .sort-menu {

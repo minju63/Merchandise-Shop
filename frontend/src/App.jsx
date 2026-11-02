@@ -20,6 +20,8 @@ import { EMPTY_FILTERS, filterParams } from './pages/search/searchFilters.js';
 import StoreListPage from './pages/stores/StoreListPage.jsx';
 import StoreMapPage from './pages/stores/StoreMapPage.jsx';
 import StoreDetailPage from './pages/stores/StoreDetailPage.jsx';
+import ShowcaseEditorPage from './pages/showcases/ShowcaseEditorPage.jsx';
+import { ShowcaseGalleryPage, ShowcaseDetailPage, ShowcaseManagePage } from './pages/showcases/ShowcasePages.jsx';
 import StoreReviewPage from './pages/stores/StoreReviewPage.jsx';
 import StoreReviewWritePage from './pages/stores/StoreReviewWritePage.jsx';
 import LoginPage from './pages/auth/LoginPage.jsx';
@@ -712,7 +714,8 @@ function SearchResultsRoute() {
   const query = searchParams.get('q')?.trim() ?? '';
   const storeId = searchParams.get('storeId');
   const originStoreId = storeId || location.state?.originStoreId;
-  const searchState = originStoreId ? { originStoreId } : undefined;
+  const fromStoreDetail = Boolean(storeId && location.state?.fromStoreDetail);
+  const searchState = originStoreId ? { originStoreId, fromStoreDetail } : undefined;
   const sort = searchParams.get('sort') ?? 'popular';
   const page = Number(searchParams.get('page') ?? 1);
   const regionAll = searchParams.get('region') === 'all';
@@ -809,7 +812,9 @@ function SearchResultsRoute() {
         setSavedFilters({ key: filterKey, value: nextFilters });
         if (page > 1) navigate(searchUrl('/search/results', { query, storeId, sort, regionAll }), { state: searchState });
       }}
-      onBack={() => navigate(searchUrl('/search', { query, storeId }), { state: searchState })}
+      onBack={() => fromStoreDetail
+        ? navigate(`/stores/${encodeURIComponent(storeId)}`, { replace: true })
+        : navigate(searchUrl('/search', { query, storeId }), { state: searchState })}
       // 결과 화면에서 다시 검색하면 이전 정렬을 이어받지 않고 처음 검색할 때처럼 시작한다.
       onSearch={(nextQuery) => navigate(searchUrl('/search/results', { query: nextQuery, storeId }), { state: searchState })}
       onLogSearch={logSearch}
@@ -846,6 +851,11 @@ export default function App() {
         <Route path="/stores/:storeId" element={<StoreDetailPage />} />
         <Route path="/stores/:storeId/reviews" element={<StoreReviewPage />} />
         <Route path="/stores/:storeId/reviews/write" element={<StoreReviewWritePage />} />
+        <Route path="/showcases" element={<ShowcaseGalleryPage />} />
+        <Route path="/showcases/:id" element={<ShowcaseDetailPage />} />
+        <Route path="/my/showcases" element={<ShowcaseManagePage />} />
+        <Route path="/my/showcases/:id/edit" element={<ShowcaseEditorPage />} />
+        <Route path="/my/seller-center/stores/:storeId/showcases" element={<ShowcaseManagePage type="SHOP" />} />
 
         {/* 은혜 — 카테고리 · 상품 */}
         <Route path="/category" element={<CategoryPage />} />

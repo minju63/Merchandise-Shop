@@ -8,6 +8,7 @@ import PromoBanner from './PromoBanner.jsx';
 import { fanBoardDesign, isFanBoardType } from '../fan/fanBoardPresets.js';
 import { brandGroupFor, hasPickedBrands, matchesInterests } from './interestMatch.js';
 import BottomNavigation from '../../components/BottomNavigation.jsx';
+import { ShowcaseGallery } from '../showcases/ShowcasePages.jsx';
 import './HomePage.css';
 
 function HorizontalRail({ children, className, ariaLabel }) {
@@ -449,6 +450,8 @@ export default function HomePage({
             </>
           )}
         </section>
+
+        <section className="home-section"><ShowcaseGallery compact /></section>
 
         <section className="home-section upcoming-section">
           <div className="home-section-heading">
