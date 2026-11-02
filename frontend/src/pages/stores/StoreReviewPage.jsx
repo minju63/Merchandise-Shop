@@ -13,6 +13,7 @@ const sorts = [
   { value: 'latest', label: '최신순' },
   { value: 'high', label: '별점 높은 순' },
   { value: 'low', label: '별점 낮은 순' },
+  { value: 'likes', label: '좋아요 많은 순' },
 ];
 
 export default function StoreReviewPage() {
@@ -171,6 +172,13 @@ export default function StoreReviewPage() {
                       isMine: review.isMine,
                     }}
                     deleting={deleteMutation.isPending && deleteMutation.variables === review.id}
+                    canLike={isMemberSession}
+                    onLogin={() => navigate(`/login?returnTo=${encodeURIComponent(`${location.pathname}${location.search}`)}`)}
+                    onLike={async (liked) => {
+                      const result = await storeApi.toggleStoreReviewLike(review.id, liked);
+                      await queryClient.invalidateQueries({ queryKey: ['store-reviews', storeId] });
+                      return result;
+                    }}
                     onEdit={() =>
                       navigate(`/stores/${storeId}/reviews/write`, {
                         state: {

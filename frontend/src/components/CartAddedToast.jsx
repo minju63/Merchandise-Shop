@@ -12,9 +12,9 @@ export default function CartAddedToast({ text = '장바구니에 담았어요', 
   return (
     <div className="cart-added-toast" role="status">
       <span>{text}</span>
-      <button type="button" className="cart-added-toast-action" onClick={onGoToCart}>
+      {onGoToCart && <button type="button" className="cart-added-toast-action" onClick={onGoToCart}>
         장바구니 바로가기
-      </button>
+      </button>}
     </div>
   );
 }

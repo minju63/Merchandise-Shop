@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { couponConditions, formatMonthDot } from '../my/accountFormat.js';
 import { Thumb } from '../my/common.jsx';
 import { InfoIcon } from '../my/icons.jsx';
@@ -6,6 +6,31 @@ import { formatWon } from '../my/orderFormat.js';
 import { estimateCoupon } from './checkoutFormat.js';
 
 export function Sheet({ title, sub, showClose = false, onClose, children }) {
+  const dialog = useRef(null);
+  const close = useRef(onClose);
+  useEffect(() => { close.current = onClose; }, [onClose]);
+  useEffect(() => {
+    const previous = document.activeElement;
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    dialog.current?.focus();
+    const keydown = (event) => {
+      if (event.key === 'Escape') close.current();
+      if (event.key === 'Tab') {
+        const focusable = [...dialog.current.querySelectorAll('button:not(:disabled), input:not(:disabled), textarea, select, a[href], [tabindex="0"]')];
+        const first = focusable[0], last = focusable.at(-1);
+        if (!focusable.length) { event.preventDefault(); return; }
+        if (event.shiftKey && (document.activeElement === first || document.activeElement === dialog.current)) { event.preventDefault(); last.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      }
+    };
+    document.addEventListener('keydown', keydown);
+    return () => {
+      document.body.style.overflow = overflow;
+      document.removeEventListener('keydown', keydown);
+      previous?.focus();
+    };
+  }, []);
   const drag = useRef(null);
   const dragY = useRef(0);
   const [offsetY, setOffsetY] = useState(0);
@@ -27,6 +52,9 @@ export function Sheet({ title, sub, showClose = false, onClose, children }) {
       <div
         className={`ord-sheet co-sheet${dragging ? ' is-dragging' : ''}`}
         role="dialog"
+        aria-modal="true"
+        ref={dialog}
+        tabIndex={-1}
         aria-label={title}
         style={{ transform: `translateY(${offsetY}px)` }}
         onClick={(event) => event.stopPropagation()}
@@ -95,7 +123,7 @@ export function CouponSheet({ order, option, coupons, takenIds, onApply, onClose
       usable: serverEvaluated ? item.usable : estimate.usable,
       reason: serverEvaluated
         ? item.reason
-          ? '이 주문에는 사용할 수 없어요'
+          ? ({ MIN_ORDER_AMOUNT: `${formatWon(item.coupon.min_order_amount)} 이상 구매 시 사용 가능`, EXPIRED: '유효기간이 만료됐어요', USED: '이미 사용한 쿠폰이에요', STORE_MISMATCH: '다른 매장 쿠폰이에요', NOT_STARTED: '사용 기간 전이에요', FULFILLMENT_MISMATCH: '수령 방법이 맞지 않아요', FIRST_ORDER_ONLY: '첫 주문 전용 쿠폰이에요' }[item.reason] ?? '이 주문에는 사용할 수 없어요')
           : null
         : estimate.reason,
       amount: serverEvaluated ? item.discountAmount : estimate.amount,
@@ -156,7 +184,7 @@ export function CouponSheet({ order, option, coupons, takenIds, onApply, onClose
         );
       })}
       {rows.length === 0 ? <p className="co-warn">사용 가능한 쿠폰이 없어요</p> : null}
-      <button type="button" className="co-pay co-pay--sheet" onClick={() => onApply(draft)}>
+      <button type="button" className="co-pay co-pay--sheet" disabled={draft !== null && (!picked?.usable || picked.taken)} onClick={() => onApply(draft)}>
         {picked ? `${formatWon(picked.amount)} 할인 적용` : '쿠폰 없이 진행'}
       </button>
     </Sheet>

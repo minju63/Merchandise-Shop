@@ -11,10 +11,11 @@ http.interceptors.request.use(async (config) => {
 });
 
 export class ApiError extends Error {
-  constructor(message, status, code) {
+  constructor(message, status, code, details = null) {
     super(message);
     this.status = status;
     this.code = code;
+    this.details = details;
   }
 }
 
@@ -26,7 +27,8 @@ http.interceptors.response.use(
     throw new ApiError(
       body?.message ?? '서버에 연결하지 못했어요. 잠시 후 다시 시도해 주세요.',
       error.response?.status ?? 0,
-      body?.code ?? 'NETWORK_ERROR'
+      body?.code ?? 'NETWORK_ERROR',
+      body?.data ?? null
     );
   }
 );
@@ -58,6 +60,7 @@ export async function confirmPurchase(orderId) {
 
 export async function cancelOrder(orderId, body) {
   const response = await http.post(`/orders/${orderId}/cancel`, body);
+  window.dispatchEvent(new Event('coupons-changed'));
   return response.data.data;
 }
 

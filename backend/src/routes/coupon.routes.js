@@ -19,6 +19,8 @@ async function requireAuthentication(req, res, next) {
   }
 }
 
+router.get('/stores/:storeId', requireAuthentication, controller.listStoreCoupons);
+router.post('/stores/:storeId/issue', requireAuthentication, controller.issueStoreCoupons);
 router.get('/usable', requireAuthentication, controller.listCheckoutCoupons);
 router.get('/', requireAuthentication, controller.listMyCoupons);
 router.get('/:userCouponId', requireAuthentication, controller.getMyCouponDetail);

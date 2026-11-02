@@ -20,6 +20,7 @@ async function requireAuthentication(req, res, next) {
 }
 
 router.post("/preview", requireAuthentication, controller.previewCheckout);
+router.get('/requests/:requestId', requireAuthentication, controller.findCheckoutRequest);
 
 router.post("/", requireAuthentication, controller.submitCheckout);
 router.get(
@@ -38,14 +39,15 @@ router.use((error, req, res, next) => {
     status < 600;
   return res
     .status(known ? status : 500)
-    .json(
-      fail(
+    .json({
+      ...fail(
         known ? error.code : "INTERNAL_ERROR",
         known
           ? error.message
           : "요청을 처리하지 못했어요. 잠시 후 다시 시도해 주세요.",
       ),
-    );
+      data: known && status === 409 ? error.details ?? null : null,
+    });
 });
 
 export default router;

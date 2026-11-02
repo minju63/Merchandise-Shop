@@ -1,0 +1,14 @@
+.store-name-coupon-row { --co-text: #1c1b22; --co-sub: #6b6878; --co-line: #e6e5ed; --co-primary: #5b45d6; --co-btn: #b4a5f8; --co-btn-text: #231a4f; display: flex; align-items: center; gap: 12px; }
+.store-name-coupon-row h1 { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.store-coupon-button { flex: none; display: inline-flex; align-items: center; gap: 5px; padding: 8px 10px; border: 1px solid #ddd; border-radius: 8px; background: #fff; color: #333; font-size: 12px; white-space: nowrap; }
+.store-coupon-button:disabled { opacity: .6; }
+.store-coupon-list { display: grid; gap: 12px; }
+.store-coupon-card { display: flex; align-items: center; gap: 12px; padding: 16px; border: 1px solid #e6e5ed; border-radius: 12px; }
+.store-coupon-card > div { flex: 1; min-width: 0; }
+.store-coupon-card strong { color: #5b45d6; font-size: 20px; }
+.store-coupon-card p { margin: 6px 0; font-size: 14px; }
+.store-coupon-card small { display: block; margin-top: 5px; color: #6b6878; line-height: 1.5; font-size: 12px; }
+.store-coupon-card button { flex: none; display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-width: 76px; box-sizing: border-box; padding: 8px 10px; border: 1px solid #ddd6fa; border-radius: 8px; background: #fff; color: #5b45d6; font-size: 13px; line-height: 20px; white-space: nowrap; }
+.store-coupon-card button:disabled { color: #888; background: #f7f6fa; }
+.store-coupon-card button svg, .store-coupon-all svg { flex: none; }
+.co-pay.store-coupon-all { display: flex; align-items: center; justify-content: center; gap: 5px; height: 54px; padding: 0 16px; border: 0; border-radius: 12px; background: #b4a5f8; color: #231a4f; box-shadow: none; white-space: nowrap; }

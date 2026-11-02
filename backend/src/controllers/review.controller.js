@@ -32,6 +32,35 @@ export async function createReview(req, res, next) {
     next(error);
   }
 }
+export async function toggleProductReviewLike(req, res, next) {
+  try {
+    const liked = req.method === "PUT";
+    res.status(200).json(ok(await service.setProductReviewLike(
+      res.locals.authUser.id,
+      req.params.reviewId,
+      liked,
+    )));
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function toggleStoreReviewLike(req, res, next) {
+  try {
+    const user = res.locals.authUser;
+    if (user.is_anonymous === true)
+      throw reviewService.reviewError(403, 'MEMBER_REQUIRED', '정회원만 리뷰에 좋아요를 누를 수 있습니다.');
+    const liked = req.method === 'PUT';
+    res.status(200).json(ok(await reviewService.setStoreReviewLike(
+      user.id,
+      req.params.reviewId,
+      liked,
+    )));
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function updateReview(req, res, next) {
   try {
     res
@@ -83,7 +112,7 @@ function storeId(req) {
 
 function options(req) {
   const { sort = 'latest', page = '1', size = '20', mineOnly = 'false' } = req.query;
-  if (typeof sort !== 'string' || !['latest', 'high', 'low'].includes(sort))
+  if (typeof sort !== 'string' || !['latest', 'high', 'low', 'likes'].includes(sort))
     throw reviewService.reviewError(400, 'INVALID_PARAMETER', '올바른 정렬 기준이 아닙니다.');
   if (typeof page !== 'string' || !/^[1-9]\d*$/.test(page) || !Number.isSafeInteger(Number(page)))
     throw reviewService.reviewError(400, 'INVALID_PARAMETER', 'page는 1 이상의 정수여야 합니다.');

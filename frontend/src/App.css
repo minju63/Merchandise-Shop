@@ -1173,7 +1173,11 @@
 .review-content { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14px; line-height: 1.6; margin: 12px 0 0; }
 .review-images { display: flex; gap: 7px; overflow-x: auto; margin-top: 12px; }
 .review-images img { width: 76px; height: 76px; flex: none; object-fit: cover; border-radius: 6px; }
-.review-card-actions { display: flex; justify-content: flex-end; gap: 7px; margin-top: 12px; }
+.review-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; }
+.review-like-button { display: inline-flex; align-items: center; gap: 5px; padding: 6px 10px; border: 1px solid #e8e4ed; border-radius: 99px; color: #686272; background: #fff; font-size: 12px; cursor: pointer; }
+.review-like-button.is-liked { border-color: #f1d5dd; color: #d34b70; background: #fff7f9; }
+.review-like-button:disabled { opacity: .55; cursor: default; }
+.review-card-actions { display: flex; justify-content: flex-end; gap: 7px; margin-top: 0; }
 .review-card-actions button {
   padding: 6px 10px;
   border: 1px solid #e8e4ed;

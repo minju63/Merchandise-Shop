@@ -12,6 +12,8 @@ import CartPriceBar from './components/CartPriceBar.jsx';
 import CartOrderSummary from './components/CartOrderSummary.jsx';
 import CartEmptyState, { CartLoginRequired } from './components/CartEmptyState.jsx';
 import { listCheckoutCoupons } from '../my/account.api.js';
+import { useSession } from '../my/hooks.js';
+import { invalidCartCoupons, couponReasonMessage } from '../common/couponSafety.js';
 import { CouponSheet, Sheet } from '../common/CheckoutParts.jsx';
 import '../common/checkout.css';
 import './CartPage.css';
@@ -26,9 +28,13 @@ export default function CartPage() {
   const [notice, setNotice] = useState('');
   const [couponSheet, setCouponSheet] = useState(null);
   const [couponAssignments, setCouponAssignments] = useState({});
+  const { status: authStatus, session } = useSession();
+  const accountKey = session?.user?.id ?? 'guest';
   const { data, isPending, isError, error, refetch } = useQuery({
-    queryKey: ['cart', 'list', type],
+    queryKey: ['cart', 'list', type, accountKey],
     queryFn: () => cartApi.list(type),
+    enabled: authStatus !== 'loading',
+    refetchInterval: 30000,
     retry: (count, queryError) => !isAuthError(queryError) && count < 1,
   });
 
@@ -70,7 +76,7 @@ export default function CartPage() {
       : null;
   const couponQueries = useQueries({
     queries: selectedStores.map((store) => ({
-      queryKey: ['cart', 'coupons', store.storeId, store.itemsTotal, store.deliveryFee, type],
+      queryKey: ['cart', 'coupons', store.storeId, store.itemsTotal, store.deliveryFee, type, accountKey],
       queryFn: () =>
         listCheckoutCoupons({
           storeId: store.storeId,
@@ -79,17 +85,33 @@ export default function CartPage() {
           fulfillmentType: type,
         }),
       enabled: type === 'PICKUP' || store.deliveryFee !== null,
+      refetchInterval: 30000,
     })),
   });
   const couponResults = Object.fromEntries(
     selectedStores.map((store, index) => [store.storeId, couponQueries[index]]),
   );
   const couponQuery = couponStore ? couponResults[couponStore.storeId] : null;
+  const invalidCouponKey = cart ? JSON.stringify(invalidCartCoupons(couponAssignments, cart.stores, couponResults)) : '[]';
+  useEffect(() => {
+    const invalid = JSON.parse(invalidCouponKey);
+    if (!invalid.length) return undefined;
+    let active = true;
+    queueMicrotask(() => {
+      if (!active) return;
+      setCouponAssignments((current) => {
+        const next = { ...current };
+        invalid.forEach((row) => { if (next[row.storeId]?.userCouponId === row.id) delete next[row.storeId]; });
+        return next;
+      });
+      setNotice(couponReasonMessage(invalid[0].reason));
+    });
+    return () => { active = false; };
+  }, [invalidCouponKey]);
   const activeCouponAssignments = Object.fromEntries(
-    Object.entries(couponAssignments).filter(([storeId, assignment]) => {
-      const store = selectedStores.find((entry) => entry.storeId === storeId);
-      const quoteKey = store ? `${type}:${store.itemsTotal}:${store.deliveryFee ?? 0}` : null;
-      return quoteKey && assignment.quoteKey === quoteKey;
+    Object.entries(couponAssignments).flatMap(([storeId, assignment]) => {
+      const current = couponResults[storeId]?.data?.items?.find((item) => item.id === assignment.userCouponId);
+      return current?.usable ? [[storeId, { ...assignment, discountAmount: current.discountAmount }]] : [];
     }),
   );
   const couponDiscount = Object.values(activeCouponAssignments).reduce(
@@ -187,6 +209,7 @@ export default function CartPage() {
                 type={type}
                 disabled={busy}
                 couponAssignment={activeCouponAssignments[store.storeId]}
+                couponState={couponResults[store.storeId]?.isError ? 'error' : couponResults[store.storeId]?.isPending ? 'loading' : 'ready'}
                 couponCount={
                   (couponResults[store.storeId]?.data?.items ?? []).filter((item) => item.usable)
                     .length

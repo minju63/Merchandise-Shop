@@ -16,6 +16,7 @@ const paths = {
   store: <><path d="M3 10 5 4h14l2 6v11H3V10Z" /><path d="M3 10c0 3 4.5 3 4.5 0 0 3 4.5 3 4.5 0 0 3 4.5 3 4.5 0 0 3 4.5 3 4.5 0M9 21v-6h6v6" /></>,
   image: <><rect x="3" y="4" width="18" height="16" rx="2" /><circle cx="9" cy="10" r="1" /><path d="m4 17 5-4 3 2 4-4 5 5" /></>,
   check: <path d="m4 12 5 5L20 6" />,
+  download: <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" /></>,
   mic: <><rect x="8" y="3" width="8" height="12" rx="4" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></>,
   play: <><rect x="3" y="5" width="18" height="14" rx="3" /><path d="m10 9 5 3-5 3Z" /></>,
   game: <><path d="M8 8h8a5 5 0 0 1 4.8 6.4l-.8 2.7a2.6 2.6 0 0 1-4.5 1l-1.2-1.6H9.7l-1.2 1.6a2.6 2.6 0 0 1-4.5-1l-.8-2.7A5 5 0 0 1 8 8Z" /><path d="M7 12v4M5 14h4M16 12h.01M18 15h.01" /></>,

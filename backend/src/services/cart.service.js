@@ -39,6 +39,8 @@ export function validateAddable(storeProduct, store, fulfillmentType) {
   if (storeProduct.status === 'UPCOMING') return 'UPCOMING';
   if (storeProduct.status === 'SOLD_OUT') return 'OUT_OF_STOCK';
   if (storeProduct.status !== 'ON_SALE') return 'NOT_ON_SALE';
+  if (storeProduct.product?.status && storeProduct.product.status !== 'ON_SALE') return 'NOT_ON_SALE';
+  if (storeProduct.product?.open_at && Date.parse(storeProduct.product.open_at) > Date.now()) return 'UPCOMING';
   if (!(storeProduct.stock > 0)) return 'OUT_OF_STOCK';
   return null;
 }
@@ -56,7 +58,7 @@ function capQuantity(quantity, maxPerOrder) {
   return { quantity, capped: false };
 }
 
-function toCartItem(row, fulfillmentType) {
+export function toCartItem(row, fulfillmentType) {
   const storeProduct = row.store_product;
   const { product, store } = storeProduct;
   const price = storeProduct.price ?? 0;
@@ -69,9 +71,10 @@ function toCartItem(row, fulfillmentType) {
     productName: product.name,
     workTitle: product.work_title,
     thumbnailUrl: product.thumbnail_url,
-    price,
+    price: discountRate > 0 && discountRate < 100 ? Math.round(price / (1 - discountRate / 100)) : price,
     discountRate,
-    finalPrice: Math.round((price * (100 - discountRate)) / 100),
+    // store_products.price is the final selling price, as in checkout.calculateSalePrice.
+    finalPrice: price,
     quantity: row.quantity,
     isSelected: row.is_selected === true && !reason,
     stock: storeProduct.stock,

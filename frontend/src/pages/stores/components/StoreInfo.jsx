@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Icon from './Icon.jsx';
 import { AvailabilityBadges } from './StoreShell.jsx';
 import { Link } from 'react-router-dom';
+import StoreCouponButton from './StoreCouponButton.jsx';
 
 function todayLabel(hour, temporaryClosed) {
   if (temporaryClosed) return '임시 휴무';
@@ -15,7 +16,7 @@ export default function StoreInfo({ store, onGuide }) {
   const description = store.description || '';
   return (
     <section className="store-info">
-      <h1>{store.name}</h1>
+      <div className="store-name-coupon-row"><h1>{store.name}</h1><StoreCouponButton key={store.id} store={store} /></div>
       {store.shortDescription && <p className="short-description">{store.shortDescription}</p>}
       <div className="detail-rating">
         <Link

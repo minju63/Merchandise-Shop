@@ -1,19 +1,17 @@
-import { randomUUID, randomInt } from "node:crypto";
+import { randomUUID, createHash } from "node:crypto";
 import * as orderRepository from "../repositories/order.repository.js";
 import * as paymentRepository from "../repositories/payment.repository.js";
-import { getCancellationRestoreDecision } from "./coupon.service.js";
 import { findByAuthId } from "../repositories/user.repository.js";
 import {
   POINT_POLICY,
   getPointBalance,
-  recordOrderPoints,
-  restoreOrderPoints,
 } from "./user.service.js";
 import { resolveAddressSelection, listMyAddresses } from "./address.service.js";
 import {
   resolvePaymentMethodSelection,
   listMyPaymentMethods,
 } from "./paymentMethod.service.js";
+import { couponRpc } from "../repositories/couponRpc.js";
 import * as couponRepository from "../repositories/coupon.repository.js";
 import { evaluateCouponEligibility } from "./coupon.service.js";
 
@@ -689,6 +687,8 @@ export function calculateStoreQuote(
   hasPreviousOrder,
   now,
 ) {
+  const unavailable = new Set(buildStockIssues(group.items, now).map((item) => item.storeProductId));
+  const orderableItemsAmount = group.items.filter((item) => !unavailable.has(item.storeProductId)).reduce((sum, item) => sum + item.lineAmount, 0);
   let coupon = null;
   let discountAmount = 0;
   if (ownedCoupon) {
@@ -705,7 +705,7 @@ export function calculateStoreQuote(
             {
               userId,
               storeId: group.storeId,
-              itemsAmount: group.itemsAmount,
+              itemsAmount: orderableItemsAmount,
               deliveryFee: fulfillment.deliveryFee,
               fulfillmentType: fulfillment.option.fulfillmentType,
               hasPreviousOrder,
@@ -729,6 +729,7 @@ export function calculateStoreQuote(
           true,
         );
   return {
+    orderableItemsAmount,
     itemsAmount: group.itemsAmount,
     deliveryFee: fulfillment.deliveryFee,
     discountAmount,
@@ -946,7 +947,7 @@ export async function previewCheckout(userId, rawInput) {
       0,
       true,
     );
-  return {
+  const quote = {
     mode: input.mode,
     quotedAt: now.toISOString(),
     orders,
@@ -982,6 +983,18 @@ export async function previewCheckout(userId, rawInput) {
     serverPriceVerified: true,
     persisted: false,
   };
+  return { ...quote, confirmationToken: checkoutQuoteToken(quote) };
+}
+
+export function checkoutQuoteToken(quote) {
+  // Bind confirmation to server prices, quantities, store-specific discounts and final totals.
+  return createHash('sha256').update(JSON.stringify({
+    orders: quote.orders.map((order) => ({ storeId: order.storeId, fulfillmentType: order.fulfillmentType,
+      items: order.items.map((item) => [item.storeProductId, item.quantity, item.unitPrice]),
+      coupon: order.coupon?.userCouponId ?? null, discount: order.discountAmount,
+      cartDiscount: order.cartCouponDiscountAmount, deliveryFee: order.deliveryFee, payAmount: order.payAmount })),
+    totals: quote.totals,
+  })).digest('hex');
 }
 
 export function validateSubmitInput(raw) {
@@ -997,6 +1010,7 @@ export function validateSubmitInput(raw) {
     "pointsUse",
     "useExpectedPoints",
     "paymentAgreed",
+    "confirmationToken",
   ]);
   if (raw.paymentAgreed !== true)
     throw failure(
@@ -1006,6 +1020,7 @@ export function validateSubmitInput(raw) {
     );
   const input = { ...raw };
   delete input.paymentAgreed;
+  delete input.confirmationToken;
   normalizeCheckoutInput(input);
   return input;
 }
@@ -1053,10 +1068,42 @@ export function shippingAddressSnapshot(address) {
     .filter(Boolean)
     .join(" ");
 }
-export async function submitCheckout(userId, raw) {
+export async function submitCheckout(userId, raw, requestId = randomUUID()) {
+  id(requestId);
   const input = validateSubmitInput(raw);
+  const requestHash = createHash('sha256').update(JSON.stringify({ ...normalizeCheckoutInput(input), confirmationToken: raw.confirmationToken ?? null })).digest('hex');
+  const db = await getDatabase();
+  const prior = await db.from('orders').select('checkout_group_id,checkout_request_hash')
+    .eq('user_id', userId).eq('checkout_request_id', requestId).limit(1).maybeSingle();
+  if (prior.error) throw failure(503, 'DATABASE_ERROR', '주문 요청을 확인하지 못했어요.');
+  if (prior.data) {
+    if (prior.data.checkout_request_hash !== requestHash)
+      throw failure(409, 'CHECKOUT_REQUEST_CHANGED', '같은 결제 요청의 내용이 변경됐어요.');
+    return getCheckoutResult(userId, prior.data.checkout_group_id);
+  }
   // 브라우저에서 보낸 금액·재고를 받지 않고 매번 실제 DB에서 다시 읽는다.
-  const quote = await previewCheckout(userId, input);
+  let quote;
+  try { quote = await previewCheckout(userId, input); }
+  catch (error) {
+    const replay = await findCheckoutRequest(userId, requestId);
+    if (replay.status === 'COMPLETED') return replay.result;
+    throw error;
+  }
+  const invalid = [...quote.orders.map((order) => order.coupon), quote.cartCoupon].find((coupon) => coupon && !coupon.usable && coupon.reason !== 'QUOTE_NOT_READY');
+  if (invalid) {
+    const messages = {
+      EXPIRED: '선택한 쿠폰의 사용 기간이 종료되었습니다. 주문금액을 다시 확인해 주세요.',
+      USED: '이미 사용한 쿠폰입니다. 주문금액을 다시 확인해 주세요.',
+      MIN_ORDER_AMOUNT: '주문금액이 변경되어 쿠폰 적용 조건을 충족하지 않습니다.',
+    };
+    const error = failure(409, `COUPON_${invalid.reason}`, messages[invalid.reason] ?? '쿠폰 사용 조건이 변경되었습니다. 주문금액을 다시 확인해 주세요.');
+    error.details = { userCouponId: invalid.userCouponId };
+    const replay = await findCheckoutRequest(userId, requestId);
+    if (replay.status === 'COMPLETED') return replay.result;
+    throw error;
+  }
+  if (!raw.confirmationToken || raw.confirmationToken !== quote.confirmationToken)
+    throw failure(409, 'CHECKOUT_QUOTE_CHANGED', '주문금액이 변경되었습니다. 주문금액을 다시 확인해 주세요.');
   if (!quote.canSubmit)
     throw failure(
       409,
@@ -1083,168 +1130,43 @@ export async function submitCheckout(userId, raw) {
       ),
     });
   }
-  const methodLabel = paymentMethodLabel(quote.paymentMethod);
-  const groupId = randomUUID();
-  const saved = [];
-  const consumed = [];
-  const stockChanges = [];
-  try {
-    for (let index = 0; index < quote.orders.length; index++) {
-      const order = quote.orders[index];
-      const policy = policies[index];
-      const row = await orderRepository.createOrder(userId, {
-        order_no:
-          now.slice(0, 10).replaceAll("-", "") +
-          "-" +
-          randomUUID().replaceAll("-", "").slice(0, 20),
-        store_id: order.storeId,
-        checkout_group_id: groupId,
-        fulfillment_type: order.fulfillmentType,
-        status: "PAID",
-        items_amount: order.itemsAmount,
-        delivery_fee: order.deliveryFee,
-        discount_amount: order.discountAmount + order.cartCouponDiscountAmount,
-        total_amount: order.payAmount,
-        points_used_amount: order.pointsUsedAmount,
-        points_earn_amount: order.pointsEarnAmount,
-        commission_rate: policy.rate,
-        commission_amount: policy.amount,
-        used_coupon_id: order.coupon?.userCouponId ?? null,
-        recipient_name: order.address?.recipient_name ?? null,
-        recipient_phone: order.address?.recipient_phone ?? null,
-        shipping_address: order.address
-          ? shippingAddressSnapshot(order.address)
-          : null,
-        delivery_request: order.orderRequests,
-        pickup_code:
-          order.fulfillmentType === "PICKUP"
-            ? String(randomInt(100000, 1000000))
-            : null,
-        pickup_deadline: order.pickup?.deadline ?? null,
-      });
-      saved.push(row);
-      const snapshots = [];
-      for (const item of order.items) {
-        const sale = await orderRepository.findSale(item.storeProductId);
-        if (
-          !sale ||
-          sale.price !== item.unitPrice ||
-          sale.store_id !== row.store_id ||
-          sale.status !== "ON_SALE"
-        )
-          throw failure(409, "SALE_CHANGED", "상품 판매 조건이 변경됐어요.");
-        snapshots.push({
-          store_product_id: item.storeProductId,
-          product_name: item.productName,
-          product_image_url: item.thumbnailUrl,
-          condition_grade: sale.condition_grade,
-          unit_price: item.unitPrice,
-          quantity: item.quantity,
-          subtotal: item.lineAmount,
-        });
-      }
-      await orderRepository.createItems(row.id, snapshots);
-      await orderRepository.appendStatusHistory(
-        row.id,
-        null,
-        "PAID",
-        userId,
-        "시연 결제",
-      );
-      for (const item of order.items) {
-        await orderRepository.adjustStock(
-          userId,
-          row.id,
-          item.storeProductId,
-          -item.quantity,
-          "ORDER",
-        );
-        stockChanges.push({ orderId: row.id, item });
-      }
-      if (order.coupon) {
-        await couponRepository.markOwnedUsed(userId, order.coupon.userCouponId);
-        consumed.push(order.coupon.userCouponId);
-      }
-      await recordOrderPoints(userId, row.id, {
-        used: order.pointsUsedAmount,
-        earn: order.pointsEarnAmount,
-      });
-      if (row.total_amount > 0)
-        await paymentRepository.createMockPayment(userId, {
-          purpose: "ORDER",
-          order_id: row.id,
-          payment_method_id: quote.paymentMethod.id ?? null,
-          method_label: methodLabel,
-          amount: row.total_amount,
-        });
-    }
-    if (quote.cartCoupon?.usable) {
-      await couponRepository.markOwnedUsed(userId, quote.cartCoupon.userCouponId);
-      consumed.push(quote.cartCoupon.userCouponId);
-    }
-  } catch (error) {
-    const recovery = [];
-    for (const change of stockChanges.reverse())
-      try {
-        await orderRepository.adjustStock(
-          userId,
-          change.orderId,
-          change.item.storeProductId,
-          change.item.quantity,
-          "ORDER_CANCEL",
-        );
-      } catch {
-        recovery.push("STOCK");
-      }
-    for (const couponId of consumed)
-      try {
-        const owned = await couponRepository.findOwnedWithPolicy(
-          userId,
-          couponId,
-        );
-        const decision = getCancellationRestoreDecision(owned, owned.coupon);
-        await couponRepository.restoreOwnedCoupon(
-          userId,
-          couponId,
-          decision.status,
-        );
-      } catch {
-        recovery.push("COUPON");
-      }
-    for (const row of saved) {
-      try {
-        await paymentRepository.cancelMockOrderPayments(userId, row.id);
-        await restoreOrderPoints(userId, row.id);
-        await orderRepository.cancelOwnedPaid(
-          userId,
-          row.id,
-          "시연 결제 처리 실패",
-        );
-      } catch {
-        recovery.push("ORDER");
-      }
-    }
-    if (recovery.length)
-      throw failure(
-        503,
-        "CHECKOUT_RECOVERY_REQUIRED",
-        "주문 처리 실패 후 일부 DB 기록의 복구 확인이 필요해요.",
-      );
+  let groupId;
+  try { groupId = await couponRpc('commit_coupon_checkout', {
+    p_user_id: userId,
+    p_request_id: requestId,
+    p_hash: requestHash,
+    p_group_id: randomUUID(),
+    p_orders: quote.orders.map((order, index) => ({
+      ...order,
+      commissionRate: policies[index].rate,
+      commissionAmount: policies[index].amount,
+      shippingAddress: order.address ? shippingAddressSnapshot(order.address) : null,
+    })),
+    p_cart_coupon: quote.cartCoupon,
+    p_method: { id: quote.paymentMethod.id ?? null, label: paymentMethodLabel(quote.paymentMethod) },
+    p_cart_ids: normalizeCheckoutInput(input).cartItemIds,
+    p_balance_use: normalizeCheckoutInput(input).pointsUse,
+  }); } catch (error) {
+    // A transport error can arrive after commit; never restore a coupon here.
+    const replay = await findCheckoutRequest(userId, requestId);
+    if (replay.status === 'COMPLETED') return replay.result;
     throw error;
   }
-  // 저장 완료 후에만 선택한 장바구니 항목을 정리한다. 실패해도 결제를 다시 만들지 않는다.
-  let cartCleanupPending = false;
-  if (input.mode === "CART")
-    try {
-      await orderRepository.removeSelectedCart(
-        userId,
-        normalizeCheckoutInput(input).cartItemIds,
-      );
-    } catch {
-      cartCleanupPending = true;
-    }
-  return { ...(await getCheckoutResult(userId, groupId)), cartCleanupPending };
+  return { ...(await getCheckoutResult(userId, groupId)), cartCleanupPending: false };
 }
+
+export async function findCheckoutRequest(userId, requestId) {
+  id(requestId);
+  const profile = await findByAuthId(userId);
+  if (!profile || profile.status !== 'ACTIVE') throw failure(403, 'ACCOUNT_UNAVAILABLE', '현재 사용할 수 없는 계정이에요.');
+  const db = await getDatabase();
+  const { data, error } = await db.from('orders').select('checkout_group_id')
+    .eq('user_id', userId).eq('checkout_request_id', requestId).limit(1).maybeSingle();
+  if (error) throw failure(503, 'DATABASE_ERROR', '주문 처리 결과를 확인하지 못했습니다.');
+  // No visible order is not proof that an earlier HTTP request failed.
+  return data ? { status: 'COMPLETED', result: await getCheckoutResult(userId, data.checkout_group_id) } : { status: 'UNKNOWN' };
+}
+
 export async function getCheckoutResult(userId, checkoutGroupId) {
   id(checkoutGroupId);
   const profile = await findByAuthId(userId);

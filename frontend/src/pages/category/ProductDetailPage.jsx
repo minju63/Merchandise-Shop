@@ -134,6 +134,8 @@ function ProductDetailPageContent({
           client={client}
           api={api}
           reviews={reviews.data}
+          user={user}
+          onLogin={onLogin}
           loading={reviews.loading}
           error={reviews.error}
           onRetry={reviews.retry}

@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { getCoupon } from './account.api.js';
 import { couponConditions, couponHeadline, daysLeft, formatFullDate } from './accountFormat.js';
 import { ErrorNotice, Loading, PageHeader } from './common.jsx';
-import { useRequest, useRequireLogin } from './hooks.js';
+import { useRequest, useRequireLogin, useSession } from './hooks.js';
 import { MY_ROUTES } from './routes.js';
 import './orders.css';
 import './help.css';
@@ -14,7 +14,8 @@ export default function CouponDetailPage() {
   const navigate = useNavigate();
   const { couponId } = useParams();
   const signedIn = useRequireLogin(MY_ROUTES.login);
-  const coupon = useRequest(signedIn, `coupon-${couponId}`, () => getCoupon(couponId));
+  const { session } = useSession();
+  const coupon = useRequest(signedIn, `coupon-${couponId}:${session?.user.id ?? ''}`, () => getCoupon(couponId));
   const item = coupon.data;
 
   let body;
@@ -38,6 +39,10 @@ export default function CouponDetailPage() {
               {usable ? ` · ${left <= 0 ? 'D-Day' : `D-${left}`}` : ''}
             </dd>
           </div>
+          <div>
+            <dt>굿즈샵</dt><dd>{item.coupon.store?.name ?? '전체 매장'}</dd>
+          </div>
+          {item.used_order_id && <div><dt>사용 주문</dt><dd><button type="button" onClick={() => navigate(MY_ROUTES.orderDetail(item.used_order_id))}>주문 상세 보기</button></dd></div>}
           <div>
             <dt>사용 조건</dt>
             <dd>{couponConditions(item)}</dd>
