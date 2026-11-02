@@ -118,9 +118,13 @@ export async function uploadReviewImages(userId, input) {
   }
 }
 
+export async function setProductReviewLike(userId, reviewId, liked) {
+  return repository.setProductReviewLike(uuid(reviewId), userId, liked);
+}
+
 export async function listProductReviews(storeProductId, { sort = "latest", page = 1, size = 20, userId } = {}) {
   uuid(storeProductId);
-  if (!["latest", "high", "low"].includes(sort))
+  if (!["latest", "high", "low", "likes"].includes(sort))
     throw failure(400, "INVALID_SORT", "리뷰 정렬 기준을 확인해 주세요.");
   if (!Number.isSafeInteger(page) || page < 1 || !Number.isSafeInteger(size) || size < 1 || size > 100)
     throw failure(400, "INVALID_PAGE", "리뷰 페이지 범위를 확인해 주세요.");
@@ -131,7 +135,10 @@ export async function listProductReviews(storeProductId, { sort = "latest", page
     repository.getPublicProductReviews(sale.product_id, { sort, page, size }),
     repository.getPublicProductReviewSummary(sale.product_id),
   ]);
-  const relations = await repository.getStoreReviewRelations(rows);
+  const [relations, likedReviewIds] = await Promise.all([
+    repository.getStoreReviewRelations(rows),
+    repository.getProductReviewLikeIds(rows.map((row) => row.id), userId),
+  ]);
   const users = new Map(relations.users.map((row) => [row.id, row.nickname]));
   return {
     items: rows.map((row) => ({
@@ -144,6 +151,8 @@ export async function listProductReviews(storeProductId, { sort = "latest", page
         .map((image) => image.image_url),
       createdAt: row.created_at,
       isMine: Boolean(userId && row.user_id === userId),
+      likeCount: row.like_count ?? 0,
+      liked: likedReviewIds.has(row.id),
     })),
     page,
     size,

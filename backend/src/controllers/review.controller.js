@@ -32,6 +32,19 @@ export async function createReview(req, res, next) {
     next(error);
   }
 }
+export async function toggleProductReviewLike(req, res, next) {
+  try {
+    const liked = req.method === "PUT";
+    res.status(200).json(ok(await service.setProductReviewLike(
+      res.locals.authUser.id,
+      req.params.reviewId,
+      liked,
+    )));
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function updateReview(req, res, next) {
   try {
     res

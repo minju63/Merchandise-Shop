@@ -352,11 +352,11 @@ export async function synchronizeStoreRating(storeId) {
 }
 
 export async function getPublicProductReviews(productId, { sort, page, size }) {
-  const column = sort === "latest" ? "created_at" : "rating";
+  const column = sort === "latest" ? "created_at" : sort === "high" ? "rating" : sort === "low" ? "rating" : "like_count";
   const ascending = sort === "low";
   let query = (await database())
     .from("reviews")
-    .select("id,user_id,rating,content,created_at,images:review_images(image_url,display_order)", {
+    .select("id,user_id,rating,content,created_at,like_count,images:review_images(image_url,display_order)", {
       count: "exact",
     })
     .eq("product_id", productId)
@@ -369,6 +369,44 @@ export async function getPublicProductReviews(productId, { sort, page, size }) {
     .range((page - 1) * size, page * size - 1);
   check(result);
   return { rows: result.data ?? [], totalCount: result.count ?? 0 };
+}
+
+export async function getProductReviewLikeIds(reviewIds, userId) {
+  if (!reviewIds.length || !userId) return new Set();
+  const result = await (await database())
+    .from("product_review_likes")
+    .select("review_id")
+    .eq("user_id", userId)
+    .in("review_id", reviewIds);
+  check(result);
+  return new Set((result.data ?? []).map((row) => row.review_id));
+}
+
+export async function setProductReviewLike(reviewId, userId, liked) {
+  const db = await database();
+  const reviewResult = await db.from("reviews")
+    .select("id,user_id,like_count")
+    .eq("id", reviewId)
+    .eq("is_hidden", false)
+    .is("deleted_at", null)
+    .maybeSingle();
+  check(reviewResult);
+  if (!reviewResult.data) {
+    throw Object.assign(new Error("Review not found."), { status: 404, code: "REVIEW_NOT_FOUND" });
+  }
+  if (reviewResult.data.user_id === userId) {
+    throw Object.assign(new Error("You cannot like your own review."), { status: 403, code: "LIKE_OWN_REVIEW" });
+  }
+  const result = liked
+    ? await db.from("product_review_likes").upsert(
+      { review_id: reviewId, user_id: userId },
+      { onConflict: "review_id,user_id", ignoreDuplicates: true },
+    )
+    : await db.from("product_review_likes").delete().eq("review_id", reviewId).eq("user_id", userId);
+  check(result);
+  const countResult = await db.from("reviews").select("like_count").eq("id", reviewId).single();
+  check(countResult);
+  return { liked, likeCount: countResult.data.like_count ?? 0 };
 }
 
 export function summarizeProductReviews(rows) {
