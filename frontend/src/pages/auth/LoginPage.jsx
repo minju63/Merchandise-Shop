@@ -7,6 +7,7 @@ import { useSession } from '../my/hooks.js';
 import { getRegistrationState } from '../../api/auth.api.js';
 import { EMAIL_PATTERN } from './authRules.js';
 import { AUTH_ROUTES, safeReturnPath } from './authRoutes.js';
+import { OAUTH_PENDING_KEY } from './OAuthLandingGuard.jsx';
 import './auth.css';
 
 // Supabase가 돌려주는 코드를 사용자에게 보여 줄 문장으로 바꾼다.
@@ -111,6 +112,11 @@ export default function LoginPage() {
     setError('');
     setNotice('');
     setBusy(true);
+    try {
+      sessionStorage.setItem(OAUTH_PENDING_KEY, '1');
+    } catch {
+      // 저장이 막힌 브라우저에서는 건너뛴다.
+    }
     const { error: cause } = await supabase.auth.signInWithOAuth({
       provider,
       options: { redirectTo: `${window.location.origin}${AUTH_ROUTES.login}` },

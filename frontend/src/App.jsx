@@ -30,6 +30,7 @@ import { ShowcaseGalleryPage, ShowcaseDetailPage, ShowcaseManagePage } from './p
 import StoreReviewPage from './pages/stores/StoreReviewPage.jsx';
 import StoreReviewWritePage from './pages/stores/StoreReviewWritePage.jsx';
 import LoginPage from './pages/auth/LoginPage.jsx';
+import OAuthLandingGuard from './pages/auth/OAuthLandingGuard.jsx';
 import SignupTermsPage from './pages/auth/SignupTermsPage.jsx';
 import SignupInfoPage from './pages/auth/SignupInfoPage.jsx';
 import SignupDonePage from './pages/auth/SignupDonePage.jsx';
@@ -913,6 +914,7 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       {/* 공용 — 라우트는 전부 여기 미리 등록. 수정 전 단톡 공지. */}
+      <OAuthLandingGuard />
       <Routes>
         {/* 민주 — 홈 · 검색 */}
         <Route path="/" element={<HomeRoute />} />
