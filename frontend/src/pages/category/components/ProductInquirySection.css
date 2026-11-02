@@ -18,12 +18,14 @@
 .pi-item__body blockquote strong { display:block; margin-bottom:6px; font-size:12px; color:#7950aa; }
 .pi-item__body blockquote p { margin:0; font-size:13px; line-height:1.7; overflow-wrap:anywhere; }
 
-.category-page .category-inquiry-toggle { width:auto; margin:8px 0 0 auto; padding:9px 18px; border:1px solid #7444c2; border-radius:20px; background:#7444c2; color:#fff; font-size:13px; font-weight:700; }
-.category-page .category-inquiry-toggle[aria-expanded="true"] { background:#fff; color:#7444c2; }
+.category-page .category-section .category-inquiry-toggle { width:auto; margin:8px 0 0 auto; padding:6px 14px; border:1px solid #7444c2; border-radius:20px; background:#7444c2; color:#fff; font-size:12px; font-weight:700; }
+.category-page .category-section .category-inquiry-toggle[aria-expanded="true"] { background:#fff; color:#7444c2; }
 .pi-pager { margin:16px 0 4px; }
-.pi-pager button { padding:7px 14px; border:1px solid #d9c9f0; border-radius:16px; background:#fff; color:#7444c2; font-size:13px; font-weight:700; }
-.pi-pager button:disabled { border-color:#ece6f2; color:#c4bbcc; }
-.category-page .category-section .pi-tabs button { border-radius:0; box-shadow:none; background:none; }
+.category-page .pi-pager button { padding:7px 14px; border:1px solid #d9c9f0; border-radius:16px; background:#fff; color:#7444c2; font-size:13px; font-weight:700; }
+.category-page .pi-pager button:disabled { border-color:#ece6f2; color:#c4bbcc; }
+/* 다른 화면의 CSS와 불러오는 순서가 달라져도 같은 모양이 나오게 특이도를 높여 둔다 */
+.category-page .category-section .pi-tabs button { padding:12px 0; border:0; border-bottom:2px solid transparent; border-radius:0; box-shadow:none; background:none; color:#a297ad; font-size:14px; font-weight:700; }
+.category-page .category-section .pi-tabs button.is-on { border-bottom-color:#7545bc; color:#7545bc; }
 /* 상품 상세 탭 안에 들어간 Q&A는 바깥 섹션과 선이 겹치지 않게 한다 */
 .category-develop-shell .category-detail #product-feedback .category-section,
 #product-feedback .category-section { margin-top:0; padding-top:12px; border-top:0; }
@@ -46,3 +48,5 @@
 .category-page .pi-edit__actions button { padding:8px 16px; border:1px solid #d9cfe6; border-radius:999px; background:#fff; font-size:13px; cursor:pointer; }
 .category-page .pi-edit__actions .is-primary { border-color:#7a4fd0; background:#7a4fd0; color:#fff; }
 .category-page .pi-edit__actions button:disabled { opacity:.5; cursor:default; }
+/* Q&A 탭에서는 아래 구분선이 내용 쪽으로 좀 더 올라오게 한다 */
+.category-page #product-feedback.category-section:has(.pi-tabs) { padding-bottom:8px; }

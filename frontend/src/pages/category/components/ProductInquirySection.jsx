@@ -7,7 +7,7 @@ import ProductImageGallery from './ProductImageGallery';
 import { useDialog } from '../../../components/useDialog.jsx';
 import './ProductInquirySection.css';
 
-// 시연용 데이터 앞에 붙은 [샘플], [샘플 문의], [샘플 답변] 표시는 화면에 보이지 않게 한다.
+// 시연용 데이터 앞에 붙은 [샘플], [샘플 문의], [샘플 답변] 표시는 상품·굿즈샵 Q&A 모두 화면에 보이지 않게 한다.
 const stripSample = (text) => (text ?? '').replace(/\[샘플[^\]]*\]\s*/g, '');
 
 const STATUS_LABEL = { PENDING: '답변 대기', ANSWERED: '답변 완료', CLOSED: '종료' };
@@ -54,20 +54,20 @@ export function InquiryList({ items, label, showStatus = true, storeInquiry = fa
       return <li className="pi-item" key={inquiry.id}>
         <button type="button" className="pi-item__head" aria-expanded={open} onClick={() => setOpenId(open ? null : inquiry.id)}>
           {showStatus && <span className={`pi-status${inquiry.status === 'ANSWERED' ? ' is-answered' : ''}`}>{STATUS_LABEL[inquiry.status] || '문의 접수'}</span>}
-          <strong>{(storeInquiry ? inquiry.title : stripSample(inquiry.title)) || '상품 문의'}</strong>
+          <strong>{stripSample(inquiry.title) || '상품 문의'}</strong>
           {storeInquiry && <span className="si-list-author">{inquiry.authorName}</span>}
           {showStatus && inquiry.created_at && <time dateTime={inquiry.created_at}>{new Date(inquiry.created_at).toLocaleDateString('ko-KR')}</time>}
           <svg className={`pi-item__arrow${open ? ' is-open' : ''}`} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
         </button>
         {open && <div className="pi-item__body">
-          {storeInquiry && <h3 className="si-title">{inquiry.title}</h3>}
+          {storeInquiry && <h3 className="si-title">{stripSample(inquiry.title)}</h3>}
           {editingId === inquiry.id ? <EditForm
             inquiry={inquiry}
             onCancel={() => setEditingId(null)}
             onSave={async (input) => { await onEdit(inquiry, input); setEditingId(null); }}
-          /> : <p className="category-prewrap">{storeInquiry ? inquiry.content : stripSample(inquiry.content)}</p>}
+          /> : <p className="category-prewrap">{stripSample(inquiry.content)}</p>}
           {inquiry.inquiry_images?.length > 0 && <ProductImageGallery images={inquiry.inquiry_images} productName="문의 첨부 이미지" />}
-          {inquiry.answer_content && <blockquote><strong>매장 답변</strong><p className="category-prewrap">{storeInquiry ? inquiry.answer_content : stripSample(inquiry.answer_content)}</p>{storeInquiry && inquiry.answered_at && <time dateTime={inquiry.answered_at}>{new Date(inquiry.answered_at).toLocaleDateString('ko-KR')}</time>}</blockquote>}
+          {inquiry.answer_content && <blockquote><strong>매장 답변</strong><p className="category-prewrap">{stripSample(inquiry.answer_content)}</p>{storeInquiry && inquiry.answered_at && <time dateTime={inquiry.answered_at}>{new Date(inquiry.answered_at).toLocaleDateString('ko-KR')}</time>}</blockquote>}
           {storeInquiry && !inquiry.answer_content && <p className="si-no-answer">아직 답변이 등록되지 않았습니다.</p>}
           {storeInquiry && renderActions?.(inquiry)}
           {onEdit && onDelete && editingId !== inquiry.id && <div className="pi-item__actions">

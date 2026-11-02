@@ -81,6 +81,8 @@ const DB_ERRORS = {
   FAN_DESIGN_LOCKED: [409, '지금은 수정할 수 없어요. 제출 기한이 지났거나 이미 검수 중이에요.'],
   FAN_DESIGN_INVALID: [400, '디자인 값이 올바르지 않아요.'],
   FAN_DESIGN_INVALID_MESSAGE: [400, '메인 문구는 1~16자로 입력해 주세요.'],
+  FAN_DESIGN_INVALID_TEXT: [400, '날짜 줄과 from. 닉네임은 20자 이내로 입력해 주세요.'],
+  FAN_DESIGN_INCOMPLETE: [400, '날짜 줄과 from. 닉네임을 모두 입력한 뒤 검수를 요청해 주세요.'],
   FAN_DESIGN_INVALID_PATH: [400, '이미지 경로가 올바르지 않아요.'],
   FAN_DESIGN_EMPTY: [400, '메인 문구를 입력한 뒤 검수를 요청해 주세요.'],
   FAN_WEEK_NOT_FOUND: [404, '주차를 찾을 수 없어요.'],
