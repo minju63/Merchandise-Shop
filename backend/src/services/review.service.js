@@ -128,8 +128,10 @@ export async function setStoreReviewLike(userId, reviewId, liked) {
   return repository.setStoreReviewLike(id, userId, liked);
 }
 
-export async function listProductReviews(storeProductId, { sort = "latest", page = 1, size = 20, userId } = {}) {
+export async function listProductReviews(storeProductId, { sort = "latest", page = 1, size = 20, userId, mineOnly = false } = {}) {
   uuid(storeProductId);
+  if (mineOnly && !userId)
+    throw failure(401, "AUTH_REQUIRED", "내 리뷰만 보려면 로그인이 필요합니다.");
   if (!["latest", "high", "low", "likes"].includes(sort))
     throw failure(400, "INVALID_SORT", "리뷰 정렬 기준을 확인해 주세요.");
   if (!Number.isSafeInteger(page) || page < 1 || !Number.isSafeInteger(size) || size < 1 || size > 100)
@@ -138,7 +140,7 @@ export async function listProductReviews(storeProductId, { sort = "latest", page
   if (!sale || ["HIDDEN", "DELETED"].includes(sale.status))
     throw failure(404, "PRODUCT_NOT_FOUND", "상품을 찾을 수 없어요.");
   const [{ rows, totalCount }, summary] = await Promise.all([
-    repository.getPublicProductReviews(sale.product_id, { sort, page, size }),
+    repository.getPublicProductReviews(sale.product_id, { sort, page, size, userId: mineOnly ? userId : null }),
     repository.getPublicProductReviewSummary(sale.product_id),
   ]);
   const [relations, likedReviewIds] = await Promise.all([
@@ -512,26 +514,29 @@ export async function listStoreReviews(storeId, options, viewerUserId = null) {
   if (!store) return null;
   if (options.mineOnly && !viewerUserId)
     throw failure(401, "AUTH_REQUIRED", "내 리뷰만 보려면 로그인이 필요합니다.");
-  const [summary, rows, mineCount] = await Promise.all([
-    repo.getStoreReviewSummary(storeId),
-    repo.getPublicStoreReviews(storeId, {
-      ...options,
-      userId: options.mineOnly ? viewerUserId : null,
+  const type = options.type ?? 'store';
+  const [summary, result] = await Promise.all([
+    repo.getReviewSummary(storeId),
+    (type === 'product' ? repo.getPublicStoreProductReviews : repo.getPublicStoreReviews)(storeId, {
+      ...options, userId: options.mineOnly ? viewerUserId : null,
     }),
-    options.mineOnly
-      ? repo.getPublicStoreReviewCount(storeId, viewerUserId)
-      : Promise.resolve(null),
   ]);
-  const resultCount = options.mineOnly ? mineCount : summary.reviewCount;
-  const [relations, likedReviewIds] = await Promise.all([
+  const { rows, totalCount: resultCount } = result;
+  const [relations, likedReviewIds, orderItems] = await Promise.all([
     repo.getStoreReviewRelations(rows),
-    repo.getStoreReviewLikeIds(rows.map((row) => row.id), viewerUserId),
+    (type === 'product' ? repo.getProductReviewLikeIds : repo.getStoreReviewLikeIds)(rows.map((row) => row.id), viewerUserId),
+    type === 'product' ? repo.getProductReviewOrderItems(rows) : Promise.resolve([]),
   ]);
   const users = new Map(relations.users.map((row) => [row.id, row.nickname]));
   const products = new Map(relations.items.map((row) => [row.id, row.product_name]));
+  const purchasedProducts = new Map(orderItems.map((row) => [row.id, row]));
+  const selectedCount = type === 'product' ? summary.reviewSummary.productReviewCount : summary.reviewSummary.storeReviewCount;
   return {
     store: { id: store.id, name: store.name },
-    ...summary,
+    type,
+    reviewSummary: summary.reviewSummary,
+    rating: type === 'product' ? summary.reviewSummary.productRating : summary.reviewSummary.storeRating,
+    reviewCount: selectedCount,
     items: rows.map((row) => ({
       id: row.id,
       isMine: Boolean(viewerUserId && row.user_id === viewerUserId),
@@ -539,8 +544,16 @@ export async function listStoreReviews(storeId, options, viewerUserId = null) {
       rating: row.rating,
       createdAt: row.created_at,
       content: row.content || '',
-      images: row.image_urls || [],
-      products: (row.selected_order_item_ids || []).map((id) => products.get(id)).filter(Boolean),
+      images: type === 'product'
+        ? [...(row.images || [])].sort((a, b) => a.display_order - b.display_order).map((image) => image.image_url)
+        : row.image_urls || [],
+      products: type === 'product'
+        ? [purchasedProducts.get(row.order_item_id)?.product_name || '상품 정보 없음']
+        : (row.selected_order_item_ids || []).map((id) => products.get(id)).filter(Boolean),
+      ...(type === 'product' ? {
+        productName: purchasedProducts.get(row.order_item_id)?.product_name || '상품 정보 없음',
+        productImage: resolveImage(purchasedProducts.get(row.order_item_id)?.product_image_url),
+      } : {}),
       likeCount: row.like_count ?? 0,
       liked: likedReviewIds.has(row.id),
     })),

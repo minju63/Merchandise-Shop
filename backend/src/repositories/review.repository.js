@@ -352,7 +352,7 @@ export async function synchronizeStoreRating(storeId) {
   return store;
 }
 
-export async function getPublicProductReviews(productId, { sort, page, size }) {
+export async function getPublicProductReviews(productId, { sort, page, size, userId }) {
   const column = sort === "latest" ? "created_at" : sort === "high" ? "rating" : sort === "low" ? "rating" : "like_count";
   const ascending = sort === "low";
   let query = (await database())
@@ -364,6 +364,7 @@ export async function getPublicProductReviews(productId, { sort, page, size }) {
     .eq("is_hidden", false)
     .is("deleted_at", null)
     .order(column, { ascending });
+  if (userId) query = query.eq("user_id", userId);
   if (column !== "created_at") query = query.order("created_at", { ascending: false });
   const result = await query
     .order("id", { ascending: false })
@@ -438,31 +439,46 @@ function unwrap({ data, error }) {
 
 // 여경 — 굿즈샵 상세에서 사용 (store.service.js / store.routes.js)
 // 연수님 리뷰 작성 로직과는 독립. 읽기 전용.
+export function summarizeReviewKinds(store, product) {
+  return {
+    storeReviewCount: store.count,
+    productReviewCount: product.count,
+    totalReviewCount: store.count + product.count,
+    storeRating: store.count ? store.sum / store.count : null,
+    productRating: product.count ? product.sum / product.count : null,
+  };
+}
+
 export async function getReviewSummaries(storeIds) {
-  const totals = new Map(storeIds.map((id) => [id, { count: 0, sum: 0 }]));
+  const totals = new Map(storeIds.map((id) => [id, {
+    store: { count: 0, sum: 0 }, product: { count: 0, sum: 0 },
+  }]));
   if (!storeIds.length) return new Map();
-  for (let from = 0; ; from += 1000) {
-    const batch = unwrap(
-      await supabase
-        .from('store_reviews')
-        .select('store_id,rating')
-        .in('store_id', storeIds)
-        .eq('is_hidden', false)
-        .is('deleted_at', null)
-        .range(from, from + 999)
-    );
-    for (const row of batch) {
-      const total = totals.get(row.store_id);
-      total.count += 1;
-      total.sum += Number(row.rating);
+  for (let start = 0; start < storeIds.length; start += 100) {
+    const ids = storeIds.slice(start, start + 100);
+    const [storeRows, productRows] = await Promise.all([
+      all('store_reviews', 'id,store_id,rating', [
+        ['in', 'store_id', ids], ['eq', 'is_hidden', false], ['is', 'deleted_at', null],
+      ]),
+      all('reviews', 'id,store_id,rating', [
+        ['in', 'store_id', ids], ['eq', 'is_hidden', false], ['is', 'deleted_at', null],
+      ]),
+    ]);
+    for (const [kind, rows] of [['store', storeRows], ['product', productRows]]) {
+      for (const row of rows) {
+        const total = totals.get(row.store_id)?.[kind];
+        if (!total) continue;
+        total.count += 1;
+        total.sum += Number(row.rating);
+      }
     }
-    if (batch.length < 1000) break;
   }
   return new Map(
-    [...totals].map(([id, { count, sum }]) => [
-      id,
-      { reviewCount: count, rating: count ? sum / count : null },
-    ])
+    [...totals].map(([id, { store, product }]) => [id, {
+      reviewCount: store.count,
+      rating: store.count ? store.sum / store.count : null,
+      reviewSummary: summarizeReviewKinds(store, product),
+    }])
   );
 }
 
@@ -525,18 +541,56 @@ export async function getPublicStoreReviews(storeId, { sort, page, size, userId 
   const ascending = sort === 'low';
   let query = supabase
     .from('store_reviews')
-    .select('*')
+    .select('*', { count: 'exact' })
     .eq('store_id', storeId)
     .eq('is_hidden', false)
     .is('deleted_at', null);
   if (userId) query = query.eq('user_id', userId);
   query = query.order(column, { ascending });
   if (column !== 'created_at') query = query.order('created_at', { ascending: false });
-  const { data, error } = await query
+  const { data, count, error } = await query
     .order('id', { ascending: false })
     .range((page - 1) * size, page * size - 1);
+  if (error?.code === 'PGRST103')
+    return { rows: [], totalCount: await countPublicStoreReviews('store_reviews', storeId, userId) };
   if (error) throw error;
-  return data || [];
+  if (!Number.isSafeInteger(count)) throw Object.assign(new Error('DB 조회 결과를 확인할 수 없어요.'), { status: 503, code: 'DATABASE_ERROR' });
+  return { rows: data || [], totalCount: count };
+}
+
+export async function getPublicStoreProductReviews(storeId, { sort, page, size, userId = null }) {
+  const column = sort === 'latest' ? 'created_at' : sort === 'high' || sort === 'low' ? 'rating' : 'like_count';
+  let query = supabase.from('reviews')
+    .select('id,user_id,order_item_id,rating,content,created_at,like_count,images:review_images(image_url,display_order)', { count: 'exact' })
+    .eq('store_id', storeId).eq('is_hidden', false).is('deleted_at', null);
+  if (userId) query = query.eq('user_id', userId);
+  query = query.order(column, { ascending: sort === 'low' });
+  if (column !== 'created_at') query = query.order('created_at', { ascending: false });
+  const result = await query.order('id', { ascending: false })
+    .range((page - 1) * size, page * size - 1);
+  if (result.error?.code === 'PGRST103')
+    return { rows: [], totalCount: await countPublicStoreReviews('reviews', storeId, userId) };
+  check(result);
+  if (!Array.isArray(result.data) || !Number.isSafeInteger(result.count))
+    throw Object.assign(new Error('DB 조회 결과를 확인할 수 없어요.'), { status: 503, code: 'DATABASE_ERROR' });
+  return { rows: result.data, totalCount: result.count };
+}
+
+async function countPublicStoreReviews(table, storeId, userId) {
+  let query = supabase.from(table).select('id', { count: 'exact', head: true })
+    .eq('store_id', storeId).eq('is_hidden', false).is('deleted_at', null);
+  if (userId) query = query.eq('user_id', userId);
+  const result = await query;
+  check(result);
+  if (!Number.isSafeInteger(result.count))
+    throw Object.assign(new Error('DB 조회 결과를 확인할 수 없어요.'), { status: 503, code: 'DATABASE_ERROR' });
+  return result.count;
+}
+
+export async function getProductReviewOrderItems(rows) {
+  const ids = [...new Set(rows.map((row) => row.order_item_id).filter(Boolean))];
+  if (!ids.length) return [];
+  return all('order_items', 'id,product_name,product_image_url', [['in', 'id', ids]]);
 }
 
 export async function getPublicStoreReviewCount(storeId, userId = null) {

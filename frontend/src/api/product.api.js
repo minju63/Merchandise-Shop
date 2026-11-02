@@ -26,10 +26,10 @@ export function getProductDetail(storeProductId, { signal } = {}, client) {
   return get(`/products/${encodeURIComponent(storeProductId)}`, undefined, signal, client);
 }
 
-export async function getProductReviews(storeProductId, { signal, sort = 'latest', page = 1, size = 20 } = {}, client) {
+export async function getProductReviews(storeProductId, { signal, sort = 'latest', page = 1, size = 20, mineOnly = false } = {}, client) {
   return get(
     `/products/${encodeURIComponent(storeProductId)}/reviews`,
-    { sort, page, size },
+    { sort, page, size, mineOnly },
     signal,
     client,
     await authHeaders()

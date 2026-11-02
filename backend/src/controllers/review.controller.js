@@ -110,17 +110,21 @@ function storeId(req) {
   return req.params.storeId;
 }
 
-function options(req) {
-  const { sort = 'latest', page = '1', size = '20', mineOnly = 'false' } = req.query;
+export function reviewListOptions(req) {
+  const { type = 'store', sort = 'latest', page = '1', size = '20', mineOnly = 'false' } = req.query;
+  if (typeof type !== 'string' || !['store', 'product'].includes(type))
+    throw reviewService.reviewError(400, 'INVALID_PARAMETER', '올바른 리뷰 종류가 아닙니다.');
   if (typeof sort !== 'string' || !['latest', 'high', 'low', 'likes'].includes(sort))
     throw reviewService.reviewError(400, 'INVALID_PARAMETER', '올바른 정렬 기준이 아닙니다.');
   if (typeof page !== 'string' || !/^[1-9]\d*$/.test(page) || !Number.isSafeInteger(Number(page)))
     throw reviewService.reviewError(400, 'INVALID_PARAMETER', 'page는 1 이상의 정수여야 합니다.');
-  if (typeof size !== 'string' || !/^[1-9]\d*$/.test(size) || Number(size) > 100)
+  if (typeof size !== 'string' || !/^[1-9]\d*$/.test(size) || !Number.isSafeInteger(Number(size)) || Number(size) > 100)
     throw reviewService.reviewError(400, 'INVALID_PARAMETER', 'size는 1~100 사이여야 합니다.');
+  if (!Number.isSafeInteger((Number(page) - 1) * Number(size)) || !Number.isSafeInteger(Number(page) * Number(size) - 1))
+    throw reviewService.reviewError(400, 'INVALID_PARAMETER', '리뷰 페이지 범위를 확인해 주세요.');
   if (typeof mineOnly !== 'string' || !['true', 'false'].includes(mineOnly))
     throw reviewService.reviewError(400, 'INVALID_PARAMETER', 'mineOnly는 true 또는 false여야 합니다.');
-  return { sort, page: Number(page), size: Number(size), mineOnly: mineOnly === 'true' };
+  return { type, sort, page: Number(page), size: Number(size), mineOnly: mineOnly === 'true' };
 }
 
 // 여경 — 굿즈샵 상세에서 사용 (store.service.js / store.routes.js)
@@ -144,7 +148,7 @@ export async function requireUser(req, res, next) {
 export async function list(req, res) {
   const result = await reviewService.listStoreReviews(
     storeId(req),
-    options(req),
+    reviewListOptions(req),
     req.viewerUserId,
   );
   if (!result)

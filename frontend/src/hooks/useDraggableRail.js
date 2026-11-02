@@ -15,6 +15,7 @@ export default function useDraggableRail() {
   };
   return {
     onPointerDown(event) {
+      if (event.target.closest('[data-rail-interactive]')) { drag.current = { pointerId: null, moved: false }; return; }
       if (event.pointerType === 'touch') { drag.current = { pointerId: null, moved: false }; return; }
       if (event.button !== 0) return;
       drag.current = { pointerId: event.pointerId, x: event.clientX, scroll: event.currentTarget.scrollLeft, moved: false };

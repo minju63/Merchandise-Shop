@@ -6,6 +6,7 @@ export default function UpcomingProductCard({
   isAlerted = false,
   alertActionAvailable = false,
   onAlertClick,
+  onPreorderClick,
   onClick,
 }) {
   const openTime = formatOpenTime(product.openAt, currentTimestamp);
@@ -67,6 +68,18 @@ export default function UpcomingProductCard({
           </svg>
           {isAlerted ? '알림 신청 완료' : '알림 받기'}
         </button>
+        {onPreorderClick && product.preorderAvailable && product.storeProductId ? (
+          <button
+            className="upcoming-card__preorder"
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              onPreorderClick(product);
+            }}
+          >
+            사전예약
+          </button>
+        ) : null}
         <p className="upcoming-card__waiting">
           {product.alertCount.toLocaleString('ko-KR')}명이 기다려요
         </p>

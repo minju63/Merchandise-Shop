@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import CancelSheet from './CancelSheet.jsx';
 import { ErrorNotice, Loading, PageHeader, Thumb } from './common.jsx';
 import {
@@ -92,14 +92,13 @@ function StoreBlock({ order, guide, guideLabel, courierName }) {
   return (
     <section className="ord-block">
       <h2 className="ord-block__title">매장 정보</h2>
-      <div className="ord-store">
+      <Link className="ord-store" to={MY_ROUTES.store(store.id)} state={{ orderReturnTo: MY_ROUTES.orderDetail(order.id) }}>
         <Thumb src={store.thumbnail_url} size={44} />
         <span className="ord-store__text">
           <strong>{store.name}</strong>
-          <span>매장 페이지로 이동</span>
+          <ChevronIcon aria-hidden="true" />
         </span>
-        <ChevronIcon />
-      </div>
+      </Link>
       {store.address ? (
         <p className="ord-line">
           <PinIcon width={16} height={16} /> <span>{store.address}</span>
@@ -245,6 +244,7 @@ export default function OrderDetailPage() {
   }
 
   const pickup = order.fulfillment_type === 'PICKUP';
+  const productReturnState = { listReturnTo: MY_ROUTES.orderDetail(order.id) };
   const headline = detailHeadline(order);
   const payment = order.payments?.[0];
   const requests = order.requests ?? {};
@@ -301,9 +301,11 @@ export default function OrderDetailPage() {
         <h2 className="ord-block__title">주문 상품 {order.items.length}개</h2>
         {order.items.map((item) => (
           <div key={item.id} className="ord-item">
-            <Thumb src={item.product_image_url} size={44} />
+            <Link to={MY_ROUTES.product(item.store_product_id)} state={productReturnState} aria-label={`${item.product_name} 상품 상세 보기`}>
+              <Thumb src={item.product_image_url} size={44} />
+            </Link>
             <span className="ord-item__text">
-              <strong>{item.product_name}</strong>
+              <Link to={MY_ROUTES.product(item.store_product_id)} state={productReturnState}>{item.product_name}</Link>
               <span>
                 {formatWon(item.unit_price)} · {item.quantity}개
               </span>
@@ -318,28 +320,29 @@ export default function OrderDetailPage() {
           {order.groupOrders.map((other) => {
             const pill = statusPill(other);
             return (
-              <button
-                key={other.id}
-                type="button"
-                className="ord-group-order"
-                onClick={() => navigate(MY_ROUTES.orderDetail(other.id))}
-              >
-                <span className="ord-group-order__head">
+              <div key={other.id} className="ord-group-order">
+                <button
+                  type="button"
+                  className="ord-group-order__head"
+                  onClick={() => navigate(MY_ROUTES.orderDetail(other.id))}
+                >
                   <strong>{other.store?.name}</strong>
                   <span className={`ord-pill ord-pill--${pill.tone}`}>{pill.label}</span>
-                </span>
+                </button>
                 {other.items.map((item) => (
-                  <span key={item.id} className="ord-item">
-                    <Thumb src={item.product_image_url} size={44} />
+                  <div key={item.id} className="ord-item">
+                    <Link to={MY_ROUTES.product(item.store_product_id)} state={productReturnState} aria-label={`${item.product_name} 상품 상세 보기`}>
+                      <Thumb src={item.product_image_url} size={44} />
+                    </Link>
                     <span className="ord-item__text">
-                      <strong>{item.product_name}</strong>
+                      <Link to={MY_ROUTES.product(item.store_product_id)} state={productReturnState}>{item.product_name}</Link>
                       <span>
                         {formatWon(item.unit_price)} · {item.quantity}개
                       </span>
                     </span>
-                  </span>
+                  </div>
                 ))}
-              </button>
+              </div>
             );
           })}
         </section>

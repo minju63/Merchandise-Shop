@@ -266,6 +266,7 @@ async function listGroupSiblings(userId, row) {
         store: store ? { id: store.id, name: store.name, thumbnail_url: store.thumbnail_url } : null,
         items: items.map((item) => ({
           id: item.id,
+          store_product_id: item.store_product_id,
           product_name: item.product_name,
           product_image_url: item.product_image_url,
           quantity: item.quantity,
