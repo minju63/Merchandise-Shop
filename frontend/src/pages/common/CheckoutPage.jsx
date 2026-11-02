@@ -188,8 +188,8 @@ function OrderCard({
           </strong>
           <span>{order.coupon ? '상품 쿠폰 적용 중' : '쿠폰을 선택해 주세요'}</span>
         </div>
-        {order.discountAmount > 0 ? (
-          <em className="co-coupon__amount">-{formatWon(order.discountAmount)}</em>
+        {order.couponDiscountAmount > 0 ? (
+          <em className="co-coupon__amount">-{formatWon(order.couponDiscountAmount)}</em>
         ) : (
           <span className="co-coupon__pick">선택</span>
         )}
@@ -202,10 +202,16 @@ function OrderCard({
         </div>
         <div>
           <dt>쿠폰 할인</dt>
-          <dd className={order.discountAmount ? 'is-discount' : ''}>
-            {order.discountAmount ? `-${formatWon(order.discountAmount)}` : '0원'}
+          <dd className={order.couponDiscountAmount ? 'is-discount' : ''}>
+            {order.couponDiscountAmount ? `-${formatWon(order.couponDiscountAmount)}` : '0원'}
           </dd>
         </div>
+        {order.gradeDiscountAmount ? (
+          <div>
+            <dt>등급 할인</dt>
+            <dd className="is-discount">-{formatWon(order.gradeDiscountAmount)}</dd>
+          </div>
+        ) : null}
         {isDelivery ? (
           <div>
             <dt>배달비</dt>
@@ -680,12 +686,14 @@ export default function CheckoutPage() {
         <InfoIcon width={14} height={14} />
         {useExpected
           ? '지금 사용하면 이번 주문은 추가 적립이 없어요'
-          : `쓰지 않으면 구매 확정 후 ${formatWon(points.earnAmount)}이 적립돼요 (결제금액의 ${points.earnRatePercent}%)`}
+          : `쓰지 않으면 구매 확정 후 ${formatWon(points.earnAmount)}이 적립돼요 (${data?.grade ? `${data.grade.name} 등급 · ` : ''}결제금액의 ${points.earnRatePercent}%)`}
       </p>
       {pointIssueText ? <p className="co-warn">{pointIssueText}</p> : null}
     </section>
   ) : null;
 
+  // 서버의 discountAmount 합계에는 쿠폰(상품·장바구니)과 회원 등급 할인이 함께 들어 있다.
+  const couponTotal = totals ? totals.discountAmount - (totals.gradeDiscountAmount ?? 0) : 0;
   const totalRows = totals ? (
     <dl className="co-sum">
       <div>
@@ -694,10 +702,16 @@ export default function CheckoutPage() {
       </div>
       <div>
         <dt>{multi ? '총 쿠폰 할인' : '쿠폰 할인'}</dt>
-        <dd className={totals.discountAmount ? 'is-discount' : ''}>
-          {totals.discountAmount ? `-${formatWon(totals.discountAmount)}` : '0원'}
+        <dd className={couponTotal ? 'is-discount' : ''}>
+          {couponTotal ? `-${formatWon(couponTotal)}` : '0원'}
         </dd>
       </div>
+      {totals.gradeDiscountAmount ? (
+        <div>
+          <dt>{data?.grade ? `${data.grade.name} 등급 할인 ${data.grade.discountRate}%` : '등급 할인'}</dt>
+          <dd className="is-discount">-{formatWon(totals.gradeDiscountAmount)}</dd>
+        </div>
+      ) : null}
       <div>
         <dt>배달비</dt>
         <dd>{totals.deliveryFee === null ? '-' : formatWon(totals.deliveryFee)}</dd>

@@ -253,7 +253,10 @@ export default function OrderDetailPage() {
     ['상품 금액', formatWon(order.items_amount)],
     ...(!pickup ? [['배달비', formatWon(order.delivery_fee)]] : []),
     ...(order.discount_amount > 0
-      ? [['쿠폰 할인', `-${formatWon(order.discount_amount)}`, 'accent']]
+      ? [
+          // 할인 금액에는 쿠폰 할인과 회원 등급 할인이 함께 들어 있다.
+          [order.used_coupon_id ? '쿠폰·등급 할인' : '등급 할인', `-${formatWon(order.discount_amount)}`, 'accent'],
+        ]
       : []),
   ];
 

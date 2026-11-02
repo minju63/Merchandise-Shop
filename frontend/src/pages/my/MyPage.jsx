@@ -28,7 +28,8 @@ import {
   providerLabel,
 } from './format.js';
 import { supabase } from '../../lib/supabase.js';
-import { getMyPoints, getWritableReviewCount } from './account.api.js';
+import { getMyGrade, getMyPoints, getWritableReviewCount } from './account.api.js';
+import { GRADE_COLORS } from './gradeColors.js';
 import { useMySummary, useRequest, useSession } from './hooks.js';
 import { formatWon } from './orderFormat.js';
 import { MY_ROUTES } from './routes.js';
@@ -88,6 +89,7 @@ function MemberView({ data, provider, onNavigate }) {
   const counts = orderSummary?.counts ?? {};
   const points = useRequest(true, 'my-points-card', getMyPoints);
   const writable = useRequest(true, 'my-writable-reviews', getWritableReviewCount);
+  const grade = useRequest(true, 'my-grade-card', getMyGrade);
 
   return (
     <>
@@ -102,6 +104,11 @@ function MemberView({ data, provider, onNavigate }) {
         <span className="my-profile__body">
           <span className="my-profile__name">
             {profile.nickname}
+            {grade.data ? (
+              <span className="gr-badge" style={{ background: GRADE_COLORS[grade.data.grade.code] }}>
+                {grade.data.grade.name}
+              </span>
+            ) : null}
             {planShort ? <span className="my-pill">{planShort} 멤버십</span> : null}
           </span>
           <span className="my-profile__sub">
@@ -161,6 +168,29 @@ function MemberView({ data, provider, onNavigate }) {
           })}
         </div>
       </section>
+
+      {grade.data ? (
+        <section className="my-card">
+          <button type="button" className="mt-grade-card" onClick={() => onNavigate(MY_ROUTES.grade)}>
+            <b className="gr-badge" style={{ background: GRADE_COLORS[grade.data.grade.code] }}>
+              {grade.data.grade.name}
+            </b>
+            <span className="mt-grade-card__text">
+              <strong>
+                할인 {grade.data.grade.discountRate}% · 적립 {grade.data.grade.earnRate}%
+              </strong>
+              <span>
+                {grade.data.couponPack.claimed
+                  ? grade.data.nextGrade
+                    ? `${formatWon(grade.data.remainingToNext)} 더 구매하면 ${grade.data.nextGrade.name}`
+                    : '가장 높은 등급이에요'
+                  : `이번 달 쿠폰팩 ${grade.data.grade.couponPack.length}장을 받아가세요`}
+              </span>
+            </span>
+            <ChevronIcon />
+          </button>
+        </section>
+      ) : null}
 
       <section className="my-card mt-wallet">
         <div className="mt-wallet__cols">
@@ -232,6 +262,12 @@ function MemberView({ data, provider, onNavigate }) {
       <Section title="혜택">
         <Row
           icon={GiftIcon}
+          label="회원 등급 혜택"
+          value={grade.data?.grade.name ?? ''}
+          onClick={() => onNavigate(MY_ROUTES.grade)}
+        />
+        <Row
+          icon={GiftIcon}
           label="멤버십"
           value={plan ? `${planShort} 이용 중` : ''}
           onClick={() => onNavigate(MY_ROUTES.membership)}
@@ -250,11 +286,8 @@ function MemberView({ data, provider, onNavigate }) {
       </Section>
 
       <Section title="이벤트">
-        <Row
-          icon={MegaphoneIcon}
-          label="이번 주 메인은 내 최애"
-          onClick={() => onNavigate(MY_ROUTES.weeklyPickEvent)}
-        />
+        <Row icon={MegaphoneIcon} label="기념일 전광판" onClick={() => onNavigate(MY_ROUTES.fanGuide)} />
+        <Row icon={GiftIcon} label="최애 스테이지" onClick={() => onNavigate(MY_ROUTES.stage)} />
         <Row icon={TicketIcon} label="굿즈픽 쿠지" onClick={() => onNavigate(MY_ROUTES.kuji)} />
       </Section>
 

@@ -1,0 +1,248 @@
+/* 랜덤박스·최애박스 상세 + 응원 완료 화면의 개봉 결과 */
+.box-shop__hero {
+  display: flex;
+  margin: 0 0 8px;
+  padding: 26px 20px 24px;
+  flex-direction: column;
+  align-items: center;
+  color: #fff;
+  background: linear-gradient(160deg, #2c1f5e, #6b3fa0 70%, #a35a8c);
+  text-align: center;
+}
+
+.box-shop__gift {
+  font-size: 44px;
+  line-height: 1;
+  animation: box-shake 1.8s ease-in-out infinite;
+}
+
+@keyframes box-shake {
+  0%, 70%, 100% { transform: rotate(0); }
+  75% { transform: rotate(-10deg); }
+  85% { transform: rotate(10deg); }
+  95% { transform: rotate(-4deg); }
+}
+
+.box-shop__hero p {
+  margin: 12px 0 0;
+  color: #fac775;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.box-shop__hero h2 {
+  margin: 4px 0 6px;
+  font-size: 22px;
+  line-height: 1.3;
+  letter-spacing: -0.6px;
+}
+
+.box-shop__hero small {
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+.box-shop__boxes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.box-shop__box {
+  display: flex;
+  padding: 14px 12px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  border: 1.5px solid #eeebf3;
+  border-radius: 14px;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.box-shop__box.active {
+  border-color: var(--bd-primary, #6f5be7);
+  background: #f6f4ff;
+}
+
+.box-shop__box b {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  color: var(--text, #1d1a24);
+  font-size: 15px;
+}
+
+.box-shop__box em {
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #fff;
+  background: var(--bd-primary, #6f5be7);
+  font-size: 10px;
+  font-style: normal;
+}
+
+.box-shop__box small {
+  color: var(--bd-sub, #6b6676);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.box-shop__box span {
+  margin-top: 4px;
+  color: var(--bd-primary, #6f5be7);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.box-shop__odds {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  flex-direction: column;
+  gap: 12px;
+  list-style: none;
+}
+
+.box-shop__odds li {
+  display: grid;
+  grid-template-columns: 48px 1fr 44px;
+  align-items: center;
+  column-gap: 10px;
+  row-gap: 5px;
+}
+
+.box-shop__odds-items {
+  overflow: hidden;
+  color: var(--bd-sub, #6b6676);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.box-shop__odds-bar {
+  grid-column: 2;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: #f1eff5;
+}
+
+.box-shop__odds-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+}
+
+.box-shop__odds li b {
+  grid-row: 1 / span 2;
+  grid-column: 3;
+  color: var(--text, #1d1a24);
+  font-size: 14px;
+  text-align: right;
+}
+
+.box-shop__odds .box-shop__tier {
+  grid-row: 1 / span 2;
+}
+
+.box-shop__tier {
+  display: inline-block;
+  padding: 3px 0;
+  width: 48px;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.box-shop__lineup {
+  display: flex;
+  margin: 0 -18px;
+  padding: 2px 18px 4px;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.box-shop__lineup::-webkit-scrollbar {
+  display: none;
+}
+
+.box-shop__limited {
+  display: flex;
+  width: 124px;
+  flex: none;
+  padding: 14px 10px 12px;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #eeebf3;
+  border-radius: 14px;
+  background: #fff;
+  text-align: center;
+}
+
+.box-shop__limited b {
+  color: var(--text, #1d1a24);
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.box-shop__limited small {
+  color: #e5484d;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+/* 응원 완료 화면: 박스에서 나온 구성품 */
+.box-results {
+  display: flex;
+  width: 100%;
+  margin: 18px 0 0;
+  padding: 0;
+  flex-direction: column;
+  gap: 8px;
+  list-style: none;
+  text-align: left;
+}
+
+.box-results li {
+  display: flex;
+  padding: 10px 12px;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #eeebf3;
+  border-radius: 12px;
+  background: #fff;
+  animation: box-result-in 360ms ease-out both;
+}
+
+.box-results li.box-results--limited {
+  border-color: #fac775;
+  background: #fff8e8;
+}
+
+.box-results li span:last-child {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.box-results b {
+  color: var(--text, #1d1a24);
+  font-size: 13px;
+}
+
+.box-results small {
+  color: var(--bd-sub, #6b6676);
+  font-size: 11px;
+}
+
+@keyframes box-result-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}

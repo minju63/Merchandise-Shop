@@ -12,6 +12,10 @@ export const cancelMembership = () => http.post('/memberships/me/cancel', {}).th
 export const getWritableReviewCount = () =>
   http.get('/reviews/me', { params: { tab: 'WRITABLE', size: 1 } }).then(data).then((r) => r.totalCount ?? 0);
 
+// 회원 등급 (최근 6개월 구매 확정 금액 기준)
+export const getMyGrade = () => http.get('/users/me/grade').then(data);
+export const claimGradeCouponPack = () => http.post('/users/me/grade/coupon-pack', {}).then(data);
+
 // 쿠폰
 export const listCoupons = () => http.get('/coupons').then(data);
 export const listCheckoutCoupons = (params) => http.get('/coupons/usable', { params }).then(data);

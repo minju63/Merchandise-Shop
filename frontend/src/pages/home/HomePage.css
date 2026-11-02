@@ -108,8 +108,9 @@
   text-align: left;
 }
 
+/* 무신사처럼 화면 끝까지 꽉 채운 큰 배너 */
 .banner-section {
-  padding: 0 18px 10px;
+  padding: 0 0 10px;
 }
 
 .banner-rail,
@@ -138,10 +139,9 @@
 .promo-banner {
   position: relative;
   width: 100%;
-  height: 131px; /* 배너 종류와 상관없이 팬 응원 전광판 높이로 통일 */
-  padding: 16px 18px;
+  aspect-ratio: 16 / 9; /* 배너 종류와 상관없이 같은 비율 (팬 전광판 꾸미기 미리보기도 같은 비율) */
+  padding: 24px 22px;
   overflow: hidden;
-  border-radius: 16px;
   color: #fff;
   scroll-snap-align: start;
   touch-action: pan-y;
@@ -150,11 +150,35 @@
   animation: banner-fade 320ms ease-out;
 }
 
-/* 서비스 소개·광고·기획전 배너는 글이 위에 붙지 않게 세로 가운데에 둔다 (팬 전광판은 자체 레이아웃) */
+/* 서비스 소개·광고·기획전 배너는 글을 왼쪽 위에 둔다 (팬 전광판은 자체 레이아웃) */
 .promo-banner:not(.promo-banner--fan) {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
+}
+
+/* 배너 이미지가 있으면 꽉 채우고, 글이 읽히게 위쪽을 어둡게 깐다 */
+.promo-banner__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.promo-banner--has-image::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgb(0 0 0 / 55%), rgb(0 0 0 / 0%) 60%);
+  content: '';
+}
+
+.promo-banner--has-image,
+.promo-banner--has-image.promo-banner--ad,
+.promo-banner--has-image.promo-banner--exhibition,
+.promo-banner--has-image.promo-banner--fan-promo {
+  color: #fff;
 }
 
 .promo-banner.is-dragging {
@@ -168,10 +192,10 @@
 
 .promo-banner__eyebrow {
   display: flex;
-  margin: 0 0 5px;
+  margin: 0 0 8px;
   align-items: center;
   gap: 6px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   opacity: 0.8;
 }
@@ -181,7 +205,7 @@
   border-radius: 4px;
   color: #312317;
   background: rgb(255 255 255 / 85%);
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 900;
 }
 
@@ -190,24 +214,36 @@
   z-index: 1;
 }
 
+/* 제목은 위, 자세히 보기는 배너 아래쪽에 붙인다 */
+.promo-banner:not(.promo-banner--fan) .promo-banner__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.promo-banner:not(.promo-banner--fan) .promo-banner__cta {
+  margin-top: auto;
+}
+
 .promo-banner h2 {
-  max-width: 210px;
-  margin: 0 0 8px;
+  max-width: 85%;
+  margin: 0 0 14px;
   white-space: pre-line;
-  font-size: 18px;
-  line-height: 1.25;
-  letter-spacing: -0.7px;
+  font-size: 27px;
+  line-height: 1.22;
+  letter-spacing: -1px;
 }
 
 .promo-banner__cta {
   display: inline-flex;
-  padding: 5px 9px;
+  padding: 8px 14px;
   align-items: center;
   gap: 4px;
   border-radius: 999px;
   color: #2a1d4d;
   background: #fff;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
   border: 0;
 }
@@ -219,14 +255,14 @@
 
 .promo-banner__count {
   position: absolute;
-  right: 10px;
-  bottom: 9px;
+  right: 16px;
+  bottom: 16px;
   z-index: 2;
-  padding: 3px 7px;
+  padding: 4px 10px;
   border-radius: 99px;
   color: #fff;
   background: rgb(20 16 29 / 55%);
-  font-size: 9px;
+  font-size: 11px;
 }
 
 /* 1 서비스 소개 */
@@ -272,7 +308,7 @@
 }
 
 /* 4 기념일 전광판: 눌러서 "그날 기념일인 최애" 화면으로 간다. 누를 수 있다는 걸 작은 칩으로만 알린다 */
-.promo-banner--fan.is-link {
+.promo-banner.is-link {
   cursor: pointer;
 }
 
@@ -302,12 +338,31 @@
   background: #6f5be7;
 }
 
+/* 7 랜덤박스·최애박스 */
+.promo-banner--box-promo {
+  background: linear-gradient(135deg, #2c1f5e, #6b3fa0 65%, #a35a8c);
+}
+
+.promo-banner--box-promo .promo-banner__eyebrow {
+  color: #fac775;
+  opacity: 1;
+}
+
+.promo-banner__box-art {
+  position: absolute;
+  right: 76px;
+  bottom: 14px;
+  font-size: 48px;
+  line-height: 1;
+  transform: rotate(8deg);
+}
+
 .promo-banner__live {
   padding: 2px 7px;
   border-radius: 99px;
   color: #fff;
   background: #e5484d;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 800;
 }
 
@@ -998,7 +1053,6 @@
 @media (max-width: 359px) {
   .category-shortcuts__icon { width: 39px; height: 39px; }
   .category-shortcuts button { font-size: 9px; }
-  .promo-banner { flex-basis: calc(100% - 10px); }
 }
 
 .upcoming-card--clickable {
@@ -1112,4 +1166,232 @@
   box-shadow: 0 6px 24px #9f28451a;
   font-size: 13px;
   font-weight: 700;
+}
+
+/* 검색창 아래 이벤트 바로가기 (최애 스테이지 · 쿠지 · 랜덤박스) */
+.home-quick {
+  display: flex;
+  margin-top: 10px;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.home-quick::-webkit-scrollbar {
+  display: none;
+}
+
+.home-quick button {
+  display: inline-flex;
+  flex: none;
+  padding: 7px 14px;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #e4e1ec;
+  border-radius: 999px;
+  color: var(--text);
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(31 32 40 / 5%);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+.home-quick button:hover,
+.home-quick button:focus-visible {
+  border-color: #6f5be7;
+  background: #f6f4ff;
+}
+
+.home-quick button:active {
+  background: #efebff;
+}
+
+.home-quick__live {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #e5484d;
+  animation: stage-blink 1.4s ease-in-out infinite;
+}
+
+/* 8 쿠지 기획전: 왼쪽 글(제목·기획전·가격), 오른쪽 기획전 굿즈 사진 콜라주 */
+.promo-banner.promo-banner--kuji-promo {
+  justify-content: center;
+  background: linear-gradient(120deg, #ee5a40, #d63c2c);
+}
+
+.promo-banner.promo-banner--kuji-chiikawa {
+  color: #2b1d2a;
+  background: linear-gradient(120deg, #f7bccd, #ef94b4);
+}
+
+.promo-banner.promo-banner--kuji-promo .promo-banner__body {
+  flex: 0 0 auto;
+  max-width: 50%;
+}
+
+.promo-banner--kuji-promo h2 {
+  max-width: none;
+  margin: 0 0 8px;
+  font-size: 21px;
+  line-height: 1.24;
+  letter-spacing: -0.8px;
+  white-space: pre-line;
+}
+
+.promo-banner__kuji-sub {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+}
+
+.promo-banner__kuji-line {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  opacity: 0.88;
+  white-space: nowrap;
+}
+
+/* 기획전 이미지의 오른쪽 굿즈 콜라주만 잘라 보여 주고, 가장자리는 배경에 녹인다 */
+.kuji-art {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 54%;
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: auto 84%;
+  -webkit-mask-image:
+    linear-gradient(to right, transparent, #000 12%),
+    linear-gradient(to bottom, transparent 4%, #000 12%, #000 88%, transparent 96%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent, #000 12%),
+    linear-gradient(to bottom, transparent 4%, #000 12%, #000 88%, transparent 96%);
+  mask-composite: intersect;
+  pointer-events: none;
+}
+
+/* 배너 장식: 오른쪽 유리 타일 아이콘 + 배지 + 반짝이, 배경의 은은한 빛 */
+.promo-banner--with-art::before {
+  position: absolute;
+  top: -40%;
+  right: -18%;
+  width: 70%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(255 255 255 / 28%), rgb(255 255 255 / 0%) 70%);
+  content: '';
+  pointer-events: none;
+}
+
+.promo-banner--with-art h2 {
+  max-width: 62%;
+  font-size: 24px;
+}
+
+.promo-banner--with-art .promo-banner__eyebrow {
+  max-width: 62%;
+}
+
+.promo-art {
+  position: absolute;
+  right: 24px;
+  bottom: 48px;
+  z-index: 1;
+  width: 96px;
+  height: 96px;
+  pointer-events: none;
+}
+
+.promo-art__tile {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 55%);
+  border-radius: 28px;
+  color: inherit;
+  background: linear-gradient(145deg, rgb(255 255 255 / 42%), rgb(255 255 255 / 10%));
+  box-shadow: 0 14px 26px rgb(20 16 40 / 22%), inset 0 1px 0 rgb(255 255 255 / 60%);
+  backdrop-filter: blur(6px);
+  transform: rotate(-8deg);
+  animation: promo-art-float 3.2s ease-in-out infinite;
+}
+
+.promo-art__tile svg {
+  width: 54px;
+  height: 54px;
+}
+
+.promo-art__badge {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  display: grid;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 6px;
+  place-items: center;
+  border-radius: 999px;
+  color: #6f5be7;
+  background: #fff;
+  box-shadow: 0 6px 14px rgb(20 16 40 / 20%);
+  font-size: 12px;
+  font-weight: 900;
+  transform: rotate(6deg);
+}
+
+.promo-art__spark {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: currentColor;
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  opacity: 0.85;
+  animation: promo-art-twinkle 2.4s ease-in-out infinite;
+}
+
+.promo-art__spark--1 { top: -10px; left: -14px; }
+.promo-art__spark--2 { top: 8px; right: -18px; width: 14px; height: 14px; animation-delay: 0.8s; }
+.promo-art__spark--3 { bottom: 4px; left: -22px; width: 7px; height: 7px; animation-delay: 1.4s; }
+
+@keyframes promo-art-float {
+  0%, 100% { transform: rotate(-8deg) translateY(0); }
+  50% { transform: rotate(-6deg) translateY(-5px); }
+}
+
+@keyframes promo-art-twinkle {
+  0%, 100% { opacity: 0.25; transform: scale(0.7); }
+  50% { opacity: 0.95; transform: scale(1); }
+}
+
+/* 배지 색: 배너 분위기에 맞춘다 */
+.promo-banner--ad .promo-art__badge { color: #b4521a; }
+.promo-banner--exhibition .promo-art__badge { color: #1e7a55; }
+.promo-banner--box-promo .promo-art__badge { color: #6b3fa0; }
+.promo-banner--fan-promo .promo-art__badge { color: #e0457b; }
+
+/* 밝은 배너는 타일을 더 하얗게 */
+.promo-banner--ad .promo-art__tile,
+.promo-banner--exhibition .promo-art__tile,
+.promo-banner--fan-promo .promo-art__tile {
+  border-color: rgb(255 255 255 / 85%);
+  background: linear-gradient(145deg, rgb(255 255 255 / 85%), rgb(255 255 255 / 45%));
+}
+
+/* 서비스 소개 배경을 조금 더 깊게 */
+.promo-banner--service-intro {
+  background:
+    radial-gradient(90% 120% at 100% 100%, rgb(111 91 231 / 55%), transparent 60%),
+    linear-gradient(135deg, #241a4f, #43327e);
 }
