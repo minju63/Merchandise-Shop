@@ -30,6 +30,16 @@
 .lg-input::placeholder { color: var(--lg-faint); }
 .lg-login .lg-input { margin-bottom: 10px; }
 .lg-login .lg-main-btn { margin-top: 6px; }
+/* 소셜 로그인 */
+.lg-social { margin: 26px 0 0; }
+.lg-social__title { display: flex; align-items: center; gap: 12px; margin: 0 0 16px; color: var(--lg-faint); font-size: 12px; }
+.lg-social__title::before, .lg-social__title::after { content: ''; flex: 1; height: 1px; background: var(--lg-line); }
+.lg-social__row { display: flex; justify-content: center; gap: 16px; }
+.lg-social__btn { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; }
+.lg-social__btn:disabled { opacity: 0.5; cursor: default; }
+.lg-social__btn.is-google { border: 1px solid var(--lg-line); background: #fff; }
+.lg-social__btn.is-kakao { background: #fee500; }
+.lg-social__btn.is-naver { background: #03c75a; }
 .lg-links { display: flex; align-items: center; justify-content: center; gap: 14px; margin: 20px 0 14px; color: var(--lg-sub); font-size: 13px; }
 .lg-links__sep { width: 1px; height: 12px; background: var(--lg-line); }
 .lg-links b { color: var(--lg-text); font-weight: 700; }
