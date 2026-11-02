@@ -56,6 +56,10 @@ import ClaimFormPage from './pages/my/ClaimFormPage.jsx';
 import RecentProductsPage from './pages/my/RecentProductsPage.jsx';
 import RefundAccountsPage from './pages/my/RefundAccountsPage.jsx';
 import AlertsPage from './pages/my/AlertsPage.jsx';
+import KujiListPage from './pages/kuji/KujiListPage.jsx';
+import KujiDetailPage from './pages/kuji/KujiDetailPage.jsx';
+import KujiDrawPage from './pages/kuji/KujiDrawPage.jsx';
+import KujiResultPage from './pages/kuji/KujiResultPage.jsx';
 import { recordProductView } from './pages/my/account.api.js';
 import CategoryPage from './pages/category/CategoryPage.jsx';
 import ProductListPage from './pages/category/ProductListPage.jsx';
@@ -742,6 +746,10 @@ export default function App() {
         <Route path="/my/recent" element={<RecentProductsPage />} />
         <Route path="/my/refund-accounts" element={<RefundAccountsPage />} />
         <Route path="/my/alerts" element={<AlertsPage />} />
+        <Route path="/kuji" element={<KujiListPage />} />
+        <Route path="/kuji/:kujiId" element={<KujiDetailPage />} />
+        <Route path="/kuji/:kujiId/draw" element={<KujiDrawPage />} />
+        <Route path="/kuji/:kujiId/result" element={<KujiResultPage />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

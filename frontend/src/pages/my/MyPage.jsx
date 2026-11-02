@@ -12,7 +12,6 @@ import {
   DocIcon,
   GiftIcon,
   HeadsetIcon,
-  HeartIcon,
   HelpIcon,
   LockIcon,
   MegaphoneIcon,
@@ -21,7 +20,6 @@ import {
   TicketIcon,
   TruckIcon,
   UserIcon,
-  WalletIcon,
 } from './icons.jsx';
 import {
   formatBadgeCount,
@@ -29,7 +27,7 @@ import {
   membershipShortName,
   providerLabel,
 } from './format.js';
-import { getMyPoints } from './account.api.js';
+import { getMyPoints, getWritableReviewCount } from './account.api.js';
 import { useMySummary, useRequest, useSession } from './hooks.js';
 import { formatWon } from './orderFormat.js';
 import { MY_ROUTES } from './routes.js';
@@ -112,6 +110,7 @@ function MemberView({ data, provider, onNavigate }) {
   const planShort = plan ? membershipShortName(plan) : null;
   const counts = orderSummary?.counts ?? {};
   const points = useRequest(true, 'my-points-card', getMyPoints);
+  const writable = useRequest(true, 'my-writable-reviews', getWritableReviewCount);
 
   return (
     <>
@@ -157,25 +156,6 @@ function MemberView({ data, provider, onNavigate }) {
       ) : null}
 
       <section className="my-card">
-        <button
-          type="button"
-          className="mt-points-card"
-          onClick={() => onNavigate(MY_ROUTES.points)}
-        >
-          <WalletIcon width={22} height={22} />
-          <span className="mt-points-card__text">
-            <strong>적립금 {points.data ? formatWon(points.data.balance) : '-'}</strong>
-            <span>
-              {points.data?.pendingAmount
-                ? `적립 예정 ${formatWon(points.data.pendingAmount)} · 결제 금액의 1% 적립`
-                : '결제 금액의 1%가 구매 확정 후 적립돼요'}
-            </span>
-          </span>
-          <ChevronIcon />
-        </button>
-      </section>
-
-      <section className="my-card">
         <div className="my-card__head">
           <h2 className="my-card__title">
             주문 현황 <span className="my-card__hint">최근 3개월</span>
@@ -205,29 +185,39 @@ function MemberView({ data, provider, onNavigate }) {
         </div>
       </section>
 
-      <section className="my-card my-activity">
-        <button type="button" className="my-activity__item" onClick={() => onNavigate('/wishlist')}>
-          <HeartIcon className="my-activity__icon" />
-          <span className="my-activity__label">찜한 상품</span>
-          <span className="my-activity__num">{activity?.wishlistProducts ?? 0}</span>
-        </button>
+      <section className="my-card mt-wallet">
+        <div className="mt-wallet__cols">
+          <button type="button" className="mt-wallet__col" onClick={() => onNavigate(MY_ROUTES.points)}>
+            <span className="mt-wallet__label">
+              적립금 <ChevronIcon width={14} height={14} />
+            </span>
+            <strong>{points.data ? formatWon(points.data.balance) : '-'}</strong>
+          </button>
+          <button type="button" className="mt-wallet__col" onClick={() => onNavigate(MY_ROUTES.coupons)}>
+            <span className="mt-wallet__label">
+              쿠폰 <ChevronIcon width={14} height={14} />
+            </span>
+            <strong>{formatBadgeCount(activity?.availableCoupons ?? 0) || 0}</strong>
+          </button>
+          <button type="button" className="mt-wallet__col" onClick={() => onNavigate('/wishlist')}>
+            <span className="mt-wallet__label">
+              찜한 상품 <ChevronIcon width={14} height={14} />
+            </span>
+            <strong>{activity?.wishlistProducts ?? 0}</strong>
+          </button>
+          <button type="button" className="mt-wallet__col" onClick={() => onNavigate('/wishlist?tab=shops')}>
+            <span className="mt-wallet__label">
+              찜한 굿즈샵 <ChevronIcon width={14} height={14} />
+            </span>
+            <strong>{activity?.wishlistShops ?? 0}</strong>
+          </button>
+        </div>
         <button
           type="button"
-          className="my-activity__item"
-          onClick={() => onNavigate('/wishlist?tab=shops')}
+          className="mt-wallet__review"
+          onClick={() => onNavigate(MY_ROUTES.orderStatus('COMPLETED'))}
         >
-          <StoreIcon className="my-activity__icon" />
-          <span className="my-activity__label">찜한 굿즈샵</span>
-          <span className="my-activity__num">{activity?.wishlistShops ?? 0}</span>
-        </button>
-        <button
-          type="button"
-          className="my-activity__item"
-          onClick={() => onNavigate(MY_ROUTES.coupons)}
-        >
-          <TicketIcon className="my-activity__icon" />
-          <span className="my-activity__label">쿠폰</span>
-          <span className="my-activity__num">{activity?.availableCoupons ?? 0}</span>
+          작성 가능한 후기 {writable.data ?? 0}개 <ChevronIcon width={16} height={16} />
         </button>
       </section>
 
@@ -285,6 +275,7 @@ function MemberView({ data, provider, onNavigate }) {
           label="이번 주 메인은 내 최애"
           onClick={() => onNavigate(MY_ROUTES.weeklyPickEvent)}
         />
+        <Row icon={TicketIcon} label="굿즈픽 쿠지" onClick={() => onNavigate(MY_ROUTES.kuji)} />
       </Section>
 
       <Section title="정보">

@@ -28,9 +28,12 @@
 .mt-textarea { width: 100%; box-sizing: border-box; min-height: 90px; padding: 12px; border: 1px solid var(--my-line); border-radius: 12px; font: inherit; color: var(--my-text); resize: vertical; outline: 0; }
 .mt-error { margin: 12px 0 0; color: var(--my-error, #d23b3b); font-size: 13px; }
 .mt-notice { margin: 0 0 14px; padding: 12px 14px; border-radius: 12px; background: var(--my-soft); color: var(--my-sub); font-size: 13px; line-height: 1.6; }
-.mt-points-card { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; }
-.mt-points-card__text { flex: 1; min-width: 0; }
-.mt-points-card__text strong { display: block; font-size: 17px; }
-.mt-points-card__text span { color: var(--my-sub); font-size: 12px; }
+.mt-wallet { padding: 0; overflow: hidden; border: 0; border-radius: 4px; background: var(--my-soft); }
+.mt-wallet__cols { display: grid; grid-template-columns: repeat(4, 1fr); padding: 10px 0; }
+.mt-wallet__col { display: flex; flex-direction: column; gap: 1px; min-width: 0; padding: 0 8px; text-align: left; }
+.mt-wallet__col + .mt-wallet__col { border-left: 1px solid var(--my-line); }
+.mt-wallet__label { display: inline-flex; align-items: center; gap: 2px; color: var(--my-text); font-size: 11px; white-space: nowrap; }
+.mt-wallet__col strong { font-size: 15px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mt-wallet__review { display: flex; align-items: center; gap: 4px; width: 100%; padding: 9px 14px; border-top: 1px solid var(--my-line); text-align: left; font-size: 12px; font-weight: 400; }
 .ord-tabs--four { grid-template-columns: repeat(4, 1fr); }
 .mt-row { width: 100%; text-align: left; }

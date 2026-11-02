@@ -8,6 +8,10 @@ export const getMyMembership = () => http.get('/memberships/me').then(data);
 export const subscribeMembership = (body) => http.post('/memberships', body).then(data);
 export const cancelMembership = () => http.post('/memberships/me/cancel', {}).then(data);
 
+// 작성 가능한 후기 개수 (리뷰 API의 WRITABLE 목록 totalCount)
+export const getWritableReviewCount = () =>
+  http.get('/reviews/me', { params: { tab: 'WRITABLE', size: 1 } }).then(data).then((r) => r.totalCount ?? 0);
+
 // 쿠폰
 export const listCoupons = () => http.get('/coupons').then(data);
 export const getCoupon = (id) => http.get(`/coupons/${id}`).then(data);

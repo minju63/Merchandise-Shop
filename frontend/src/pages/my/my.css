@@ -59,7 +59,7 @@
 .my-step__count { font-size: 20px; font-weight: 700; }
 .my-step__count.is-accent, .my-row__value.is-accent { color: var(--my-primary); }
 .my-step__label { color: var(--my-sub); font-size: 12px; }
-.my-activity { display: grid; grid-template-columns: repeat(3, 1fr); padding: 14px 0; border: 0; background: var(--my-soft); }
+.my-activity { display: grid; grid-template-columns: repeat(2, 1fr); padding: 14px 0; border: 0; background: var(--my-soft); }
 .my-activity__item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .my-activity__item + .my-activity__item { border-left: 1px solid var(--my-line); }
 .my-activity__icon { width: 22px; height: 22px; color: var(--my-sub); }

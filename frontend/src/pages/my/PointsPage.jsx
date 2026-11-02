@@ -13,6 +13,7 @@ const TYPE_LABEL = {
   USE: '주문 결제에 사용',
   USE_CANCEL: '주문 취소로 돌려받음',
   REVIEW_REWARD: '리뷰 작성 적립',
+  KUJI_RESALE: '쿠지 되팔기 적립',
 };
 
 export default function PointsPage() {
