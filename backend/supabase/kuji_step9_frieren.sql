@@ -4,7 +4,7 @@
 --
 -- · 오픈 예정 쿠지 상세 화면에 오픈 일시를 보여 주려고 kuji_detail 에 opensAt 를 추가한다.
 -- · 프리렌 쿠지는 2026-11-18(수) 14:00 오픈 예정(11월 셋째 주)이다. 사진은 frontend/public/kuji/frieren-journey/ 에 있다.
--- · 상품 종류 이름은 실제 캐릭터 이름이다. 다른 구매자의 교환글 6개가 함께 들어간다(시연용).
+-- · 상품 종류 이름은 실제 캐릭터 이름이다. 아직 오픈 전이라 교환글·판매된 티켓은 없다(전 티켓 판매 가능 상태).
 -- · 자리만 채워 두었던 오픈 예정 「모래시계 학원 쿠지」는 목록에서 빠지도록 CLOSED 로 바꾼다(삭제하지 않는다).
 -- · 모든 금액은 개발용 예시다.
 
@@ -66,9 +66,6 @@ declare
   v_event uuid;
   v_prize_id uuid;
   v_idx integer;
-  v_listing jsonb;
-  v_ticket uuid;
-  v_want uuid;
 begin
   perform setseed(0.2026);
 
@@ -84,14 +81,6 @@ begin
         {"grade": "D", "name": "캐릭터 얼굴 쿠션", "desc": "쿠션 4종 / 프리렌·페른·슈타르크·아우라", "retail": 15000, "buyback": 3500, "count": 8, "variants": ["프리렌", "페른", "슈타르크", "아우라"]},
         {"grade": "E", "name": "캐릭터 스트랩", "desc": "스트랩 6종 / 프리렌·페른·슈타르크·힘멜·하이터·아이젠", "retail": 8000, "buyback": 2300, "count": 12, "variants": ["프리렌", "페른", "슈타르크", "힘멜", "하이터", "아이젠"]},
         {"grade": "F", "name": "아크릴 카드", "desc": "아크릴 카드 10종 / 프리렌(꽃관)·프리렌(머플러)·힘멜·페른·슈타르크·프리렌&힘멜·하이터&아이젠·프리렌&페른·페른&슈타르크·용사 파티", "retail": 4000, "buyback": 1000, "count": 28, "variants": ["프리렌(꽃관)", "프리렌(머플러)", "힘멜", "페른", "슈타르크", "프리렌&힘멜", "하이터&아이젠", "프리렌&페른", "페른&슈타르크", "용사 파티"]}
-      ],
-      "listings": [
-        {"grade": "C", "have": "미믹", "want": "프리렌", "nick": "hana_pick", "minutes": 8},
-        {"grade": "C", "have": "힘멜", "want": "페른", "nick": "night_owl", "minutes": 21},
-        {"grade": "D", "have": "아우라", "want": "프리렌", "nick": "kuji_fan", "minutes": 35},
-        {"grade": "E", "have": "아이젠", "want": "힘멜", "nick": "deok_hu", "minutes": 52},
-        {"grade": "E", "have": "슈타르크", "want": "페른", "nick": "bae_ji", "minutes": 90},
-        {"grade": "F", "have": "용사 파티", "want": "프리렌&힘멜", "nick": "pink_bear", "minutes": 180}
       ]
     }
   ]$cfg$::jsonb) loop
@@ -130,31 +119,6 @@ begin
       cross join lateral generate_series(1, p.total_count) as g(i)
       where p.kuji_id = v_event
     ) s;
-
-    -- 다른 구매자의 교환글. 해당 종류를 가진 티켓을 골라 글에 붙인다.
-    for v_listing in select * from jsonb_array_elements(v_cfg->'listings') loop
-      select t.id into v_ticket
-        from kuji_tickets t
-        join kuji_prize_variants hv on hv.id = t.variant_id
-       where t.kuji_id = v_event and t.grade = v_listing->>'grade' and hv.label = v_listing->>'have'
-         and not exists (select 1 from kuji_swap_listings x where x.ticket_id = t.id)
-       order by t.number
-       limit 1;
-
-      select v.id into v_want
-        from kuji_prize_variants v
-       where v.kuji_id = v_event and v.grade = v_listing->>'grade' and v.label = v_listing->>'want';
-
-      if v_ticket is not null and v_want is not null then
-        update kuji_tickets
-           set sold_at = now() - interval '1 day', opened_at = now() - interval '1 day',
-               seed_owner_name = v_listing->>'nick'
-         where id = v_ticket;
-
-        insert into kuji_swap_listings (kuji_id, ticket_id, user_id, grade, want_variant_id, created_at)
-        values (v_event, v_ticket, null, v_listing->>'grade', v_want, now() - ((v_listing->>'minutes') || ' minutes')::interval);
-      end if;
-    end loop;
   end loop;
 end
 $$;
