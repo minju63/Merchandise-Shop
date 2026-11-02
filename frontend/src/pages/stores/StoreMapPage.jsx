@@ -3,10 +3,12 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { storeApi } from '../../api/store.api.js';
 import { StoreHeader, TabBar, PageState, ImageWithFallback } from './components/StoreShell.jsx';
-import StoreFilter from './components/StoreFilter.jsx';
+import StoreSort from './components/StoreSort.jsx';
+import StoreRegionSelect from './components/StoreRegionSelect.jsx';
+import StoreConditions from './components/StoreConditions.jsx';
 import Icon from './components/Icon.jsx';
 import InventoryMap from './components/InventoryMap.jsx';
-import { useStoreLocation } from './storeListTools.js';
+import { sortOptions, useStoreLocation } from './storeListTools.js';
 import './StoreMapPage.css';
 
 const EMPTY = [];
@@ -23,8 +25,8 @@ export default function StoreMapPage() {
   const [viewport, setViewport] = useState(null);
   const [center, setCenter] = useState(() => search.has('latitude') && search.has('longitude')
     ? { lat: Number(search.get('latitude')), lng: Number(search.get('longitude')) } : null);
-  const [locationReady, setLocationReady] = useState(() => search.has('latitude') || search.has('regionId') || search.has('south'));
-  const { locate, locating, message } = useStoreLocation();
+  const [locationReady, setLocationReady] = useState(() => search.has('latitude') || search.has('region') || search.has('regionId') || search.has('south'));
+  const { locate, message } = useStoreLocation();
   useEffect(() => {
     if (locationReady) return;
     let active = true;
@@ -34,7 +36,7 @@ export default function StoreMapPage() {
         setCenter(point);
         setSearch((current) => {
           // Preserve filters changed while the browser was asking for location access.
-          if (current.has('regionId') || current.has('latitude') || current.has('south')) return current;
+          if (current.has('region') || current.has('regionId') || current.has('latitude') || current.has('south')) return current;
           const next = new URLSearchParams(current);
           next.set('latitude', String(point.lat));
           next.set('longitude', String(point.lng));
@@ -49,7 +51,8 @@ export default function StoreMapPage() {
     // Request location only on entry; later searches and region changes remain user-controlled.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const filters = Object.fromEntries(['openNow', 'pickup', 'delivery'].map((k) => [k, search.get(k) === 'true']));
+  const filters = { regionId: search.get('regionId') || '',
+    ...Object.fromEntries(['openNow', 'pickup', 'delivery'].map((key) => [key, search.get(key) === 'true'])) };
   const productId = search.get('productId');
   const update = (values) => {
     const next = new URLSearchParams(search);
@@ -61,6 +64,7 @@ export default function StoreMapPage() {
     setSelectedId(null);
   };
   const params = Object.fromEntries([...search].filter(([k]) => !['view', 'productName'].includes(k)));
+  if (params.sort === 'newest') params.sort = 'popular';
   const { data, isPending, isError, error, refetch, isFetching, dataUpdatedAt } = useQuery({
     queryKey: ['store-map', params], queryFn: () => storeApi.map(params), refetchInterval: 30000,
     enabled: locationReady,
@@ -130,7 +134,11 @@ export default function StoreMapPage() {
     || result?.product?.thumbnail_url;
   const locateStores = async () => {
     const point = await locate();
-    if (point) { setCenter(point); update({ latitude: point.lat, longitude: point.lng, radius: 20, sort: 'distance', regionId: null, south: null, north: null, east: null, west: null }); }
+    if (point) {
+      setCenter(point);
+      update({ latitude: point.lat, longitude: point.lng, radius: 20, sort: 'distance',
+        region: null, district: null, regionId: null, south: null, north: null, east: null, west: null });
+    }
   };
   const card = (store) => <article className={`inventory-card${store.id === activeId ? ' is-active' : ''}`} key={store.id} data-store-id={store.id}>
     <Link to={productId && store.storeProductId ? `/products/${store.storeProductId}` : `/stores/${store.id}`} className="inventory-card-main">
@@ -166,12 +174,16 @@ export default function StoreMapPage() {
       </div>
       <button type="button" onClick={() => update({ productId: null, productName: null, inStock: null })} aria-label="상품 선택 해제">✕</button>
     </section>}
-    <StoreFilter filters={filters} onChange={(key) => update({ [key]: !filters[key] })} />
     <div className="inventory-controls">
-      {productId && <button className={`filter-chip ${search.get('inStock') === 'true' ? 'selected' : ''}`} aria-pressed={search.get('inStock') === 'true'} onClick={() => update({ inStock: search.get('inStock') !== 'true' })}>재고 있는 매장만</button>}
-      <select aria-label="선택 지역" value={search.get('regionId') || ''} onChange={(e) => update({ regionId: e.target.value, south: null, north: null, west: null, east: null, radius: null })}><option value="">전체 지역</option>{result?.regions.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}</select>
-      <select aria-label="매장 정렬" value={search.get('sort') || 'popular'} onChange={(e) => e.target.value === 'distance' ? locateStores() : update({ sort: e.target.value })}><option value="popular">인기순</option>{productId && <option value="stock">재고 많은 순</option>}<option value="distance">가까운 매장</option></select>
-      <button className="filter-chip" onClick={locateStores} disabled={locating}>{locating ? '위치 확인 중' : '내 주변'}</button>
+      {productId && <button type="button" className={`filter-chip ${search.get('inStock') === 'true' ? 'selected' : ''}`} aria-pressed={search.get('inStock') === 'true'} onClick={() => update({ inStock: search.get('inStock') !== 'true' })}>재고 있는 매장만</button>}
+      <StoreRegionSelect region={search.get('region') || result?.regions.find((region) => region.id === search.get('regionId'))?.name || ''}
+        district={search.get('district') || ''}
+        onChange={(region, district) => update({ region, district, regionId: null, south: null, north: null, west: null, east: null, radius: null })} />
+      <StoreSort value={['popular', 'distance'].includes(search.get('sort')) ? search.get('sort') : 'popular'}
+        options={sortOptions.filter((option) => ['popular', 'distance'].includes(option.value))
+          .map((option) => ({ ...option, label: option.value === 'popular' ? '인기 매장' : '가까운 매장' }))}
+        onChange={(value) => value === 'distance' ? locateStores() : update({ sort: value })} />
+      <StoreConditions filters={filters} onChange={(key) => update({ [key]: filters[key] ? null : true })} />
     </div>
     {message && <p role="status">{message} 지역을 선택하거나 검색해서 찾아보세요.</p>}
     <div className="inventory-result-count" role="status">{!locationReady ? '현재 위치 확인 중…' : isFetching ? '재고 확인 중…' : isError ? '조회 실패' : items.length ? `${items.length}개 매장` : '검색 결과가 없습니다'}{dataUpdatedAt > 0 && <small> · {new Date(dataUpdatedAt).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })} 조회</small>}</div>

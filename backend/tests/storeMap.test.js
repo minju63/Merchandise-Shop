@@ -20,6 +20,39 @@ function fixture() {
     regions: [{ id: 'seoul', name: '서울' }], hours: [],
   };
 }
+
+test('매장 유무와 관계없이 전체 구 목록을 제공하고 선택한 구만 검색한다', () => {
+  const data = fixture();
+  data.stores[0].address = '부산광역시 사하구 낙동대로';
+  data.stores[1].address = '부산광역시 부산진구 중앙대로';
+  const result = buildMapResult(data, { region: '부산', district: '사하구' });
+  assert.equal(result.districts.length, 16);
+  assert.ok(result.districts.includes('해운대구'));
+  assert.deepEqual(result.items.map((store) => store.id), ['a']);
+  assert.equal(buildMapResult(data, { region: '부산', district: '강남구' }).items.length, 0);
+  assert.throws(() => parseMapQuery({ district: '사하구' }), { status: 400 });
+  assert.equal(buildMapResult(data, { region: '서울' }).districts.length, 25);
+  data.stores[0].address = '경기도 수원시 영통구 광교로';
+  assert.deepEqual(buildMapResult(data, { region: '경기', district: '수원시 영통구' }).items.map((store) => store.id), ['a']);
+});
+
+test('DB 지역 목록에 없어도 전국 지역을 주소로 검색한다', () => {
+  const data = fixture();
+  data.stores[0].address = '부산광역시 사하구';
+  assert.deepEqual(buildMapResult(data, { region: '부산' }).items.map((store) => store.id), ['a']);
+  assert.equal(buildMapResult(data, { region: '제주' }).items.length, 0);
+  assert.equal(parseMapQuery({ region: '부산' }).region, '부산');
+  assert.throws(() => parseMapQuery({ region: '없는 지역' }), { status: 400 });
+});
+
+test('지도 신규 입점순은 매장 등록일이 최신인 순서로 정렬한다', () => {
+  const data = fixture();
+  data.stores[0].created_at = '2026-10-30T00:00:00Z';
+  data.stores[1].created_at = '2026-11-01T00:00:00Z';
+  data.stores[2].created_at = '2026-10-31T00:00:00Z';
+  assert.deepEqual(buildMapResult(data, { sort: 'newest' }).items.map((store) => store.id), ['b', 'c', 'a']);
+  assert.equal(parseMapQuery({ sort: 'newest' }).sort, 'newest');
+});
 test('상품 마커는 판매·품절만 표시하고 SOLD_OUT의 잔여 수량은 구매 가능으로 판정하지 않는다', () => {
   const result = buildMapResult(fixture(), { productId: 'p', sort: 'stock' });
   assert.deepEqual(result.items.map((s) => s.id), ['a', 'b']);

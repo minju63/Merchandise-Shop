@@ -127,11 +127,10 @@ export async function listProductReviews(storeProductId, { sort = "latest", page
   const sale = await findSale(storeProductId);
   if (!sale || ["HIDDEN", "DELETED"].includes(sale.status))
     throw failure(404, "PRODUCT_NOT_FOUND", "상품을 찾을 수 없어요.");
-  const { rows, totalCount } = await repository.getPublicProductReviews(sale.product_id, {
-    sort,
-    page,
-    size,
-  });
+  const [{ rows, totalCount }, summary] = await Promise.all([
+    repository.getPublicProductReviews(sale.product_id, { sort, page, size }),
+    repository.getPublicProductReviewSummary(sale.product_id),
+  ]);
   const relations = await repository.getStoreReviewRelations(rows);
   const users = new Map(relations.users.map((row) => [row.id, row.nickname]));
   return {
@@ -150,6 +149,7 @@ export async function listProductReviews(storeProductId, { sort = "latest", page
     size,
     totalCount,
     totalPages: Math.ceil(totalCount / size),
+    summary,
   };
 }
 function page(rows, options) {

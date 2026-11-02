@@ -371,6 +371,21 @@ export async function getPublicProductReviews(productId, { sort, page, size }) {
   return { rows: result.data ?? [], totalCount: result.count ?? 0 };
 }
 
+export function summarizeProductReviews(rows) {
+  const count = rows.length;
+  return {
+    reviewCount: count,
+    averageRating: count ? Math.round(rows.reduce((sum, row) => sum + Number(row.rating), 0) / count * 10) / 10 : null,
+    satisfactionPercent: count ? Math.round(rows.filter((row) => Number(row.rating) >= 4).length / count * 100) : null,
+  };
+}
+
+export async function getPublicProductReviewSummary(productId) {
+  return summarizeProductReviews(await all('reviews', 'id,rating', [
+    ['eq', 'product_id', productId], ['eq', 'is_hidden', false], ['is', 'deleted_at', null],
+  ]));
+}
+
 // ───── 여경 — 굿즈샵 리뷰 (develop 901aa29 에서 원문 그대로 가져옴) ─────
 
 // 여경 — 굿즈샵 상세에서 사용 (store.service.js / store.routes.js)

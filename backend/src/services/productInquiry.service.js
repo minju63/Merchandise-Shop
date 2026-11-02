@@ -24,15 +24,17 @@ export function createProductInquiryService({ repository, products }) {
   }
 
   async function getProductInquiries(storeProductId, { page = 1, size = 20, userId } = {}) {
-    if (!userId) return { items: [], page, size, totalCount: 0 };
     const target = await validateInquiryTarget(storeProductId);
+    const samples = typeof repository.findDemoByStoreId === 'function'
+      ? await repository.findDemoByStoreId(target.storeId) : [];
+    if (!userId) return { items: [], samples, page, size, totalCount: 0 };
     requireMethod('findByStoreId');
     const { items, totalCount } = await repository.findByStoreId(target.storeId, {
       page,
       size,
       userId,
     });
-    return { items, page, size, totalCount };
+    return { items, samples, page, size, totalCount };
   }
 
   async function createProductInquiry({ storeProductId, userId, content, title } = {}) {

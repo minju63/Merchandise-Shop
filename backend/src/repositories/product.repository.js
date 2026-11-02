@@ -1,13 +1,16 @@
 import { supabase } from '../lib/supabase.js';
 
+function normalizeProductIds(productIds = []) {
+  if (!Array.isArray(productIds)) return [];
+  return [...new Set(productIds.filter((id) => id !== null && id !== undefined && id !== ''))];
+}
+
 export function createProductRepository(client) {
   return {
     async findById(id) {
-      const { data, error } = await client
-        .from('products')
-        .select('*')
-        .eq('id', id)
-        .maybeSingle();
+      if (id === null || id === undefined || id === '') return null;
+
+      const { data, error } = await client.from('products').select('*').eq('id', id).maybeSingle();
 
       if (error) {
         throw Object.assign(
@@ -33,26 +36,42 @@ export const findById = repository.findById;
 export async function findSimilarityCandidates() {
   const rows = [];
   for (let offset = 0; ; offset += 1000) {
-    const { data, error } = await supabase.from('products')
+    const { data, error } = await supabase
+      .from('products')
       .select('id,name,brand,work_title,character_name')
-      .order('id').range(offset, offset + 999);
+      .order('id')
+      .range(offset, offset + 999);
+
     if (error) throw error;
-    rows.push(...(data ?? []));
-    if (!data || data.length < 1000) return rows;
+
+    const page = data ?? [];
+    rows.push(...page);
+    if (page.length < 1000) return rows;
   }
 }
 
-export async function getProducts(productIds) {
-  if (!productIds.length) return [];
+export async function getProducts(productIds = []) {
+  const ids = normalizeProductIds(productIds);
+  if (ids.length === 0) return [];
+
   const rows = [];
-  for (let start = 0; start < productIds.length; start += 100) {
-    const ids = productIds.slice(start, start + 100);
+  for (let start = 0; start < ids.length; start += 100) {
+    const batch = ids.slice(start, start + 100);
+
     for (let offset = 0; ; offset += 1000) {
-      const { data, error } = await supabase.from('products').select('*').in('id', ids).range(offset, offset + 999);
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .in('id', batch)
+        .range(offset, offset + 999);
+
       if (error) throw error;
-      rows.push(...(data || []));
-      if (!data || data.length < 1000) break;
+
+      const page = data ?? [];
+      rows.push(...page);
+      if (page.length < 1000) break;
     }
   }
+
   return rows;
 }
