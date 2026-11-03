@@ -4,7 +4,7 @@ import FanBoard from '../fan/FanBoard.jsx';
 import { defaultDesign } from '../fan/fanBoardPresets.js';
 import './FanGuideChoice.css';
 
-const PRICE_PER_DAY = 500000;
+const PRICE_PER_DAY = 100000;
 const won = (value) => value.toLocaleString('ko-KR');
 
 const SLOTS = [

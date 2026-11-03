@@ -16,7 +16,7 @@ export default function SimilarStoreSection({ storeProductId, productName, store
       <div className="category-similar-heading">
         <h2>비슷한 상품을 취급하는 다른 굿즈샵</h2>
         {stores.length > 0 && (
-          <Link to={`/search/results?${new URLSearchParams({ tab: 'shops', similarTo: storeProductId })}`} aria-label={`${productName} 관련 굿즈샵 전체보기`}>
+          <Link to={`/search/results?${new URLSearchParams({ q: productName, tab: 'shops', similarTo: storeProductId })}`} aria-label={`${productName} 관련 굿즈샵 전체보기`}>
             전체보기 ›
           </Link>
         )}

@@ -425,8 +425,8 @@ export async function deleteDayCongrats(userId, date, congratsId) {
   }
 }
 
-// ── 유료 전광판 게시: 하루 500,000원, 연속·분할 선택 가능
-export const BILLBOARD_PRICE_PER_DAY = 500000;
+// ── 유료 전광판 게시: 하루 100,000원, 연속·분할 선택 가능
+export const BILLBOARD_PRICE_PER_DAY = 100000;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const isoDate = (date) => date.toISOString().slice(0, 10);
 

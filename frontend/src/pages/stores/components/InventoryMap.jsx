@@ -62,7 +62,8 @@ export default function InventoryMap({ items, productMode, selectedId, onSelect,
       label.className = 'inventory-pin-label';
       label.textContent = store.name;
       button.append(symbol, label);
-      if (productMode) {
+      // 재고가 10개 이하일 때만 개수를 보여주고, 11개 이상이면 매장 아이콘만 보인다.
+      if (productMode && store.stock <= 10) {
         const stock = document.createElement('span');
         stock.className = 'inventory-pin-stock';
         stock.textContent = `${store.stock}개${store.inStock ? '' : ' · 품절'}`;

@@ -178,7 +178,7 @@ export default function FanBillboardRoute() {
   const methods = useQuery({ queryKey: ['fan-payment-methods'], queryFn: listPaymentMethods, enabled: loggedIn, retry: false });
   const bankAccounts = (methods.data?.items ?? []).filter((item) => item.method_type === 'BANK_ACCOUNT');
 
-  const pricePerDay = availability.data?.data.pricePerDay ?? 500000;
+  const pricePerDay = availability.data?.data.pricePerDay ?? 100000;
   const blocked = availability.data?.data.blocked ?? {};
   const total = pricePerDay * dates.length;
 

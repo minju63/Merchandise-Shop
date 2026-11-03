@@ -77,6 +77,8 @@
 .co-footer { position: fixed; left: 50%; bottom: 0; width: 100%; max-width: 430px; box-sizing: border-box; padding: 12px 16px 20px; transform: translateX(-50%); background: #fff; border-top: 1px solid var(--co-line); z-index: 5; }
 .co-pay { display: block; width: 100%; box-sizing: border-box; padding: 16px; border-radius: 12px; background: var(--co-btn); color: var(--co-btn-text); font-size: 16px; font-weight: 700; text-align: center !important; }
 .co-pay:disabled { opacity: 0.5; cursor: default; }
+/* 장바구니처럼 .co-page 밖에서 열려도 시트 색(선택 점·버튼)이 나오도록 변수를 시트에도 둔다 */
+.co-sheet { --co-text: #1c1b22; --co-sub: #6b6878; --co-faint: #abaab3; --co-line: #e6e5ed; --co-soft: #f7f6fa; --co-primary: #5b45d6; --co-primary-soft: #efebfe; --co-btn: #b4a5f8; --co-btn-text: #231a4f; --co-error: #d23b3b; }
 .co-sheet__body { margin-top: 12px; }
 .co-sheet .ord-btn { margin-top: 12px; }
 .co-sheet { transition: transform 180ms ease-out; will-change: transform; padding-bottom: calc(20px + env(safe-area-inset-bottom)); overscroll-behavior: contain; max-height: 92dvh; animation: co-sheet-enter 180ms ease-out; }
