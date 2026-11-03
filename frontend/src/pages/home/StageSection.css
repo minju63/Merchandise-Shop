@@ -512,3 +512,34 @@
   filter: drop-shadow(0 8px 10px rgb(0 0 0 / 50%));
   animation: stage-bob 2s ease-in-out infinite;
 }
+
+/* 폰 화면에서 무대 배너(16:9 고정)가 잘리지 않도록, 배너 너비에 맞춰 안쪽 요소만 같이 줄인다.
+   cqw = 배너 안쪽 너비의 1%. min()으로 큰 화면에서는 기존 크기를 넘지 않는다. */
+@supports (width: 1cqw) {
+  .promo-banner--stage {
+    container-type: inline-size;
+  }
+
+  .stage-banner {
+    gap: min(6px, 1.2cqw);
+  }
+
+  .stage-banner__title { font-size: min(22.5px, 5.4cqw); }
+  .stage-banner__title .stage-live { padding: 1px 5px; font-size: min(13.5px, 3.2cqw); }
+  .stage-banner__sub { margin-top: 1px; font-size: min(13.5px, 3.3cqw); }
+
+  .stage-banner__cutout { height: min(120px, 30cqw); }
+  .stage-banner__figure { width: min(96px, 24cqw); height: min(96px, 24cqw); }
+  .stage-banner__hero { margin-bottom: min(6px, 1.4cqw); }
+  .stage-banner__floor { height: min(14px, 3.4cqw); }
+
+  .stage-banner__list-head { margin-bottom: min(5px, 1cqw); }
+  .stage-banner__label { font-size: min(10px, 2.5cqw); }
+  .stage-banner__ranks { gap: min(3px, 0.6cqw); }
+  .stage-banner__ranks li { height: min(28px, 6cqw); gap: min(5px, 1.1cqw); font-size: min(13px, 3cqw); }
+  .stage-banner__rank { width: min(12px, 2.8cqw); font-size: min(13px, 3cqw); }
+  .stage-banner__who b { font-size: min(13px, 3cqw); }
+  .stage-banner__who small { font-size: min(9px, 2.1cqw); }
+  .stage-banner__score { font-size: min(11px, 2.7cqw); }
+  .stage-banner__ranks .stage-face { width: min(24px, 5.4cqw) !important; height: min(24px, 5.4cqw) !important; font-size: min(10px, 2.2cqw) !important; }
+}
